@@ -4,6 +4,7 @@
 *.c text
 *.h text
 *.txt text
+*.rst
 
 # Binary files that should not be normalized
 *.a binary
