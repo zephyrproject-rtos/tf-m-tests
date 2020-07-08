@@ -7,11 +7,12 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-#Tell cmake where our modules can be found
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
+if (NOT DEFINED TFM_ROOT_DIR)
+	set(TFM_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../trusted-firmware-m)
+endif()
 
-#Tell TFM Root before calling sub cmake
-get_filename_component(TFM_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+#Tell cmake where our modules can be found
+list(APPEND CMAKE_MODULE_PATH ${TFM_ROOT_DIR}/cmake)
 
 #Include common stuff to control cmake.
 include("Common/BuildSys")

@@ -33,6 +33,7 @@ endif()
 
 embedded_include_directories(PATH ${TFM_ROOT_DIR}/secure_fw/spm ABSOLUTE)
 embedded_include_directories(PATH ${TFM_ROOT_DIR}/bl2/include ABSOLUTE)
+embedded_include_directories(PATH ${TEST_DIR}/.. ABSOLUTE)
 
 # Include the test framework
 include(${CMAKE_CURRENT_LIST_DIR}/framework/CMakeLists.inc)

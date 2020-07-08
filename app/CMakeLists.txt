@@ -9,11 +9,13 @@ cmake_minimum_required(VERSION 3.7)
 
 set(TFM_BUILD_IN_SPE OFF)
 
-#Tell cmake where our modules can be found
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
+if (NOT DEFINED TFM_ROOT_DIR)
+	set(TFM_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../trusted-firmware-m)
+endif()
 
-set(APP_DIR ${CMAKE_CURRENT_LIST_DIR})
-get_filename_component(TFM_ROOT_DIR ${APP_DIR}/.. ABSOLUTE)
+#Tell cmake where our modules can be found
+list(APPEND CMAKE_MODULE_PATH ${TFM_ROOT_DIR}/cmake)
+
 set(INTERFACE_DIR ${TFM_ROOT_DIR}/interface)
 
 #Include common stuff to control cmake.
@@ -29,11 +31,7 @@ set(MCUBOOT_DIR "${TFM_ROOT_DIR}/bl2/ext/mcuboot")
 include("${MCUBOOT_DIR}/MCUBoot.cmake")
 
 #CMSIS
-get_filename_component(CMSIS_DIR ${TFM_ROOT_DIR}/../tf-m-tests/CMSIS ABSOLUTE)
-
-if(NOT EXISTS ${CMSIS_DIR})
-	message(FATAL_ERROR "Missing CMSIS. Please clone the tf-m-tests repo.")
-endif()
+set(CMSIS_DIR ${CMAKE_CURRENT_LIST_DIR}/../CMSIS)
 
 if (NOT DEFINED BL2)
 	message(FATAL_ERROR "Incomplete build configuration: BL2 is undefined. ")
@@ -67,13 +65,13 @@ if (NOT DEFINED TFM_PSA_API)
 	message(FATAL_ERROR "Incomplete build configuration: TFM_PSA_API is undefined.")
 endif()
 
-embedded_include_directories(PATH ${TFM_ROOT_DIR}/app ABSOLUTE)
+embedded_include_directories(PATH ${CMAKE_CURRENT_LIST_DIR} ABSOLUTE)
 
 set(NS_APP_SRC "${CMSIS_DIR}/RTOS2/RTX/Config/RTX_Config.c"
 	"${CMSIS_DIR}/RTOS2/RTX/Source/rtx_lib.c"
-	"${APP_DIR}/main_ns.c"
-	"${APP_DIR}/tfm_integ_test.c"
-	"${APP_DIR}/os_wrapper_cmsis_rtos_v2.c"
+	"${CMAKE_CURRENT_LIST_DIR}/main_ns.c"
+	"${CMAKE_CURRENT_LIST_DIR}/tfm_integ_test.c"
+	"${CMAKE_CURRENT_LIST_DIR}/os_wrapper_cmsis_rtos_v2.c"
 	"${TFM_ROOT_DIR}/interface/src/log/tfm_log_raw.c"
 	)
 
@@ -139,7 +137,7 @@ elseif (TFM_NS_CLIENT_IDENTIFICATION)
 endif()
 
 if (PSA_API_TEST_NS)
-	list(APPEND NS_APP_SRC "${APP_DIR}/psa_api_test.c")
+	list(APPEND NS_APP_SRC "${CMAKE_CURRENT_LIST_DIR}/psa_api_test.c")
 endif()
 
 if (TFM_PSA_API)
@@ -208,6 +206,7 @@ embedded_target_include_directories(TARGET ${PROJECT_OBJ_LIB} PATH ${TFM_ROOT_DI
 embedded_target_include_directories(TARGET ${PROJECT_OBJ_LIB} PATH ${CMSIS_DIR}/RTOS2/RTX/Include ABSOLUTE APPEND)
 embedded_target_include_directories(TARGET ${PROJECT_OBJ_LIB} PATH ${CMSIS_DIR}/RTOS2/Include ABSOLUTE APPEND)
 embedded_target_include_directories(TARGET ${PROJECT_OBJ_LIB} PATH ${CMSIS_DIR}/RTOS2/RTX/Config  ABSOLUTE APPEND)
+embedded_target_include_directories(TARGET ${PROJECT_OBJ_LIB} PATH ${TEST_DIR}/..  ABSOLUTE APPEND)
 
 if (NOT DEFINED TFM_NS_CLIENT_IDENTIFICATION)
 	message(FATAL_ERROR "Incomplete build configuration: TFM_NS_CLIENT_IDENTIFICATION is undefined.")
