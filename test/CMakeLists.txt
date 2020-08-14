@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 if (NOT DEFINED TFM_ROOT_DIR)
-	set(TFM_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../trusted-firmware-m)
+	set(TFM_ROOT_DIR ${CMAKE_SOURCE_DIR})
 endif()
 
 #Tell cmake where our modules can be found
