@@ -29,28 +29,34 @@ endif()
 if (NOT DEFINED ENABLE_CORE_TESTS)
 	message(FATAL_ERROR "Incomplete build configuration: ENABLE_CORE_TESTS is undefined. ")
 elseif(ENABLE_CORE_TESTS)
-	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_core_test/tfm_ss_core_test.c")
+	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_core_test/tfm_ss_core_test.c"
+		"${CORE_TEST_DIR}/tfm_core_test/auto_generated/intermedia_tfm_ss_core_test.c")
 endif()
 
 if (NOT DEFINED ENABLE_CORE_TESTS_2)
 	message(FATAL_ERROR "Incomplete build configuration: ENABLE_CORE_TESTS_2 is undefined. ")
 elseif(ENABLE_CORE_TESTS_2)
-	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_core_test_2/tfm_ss_core_test_2.c")
+	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_core_test_2/tfm_ss_core_test_2.c"
+		"${CORE_TEST_DIR}/tfm_core_test_2/auto_generated/intermedia_tfm_ss_core_test_2.c")
 endif()
 
 if (NOT DEFINED ENABLE_IRQ_TEST_SERVICES)
 	message(FATAL_ERROR "Incomplete build configuration: ENABLE_IRQ_TEST_SERVICES is undefined. ")
 elseif(ENABLE_IRQ_TEST_SERVICES)
 	list(APPEND ALL_SRC_C_S
-		"${CORE_TEST_DIR}/tfm_irq_test_service_1/tfm_irq_test_service_1.c")
+		"${CORE_TEST_DIR}/tfm_irq_test_service_1/tfm_irq_test_service_1.c"
+		"${CORE_TEST_DIR}/tfm_irq_test_service_1/auto_generated/intermedia_tfm_irq_test_service_1.c")
 endif()
 
 if (NOT DEFINED TFM_PARTITION_TEST_SECURE_SERVICES)
 	message(FATAL_ERROR "Incomplete build configuration: TFM_PARTITION_TEST_SECURE_SERVICES is undefined. ")
 elseif (TFM_PARTITION_TEST_SECURE_SERVICES)
-	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_secure_client_service/tfm_secure_client_service.c"
+	list(APPEND ALL_SRC_C_S
+		"${CORE_TEST_DIR}/tfm_secure_client_service/tfm_secure_client_service.c"
+		"${CORE_TEST_DIR}/tfm_secure_client_service/auto_generated/intermedia_tfm_secure_client_service.c"
 		"${CORE_TEST_DIR}/tfm_secure_client_2/tfm_secure_client_2.c"
-		"${CORE_TEST_DIR}/tfm_secure_client_2/tfm_secure_client_2_api.c")
+		"${CORE_TEST_DIR}/tfm_secure_client_2/tfm_secure_client_2_api.c"
+		"${CORE_TEST_DIR}/tfm_secure_client_2/auto_generated/intermedia_tfm_secure_client_2.c")
 
 	list(APPEND ALL_SRC_C_NS "${CORE_TEST_DIR}/tfm_secure_client_service/tfm_secure_client_service_api.c")
 endif()
@@ -59,7 +65,9 @@ if (NOT DEFINED TFM_PARTITION_TEST_CORE_IPC)
 	message(FATAL_ERROR "Incomplete build configuration: TFM_PARTITION_TEST_CORE_IPC is undefined. ")
 elseif (TFM_PARTITION_TEST_CORE_IPC)
 	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_ipc_service/tfm_ipc_service_test.c"
+		"${CORE_TEST_DIR}/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c"
 		"${CORE_TEST_DIR}/tfm_ipc_client/tfm_ipc_client_test.c"
+		"${CORE_TEST_DIR}/tfm_ipc_client/auto_generated/intermedia_tfm_ipc_client_test.c"
 		)
 endif()
 
@@ -67,7 +75,8 @@ if (NOT DEFINED TFM_PARTITION_TEST_PS)
 	message(FATAL_ERROR "Incomplete build configuration: TFM_PARTITION_TEST_PS is undefined.")
 elseif (TFM_PARTITION_TEST_PS)
 	list(APPEND ALL_SRC_C_S "${CORE_TEST_DIR}/tfm_ps_test_service/tfm_ps_test_service.c"
-		"${CORE_TEST_DIR}/tfm_ps_test_service/tfm_ps_test_service_api.c")
+		"${CORE_TEST_DIR}/tfm_ps_test_service/tfm_ps_test_service_api.c"
+		"${CORE_TEST_DIR}/tfm_ps_test_service/auto_generated/intermedia_tfm_ps_test_service.c")
 endif()
 
 embedded_include_directories(PATH ${TFM_ROOT_DIR} ABSOLUTE)
