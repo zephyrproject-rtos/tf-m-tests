@@ -8,7 +8,7 @@
 #include "attest_public_key.h"
 #include "psa/crypto.h"
 #include <stdint.h>
-#include "attestation.h"
+#include "attest.h"
 
 /*!
  * \def ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH

@@ -7,7 +7,7 @@
 
 #include "attestation_ns_tests.h"
 #include "psa/initial_attestation.h"
-#include "attestation.h"
+#include "attest.h"
 #include "../attestation_tests_common.h"
 #include "../attest_token_test_values.h"
 #include "../attest_token_test.h"
