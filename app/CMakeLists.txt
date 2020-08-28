@@ -72,7 +72,7 @@ set(NS_APP_SRC "${CMSIS_DIR}/RTOS2/RTX/Config/RTX_Config.c"
 	"${CMAKE_CURRENT_LIST_DIR}/main_ns.c"
 	"${CMAKE_CURRENT_LIST_DIR}/tfm_integ_test.c"
 	"${CMAKE_CURRENT_LIST_DIR}/os_wrapper_cmsis_rtos_v2.c"
-	"${TFM_ROOT_DIR}/interface/src/log/tfm_log_raw.c"
+	"${CMAKE_CURRENT_LIST_DIR}/../log/tfm_log_raw.c"
 	)
 
 if (NOT DEFINED TFM_MULTI_CORE_TOPOLOGY OR NOT TFM_MULTI_CORE_TOPOLOGY)

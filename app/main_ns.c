@@ -25,7 +25,7 @@
 #include "tfm_ns_mailbox.h"
 #endif
 #include "log/tfm_assert.h"
-#include "log/tfm_log.h"
+#include "tfm_log.h"
 #include "uart_stdout.h"
 #include "region.h"
 

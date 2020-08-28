@@ -150,11 +150,12 @@ if ((NOT TARGET tfm_qcbor_encode OR NOT TARGET tfm_qcbor_decode) AND (ENABLE_ATT
 	add_subdirectory(${TFM_ROOT_DIR}/lib/ext/qcbor ${CMAKE_CURRENT_BINARY_DIR}/qcbor)
 endif()
 
+set(TEST_SRC "${CMAKE_CURRENT_LIST_DIR}/../log/tfm_log_raw.c")
 if (TFM_BUILD_IN_SPE)
 	#Build the secure library. Even though secure tests files depend on
 	#tfm_qcbor, this is not expressed here as the tfm_attest library is expected
 	#to hold the compiled tfm_qcbor files.
-	add_library(tfm_secure_tests STATIC ${ALL_SRC_C} ${ALL_SRC_C_S})
+	add_library(tfm_secure_tests STATIC ${ALL_SRC_C} ${ALL_SRC_C_S} ${TEST_SRC})
 	if (ENABLE_ATTESTATION_SERVICE_TESTS)
 		target_sources(tfm_secure_tests PRIVATE $<TARGET_OBJECTS:tfm_t_cose_verify> $<TARGET_OBJECTS:tfm_qcbor_decode>)
 	endif()
@@ -182,7 +183,7 @@ if (TFM_BUILD_IN_SPE)
 else ()
 	#Build the non-secure library
 	set(CMAKE_STATIC_LIBRARY_PREFIX_C "lib")
-	add_library(tfm_non_secure_tests STATIC ${ALL_SRC_C} ${ALL_SRC_C_NS})
+	add_library(tfm_non_secure_tests STATIC ${ALL_SRC_C} ${ALL_SRC_C_NS} ${TEST_SRC})
 
 	embedded_target_include_directories(TARGET tfm_non_secure_tests PATH ${CMSIS_DIR}/RTOS2/Include ABSOLUTE APPEND)
 
