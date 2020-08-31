@@ -13,7 +13,7 @@
 #include "test/suites/ps/secure/ps_tests.h"
 #include "test/suites/its/secure/its_s_tests.h"
 #include "test/suites/audit/secure/audit_s_tests.h"
-#include "test/suites/attestation/secure/attestation_s_tests.h"
+#include "test/suites/attestation/secure/attest_s_tests.h"
 #include "test/suites/crypto/secure/crypto_s_tests.h"
 #include "test/suites/ipc/secure/ipc_s_tests.h"
 #include "test/suites/platform/secure/platform_s_tests.h"

@@ -49,23 +49,23 @@ elseif(ENABLE_ATTESTATION_SERVICE_TESTS)
 
 	if (SYMMETRIC_INITIAL_ATTESTATION)
 		list(APPEND ATTEST_TEST_SRC_S
-			"${ATTESTATION_TEST_DIR}/secure/symmetric_attest_s_interface_testsuite.c"
-			"${ATTESTATION_TEST_DIR}/attest_symmetric_iat_decode.c"
+			"${ATTESTATION_TEST_DIR}/secure/attest_symmetric_s_interface_testsuite.c"
+			"${ATTESTATION_TEST_DIR}/attest_token_decode_symmetric.c"
 		)
 		list(APPEND ATTEST_TEST_SRC_NS
-			"${ATTESTATION_TEST_DIR}/non_secure/symmetric_attest_ns_interface_testsuite.c"
-			"${ATTESTATION_TEST_DIR}/attest_symmetric_iat_decode.c"
+			"${ATTESTATION_TEST_DIR}/non_secure/attest_symmetric_ns_interface_testsuite.c"
+			"${ATTESTATION_TEST_DIR}/attest_token_decode_symmetric.c"
 		)
 	else()
 		list(APPEND ATTEST_TEST_SRC_S
-			"${ATTESTATION_TEST_DIR}/secure/attestation_s_interface_testsuite.c"
+			"${ATTESTATION_TEST_DIR}/secure/attest_asymmetric_s_interface_testsuite.c"
 			"${ATTESTATION_TEST_DIR}/attest_public_key.c"
-			"${ATTESTATION_TEST_DIR}/attest_token_decode.c"
+			"${ATTESTATION_TEST_DIR}/attest_token_decode_asymmetric.c"
 		)
 		list(APPEND ATTEST_TEST_SRC_NS
-			"${ATTESTATION_TEST_DIR}/non_secure/attestation_ns_interface_testsuite.c"
+			"${ATTESTATION_TEST_DIR}/non_secure/attest_asymmetric_ns_interface_testsuite.c"
 			"${ATTESTATION_TEST_DIR}/attest_public_key.c"
-			"${ATTESTATION_TEST_DIR}/attest_token_decode.c"
+			"${ATTESTATION_TEST_DIR}/attest_token_decode_asymmetric.c"
 		)
 	endif()
 

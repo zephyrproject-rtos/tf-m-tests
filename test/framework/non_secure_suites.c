@@ -14,7 +14,7 @@
 #include "test/suites/its/non_secure/its_ns_tests.h"
 #include "test/suites/audit/non_secure/audit_ns_tests.h"
 #include "test/suites/crypto/non_secure/crypto_ns_tests.h"
-#include "test/suites/attestation/non_secure/attestation_ns_tests.h"
+#include "test/suites/attestation/non_secure/attest_ns_tests.h"
 #include "test/suites/qcbor/non_secure/qcbor_ns_tests.h"
 #include "test/suites/t_cose/non_secure/t_cose_ns_tests.h"
 #include "test/suites/core/non_secure/core_ns_tests.h"
