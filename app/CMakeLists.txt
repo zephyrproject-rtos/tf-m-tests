@@ -37,6 +37,7 @@ target_include_directories(tfm_ns_interface
         ${CMAKE_BINARY_DIR}/generated/interface/include
         ${INTERFACE_INC_DIR}/os_wrapper
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:${INTERFACE_INC_DIR}/multi_core>
+        $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:${CMAKE_SOURCE_DIR}/platform/ext/cmsis>
 )
 
 # PSA interface files are generated from a template
@@ -58,6 +59,7 @@ target_compile_definitions(tfm_ns_interface
         $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:TFM_NS_CLIENT_IDENTIFICATION>
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:TFM_MULTI_CORE_TOPOLOGY>
         $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:TFM_MULTI_CORE_NS_OS>
+        $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>,$<BOOL:${TFM_MULTI_CORE_NS_OS}>>:TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD>
         $<$<BOOL:${FORWARD_PROT_MSG}>:FORWARD_PROT_MSG>
 )
 
@@ -82,10 +84,12 @@ if (${TFM_PSA_API})
 
     if (TFM_MULTI_CORE_TOPOLOGY)
         target_sources(tfm_api_ns PRIVATE
-            ${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
             $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
+            $<$<NOT:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c>
+            $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS}>,$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_thread.c>
+            $<$<BOOL:${TEST_NS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
     else()
         target_sources(tfm_api_ns PRIVATE

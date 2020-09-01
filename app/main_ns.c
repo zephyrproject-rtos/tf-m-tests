@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -68,6 +68,19 @@ static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
     .stack_mem = test_app_stack,
     .stack_size = sizeof(test_app_stack),
+};
+#endif
+
+#ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
+static osThreadFunc_t mailbox_thread_func = tfm_ns_mailbox_thread_runner;
+/* 1KB stack */
+#define MAILBOX_THREAD_STACK_SIZE           (1u * 1024u)
+static uint64_t mailbox_thread_stack[MAILBOX_THREAD_STACK_SIZE /
+                                     sizeof(uint64_t)];
+static const osThreadAttr_t mailbox_thread_attr = {
+    .name = "mailbox_thread",
+    .stack_mem = mailbox_thread_stack,
+    .stack_size = sizeof(mailbox_thread_stack),
 };
 #endif
 
@@ -162,6 +175,10 @@ int main(void)
 
     /* Initialize the TFM NS interface */
     tfm_ns_interface_init();
+
+#ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
+    (void) osThreadNew(mailbox_thread_func, NULL, &mailbox_thread_attr);
+#endif
 
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
     thread_func = test_app;

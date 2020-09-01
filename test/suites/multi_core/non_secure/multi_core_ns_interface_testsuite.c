@@ -122,7 +122,7 @@ static void multi_client_call_test(struct test_result_t *ret,
     struct ns_mailbox_stats_res_t stats_res;
     struct test_params parent_params, params[NR_MULTI_CALL_CHILD];
 
-    tfm_ns_mailbox_tx_stats_init();
+    tfm_ns_mailbox_tx_stats_reinit();
 
     current_thread_handle = os_wrapper_thread_get_handle();
     if (!current_thread_handle) {
