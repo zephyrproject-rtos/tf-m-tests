@@ -7,7 +7,6 @@
 
 #include "core_ns_tests.h"
 #include "tfm_api.h"
-#include "app/tfm_integ_test.h"
 #include "cmsis_os2.h"
 #include "tfm_nspm_api.h"
 #include "tfm_veneers.h"
@@ -63,7 +62,7 @@ void register_testsuite_ns_core_interactive(struct test_suite_t *p_test_suite)
                   core_tests, list_size, p_test_suite);
 }
 
-void execute_ns_interactive_tests(void);
+static void execute_ns_interactive_tests(void);
 
 /**
  * \brief Tests core function with interactive test cases
@@ -416,7 +415,7 @@ static void seq_task(void *argument)
  * \brief Execute the interactive tets cases
  *
  */
-void execute_ns_interactive_tests(void)
+static void execute_ns_interactive_tests(void)
 {
     uint8_t idx;
 
