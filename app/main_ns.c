@@ -10,15 +10,15 @@
 #include "tfm_integ_test.h"
 #include "tfm_ns_svc.h"
 #include "tfm_ns_interface.h"
-#ifdef TEST_FRAMEWORK_NS
-#include "test/framework/test_framework_integ_test.h"
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
+#include "test_framework_integ_test.h"
 #endif
 #ifdef PSA_API_TEST_NS
 #include "psa_api_test.h"
 #endif
 #include "target_cfg.h"
 #include "tfm_plat_ns.h"
-#include "Driver_USART.h"
+#include "driver/Driver_USART.h"
 #include "device_cfg.h"
 #ifdef TFM_MULTI_CORE_TOPOLOGY
 #include "tfm_multi_core_api.h"
@@ -63,7 +63,8 @@ extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
 /**
  * \brief List of RTOS thread attributes
  */
-#if defined(TEST_FRAMEWORK_NS) || defined(PSA_API_TEST_NS)
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+ || defined(PSA_API_TEST_NS)
 static uint64_t test_app_stack[(4u * 1024u) / (sizeof(uint64_t))]; /* 4KB */
 static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
@@ -76,7 +77,8 @@ static const osThreadAttr_t thread_attr = {
  * \brief Static globals to hold RTOS related quantities,
  *        main thread
  */
-#if defined(TEST_FRAMEWORK_NS) || defined(PSA_API_TEST_NS)
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+ || defined(PSA_API_TEST_NS)
 static osThreadFunc_t thread_func;
 #endif
 
@@ -163,13 +165,14 @@ int main(void)
     /* Initialize the TFM NS interface */
     tfm_ns_interface_init();
 
-#if defined(TEST_FRAMEWORK_NS)
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
     thread_func = test_app;
 #elif defined(PSA_API_TEST_NS)
     thread_func = psa_api_test;
 #endif
 
-#if defined(TEST_FRAMEWORK_NS) || defined(PSA_API_TEST_NS)
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+ || defined(PSA_API_TEST_NS)
     (void) osThreadNew(thread_func, NULL, &thread_attr);
 #endif
 

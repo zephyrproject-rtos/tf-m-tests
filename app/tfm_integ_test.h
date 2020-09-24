@@ -26,14 +26,14 @@ __asm("  .global __ARM_use_no_argv\n");
  */
 #define UNUSED_VARIABLE(X) ((void)(X))
 
-#ifdef TEST_FRAMEWORK_NS
+#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
 /**
  * \brief Main test application for the RTX-TFM core
  *        integration tests
  *
  */
 void test_app(void *argument);
-#endif /* TEST_FRAMEWORK_NS */
+#endif /* TEST_FRAMEWORK_NS || TEST_FRAMEWORK_S */
 
 #ifdef __cplusplus
 }
