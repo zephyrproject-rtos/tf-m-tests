@@ -5,7 +5,7 @@
  *
  */
 
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 #include "tfm_api.h"
 #include "../crypto_tests_common.h"
 

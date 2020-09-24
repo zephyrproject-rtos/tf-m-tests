@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "ipc_ns_tests.h"
 #include "psa/client.h"
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 #ifdef TFM_PSA_API
 #include "psa_manifest/sid.h"
 #endif

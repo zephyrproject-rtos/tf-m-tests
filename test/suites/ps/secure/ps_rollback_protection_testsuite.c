@@ -9,8 +9,8 @@
 
 #include <stdio.h>
 
-#include "secure_fw/partitions/protected_storage/nv_counters/ps_nv_counters.h"
-#include "nv_counters/test_ps_nv_counters.h"
+#include "nv_counters/ps_nv_counters.h"
+#include "test_ps_nv_counters.h"
 #include "psa/protected_storage.h"
 #include "tfm_memory_utils.h"
 #include "s_test_helpers.h"
@@ -19,9 +19,9 @@
  * tfm_ps_test_system_prepare API, to simulate a reboot in the system.
  * ps_system_prepare is called when the PS service is initialized.
  */
-#include "test/test_services/tfm_ps_test_service/tfm_ps_test_service_api.h"
+#include "tfm_ps_test_service_api.h"
 
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 
 /* Test UIDs */
 #define TEST_UID 2UL  /* UID 1 cannot be used as it references a write once

@@ -12,7 +12,7 @@
 #include "s_test_helpers.h"
 #include "tfm_memory_utils.h"
 #include "psa/protected_storage.h"
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 #include "flash_layout.h"
 
 /* Test UIDs */

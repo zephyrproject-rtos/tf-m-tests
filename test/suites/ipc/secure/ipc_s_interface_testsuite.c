@@ -7,7 +7,7 @@
 
 #include "ipc_s_tests.h"
 #include "psa/client.h"
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 
 /* List of tests */
 static void tfm_ipc_test_1001(struct test_result_t *ret);

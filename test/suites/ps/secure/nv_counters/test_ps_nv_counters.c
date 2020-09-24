@@ -8,8 +8,8 @@
 #include "test_ps_nv_counters.h"
 
 #include <limits.h>
-#include "secure_fw/partitions/protected_storage/nv_counters/ps_nv_counters.h"
-#include "secure_fw/partitions/protected_storage/ps_utils.h"
+#include "nv_counters/ps_nv_counters.h"
+#include "ps_utils.h"
 
 #define DISABLE_INCREMENT 0
 #define ENABLE_INCREMENT  1

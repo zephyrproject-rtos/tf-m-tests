@@ -13,7 +13,7 @@
 #include "psa/client.h"
 #include "psa/internal_trusted_storage.h"
 #include "psa_manifest/sid.h"
-#include "test/framework/test_framework_helpers.h"
+#include "test_framework_helpers.h"
 #include "tfm_ns_mailbox.h"
 
 #ifdef TFM_MULTI_CORE_MULTI_CLIENT_CALL

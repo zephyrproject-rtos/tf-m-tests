@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "psa/protected_storage.h"
-#include "platform/include/tfm_plat_nv_counters.h"
+#include "tfm_plat_nv_counters.h"
 
 #ifdef __cplusplus
 extern "C" {

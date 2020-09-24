@@ -10,8 +10,8 @@
 #include "cmsis_os2.h"
 #include "tfm_nspm_api.h"
 #include "tfm_veneers.h"
-#include "test/suites/core/non_secure/core_test_api.h"
-#include "test/test_services/tfm_core_test/core_test_defs.h"
+#include "core_test_api.h"
+#include "core_test_defs.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +23,7 @@
 
 #ifdef TEST_FRAMEWORK_S
 #include \
-  "test/test_services/tfm_secure_client_service/tfm_secure_client_service_api.h"
+  "tfm_secure_client_service_api.h"
 #endif
 
 #define TRY_SFN(fn, ...) \

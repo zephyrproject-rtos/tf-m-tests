@@ -7,10 +7,10 @@
 
 #include "attest_ns_tests.h"
 #include "psa/initial_attestation.h"
-#include "secure_fw/partitions/initial_attestation/attest.h"
-#include "../attest_tests_common.h"
-#include "../attest_token_test_values.h"
-#include "../attest_token_test.h"
+#include "attest.h"
+#include "attest_tests_common.h"
+#include "attest_token_test_values.h"
+#include "attest_token_test.h"
 
 /* Define test suite for attestation service tests */
 /* List of tests */

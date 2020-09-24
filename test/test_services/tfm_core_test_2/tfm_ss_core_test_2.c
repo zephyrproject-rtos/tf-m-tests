@@ -6,7 +6,7 @@
  */
 
 #include <stddef.h>
-#include "test/test_services/tfm_core_test/core_test_defs.h"
+#include "core_test_defs.h"
 #include "tfm_ss_core_test_2.h"
 #include "tfm_api.h"
 #include "tfm_secure_api.h"

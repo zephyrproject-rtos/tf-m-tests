@@ -10,62 +10,76 @@
 #include "test_framework.h"
 
 /* Service specific includes */
-#include "test/suites/ps/non_secure/ps_ns_tests.h"
-#include "test/suites/its/non_secure/its_ns_tests.h"
-#include "test/suites/audit/non_secure/audit_ns_tests.h"
-#include "test/suites/crypto/non_secure/crypto_ns_tests.h"
-#include "test/suites/attestation/non_secure/attest_ns_tests.h"
-#include "test/suites/qcbor/non_secure/qcbor_ns_tests.h"
-#include "test/suites/t_cose/non_secure/t_cose_ns_tests.h"
-#include "test/suites/core/non_secure/core_ns_tests.h"
-#include "test/suites/ipc/non_secure/ipc_ns_tests.h"
-#include "test/suites/platform/non_secure/platform_ns_tests.h"
-#include "test/suites/multi_core/non_secure/multi_core_ns_test.h"
+#ifdef TFM_PARTITION_PROTECTED_STORAGE
+#include "ps_ns_tests.h"
+#endif
+#ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
+#include "its_ns_tests.h"
+#endif
+#ifdef TFM_PARTITION_CRYPTO
+#include "crypto_ns_tests.h"
+#endif
+#ifdef TFM_PARTITION_INITIAL_ATTESTATION
+#include "attest_ns_tests.h"
+#include "qcbor_ns_tests.h"
+#ifndef SYMMETRIC_INITIAL_ATTESTATION
+#include "t_cose_ns_tests.h"
+#endif /* !SYMMETRIC_INITIAL_ATTESTATION */
+#endif
+#ifdef TFM_PARTITION_PLATFORM
+#include "platform_ns_tests.h"
+#endif
+#include "core_ns_tests.h"
+#ifdef TFM_PSA_API
+#include "ipc_ns_tests.h"
+#else
+#ifdef TFM_PARTITION_AUDIT_LOG
+#include "audit_ns_tests.h"
+#endif
+#endif /* TFM_PSA_API */
+#ifdef TFM_MULTI_CORE_TOPOLOGY
+#include "multi_core_ns_test.h"
+#endif /* TFM_MULTI_CORE_TOPOLOGY */
 
 static struct test_suite_t test_suites[] = {
-#ifdef SERVICES_TEST_NS
     /* List test cases which are compliant with level 1 isolation */
 
-#ifdef ENABLE_PROTECTED_STORAGE_SERVICE_TESTS
+#ifdef TFM_PARTITION_PROTECTED_STORAGE
     {&register_testsuite_ns_psa_ps_interface, 0, 0, 0},
 #endif
 
-#ifdef ENABLE_INTERNAL_TRUSTED_STORAGE_SERVICE_TESTS
+#ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
     /* Non-secure ITS test cases */
     {&register_testsuite_ns_psa_its_interface, 0, 0, 0},
 #endif
 
-#ifdef ENABLE_CRYPTO_SERVICE_TESTS
+#ifdef TFM_PARTITION_CRYPTO
     /* Non-secure Crypto test cases */
     {&register_testsuite_ns_crypto_interface, 0, 0, 0},
 #endif
 
-#ifdef ENABLE_ATTESTATION_SERVICE_TESTS
-    /* Non-secure initial attestation service test cases */
-    {&register_testsuite_ns_attestation_interface, 0, 0, 0},
-#endif
-
-#ifdef ENABLE_PLATFORM_SERVICE_TESTS
+#ifdef TFM_PARTITION_PLATFORM
     /* Non-secure platform service test cases */
     {&register_testsuite_ns_platform_interface, 0, 0, 0},
 #endif
 
-#ifdef ENABLE_QCBOR_TESTS
+#ifdef TFM_PARTITION_INITIAL_ATTESTATION
+    /* Non-secure initial attestation service test cases */
+    {&register_testsuite_ns_attestation_interface, 0, 0, 0},
+
     /* Non-secure QCBOR library test cases */
     {&register_testsuite_ns_qcbor, 0, 0, 0},
-#endif
 
-#ifdef ENABLE_T_COSE_TESTS
+#ifndef SYMMETRIC_INITIAL_ATTESTATION
     /* Non-secure T_COSE library test cases */
     {&register_testsuite_ns_t_cose, 0, 0, 0},
+#endif /* !SYMMETRIC_INITIAL_ATTESTATION */
 #endif
 
-#ifdef ENABLE_AUDIT_LOGGING_SERVICE_TESTS
+#ifdef TFM_PARTITION_AUDIT_LOG
     /* Non-secure Audit Logging test cases */
     {&register_testsuite_ns_audit_interface, 0, 0, 0},
 #endif
-
-#endif /* SERVICES_TEST_NS */
 
 #ifdef CORE_TEST_POSITIVE
     /* Non-secure core test cases */
@@ -77,12 +91,12 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_ns_core_interactive, 0, 0, 0},
 #endif
 
-#ifdef ENABLE_IPC_TEST
+#ifdef TFM_PSA_API
     /* Non-secure IPC test cases */
     {&register_testsuite_ns_ipc_interface, 0, 0, 0},
 #endif
 
-#ifdef TFM_MULTI_CORE_TEST
+#ifdef TFM_MULTI_CORE_TOPOLOGY
     /* Multi-core topology test cases */
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
 #endif
