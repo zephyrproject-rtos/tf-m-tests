@@ -19,6 +19,7 @@ target_include_directories(tfm_partition_ipc_client
         .
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client
+        ${CMAKE_CURRENT_SOURCE_DIR}/../tfm_secure_client_2
 )
 
 target_link_libraries(tfm_partition_ipc_client
@@ -43,4 +44,5 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_partition_defs
     INTERFACE
         TFM_PARTITION_TEST_CORE_IPC
+        $<$<VERSION_EQUAL:${TFM_ISOLATION_LEVEL},3>:TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM>
 )
