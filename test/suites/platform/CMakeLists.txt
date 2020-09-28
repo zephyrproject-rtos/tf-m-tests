@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_PLATFORM)
+if (NOT TFM_PARTITION_PLATFORM AND NOT FORWARD_PROT_MSG)
     return()
 endif()
 

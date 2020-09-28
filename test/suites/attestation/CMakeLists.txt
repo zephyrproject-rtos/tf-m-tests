@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_INITIAL_ATTESTATION)
+if (NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
     return()
 endif()
 
@@ -88,9 +88,9 @@ if (TEST_S)
             tfm_qcbor
             tfm_t_cose
             tfm_test_framework
-            tfm_partition_attestation
+            tfm_attestation_defs
             tfm_boot_status
-            tfm_partition_crypto
+            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_partition_crypto>
             platform_s
     )
 

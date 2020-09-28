@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_CRYPTO)
+if (NOT TFM_PARTITION_CRYPTO AND NOT FORWARD_PROT_MSG)
     return()
 endif()
 

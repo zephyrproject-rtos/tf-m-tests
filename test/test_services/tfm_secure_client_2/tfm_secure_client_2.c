@@ -16,7 +16,7 @@
 #include "psa/client.h"
 #endif
 
-#ifdef TFM_PARTITION_CRYPTO
+#if defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG)
 /**
  * \brief Tests calling psa_destroy_key() with the supplied key handle.
  *
@@ -39,9 +39,9 @@ static psa_status_t secure_client_2_test_crypto_access_ctrl(const void *arg,
     /* Attempt to destroy the key handle */
     return psa_destroy_key(key_handle);
 }
-#endif /* TFM_PARTITION_CRYPTO */
+#endif /* defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG) */
 
-#ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
+#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG)
 /**
  * \brief Tests calling psa_its_get() with the supplied uid.
  *
@@ -66,7 +66,7 @@ static psa_status_t secure_client_2_test_its_access_ctrl(const void *arg,
     /* Attempt to get one byte from the UID and return the resulting status */
     return psa_its_get(uid, 0, sizeof(data), data, &p_data_length);
 }
-#endif /* TFM_PARTITION_INTERNAL_TRUSTED_STORAGE */
+#endif /* defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG) */
 
 /**
  * \brief Calls the test function with the supplied ID and returns the result
@@ -82,11 +82,11 @@ static psa_status_t secure_client_2_dispatch(int32_t id, const void *arg,
                                              size_t arg_len)
 {
     switch (id) {
-#ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
+#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG)
     case TFM_SECURE_CLIENT_2_ID_ITS_ACCESS_CTRL:
         return secure_client_2_test_its_access_ctrl(arg, arg_len);
 #endif
-#ifdef TFM_PARTITION_CRYPTO
+#if defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG)
     case TFM_SECURE_CLIENT_2_ID_CRYPTO_ACCESS_CTRL:
         return secure_client_2_test_crypto_access_ctrl(arg, arg_len);
 #endif

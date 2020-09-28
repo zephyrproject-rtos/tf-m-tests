@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_PROTECTED_STORAGE)
+if (NOT TFM_PARTITION_PROTECTED_STORAGE AND NOT FORWARD_PROT_MSG)
     return()
 endif()
 
@@ -73,7 +73,7 @@ if (TEST_S)
             tfm_test_framework
             platform_region_defs
             tfm_partition_ps
-            tfm_partition_ps_test
+            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_partition_ps_test>
             tfm_spm
             platform_s
     )
