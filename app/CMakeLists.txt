@@ -24,7 +24,9 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
         set(SUITE ${TEST_PSA_API})
     endif()
 
-    string(REGEX REPLACE ".*/" "" PSA_API_TEST_TARGET ${TFM_PLATFORM})
+    if (NOT DEFINED PSA_API_TEST_TARGET)
+        string(REGEX REPLACE ".*/" "" PSA_API_TEST_TARGET ${TFM_PLATFORM})
+    endif()
 
     if(NOT TARGET)
         if (NOT "${TEST_PSA_API}" STREQUAL "IPC")
