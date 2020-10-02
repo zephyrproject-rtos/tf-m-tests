@@ -67,6 +67,7 @@ target_link_libraries(tfm_ns_tests
 target_compile_definitions(tfm_ns_tests
     INTERFACE
         $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
+        $<$<BOOL:${TFM_INTERACTIVE_TEST}>:CORE_TEST_INTERACTIVE>
 )
 
 ####################### Secure #################################################

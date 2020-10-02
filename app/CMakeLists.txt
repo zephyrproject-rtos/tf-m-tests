@@ -74,7 +74,6 @@ target_link_libraries(tfm_ns_integration_test
         tfm_test_framework
     PRIVATE
         psa_interface
-        $<TARGET_PROPERTY:platform_ns,PLATFORM_RTX_LIB_PATH>
         psa_api_ns
         CMSIS_5_tfm_ns
 )
