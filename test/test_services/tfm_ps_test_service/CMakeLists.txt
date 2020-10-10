@@ -17,6 +17,13 @@ target_sources(tfm_partition_ps_test
         ./tfm_ps_test_service.c
 )
 
+# The generated sources
+target_sources(tfm_partition_ps_test
+    PRIVATE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ps_test_service/auto_generated/intermedia_tfm_ps_test_service.c>
+)
+
 target_include_directories(tfm_partition_ps_test
     PUBLIC
         .

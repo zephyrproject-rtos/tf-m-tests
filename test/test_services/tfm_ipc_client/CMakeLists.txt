@@ -14,6 +14,13 @@ target_sources(tfm_partition_ipc_client
         ./tfm_ipc_client_test.c
 )
 
+# The generated sources
+target_sources(tfm_partition_ipc_client
+    PRIVATE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client/auto_generated/intermedia_tfm_ipc_client_test.c>
+)
+
 target_include_directories(tfm_partition_ipc_client
     PUBLIC
         .

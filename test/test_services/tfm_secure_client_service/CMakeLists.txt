@@ -14,6 +14,13 @@ target_sources(tfm_partition_secure_client_service
         ./tfm_secure_client_service.c
 )
 
+# The generated sources
+target_sources(tfm_partition_secure_client_service
+    PRIVATE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_secure_client_service/auto_generated/intermedia_tfm_secure_client_service.c>
+)
+
 target_include_directories(tfm_partition_secure_client_service
     PUBLIC
         .

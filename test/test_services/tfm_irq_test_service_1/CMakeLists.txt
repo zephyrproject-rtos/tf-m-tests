@@ -13,6 +13,13 @@ target_sources(tfm_partition_irq_test_1
         ./tfm_irq_test_service_1.c
 )
 
+# The generated sources
+target_sources(tfm_partition_irq_test_1
+    PRIVATE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_irq_test_service_1/auto_generated/intermedia_tfm_irq_test_service_1.c>
+)
+
 target_include_directories(tfm_partition_irq_test_1
     PUBLIC
         .
