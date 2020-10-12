@@ -38,7 +38,7 @@ endif()
 
 add_subdirectory(tfm_core_test)
 add_subdirectory(tfm_core_test_2)
-if(TFM_PARTITION_PLATFORM)
+if(TFM_IRQ_TEST)
     add_subdirectory(tfm_irq_test_service_1)
 endif()
 add_subdirectory(tfm_ps_test_service)

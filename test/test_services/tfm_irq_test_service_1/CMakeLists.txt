@@ -45,5 +45,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_partition_defs
     INTERFACE
-        TFM_ENABLE_IRQ_TEST
+        $<$<BOOL:${TFM_IRQ_TEST}>:TFM_ENABLE_IRQ_TEST>
 )

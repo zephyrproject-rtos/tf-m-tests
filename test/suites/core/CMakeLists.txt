@@ -26,7 +26,7 @@ target_include_directories(tfm_test_suite_core_ns
 target_compile_definitions(tfm_test_suite_core_ns
     PRIVATE
         DOMAIN_NS=1
-        $<$<BOOL:${TFM_PARTITION_PLATFORM}>:TFM_ENABLE_IRQ_TEST>
+        $<$<BOOL:${TFM_IRQ_TEST}>:TFM_ENABLE_IRQ_TEST>
         $<$<BOOL:${TFM_INTERACTIVE_TEST}>:CORE_TEST_INTERACTIVE>
 )
 
