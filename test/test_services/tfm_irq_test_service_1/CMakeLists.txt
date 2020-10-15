@@ -16,6 +16,8 @@ target_sources(tfm_partition_irq_test_1
 target_include_directories(tfm_partition_irq_test_1
     PUBLIC
         .
+    PRIVATE
+        ${CMAKE_BINARY_DIR}/generated/test_services/tfm_irq_test_service_1
 )
 
 target_link_libraries(tfm_partition_irq_test_1

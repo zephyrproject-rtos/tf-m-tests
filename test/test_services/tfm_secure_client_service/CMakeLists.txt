@@ -17,6 +17,8 @@ target_sources(tfm_partition_secure_client_service
 target_include_directories(tfm_partition_secure_client_service
     PUBLIC
         .
+    PRIVATE
+        ${CMAKE_BINARY_DIR}/generated/test_services/tfm_secure_client_service
 )
 
 target_link_libraries(tfm_partition_secure_client_service
