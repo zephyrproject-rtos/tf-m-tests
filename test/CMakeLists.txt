@@ -51,6 +51,7 @@ target_include_directories(tfm_test_framework
 target_link_libraries(tfm_test_framework
     INTERFACE
         psa_interface
+        tfm_ns_log
 )
 
 target_sources(tfm_ns_tests

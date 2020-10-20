@@ -119,6 +119,7 @@ target_link_libraries(tfm_ns
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
         $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         psa_api_ns
+        tfm_ns_log
 )
 
 target_compile_definitions(tfm_ns
