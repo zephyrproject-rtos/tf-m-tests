@@ -36,7 +36,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
 
     if(NOT PSA_INCLUDE_PATHS)
         set(PSA_INCLUDE_PATHS ${CMAKE_SOURCE_DIR}/interface/include/
-                              ${PSA_ARCH_TESTS_PATH}/api-tests/platform/manifests/
+                              ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/
                               ${CMAKE_BINARY_DIR}/generated/interface/include
         )
     endif()
