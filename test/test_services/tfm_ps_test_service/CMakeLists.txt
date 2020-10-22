@@ -39,7 +39,7 @@ target_link_libraries(tfm_spm
 
 ############################ Secure API ########################################
 
-target_sources(psa_api_ns
+target_sources(tfm_secure_api
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/tfm_ps_test_service_api.c
 )

@@ -85,3 +85,8 @@ target_link_libraries(tfm_s_tests
         tfm_partition_defs
         tfm_spm
 )
+
+target_compile_definitions(tfm_s_tests
+    INTERFACE
+        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
+)

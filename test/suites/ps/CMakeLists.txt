@@ -48,10 +48,10 @@ target_link_libraries(tfm_ns_tests
 
 target_sources(tfm_test_suite_ps_s
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters/test_ps_nv_counters.c
         ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_interface_testsuite.c
         ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_reliability_testsuite.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c
+        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
+        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters/test_ps_nv_counters.c>
 )
 
 target_include_directories(tfm_test_suite_ps_s
