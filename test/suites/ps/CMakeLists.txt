@@ -29,6 +29,7 @@ target_include_directories(tfm_test_suite_ps_ns
 target_compile_definitions(tfm_test_suite_ps_ns
     PRIVATE
         DOMAIN_NS=1
+        PS_MAX_ASSET_SIZE=${PS_MAX_ASSET_SIZE}
 )
 
 target_link_libraries(tfm_test_suite_ps_ns
@@ -59,6 +60,11 @@ target_include_directories(tfm_test_suite_ps_s
         ${CMAKE_CURRENT_SOURCE_DIR}/secure
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters
+)
+
+target_compile_definitions(tfm_test_suite_ps_s
+    PRIVATE
+        PS_MAX_ASSET_SIZE=${PS_MAX_ASSET_SIZE}
 )
 
 target_link_libraries(tfm_test_suite_ps_s

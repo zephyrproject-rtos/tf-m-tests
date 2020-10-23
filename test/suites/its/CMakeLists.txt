@@ -29,6 +29,7 @@ target_include_directories(tfm_test_suite_its_ns
 target_compile_definitions(tfm_test_suite_its_ns
     PRIVATE
         DOMAIN_NS=1
+        ITS_MAX_ASSET_SIZE=${ITS_MAX_ASSET_SIZE}
 )
 
 target_link_libraries(tfm_test_suite_its_ns
@@ -55,6 +56,11 @@ target_sources(tfm_test_suite_its_s
 target_include_directories(tfm_test_suite_its_s
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/secure
+)
+
+target_compile_definitions(tfm_test_suite_its_s
+    PRIVATE
+        ITS_MAX_ASSET_SIZE=${ITS_MAX_ASSET_SIZE}
 )
 
 target_link_libraries(tfm_test_suite_its_s
