@@ -9,6 +9,7 @@
 # secure directory as it build the secure side test services
 if (TFM_MULTI_CORE_TOPOLOGY)
     include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload.cmake)
+    tfm_toolchain_reload_compiler()
 endif()
 
 # Secure tests are declared in this dir so that it can use the secure CPU
