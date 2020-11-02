@@ -35,7 +35,7 @@ target_link_libraries(tfm_spm
         tfm_partition_secure_client_service
 )
 
-############################ Secure API ########################################
+############################ NS API ############################################
 
 target_sources(psa_api_ns
     PRIVATE
