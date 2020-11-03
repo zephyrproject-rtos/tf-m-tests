@@ -16,7 +16,6 @@ add_library(tfm_test_framework INTERFACE)
 # anything loaded from or declared in this dir.
 if (TFM_MULTI_CORE_TOPOLOGY)
     include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
-    tfm_toolchain_reload_compiler()
 endif()
 
 add_subdirectory(test_services)
