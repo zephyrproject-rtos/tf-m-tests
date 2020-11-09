@@ -75,19 +75,21 @@ target_compile_definitions(tfm_ns_tests
 
 ####################### Secure #################################################
 
-target_sources(tfm_s_tests
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/framework/secure_suites.c
-)
+if (TEST_S)
+    target_sources(tfm_s_tests
+        INTERFACE
+            ${CMAKE_CURRENT_SOURCE_DIR}/framework/secure_suites.c
+    )
 
-target_link_libraries(tfm_s_tests
-    INTERFACE
-        tfm_test_framework
-        tfm_partition_defs
-        tfm_spm
-)
+    target_link_libraries(tfm_s_tests
+        INTERFACE
+            tfm_test_framework
+            tfm_partition_defs
+            tfm_spm
+    )
 
-target_compile_definitions(tfm_s_tests
-    INTERFACE
-        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
-)
+    target_compile_definitions(tfm_s_tests
+        INTERFACE
+            $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
+    )
+endif()

@@ -48,23 +48,25 @@ target_link_libraries(tfm_ns_tests
 
 ####################### Secure #################################################
 
-target_sources(tfm_test_suite_audit_s
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/audit_s_interface_testsuite.c
-)
+if (TEST_S)
+    target_sources(tfm_test_suite_audit_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/audit_s_interface_testsuite.c
+    )
 
-target_include_directories(tfm_test_suite_audit_s
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure
-)
+    target_include_directories(tfm_test_suite_audit_s
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure
+    )
 
-target_link_libraries(tfm_test_suite_audit_s
-    PRIVATE
-        tfm_test_framework
-        tfm_partition_audit
-)
+    target_link_libraries(tfm_test_suite_audit_s
+        PRIVATE
+            tfm_test_framework
+            tfm_partition_audit
+    )
 
-target_link_libraries(tfm_s_tests
-    INTERFACE
-        tfm_test_suite_audit_s
-)
+    target_link_libraries(tfm_s_tests
+        INTERFACE
+            tfm_test_suite_audit_s
+    )
+endif()
