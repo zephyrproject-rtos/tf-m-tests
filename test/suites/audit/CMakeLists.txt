@@ -33,6 +33,7 @@ target_include_directories(tfm_test_suite_audit_ns
 target_compile_definitions(tfm_test_suite_audit_ns
     PRIVATE
         DOMAIN_NS=1
+        $<$<BOOL:${TEST_S}>:AUDIT_TEST_S_ENABLE>
 )
 
 target_link_libraries(tfm_test_suite_audit_ns
