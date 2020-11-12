@@ -255,6 +255,7 @@ static void tfm_ipc_test_1006(struct test_result_t *ret)
 static void tfm_ipc_test_1007(struct test_result_t *ret)
 {
     psa_handle_t handle;
+    psa_status_t status;
     int test_result;
     struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
 
@@ -268,10 +269,13 @@ static void tfm_ipc_test_1007(struct test_result_t *ret)
         return;
     }
 
-    psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+    if (status == PSA_SUCCESS) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
 
-    /* The system should panic in psa_call. If runs here, the test fails. */
-    ret->val = TEST_FAILED;
     psa_close(handle);
 }
 #endif
