@@ -112,7 +112,7 @@ static void tfm_ipc_test_1002(struct test_result_t *ret)
     version = psa_version(IPC_SERVICE_TEST_BASIC_SID);
     if (version == PSA_VERSION_NONE) {
         TEST_FAIL("RoT Service is not implemented or caller is not authorized" \
-                  "to access it!\r\n");
+                  " to access it!\r\n");
         return;
     } else {
         /* Valid version number */
