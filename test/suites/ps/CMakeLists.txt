@@ -34,10 +34,10 @@ target_compile_definitions(tfm_test_suite_ps_ns
 
 target_link_libraries(tfm_test_suite_ps_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
         platform_region_defs
         tfm_test_suite_its_ns
-        psa_api_ns
+        tfm_api_ns
 )
 
 target_link_libraries(tfm_ns_tests
@@ -70,7 +70,7 @@ if (TEST_S)
 
     target_link_libraries(tfm_test_suite_ps_s
         PRIVATE
-            tfm_test_framework
+            tfm_test_framework_s
             platform_region_defs
             tfm_partition_ps
             $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_partition_ps_test>

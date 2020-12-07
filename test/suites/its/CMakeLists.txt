@@ -34,7 +34,7 @@ target_compile_definitions(tfm_test_suite_its_ns
 
 target_link_libraries(tfm_test_suite_its_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
         CMSIS_5_tfm_ns
         platform_region_defs
 )
@@ -67,7 +67,7 @@ if (TEST_S)
     target_link_libraries(tfm_test_suite_its_s
         PRIVATE
             tfm_secure_api
-            tfm_test_framework
+            tfm_test_framework_s
             platform_region_defs
             tfm_partition_secure_client_2
             platform_s

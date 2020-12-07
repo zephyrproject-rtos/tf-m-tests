@@ -28,7 +28,7 @@ target_include_directories(tfm_test_suite_crypto_ns
 
 target_link_libraries(tfm_test_suite_crypto_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
 )
 
 target_link_libraries(tfm_ns_tests
@@ -65,7 +65,7 @@ if (TEST_S)
     target_link_libraries(tfm_test_suite_crypto_s
         PRIVATE
             tfm_secure_api
-            tfm_test_framework
+            tfm_test_framework_s
             tfm_partition_secure_client_2
             platform_s
     )

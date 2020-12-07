@@ -38,7 +38,7 @@ target_compile_definitions(tfm_test_suite_audit_ns
 
 target_link_libraries(tfm_test_suite_audit_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
         tfm_audit_logging_defs
 )
 
@@ -62,7 +62,7 @@ if (TEST_S)
 
     target_link_libraries(tfm_test_suite_audit_s
         PRIVATE
-            tfm_test_framework
+            tfm_test_framework_s
             tfm_partition_audit
     )
 

@@ -44,7 +44,7 @@ target_link_libraries(tfm_test_suite_attestation_ns
     PRIVATE
         tfm_qcbor
         tfm_t_cose
-        tfm_test_framework
+        tfm_test_framework_ns
         #TODO I'm not sure this should _really_ be linked here
         tfm_attestation_defs
         tfm_boot_status
@@ -87,7 +87,7 @@ if (TEST_S)
         PRIVATE
             tfm_qcbor
             tfm_t_cose
-            tfm_test_framework
+            tfm_test_framework_s
             tfm_attestation_defs
             tfm_boot_status
             $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_partition_crypto>

@@ -25,7 +25,7 @@ target_link_libraries(tfm_partition_irq_test_1
         tfm_secure_api
         psa_interface
         platform_s
-        tfm_test_framework
+        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm
@@ -33,7 +33,7 @@ target_link_libraries(tfm_spm
         tfm_partition_irq_test_1
 )
 
-target_include_directories(tfm_test_framework
+target_include_directories(tfm_test_framework_s
     INTERFACE
         .
 )

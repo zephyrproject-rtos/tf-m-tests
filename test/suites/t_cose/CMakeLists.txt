@@ -32,7 +32,7 @@ target_compile_definitions(tfm_test_suite_t_cose_ns
 
 target_link_libraries(tfm_test_suite_t_cose_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
         tfm_t_cose_test
 )
 

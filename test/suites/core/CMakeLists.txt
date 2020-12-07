@@ -32,12 +32,13 @@ target_compile_definitions(tfm_test_suite_core_ns
 
 target_link_libraries(tfm_test_suite_core_ns
     PRIVATE
-        psa_api_ns
-        tfm_test_framework
+        tfm_api_ns
+        tfm_test_framework_ns
         tfm_ns_integration_test
         CMSIS_5_tfm_ns
         tfm_partition_defs
         platform_ns
+        tfm_partition_core_test_defs
 )
 
 

@@ -30,7 +30,7 @@ target_include_directories(tfm_test_suite_platform_ns
 
 target_link_libraries(tfm_test_suite_platform_ns
     PRIVATE
-        tfm_test_framework
+        tfm_test_framework_ns
 )
 
 target_link_libraries(tfm_ns_tests
@@ -56,7 +56,7 @@ if (TEST_S)
 
     target_link_libraries(tfm_test_suite_platform_s
         PRIVATE
-            tfm_test_framework
+            tfm_test_framework_s
             tfm_secure_api
             platform_s
             tfm_sprt
