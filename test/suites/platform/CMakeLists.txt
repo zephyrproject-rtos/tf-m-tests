@@ -59,6 +59,7 @@ if (TEST_S)
             tfm_test_framework
             tfm_secure_api
             platform_s
+            tfm_sprt
     )
 
     target_link_libraries(tfm_s_tests
