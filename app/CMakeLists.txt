@@ -33,6 +33,7 @@ target_include_directories(tfm_ns_interface
         ${INTERFACE_INC_DIR}
         ${CMAKE_BINARY_DIR}/generated/interface/include
         ${INTERFACE_INC_DIR}/os_wrapper
+        $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:${INTERFACE_INC_DIR}/multi_core>
 )
 
 # PSA interface files are generated from a template
@@ -78,10 +79,10 @@ if (${TFM_PSA_API})
 
     if (TFM_MULTI_CORE_TOPOLOGY)
         target_sources(tfm_api_ns PRIVATE
-            ${INTERFACE_SRC_DIR}/tfm_ns_mailbox.c
-            ${INTERFACE_SRC_DIR}/tfm_multi_core_ns_api.c
-            ${INTERFACE_SRC_DIR}/tfm_multi_core_psa_ns_api.c
-            ${INTERFACE_SRC_DIR}/tfm_ns_mailbox_rtos_api.c
+            ${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c
+            ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
+            ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
+            ${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c
         )
     else()
         target_sources(tfm_api_ns PRIVATE
