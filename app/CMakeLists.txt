@@ -15,6 +15,9 @@ project(tfm_ns LANGUAGES ASM C)
 if (TFM_MULTI_CORE_TOPOLOGY)
     include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
     tfm_toolchain_reload_compiler()
+
+    # Enable TFM_MULTI_CORE_NS_OS when building with tf-m-tests NS App.
+    set(TFM_MULTI_CORE_NS_OS ON CACHE BOOL "Enable NS RTOS support in NS mailbox")
 endif()
 
 # In actual NS integration, NS side build should include the source files
@@ -54,7 +57,7 @@ target_compile_definitions(tfm_ns_interface
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
         $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:TFM_NS_CLIENT_IDENTIFICATION>
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:TFM_MULTI_CORE_TOPOLOGY>
-        $<$<BOOL:${TFM_MULTI_CORE_MULTI_CLIENT_CALL}>:TFM_MULTI_CORE_MULTI_CLIENT_CALL>
+        $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:TFM_MULTI_CORE_NS_OS>
         $<$<BOOL:${FORWARD_PROT_MSG}>:FORWARD_PROT_MSG>
 )
 
@@ -82,7 +85,7 @@ if (${TFM_PSA_API})
             ${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
-            ${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c
+            $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
         )
     else()
         target_sources(tfm_api_ns PRIVATE
