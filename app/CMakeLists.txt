@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -79,8 +79,9 @@ if (${TFM_PSA_API})
     if (TFM_MULTI_CORE_TOPOLOGY)
         target_sources(tfm_api_ns PRIVATE
             ${INTERFACE_SRC_DIR}/tfm_ns_mailbox.c
-            ${INTERFACE_SRC_DIR}/tfm_multi_core_api.c
+            ${INTERFACE_SRC_DIR}/tfm_multi_core_ns_api.c
             ${INTERFACE_SRC_DIR}/tfm_multi_core_psa_ns_api.c
+            ${INTERFACE_SRC_DIR}/tfm_ns_mailbox_rtos_api.c
         )
     else()
         target_sources(tfm_api_ns PRIVATE
