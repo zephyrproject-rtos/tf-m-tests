@@ -25,7 +25,6 @@
 #endif
 #include "tfm_log.h"
 #include "uart_stdout.h"
-#include "region.h"
 
 /**
  * \brief Modified table template for user defined SVC functions
@@ -155,13 +154,6 @@ __attribute__((noreturn))
 #endif
 int main(void)
 {
-#if defined(__ARM_ARCH_8_1M_MAIN__) || defined(__ARM_ARCH_8M_MAIN__)
-    /* Set Main Stack Pointer limit */
-    REGION_DECLARE(Image$$, ARM_LIB_STACK_MSP, $$ZI$$Base);
-    __set_MSPLIM((uint32_t)&REGION_NAME(Image$$, ARM_LIB_STACK_MSP,
-                                        $$ZI$$Base));
-#endif
-
     if (tfm_ns_platform_init() != ARM_DRIVER_OK) {
         /* Avoid undefined behavior if platform init failed */
         while(1);
