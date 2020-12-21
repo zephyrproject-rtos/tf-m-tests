@@ -62,24 +62,17 @@ extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
  */
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
  || defined(PSA_API_TEST_NS)
-static uint64_t test_app_stack[(4u * 1024u) / (sizeof(uint64_t))]; /* 4KB */
 static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
-    .stack_mem = test_app_stack,
-    .stack_size = sizeof(test_app_stack),
+    .stack_size = 4096U
 };
 #endif
 
 #ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
 static osThreadFunc_t mailbox_thread_func = tfm_ns_mailbox_thread_runner;
-/* 1KB stack */
-#define MAILBOX_THREAD_STACK_SIZE           (1u * 1024u)
-static uint64_t mailbox_thread_stack[MAILBOX_THREAD_STACK_SIZE /
-                                     sizeof(uint64_t)];
 static const osThreadAttr_t mailbox_thread_attr = {
     .name = "mailbox_thread",
-    .stack_mem = mailbox_thread_stack,
-    .stack_size = sizeof(mailbox_thread_stack),
+    .stack_size = 1024U
 };
 #endif
 
