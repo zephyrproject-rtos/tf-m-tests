@@ -104,39 +104,12 @@ target_compile_definitions(tfm_ns_integration_test
 
 ############################# TFM NS app #######################################
 
-if (TEST_PSA_API)
-    add_library(tfm_ns_psa_test STATIC)
-
-    target_sources(tfm_ns_psa_test
-        PRIVATE
-            psa_api_test.c
-    )
-
-    target_link_libraries(tfm_ns_psa_test
-        PRIVATE
-            val_nspe
-            pal_nspe
-            test_combine
-            platform_ns
-            psa_api_ns
-    )
-
-    target_include_directories(tfm_ns_psa_test
-        PUBLIC
-            .
-    )
-
-    target_compile_definitions(tfm_ns_psa_test
-        PUBLIC
-            PSA_API_TEST_NS
-    )
-endif()
-
 add_executable(tfm_ns)
 
 target_sources(tfm_ns
     PRIVATE
         main_ns.c
+        $<$<BOOL:${TEST_PSA_API}>:psa_api_test.c>
 )
 
 target_link_libraries(tfm_ns
@@ -144,10 +117,17 @@ target_link_libraries(tfm_ns
         platform_ns
         CMSIS_5_tfm_ns
         $<$<OR:$<BOOL:${TEST_NS}>,$<BOOL:${TEST_S}>>:tfm_ns_integration_test>
-        $<$<BOOL:${TEST_PSA_API}>:tfm_ns_psa_test>
+        $<$<BOOL:${TEST_PSA_API}>:val_nspe>
+        $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
+        $<$<BOOL:${TEST_PSA_API}>:test_combine>
         $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         psa_api_ns
         tfm_ns_log
+)
+
+target_compile_definitions(tfm_ns
+    PUBLIC
+    $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
 
 set_target_properties(tfm_ns PROPERTIES
