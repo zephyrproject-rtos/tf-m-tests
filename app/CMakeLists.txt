@@ -132,7 +132,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
 
 
     if(NOT PSA_INCLUDE_PATHS)
-        set(PSA_INCLUDE_PATHS ${EXPORT_INC_DIR}/
+        set(PSA_INCLUDE_PATHS ${INTERFACE_INC_DIR}/
                               ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/
                               ${CMAKE_BINARY_DIR}/generated/interface/include
         )
