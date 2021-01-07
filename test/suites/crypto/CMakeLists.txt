@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -66,7 +66,7 @@ if (TEST_S)
         PRIVATE
             tfm_secure_api
             tfm_test_framework_s
-            tfm_partition_secure_client_2
+            tfm_app_rot_partition_secure_client_2
             platform_s
     )
 

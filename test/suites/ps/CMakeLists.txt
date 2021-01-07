@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -72,8 +72,8 @@ if (TEST_S)
         PRIVATE
             tfm_test_framework_s
             platform_region_defs
-            tfm_partition_ps
-            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_partition_ps_test>
+            tfm_app_rot_partition_ps
+            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_ps_test>
             tfm_spm
             platform_s
     )
