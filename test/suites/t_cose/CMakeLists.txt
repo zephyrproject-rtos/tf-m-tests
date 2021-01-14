@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if(SYMMETRIC_INITIAL_ATTESTATION)
+if((NOT TFM_PARTITION_ATTESTATION) OR SYMMETRIC_INITIAL_ATTESTATION)
     return()
 endif()
 
