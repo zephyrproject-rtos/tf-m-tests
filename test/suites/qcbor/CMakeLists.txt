@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-if(NOT TFM_PARTITION_ATTESTATION)
+if(NOT TFM_PARTITION_INITIAL_ATTESTATION)
     return()
 endif()
 
