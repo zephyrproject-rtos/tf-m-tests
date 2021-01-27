@@ -167,11 +167,11 @@ int main(void)
         while(1);
     }
 
+    (void) osKernelInitialize();
+
 #ifdef TFM_MULTI_CORE_TOPOLOGY
     tfm_ns_multi_core_boot();
 #endif
-
-    (void) osKernelInitialize();
 
     /* Initialize the TFM NS interface */
     tfm_ns_interface_init();
