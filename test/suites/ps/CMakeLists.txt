@@ -55,10 +55,12 @@ if (TEST_S)
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
     )
 
+if (NOT FORWARD_PROT_MSG)
     target_sources(tfm_app_rot_partition_ps
         PRIVATE
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters/test_ps_nv_counters.c>
     )
+endif()
 
     target_include_directories(tfm_test_suite_ps_s
         PUBLIC

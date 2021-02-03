@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-if(NOT TFM_PARTITION_INITIAL_ATTESTATION)
+if(NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
     return()
 endif()
 
