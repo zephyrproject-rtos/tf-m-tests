@@ -32,7 +32,6 @@ target_compile_definitions(tfm_test_suite_core_ns
 
 target_link_libraries(tfm_test_suite_core_ns
     PRIVATE
-        tfm_api_ns
         tfm_test_framework_ns
         tfm_ns_integration_test
         CMSIS_5_tfm_ns

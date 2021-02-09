@@ -37,7 +37,6 @@ target_link_libraries(tfm_test_suite_ps_ns
         tfm_test_framework_ns
         platform_region_defs
         tfm_test_suite_its_ns
-        tfm_api_ns
 )
 
 target_link_libraries(tfm_ns_tests

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -31,7 +31,6 @@ target_compile_definitions(tfm_test_suite_multi_core_ns
 target_link_libraries(tfm_test_suite_multi_core_ns
     PRIVATE
         tfm_test_framework_ns
-        tfm_api_ns
 )
 
 target_link_libraries(tfm_ns_tests
