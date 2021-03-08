@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -18,6 +18,9 @@
 #endif
 #if defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG)
 #include "crypto_ns_tests.h"
+#endif
+#if defined(TFM_PARTITION_FIRMWARE_UPDATE)
+#include "fwu_ns_tests.h"
 #endif
 #if defined(TFM_PARTITION_INITIAL_ATTESTATION) || defined(FORWARD_PROT_MSG)
 #include "attest_ns_tests.h"
@@ -79,6 +82,11 @@ static struct test_suite_t test_suites[] = {
 #ifdef TFM_PARTITION_AUDIT_LOG
     /* Non-secure Audit Logging test cases */
     {&register_testsuite_ns_audit_interface, 0, 0, 0},
+#endif
+
+#ifdef TFM_PARTITION_FIRMWARE_UPDATE
+    /* Non-secure Firmware Update test cases */
+    {&register_testsuite_ns_psa_fwu_interface, 0, 0, 0},
 #endif
 
 /* Non-secure core test cases */

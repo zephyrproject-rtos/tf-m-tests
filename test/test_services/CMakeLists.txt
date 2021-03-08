@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -36,6 +36,9 @@ if (TEST_S)
     endif()
     if(TFM_PSA_API)
         add_library(tfm_test_suite_ipc_s STATIC EXCLUDE_FROM_ALL)
+    endif()
+    if(TFM_PARTITION_FIRMWARE_UPDATE)
+        add_library(tfm_test_suite_fwu_s STATIC EXCLUDE_FROM_ALL)
     endif()
 endif()
 

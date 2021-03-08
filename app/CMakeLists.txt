@@ -80,7 +80,8 @@ if (${TFM_PSA_API})
         $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>>:${INTERFACE_SRC_DIR}/tfm_its_ipc_api.c>
         $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_CRYPTO}>>:${INTERFACE_SRC_DIR}/tfm_crypto_ipc_api.c>
         $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_ipc_api.c>
-    )
+        $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_ipc_api.c>
+        )
 
     if (TFM_MULTI_CORE_TOPOLOGY)
         target_sources(tfm_api_ns PRIVATE
@@ -105,6 +106,7 @@ else()
         $<$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_its_func_api.c>
         $<$<BOOL:${TFM_PARTITION_CRYPTO}>:${INTERFACE_SRC_DIR}/tfm_crypto_func_api.c>
         $<$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_func_api.c>
+        $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_func_api.c>
         ${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c
         ${INTERFACE_SRC_DIR}/tfm_ns_interface.c
     )
