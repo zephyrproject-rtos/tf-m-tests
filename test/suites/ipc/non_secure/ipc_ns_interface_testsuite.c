@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,9 +9,7 @@
 #include "ipc_ns_tests.h"
 #include "psa/client.h"
 #include "test_framework_helpers.h"
-#ifdef TFM_PSA_API
 #include "psa_manifest/sid.h"
-#endif
 
 /* List of tests */
 static void tfm_ipc_test_1001(struct test_result_t *ret);
@@ -37,6 +35,10 @@ static void tfm_ipc_test_1010(struct test_result_t *ret);
 
 #ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
 static void tfm_ipc_test_1011(struct test_result_t *ret);
+#endif
+
+#ifdef TFM_PARTITION_FFM11
+static void tfm_ipc_test_1012(struct test_result_t *ret);
 #endif
 
 static struct test_t ipc_veneers_tests[] = {
@@ -69,6 +71,10 @@ static struct test_t ipc_veneers_tests[] = {
 #ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
     {&tfm_ipc_test_1011, "TFM_IPC_TEST_1011",
      "Call APP RoT access another APP RoT memory test service", {TEST_PASSED}},
+#endif
+#ifdef TFM_PARTITION_FFM11
+    {&tfm_ipc_test_1012, "TFM_IPC_TEST_1012",
+     "Accessing stateless service from non-secure client", {TEST_PASSED}},
 #endif
 };
 
@@ -403,5 +409,37 @@ static void tfm_ipc_test_1011(struct test_result_t *ret)
     }
 
     psa_close(handle);
+}
+#endif
+
+#ifdef TFM_PARTITION_FFM11
+/**
+ * \brief Accessing a stateless service
+ *
+ * \note Accessing stateless service from non-secure client.
+ */
+static void tfm_ipc_test_1012(struct test_result_t *ret)
+{
+    uint32_t data = 0xFFFFABCD;
+    psa_handle_t handle;
+    psa_status_t status;
+    psa_invec in_vec[] = { {&data, sizeof(uint32_t)} };
+
+    /* Connecting to a stateless service should fail. */
+    handle = psa_connect(TFM_FFM11_SERVICE1_SID, TFM_FFM11_SERVICE1_VERSION);
+    if (handle > 0) {
+        TEST_FAIL("Connecting to stateless service test should fail.\r\n");
+        return;
+    }
+
+    /* Calling a stateless service should succeed. */
+    status = psa_call(TFM_FFM11_SERVICE1_HANDLE, PSA_IPC_CALL,
+                      in_vec, 1, NULL, 0);
+    if (status < 0) {
+        TEST_FAIL("Calling a stateless service test fail.\r\n");
+        return;
+    }
+
+    ret->val = TEST_PASSED;
 }
 #endif
