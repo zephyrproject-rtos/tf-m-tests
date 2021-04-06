@@ -59,6 +59,11 @@ target_include_directories(tfm_psa_rot_partition_core_test_defs
         .
 )
 
+target_compile_definitions(tfm_psa_rot_partition_core_test
+    PRIVATE
+        $<$<BOOL:${TFM_PERIPH_ACCESS_TEST}>:TFM_ENABLE_PERIPH_ACCESS_TEST>
+)
+
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions
