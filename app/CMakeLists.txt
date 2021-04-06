@@ -27,17 +27,26 @@ endif()
 set(INTERFACE_SRC_DIR    ${CMAKE_SOURCE_DIR}/interface/src)
 set(INTERFACE_INC_DIR    ${CMAKE_SOURCE_DIR}/interface/include)
 
+# NS interface implemented by NSPE
+set(NS_INTERFACE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../ns_interface)
+
 #################### TF-M NS interface (header only) ###########################
 
 add_library(tfm_ns_interface INTERFACE)
 
+# Include interface headers exported by TF-M
 target_include_directories(tfm_ns_interface
     INTERFACE
         ${INTERFACE_INC_DIR}
         ${CMAKE_BINARY_DIR}/generated/interface/include
-        ${INTERFACE_INC_DIR}/os_wrapper
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:${INTERFACE_INC_DIR}/multi_core>
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:${CMAKE_SOURCE_DIR}/platform/ext/cmsis>
+)
+
+# Include NS local interface headers
+target_include_directories(tfm_ns_interface
+    INTERFACE
+        ${NS_INTERFACE_DIR}
 )
 
 # PSA interface files are generated from a template
@@ -87,15 +96,23 @@ if (${TFM_PSA_API})
         target_sources(tfm_api_ns PRIVATE
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
-            $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
             $<$<NOT:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c>
             $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS}>,$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_thread.c>
             $<$<BOOL:${TEST_NS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
+
+        # NS RTOS specific implementation of NS mailbox
+        target_sources(tfm_api_ns PRIVATE
+            $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
+        )
     else()
         target_sources(tfm_api_ns PRIVATE
-           ${INTERFACE_SRC_DIR}/tfm_ns_interface.c
            ${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c
+        )
+
+        # NS specific implementation of NS interface dispacther
+        target_sources(tfm_api_ns PRIVATE
+           ${CMAKE_CURRENT_SOURCE_DIR}/tfm_ns_interface.c
         )
     endif()
 else()
@@ -108,7 +125,11 @@ else()
         $<$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_func_api.c>
         $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_func_api.c>
         ${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c
-        ${INTERFACE_SRC_DIR}/tfm_ns_interface.c
+    )
+
+    # NS specific implementation of NS interface dispacther
+    target_sources(tfm_api_ns PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_ns_interface.c
     )
 endif()
 
