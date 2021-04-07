@@ -47,6 +47,7 @@ target_include_directories(tfm_ns_interface
 target_include_directories(tfm_ns_interface
     INTERFACE
         ${NS_INTERFACE_DIR}
+        ${NS_INTERFACE_DIR}/ns_client_id
 )
 
 # PSA interface files are generated from a template
@@ -78,8 +79,8 @@ add_library(tfm_api_ns STATIC)
 
 target_sources(tfm_api_ns
     PRIVATE
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${INTERFACE_SRC_DIR}/tfm_nspm_svc_handler.c>
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${INTERFACE_SRC_DIR}/tfm_nspm_api.c>
+        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_svc_handler.c>
+        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_api.c>
 )
 
 if (${TFM_PSA_API})
@@ -98,12 +99,12 @@ if (${TFM_PSA_API})
             ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
             $<$<NOT:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c>
             $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS}>,$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_thread.c>
-            $<$<BOOL:${TEST_NS}>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
 
         # NS RTOS specific implementation of NS mailbox
         target_sources(tfm_api_ns PRIVATE
             $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
+            $<$<BOOL:${TEST_NS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
     else()
         target_sources(tfm_api_ns PRIVATE
