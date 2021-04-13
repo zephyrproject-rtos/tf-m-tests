@@ -20,10 +20,22 @@ target_sources(tfm_psa_rot_partition_core_test
             ${CMAKE_BINARY_DIR}/generated/test_services/tfm_core_test/auto_generated/intermedia_tfm_ss_core_test.c>
 )
 
+target_sources(tfm_partitions
+    INTERFACE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_core_test/auto_generated/static_info_tfm_ss_core_test.c>
+)
+
+# Set include directory
 target_include_directories(tfm_psa_rot_partition_core_test
     PUBLIC
         .
     PRIVATE
+        ${CMAKE_BINARY_DIR}/generated/test_services/tfm_core_test
+)
+
+target_include_directories(tfm_partitions
+    INTERFACE
         ${CMAKE_BINARY_DIR}/generated/test_services/tfm_core_test
 )
 

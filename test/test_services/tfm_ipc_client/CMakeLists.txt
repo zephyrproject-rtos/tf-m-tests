@@ -21,12 +21,24 @@ target_sources(tfm_app_rot_partition_ipc_client
             ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client/auto_generated/intermedia_tfm_ipc_client_test.c>
 )
 
+target_sources(tfm_partitions
+    INTERFACE
+        $<$<BOOL:${TFM_PSA_API}>:
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client/auto_generated/static_info_tfm_ipc_client_test.c>
+)
+
+# Set include directory
 target_include_directories(tfm_app_rot_partition_ipc_client
     PUBLIC
         .
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client
         ${CMAKE_CURRENT_SOURCE_DIR}/../tfm_secure_client_2
+)
+
+target_include_directories(tfm_partitions
+    INTERFACE
+        ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client
 )
 
 target_link_libraries(tfm_app_rot_partition_ipc_client
