@@ -41,7 +41,6 @@ void register_testsuite_s_ipc_interface(struct test_suite_t *p_test_suite)
 static void tfm_ipc_test_1001(struct test_result_t *ret)
 {
     uint32_t data = 0xFFFFABCD;
-    psa_handle_t handle;
     psa_status_t status;
     psa_invec in_vec[] = { {&data, sizeof(uint32_t)} };
 
