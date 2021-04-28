@@ -51,5 +51,5 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_partition_defs
     INTERFACE
         TFM_PARTITION_TEST_CORE_IPC
-        $<$<VERSION_EQUAL:${TFM_ISOLATION_LEVEL},3>:TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM>
+        $<$<AND:$<BOOL:${TEST_S}>,$<VERSION_EQUAL:${TFM_ISOLATION_LEVEL},3>>:TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM>
 )
