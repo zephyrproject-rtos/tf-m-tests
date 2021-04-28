@@ -37,12 +37,12 @@ static struct test_t psa_fwu_s_tests[] = {
     {&tfm_fwu_test_common_010, "TFM_S_FWU_TEST_1010",
      "Query interface with NULL info", {TEST_PASSED} },
 #endif
-    {&tfm_fwu_test_common_011, "TFM_FWU_TEST_1011",
+    {&tfm_fwu_test_common_011, "TFM_S_FWU_TEST_1011",
      "Query interface invald image id", {TEST_PASSED} },
-    {&tfm_fwu_test_common_012, "TFM_FWU_TEST_1012",
+    {&tfm_fwu_test_common_012, "TFM_S_FWU_TEST_1012",
      "Accept interface", {TEST_PASSED} },
 #ifdef TFM_FWU_TEST_REQUEST_REBOOT
-    {&tfm_fwu_test_common_013, "TFM_FWU_TEST_1013",
+    {&tfm_fwu_test_common_013, "TFM_S_FWU_TEST_1013",
      "Reboot interface", {TEST_PASSED} },
 #endif
 };
