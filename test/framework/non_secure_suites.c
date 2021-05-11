@@ -46,7 +46,7 @@
 #ifdef TFM_FUZZER_TOOL_TESTS
 #include "tf_fuzz_testsuite.h"
 #endif /* TFM_FUZZER_TOOL_TESTS */
-#ifdef TFM_ENABLE_SLIH_TEST
+#if defined(TFM_ENABLE_SLIH_TEST) || defined(TFM_ENABLE_FLIH_TEST)
 #include "irq_testsuite.h"
 #endif
 
@@ -117,7 +117,7 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_tf_fuzz_test, 0, 0, 0},
 #endif /* TFM_FUZZER_TOOL_TESTS */
 
-#ifdef TFM_ENABLE_SLIH_TEST
+#if defined(TFM_ENABLE_SLIH_TEST) || defined(TFM_ENABLE_FLIH_TEST)
     {&register_testsuite_irq_test, 0, 0, 0},
 #endif
 
