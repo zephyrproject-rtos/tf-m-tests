@@ -43,6 +43,9 @@
 #ifdef TFM_MULTI_CORE_TOPOLOGY
 #include "multi_core_ns_test.h"
 #endif /* TFM_MULTI_CORE_TOPOLOGY */
+#ifdef TFM_FUZZER_TOOL_TESTS
+#include "tf_fuzz_testsuite.h"
+#endif /* TFM_FUZZER_TOOL_TESTS */
 
 static struct test_suite_t test_suites[] = {
     /* List test cases which are compliant with level 1 isolation */
@@ -106,6 +109,10 @@ static struct test_suite_t test_suites[] = {
     /* Multi-core topology test cases */
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
 #endif
+
+#ifdef TFM_FUZZER_TOOL_TESTS
+    {&register_testsuite_tf_fuzz_test, 0, 0, 0},
+#endif /* TFM_FUZZER_TOOL_TESTS */
 
     /* End of test suites */
     {0, 0, 0, 0}

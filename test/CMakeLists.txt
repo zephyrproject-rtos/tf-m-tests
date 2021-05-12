@@ -40,6 +40,16 @@ if(TFM_MULTI_CORE_TOPOLOGY)
     add_subdirectory(suites/multi_core)
 endif()
 
+if (TFM_FUZZER_TOOL_TESTS)
+    if(NOT DEFINED TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH)
+        # The location of the file needs to be defined either from command line
+        # or from config cmake file.
+        message(FATAL_ERROR "Incomplete build configuration: TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH is undefined.")
+    else()
+        add_subdirectory(${TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH} ${CMAKE_BINARY_DIR}/suites/tfm_fuzz)
+    endif()
+endif()
+
 add_library(tfm_test_framework_common INTERFACE)
 
 target_sources(tfm_test_framework_common
@@ -77,6 +87,7 @@ target_compile_definitions(tfm_ns_tests
     INTERFACE
         $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
         $<$<BOOL:${TFM_INTERACTIVE_TEST}>:CORE_TEST_INTERACTIVE>
+        $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
 )
 
 ####################### Secure #################################################
