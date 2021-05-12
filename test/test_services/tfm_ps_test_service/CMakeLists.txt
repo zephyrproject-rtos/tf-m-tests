@@ -27,7 +27,7 @@ target_sources(tfm_psa_rot_partition_ps_test
 target_sources(tfm_partitions
     INTERFACE
         $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ps_test_service/auto_generated/static_info_tfm_ps_test_service.c>
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ps_test_service/auto_generated/load_info_tfm_ps_test_service.c>
 )
 
 # Set include directory

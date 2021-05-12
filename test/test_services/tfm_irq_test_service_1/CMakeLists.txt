@@ -23,7 +23,7 @@ target_sources(tfm_app_rot_partition_irq_test_1
 target_sources(tfm_partitions
     INTERFACE
         $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_irq_test_service_1/auto_generated/static_info_tfm_irq_test_service_1.c>
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_irq_test_service_1/auto_generated/load_info_tfm_irq_test_service_1.c>
 )
 
 # Set include directory

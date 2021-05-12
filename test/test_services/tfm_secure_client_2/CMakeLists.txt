@@ -23,7 +23,7 @@ target_sources(tfm_app_rot_partition_secure_client_2
 target_sources(tfm_partitions
     INTERFACE
         $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_secure_client_2/auto_generated/static_info_tfm_secure_client_2.c>
+            ${CMAKE_BINARY_DIR}/generated/test_services/tfm_secure_client_2/auto_generated/load_info_tfm_secure_client_2.c>
 )
 
 # Set include directory
