@@ -26,5 +26,6 @@ target_link_libraries(tfm_test_framework_common
         tfm_log_interface
 )
 
-# Include test suites at last after other targets are setup.
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/suites)
+if(TEST_FRAMEWORK_S OR TEST_FRAMEWORK_NS)
+    add_subdirectory(secure_fw)
+endif()
