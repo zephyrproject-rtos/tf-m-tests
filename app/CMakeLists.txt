@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 # Copyright (c) 2022, Cypress Semiconductor Corp. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -247,7 +247,7 @@ target_link_libraries(tfm_ns
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
         tfm_api_ns
-        tfm_ns_log
+        tfm_log
 )
 
 target_compile_definitions(tfm_ns

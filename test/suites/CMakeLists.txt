@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -34,7 +34,7 @@ if (TEST_FRAMEWORK_NS)
             tfm_test_framework_common
             tfm_api_ns
             tfm_ns_interface
-            tfm_ns_log
+            tfm_log
     )
 
     target_sources(tfm_ns_tests
