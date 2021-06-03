@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,7 +8,6 @@
 #include <stddef.h>
 #include "core_test_defs.h"
 #include "tfm_ss_core_test_2.h"
-#include "tfm_api.h"
 #include "tfm_secure_api.h"
 #include "psa/service.h"
 #include "psa_manifest/pid.h"
@@ -65,7 +64,7 @@ psa_status_t spm_core_test_2_check_caller_client_id(struct psa_invec *in_vec,
     for (i = 0; i < sizeof(invalid_addresses)/sizeof(invalid_addresses[0]); ++i)
     {
         ret = tfm_core_get_caller_client_id(invalid_addresses[i]);
-        if (ret != TFM_ERROR_INVALID_PARAMETER) {
+        if (ret == TFM_SUCCESS) {
             return CORE_TEST_ERRNO_TEST_FAULT;
         }
     }
