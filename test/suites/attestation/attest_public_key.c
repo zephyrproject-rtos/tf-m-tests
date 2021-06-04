@@ -9,6 +9,9 @@
 #include "psa/crypto.h"
 #include <stdint.h>
 #include "attest.h"
+#ifdef ATTEST_TEST_GET_PUBLIC_KEY
+#include "tfm_attest_test_service_api.h"
+#endif
 
 /*!
  * \def ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH
@@ -18,10 +21,6 @@
  */
 #define ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH (1 + 2 * PSA_BITS_TO_BYTES(256))
 
-extern const psa_ecc_family_t initial_attest_curve_type;
-extern const uint8_t initial_attest_pub_key[];
-extern const uint32_t initial_attest_pub_key_size;
-
 /*!
  * \var public_key_registered
  *
@@ -30,11 +29,64 @@ extern const uint32_t initial_attest_pub_key_size;
  */
 static uint32_t public_key_registered = 0;
 
+static psa_status_t attest_import_public_key(psa_key_handle_t *public_key,
+                                             const uint8_t *key_buf,
+                                             size_t ken_len,
+                                             psa_ecc_family_t curve_type)
+{
+    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+
+    /* Setup the key usage flags, algorithm and key type for public key */
+    psa_set_key_usage_flags(&key_attributes, PSA_KEY_USAGE_VERIFY);
+    psa_set_key_algorithm(&key_attributes, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
+    psa_set_key_type(&key_attributes, PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve_type));
+
+    /* Register public key to Crypto service */
+    return psa_import_key(&key_attributes, key_buf, ken_len, public_key);
+}
+
+#ifdef ATTEST_TEST_GET_PUBLIC_KEY
 enum psa_attest_err_t
 attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
 {
     psa_status_t res;
-    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+    uint8_t public_key_buff[ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH] = {0};
+    size_t public_key_len;
+    psa_ecc_family_t ecc_curve;
+
+    /* Public key should be unregistered at this point */
+    if (public_key_registered != 0) {
+        return PSA_ATTEST_ERR_GENERAL;
+    }
+
+    res = tfm_initial_attest_get_public_key(public_key_buff,
+                                            sizeof(public_key_buff),
+                                            &public_key_len,
+                                            &ecc_curve);
+    if (res != PSA_SUCCESS) {
+        return PSA_ATTEST_ERR_GENERAL;
+    }
+
+    res = attest_import_public_key(public_key, public_key_buff, public_key_len,
+                                   ecc_curve);
+    if (res != PSA_SUCCESS) {
+        return PSA_ATTEST_ERR_GENERAL;
+    }
+
+    public_key_registered = 1;
+
+    return PSA_ATTEST_ERR_SUCCESS;
+}
+
+#else /* ATTEST_TEST_GET_PUBLIC_KEY */
+extern const psa_ecc_family_t initial_attest_curve_type;
+extern const uint8_t initial_attest_pub_key[];
+extern const uint32_t initial_attest_pub_key_size;
+
+enum psa_attest_err_t
+attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
+{
+    psa_status_t res;
 
     /* Public key should be unregistered at this point */
     if (public_key_registered != 0) {
@@ -49,18 +101,9 @@ attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
         return PSA_ATTEST_ERR_GENERAL;
     }
 
-    /* Setup the key usage flags, algorithm and key type for public key */
-    psa_set_key_usage_flags(&key_attributes, PSA_KEY_USAGE_VERIFY);
-    psa_set_key_algorithm(&key_attributes, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
-    psa_set_key_type(&key_attributes,
-                     PSA_KEY_TYPE_ECC_PUBLIC_KEY(initial_attest_curve_type));
-
-    /* Register public key to Crypto service */
-    res = psa_import_key(&key_attributes,
-                         (const uint8_t *)initial_attest_pub_key,
-                         initial_attest_pub_key_size,
-                         public_key);
-
+    res = attest_import_public_key(public_key, initial_attest_pub_key,
+                                   initial_attest_pub_key_size,
+                                   initial_attest_curve_type);
     if (res != PSA_SUCCESS) {
         return PSA_ATTEST_ERR_GENERAL;
     }
@@ -69,6 +112,7 @@ attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
+#endif /* ATTEST_TEST_GET_PUBLIC_KEY */
 
 enum psa_attest_err_t
 attest_unregister_initial_attestation_public_key(psa_key_handle_t public_key)
