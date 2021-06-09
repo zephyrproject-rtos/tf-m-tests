@@ -10,6 +10,7 @@ if(NOT TEST_BL1_1)
 endif()
 
 add_subdirectory(suites/crypto)
+add_subdirectory(suites/trng)
 
 add_library(bl1_1_tests STATIC)
 
@@ -30,4 +31,5 @@ target_link_libraries(bl1_1_tests
         bl1_1_shared_lib
         tfm_log
         bl1_1_test_suite_crypto
+        bl1_1_test_suite_trng
 )
