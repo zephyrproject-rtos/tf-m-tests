@@ -5,29 +5,20 @@
 #
 #-------------------------------------------------------------------------------
 
-if(NOT TEST_BL1_1)
-    return()
-endif()
+add_library(bl1_1_test_suite_crypto)
 
-add_subdirectory(suites/crypto)
-
-add_library(bl1_1_tests STATIC)
-
-target_sources(bl1_1_tests
+target_sources(bl1_1_test_suite_crypto
     PRIVATE
-        ./bl1_1_suites.c
+        ./bl1_1_crypto_tests.c
 )
 
-target_include_directories(bl1_1_tests
+target_include_directories(bl1_1_test_suite_crypto
     PUBLIC
-        interface
+        .
 )
 
-target_link_libraries(bl1_1_tests
+target_link_libraries(bl1_1_test_suite_crypto
     PRIVATE
         tfm_test_framework_common
-        platform_bl1
         bl1_1_shared_lib
-        tfm_log
-        bl1_1_test_suite_crypto
 )
