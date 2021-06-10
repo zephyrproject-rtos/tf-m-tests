@@ -11,6 +11,7 @@ endif()
 
 add_subdirectory(suites/crypto)
 add_subdirectory(suites/trng)
+add_subdirectory(suites/integration)
 
 add_library(bl1_1_tests STATIC)
 
@@ -32,4 +33,5 @@ target_link_libraries(bl1_1_tests
         tfm_log
         bl1_1_test_suite_crypto
         bl1_1_test_suite_trng
+        bl1_1_test_suite_integration
 )
