@@ -9,7 +9,11 @@
 #include "test_framework_integ_test_helper.h"
 #include "test_framework.h"
 
+#include "bl1_2_integration_tests.h"
+
 static struct test_suite_t test_suites[] = {
+
+    {&register_testsuite_bl1_2_integration, 0, 0, 0},
 
     /* End of test suites */
     {0, 0, 0, 0}
