@@ -69,9 +69,10 @@ static uint8_t attestation_public_key[ECC_P256_PUBLIC_KEY_SIZE];
 static size_t  attestation_public_key_len = 0;
 static psa_ecc_family_t attestation_key_curve;
 
+static bool is_public_key_exported = false;
+
 static psa_status_t attest_export_public_key(void)
 {
-
     enum tfm_plat_err_t plat_res;
     psa_ecc_family_t psa_curve;
     struct ecc_key_t attest_key = {0};
@@ -118,6 +119,18 @@ done:
 #ifdef TFM_PSA_API
 static psa_status_t attest_test_get_public_key(const psa_msg_t *msg)
 {
+    psa_status_t err;
+
+    /* Skip the export operation if the public key has been already exported. */
+    if (!is_public_key_exported) {
+        err = attest_export_public_key();
+        if (err != PSA_SUCCESS) {
+            return err;
+        }
+
+        is_public_key_exported = true;
+    }
+
     if (msg->out_size[0] < attestation_public_key_len) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
     }
@@ -162,12 +175,6 @@ static void attest_signal_handle(psa_signal_t signal)
 psa_status_t tfm_attest_test_service_init(void)
 {
     psa_signal_t signals;
-    psa_status_t err;
-
-    err = attest_export_public_key();
-    if (err != PSA_SUCCESS) {
-        psa_panic();
-    }
 
     while (1) {
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
@@ -181,8 +188,6 @@ psa_status_t tfm_attest_test_service_init(void)
     return PSA_ERROR_SERVICE_FAILURE;
 }
 #else /* TFM_PSA_API */
-static bool is_public_key_exported = false;
-
 psa_status_t tfm_attest_test_get_public_key(const psa_invec *in_vec,
                                             uint32_t num_invec,
                                             psa_outvec *out_vec,
