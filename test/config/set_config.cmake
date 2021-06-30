@@ -84,6 +84,12 @@ foreach(CACHE_VAR ${CACHE_VARS})
     endif()
 endforeach()
 
+########################## Test profile ########################################
+
+if (TFM_PROFILE)
+    include(${TFM_TEST_PATH}/config/profile/${TFM_PROFILE}_test.cmake)
+endif()
+
 ########################## Load default config #################################
 
 if (TEST_S)
