@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -415,12 +415,12 @@ static const uint8_t hash_val[][PSA_HASH_SIZE(PSA_ALG_SHA_512)] = {
 void psa_hash_test(const psa_algorithm_t alg,
                    struct test_result_t *ret)
 {
-    const char *msg[] = {"This is my test message, ",
-                         "please generate a hash for this."};
-
-    const size_t msg_size[] = {25, 32}; /* Length in bytes of msg[0], msg[1] */
-    const uint32_t msg_num = sizeof(msg)/sizeof(msg[0]);
-    uint32_t idx;
+    const char *msg =
+        "This is my test message, please generate a hash for this.";
+    /* Length of each chunk in the multipart API */
+    const size_t msg_size[] = {25, 32};
+    const uint32_t msg_num = sizeof(msg_size)/sizeof(msg_size[0]);
+    uint32_t idx, start_idx = 0;
 
     psa_status_t status;
     psa_hash_operation_t handle = psa_hash_operation_init();
@@ -441,20 +441,31 @@ void psa_hash_test(const psa_algorithm_t alg,
     /* Update object with all the chunks of message */
     for (idx=0; idx<msg_num; idx++) {
         status = psa_hash_update(&handle,
-                                 (const uint8_t *)msg[idx],msg_size[idx]);
+                                 (const uint8_t *)&msg[start_idx],
+                                 msg_size[idx]);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error updating the hash operation object");
             return;
         }
+        start_idx += msg_size[idx];
     }
 
     /* Cycle until idx points to the correct index in the algorithm table */
     for (idx=0; hash_alg[idx] != alg; idx++);
 
     /* Finalise and verify that the hash is as expected */
-    status = psa_hash_verify(&handle, &(hash_val[idx][0]), PSA_HASH_SIZE(alg));
+    status = psa_hash_verify(&handle, hash_val[idx], PSA_HASH_SIZE(alg));
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error verifying the hash operation object");
+        return;
+    }
+
+    /* Do the same as above with the single shot APIs */
+    status = psa_hash_compare(alg,
+                              (const uint8_t *)msg, strlen(msg),
+                              hash_val[idx], PSA_HASH_SIZE(alg));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error using the single shot API");
         return;
     }
 
