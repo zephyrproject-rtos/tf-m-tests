@@ -34,7 +34,7 @@ enum test_suite_err_t integ_test(const char *suite_type,
     TEST_LOG("\r\n*** %s test suites summary ***\r\n", suite_type);
     for (i = 0; test_suites[i].freg != NULL; i++) {
         printf_set_color(WHITE);
-        TEST_LOG("Test suite '%s' has ", test_suites[i].name);
+        TEST_LOG("Test suite '%s' has", test_suites[i].name);
         if (test_suites[i].val == TEST_PASSED) {
             printf_set_color(GREEN);
             TEST_LOG(" PASSED\r\n");

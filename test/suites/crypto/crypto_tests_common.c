@@ -542,15 +542,17 @@ static const uint8_t long_key_hmac_val[PSA_HASH_LENGTH(PSA_ALG_SHA_224)] = {
     0x3d, 0x07, 0x6f, 0x31
 };
 
+#define MAC_TEST_KEY_ID (0x1)
 void psa_mac_test(const psa_algorithm_t alg,
                   uint8_t use_long_key,
                   struct test_result_t *ret)
 {
-    const char *msg[] = {"This is my test message, ",
-                         "please generate a hmac for this."};
-    const size_t msg_size[] = {25, 32}; /* Length in bytes of msg[0], msg[1] */
-    const uint32_t msg_num = sizeof(msg)/sizeof(msg[0]);
-    uint32_t idx;
+    const char *msg =
+        "This is my test message, please generate a hmac for this.";
+    /* Length of each chunk in the multipart API */
+    const size_t msg_size[] = {25, 32};
+    const uint32_t msg_num = sizeof(msg_size)/sizeof(msg_size[0]);
+    uint32_t idx, start_idx = 0;
 
     psa_key_handle_t key_handle;
     const uint8_t data[] = "THIS IS MY KEY1";
@@ -569,6 +571,7 @@ void psa_mac_test(const psa_algorithm_t alg,
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
+    psa_set_key_id(&key_attributes, MAC_TEST_KEY_ID);
 
     /* Import key */
     if (use_long_key == 1) {
@@ -622,12 +625,13 @@ void psa_mac_test(const psa_algorithm_t alg,
     /* Update object with all the chunks of message */
     for (idx=0; idx<msg_num; idx++) {
         status = psa_mac_update(&handle,
-                                (const uint8_t *)msg[idx],
+                                (const uint8_t *)&msg[start_idx],
                                 msg_size[idx]);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error during mac operation");
             goto destroy_key_mac;
         }
+        start_idx += msg_size[idx];
     }
 
     /* Cycle until idx points to the correct index in the algorithm table */
@@ -636,18 +640,36 @@ void psa_mac_test(const psa_algorithm_t alg,
     /* Finalise and verify the mac value */
     if (use_long_key == 1) {
         status = psa_mac_verify_finish(
-                                     &handle,
-                                     &(long_key_hmac_val[0]),
-                                     PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
+                                   &handle,
+                                   long_key_hmac_val,
+                                   PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
     } else {
         status = psa_mac_verify_finish(
-                                     &handle,
-                                     &(hmac_val[idx][0]),
-                                     PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
+                                   &handle,
+                                   hmac_val[idx],
+                                   PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
     }
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error during finalising the mac operation");
         goto destroy_key_mac;
+    }
+
+    /* Do the same as above with the single shot APIs */
+    if (use_long_key == 1) {
+        status = psa_mac_verify(MAC_TEST_KEY_ID, alg,
+                                (const uint8_t *)msg,
+                                strlen(msg),
+                                long_key_hmac_val,
+                                PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
+    } else {
+        status = psa_mac_verify(MAC_TEST_KEY_ID, alg,
+                                (const uint8_t *)msg,
+                                strlen(msg),
+                                hmac_val[idx],
+                                PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
+    }
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error using the single shot API");
     }
 
 destroy_key_mac:
