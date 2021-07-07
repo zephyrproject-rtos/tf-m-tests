@@ -93,6 +93,7 @@ void psa_key_interface_test(const psa_key_type_t key_type,
     ret->val = TEST_PASSED;
 }
 
+#define CIPHER_TEST_KEY_ID (0x1)
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
                      struct test_result_t *ret)
@@ -130,6 +131,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
+    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
 
     /* Import a key */
     status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
@@ -298,6 +300,42 @@ void psa_cipher_test(const psa_key_type_t key_type,
     if (total_output_length != ENC_DEC_BUFFER_SIZE) {
         TEST_FAIL("After finalising, unexpected decrypted length");
         goto destroy_key;
+    }
+
+#if DOMAIN_NS == 1U
+    /* Clear intermediate buffers for additional single-shot API tests */
+    memset(encrypted_data, 0, sizeof(plain_text));
+#else
+    tfm_memset(decrypted_data, 0, sizeof(plain_text));
+#endif
+
+    /* Replicate the encryption-decryption test above using single-shot APIs */
+    status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
+                                BYTE_SIZE_CHUNK,
+                                encrypted_data, ENC_DEC_BUFFER_SIZE,
+                                &output_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error encrypting with the single-shot API");
+        goto destroy_key;
+    }
+
+    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg, encrypted_data,
+                                ENC_DEC_BUFFER_SIZE,
+                                decrypted_data, ENC_DEC_BUFFER_SIZE,
+                                &output_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error decrypting with the single shot API");
+        goto destroy_key;
+    }
+
+#if DOMAIN_NS == 1U
+    /* Check that the plain text matches the decrypted data */
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#else
+    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#endif
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
     }
 
 destroy_key:
