@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_MULTI_CORE_TOPOLOGY)
+if (NOT TEST_NS_MULTI_CORE)
     return()
 endif()
 
@@ -26,6 +26,8 @@ target_include_directories(tfm_test_suite_multi_core_ns
 target_compile_definitions(tfm_test_suite_multi_core_ns
     PRIVATE
         DOMAIN_NS=1
+    INTERFACE
+        TEST_NS_MULTI_CORE
 )
 
 target_link_libraries(tfm_test_suite_multi_core_ns

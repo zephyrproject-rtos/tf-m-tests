@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_ENABLE_SLIH_TEST AND NOT TFM_ENABLE_FLIH_TEST)
+if (NOT TEST_NS_SLIH_IRQ AND NOT TEST_NS_FLIH_IRQ)
     return()
 endif()
 
@@ -27,15 +27,15 @@ target_include_directories(tfm_test_suite_irq
 
 target_compile_definitions(tfm_test_suite_irq
     PUBLIC
-        $<$<BOOL:${TFM_ENABLE_SLIH_TEST}>:TFM_ENABLE_SLIH_TEST>
-        $<$<BOOL:${TFM_ENABLE_FLIH_TEST}>:TFM_ENABLE_FLIH_TEST>
+        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:TEST_NS_FLIH_IRQ>
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:TEST_NS_SLIH_IRQ>
 )
 
 target_link_libraries(tfm_test_suite_irq
     PRIVATE
         tfm_test_framework_ns
-        $<$<BOOL:${TFM_ENABLE_SLIH_TEST}>:tfm_slih_test_service_interface>
-        $<$<BOOL:${TFM_ENABLE_FLIH_TEST}>:tfm_flih_test_service_interface>
+        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:tfm_flih_test_service_interface>
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:tfm_slih_test_service_interface>
         platform_ns
 )
 

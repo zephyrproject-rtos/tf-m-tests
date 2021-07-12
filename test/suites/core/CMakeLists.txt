@@ -7,6 +7,10 @@
 
 cmake_policy(SET CMP0079 NEW)
 
+if (NOT TEST_NS_CORE)
+    return()
+endif()
+
 ####################### Non Secure #############################################
 
 add_library(tfm_test_suite_core_ns STATIC EXCLUDE_FROM_ALL)
@@ -27,6 +31,8 @@ target_compile_definitions(tfm_test_suite_core_ns
     PRIVATE
         DOMAIN_NS=1
         $<$<BOOL:${TFM_PERIPH_ACCESS_TEST}>:TFM_ENABLE_PERIPH_ACCESS_TEST>
+    INTERFACE
+        TEST_NS_CORE
 )
 
 target_link_libraries(tfm_test_suite_core_ns

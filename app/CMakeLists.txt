@@ -104,7 +104,7 @@ if (${TFM_PSA_API})
         # NS RTOS specific implementation of NS mailbox
         target_sources(tfm_api_ns PRIVATE
             $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
-            $<$<BOOL:${TEST_NS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
+            $<$<BOOL:${TEST_NS_MULTI_CORE}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
     else()
         target_sources(tfm_api_ns PRIVATE
@@ -214,7 +214,7 @@ target_include_directories(tfm_ns_integration_test
 
 target_link_libraries(tfm_ns_integration_test
     PUBLIC
-        $<$<BOOL:${TEST_NS}>:tfm_ns_tests>
+        $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
         tfm_test_framework_ns
     PRIVATE
         tfm_ns_interface
@@ -224,8 +224,8 @@ target_link_libraries(tfm_ns_integration_test
 
 target_compile_definitions(tfm_ns_integration_test
     PUBLIC
-        $<$<BOOL:${TEST_NS}>:TEST_FRAMEWORK_NS>
-        $<$<BOOL:${TEST_S}>:TEST_FRAMEWORK_S>
+        $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
 )
 
 ############################# TFM NS app #######################################
@@ -242,7 +242,7 @@ target_link_libraries(tfm_ns
     PRIVATE
         platform_ns
         CMSIS_5_tfm_ns
-        $<$<OR:$<BOOL:${TEST_NS}>,$<BOOL:${TEST_S}>>:tfm_ns_integration_test>
+        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<BOOL:${TEST_FRAMEWORK_S}>>:tfm_ns_integration_test>
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>

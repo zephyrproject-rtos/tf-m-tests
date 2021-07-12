@@ -7,8 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if((NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
-   OR SYMMETRIC_INITIAL_ATTESTATION)
+if (NOT TEST_NS_T_COSE)
     return()
 endif()
 
@@ -29,6 +28,8 @@ target_include_directories(tfm_test_suite_t_cose_ns
 target_compile_definitions(tfm_test_suite_t_cose_ns
     PRIVATE
         DOMAIN_NS=1
+    INTERFACE
+        TEST_NS_T_COSE
 )
 
 target_link_libraries(tfm_test_suite_t_cose_ns

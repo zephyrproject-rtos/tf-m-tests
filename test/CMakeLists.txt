@@ -37,7 +37,7 @@ add_subdirectory(suites/irq)
 if(TFM_PSA_API)
     add_subdirectory(suites/ipc)
 endif()
-if(TFM_MULTI_CORE_TOPOLOGY AND TEST_NS)
+if(TEST_NS_MULTI_CORE)
     add_subdirectory(suites/multi_core/non_secure)
 endif()
 
@@ -100,7 +100,7 @@ target_link_libraries(tfm_test_framework_s
         tfm_s_log
 )
 
-if (TEST_S)
+if (TEST_FRAMEWORK_S)
     target_sources(tfm_s_tests
         INTERFACE
             ${CMAKE_CURRENT_SOURCE_DIR}/framework/secure_suites.c

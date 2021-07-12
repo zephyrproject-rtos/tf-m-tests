@@ -4,12 +4,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
+cmake_policy(SET CMP0079 NEW)
 
-if(NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
+if (NOT TEST_NS_QCBOR)
     return()
 endif()
-
-cmake_policy(SET CMP0079 NEW)
 
 ####################### Non Secure #############################################
 
@@ -28,6 +27,8 @@ target_include_directories(tfm_test_suite_qcbor_ns
 target_compile_definitions(tfm_test_suite_qcbor_ns
     PRIVATE
         DOMAIN_NS=1
+    INTERFACE
+        TEST_NS_QCBOR
 )
 
 target_link_libraries(tfm_test_suite_qcbor_ns
