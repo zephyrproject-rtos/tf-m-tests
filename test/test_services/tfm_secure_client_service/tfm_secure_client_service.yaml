@@ -39,11 +39,7 @@
   "dependencies": [
     "TFM_SECURE_CLIENT_2",
     "TFM_CRYPTO",
-    "TFM_PS_SET",
-    "TFM_PS_GET",
-    "TFM_PS_GET_INFO",
-    "TFM_PS_REMOVE",
-    "TFM_PS_GET_SUPPORT",
+    "TFM_PROTECTED_STORAGE_SERVICE",
     "TFM_ITS_SET",
     "TFM_ITS_GET",
     "TFM_ITS_GET_INFO",
