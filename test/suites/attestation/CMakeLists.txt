@@ -21,6 +21,7 @@ if (TEST_NS_ATTESTATION)
             attest_public_key.c
             attest_token_test.c
             attest_token_decode_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:attest_token_decode_symmetric.c>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:non_secure/attest_symmetric_ns_interface_testsuite.c>
             $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:attest_token_decode_asymmetric.c>
@@ -30,6 +31,7 @@ if (TEST_NS_ATTESTATION)
     target_include_directories(tfm_test_suite_attestation_ns
         PUBLIC
             non_secure
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util
         PRIVATE
             .
     )
@@ -70,6 +72,7 @@ if (TEST_S_ATTESTATION)
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_public_key.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_symmetric.c>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_symmetric_s_interface_testsuite.c>
             $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_asymmetric.c>
@@ -79,6 +82,7 @@ if (TEST_S_ATTESTATION)
     target_include_directories(tfm_test_suite_attestation_s
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/secure
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
     )
