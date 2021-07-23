@@ -31,7 +31,7 @@
     }
   ],
   "dependencies": [
-    "TFM_ITS_GET",
-    "TFM_CRYPTO"
+    "TFM_CRYPTO",
+    "TFM_INTERNAL_TRUSTED_STORAGE_SERVICE"
   ]
 }
