@@ -56,6 +56,9 @@ static void tfm_crypto_test_1037(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_HKDF
 static void tfm_crypto_test_1038(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_HKDF */
+#ifdef TFM_CRYPTO_TEST_ECDH
+static void tfm_crypto_test_1039(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ECDH */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -131,6 +134,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1038, "TFM_NS_CRYPTO_TEST_1038",
      "Non Secure HKDF key derivation", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_HKDF */
+#ifdef TFM_CRYPTO_TEST_ECDH
+    {&tfm_crypto_test_1039, "TFM_NS_CRYPTO_TEST_1039",
+     "Non Secure ECDH key agreement", {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ECDH */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -305,3 +312,10 @@ static void tfm_crypto_test_1038(struct test_result_t *ret)
     psa_key_derivation_test(PSA_ALG_HKDF(PSA_ALG_SHA_256), ret);
 }
 #endif /* TFM_CRYPTO_TEST_HKDF */
+
+#ifdef TFM_CRYPTO_TEST_ECDH
+static void tfm_crypto_test_1039(struct test_result_t *ret)
+{
+    psa_key_agreement_test(PSA_ALG_ECDH, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ECDH */

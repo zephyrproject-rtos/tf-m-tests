@@ -46,6 +46,7 @@ target_compile_definitions(tfm_test_suite_crypto_ns
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_GCM}>:TFM_CRYPTO_TEST_ALG_GCM>
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_SHA_512}>:TFM_CRYPTO_TEST_ALG_SHA_512>
         $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
+        $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
 )
 
 ####################### Secure #################################################
@@ -84,6 +85,7 @@ if (TEST_S)
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_GCM}>:TFM_CRYPTO_TEST_ALG_GCM>
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_SHA_512}>:TFM_CRYPTO_TEST_ALG_SHA_512>
             $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
+            $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
             $<$<BOOL:${CRYPTO_KEY_ID_ENCODES_OWNER}>:CRYPTO_KEY_ID_ENCODES_OWNER>
     )
 endif()
