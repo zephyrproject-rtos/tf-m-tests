@@ -46,6 +46,7 @@ target_link_libraries(tfm_psa_rot_partition_ipc_service
         platform_s
         tfm_test_framework_s
         tfm_arch
+        tfm_sprt
 )
 
 target_link_libraries(tfm_spm

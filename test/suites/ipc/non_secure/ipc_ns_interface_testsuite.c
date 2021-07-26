@@ -37,9 +37,7 @@ static void tfm_ipc_test_1010(struct test_result_t *ret);
 static void tfm_ipc_test_1011(struct test_result_t *ret);
 #endif
 
-#ifdef TFM_PARTITION_FFM11
 static void tfm_ipc_test_1012(struct test_result_t *ret);
-#endif
 
 static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1001, "TFM_NS_IPC_TEST_1001",
@@ -72,10 +70,8 @@ static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1011, "TFM_NS_IPC_TEST_1011",
      "Call APP RoT access another APP RoT memory test service", {TEST_PASSED}},
 #endif
-#ifdef TFM_PARTITION_FFM11
     {&tfm_ipc_test_1012, "TFM_NS_IPC_TEST_1012",
      "Accessing stateless service from non-secure client", {TEST_PASSED}},
-#endif
 };
 
 void register_testsuite_ns_ipc_interface(struct test_suite_t *p_test_suite)
@@ -412,7 +408,6 @@ static void tfm_ipc_test_1011(struct test_result_t *ret)
 }
 #endif
 
-#ifdef TFM_PARTITION_FFM11
 /**
  * \brief Accessing a stateless service
  *
@@ -426,14 +421,15 @@ static void tfm_ipc_test_1012(struct test_result_t *ret)
     psa_invec in_vec[] = { {&data, sizeof(uint32_t)} };
 
     /* Connecting to a stateless service should fail. */
-    handle = psa_connect(TFM_FFM11_SERVICE1_SID, TFM_FFM11_SERVICE1_VERSION);
+    handle = psa_connect(IPC_SERVICE_TEST_STATELESS_ROT_SID,
+                         IPC_SERVICE_TEST_STATELESS_ROT_VERSION);
     if (handle > 0) {
         TEST_FAIL("Connecting to stateless service test should fail.\r\n");
         return;
     }
 
     /* Calling a stateless service should succeed. */
-    status = psa_call(TFM_FFM11_SERVICE1_HANDLE, PSA_IPC_CALL,
+    status = psa_call(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, PSA_IPC_CALL,
                       in_vec, 1, NULL, 0);
     if (status < 0) {
         TEST_FAIL("Calling a stateless service test fail.\r\n");
@@ -442,4 +438,3 @@ static void tfm_ipc_test_1012(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-#endif
