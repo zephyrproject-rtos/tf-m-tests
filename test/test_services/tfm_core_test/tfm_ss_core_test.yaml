@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -92,22 +92,15 @@
       "version_policy": "STRICT"
     },
     {
-      "name": "SPM_CORE_TEST_SPM_REQUEST",
+      "name": "SPM_CORE_TEST_BLOCK",
       "sid": "0x0000F029",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
-      "name": "SPM_CORE_TEST_BLOCK",
-      "sid": "0x0000F02A",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
       "name": "SPM_CORE_TEST_NS_THREAD",
-      "sid": "0x0000F02B",
+      "sid": "0x0000F02A",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"

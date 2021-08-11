@@ -11,7 +11,6 @@
 #include "test_framework.h"
 #include "tfm_veneers.h"
 #include "tfm_secure_api.h"
-#include "tfm/tfm_spm_services.h"
 #include "psa/service.h"
 #include "tfm_plat_test.h"
 #include "psa_manifest/pid.h"
@@ -326,17 +325,6 @@ static psa_status_t test_get_caller_client_id(void)
     return CORE_TEST_ERRNO_SUCCESS;
 }
 
-static psa_status_t test_spm_request(void)
-{
-    /* Request a reset vote, should be successful */
-    int32_t ret = tfm_spm_request_reset_vote();
-
-    if (ret != TFM_SUCCESS) {
-        return CORE_TEST_ERRNO_SLAVE_SP_CALL_FAILURE;
-    }
-
-    return CORE_TEST_ERRNO_SUCCESS;
-}
 #endif /* !defined(TFM_PSA_API) */
 
 #ifdef CORE_TEST_INTERACTIVE
@@ -408,8 +396,6 @@ psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
         return test_peripheral_access();
     case CORE_TEST_ID_GET_CALLER_CLIENT_ID:
         return test_get_caller_client_id();
-    case CORE_TEST_ID_SPM_REQUEST:
-        return test_spm_request();
     case CORE_TEST_ID_BLOCK:
         return test_block();
     case CORE_TEST_ID_NS_THREAD:
@@ -494,11 +480,6 @@ static psa_status_t tfm_core_test_sfn_wrap_get_caller_client_id(psa_msg_t *msg)
     return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
 }
 
-static psa_status_t tfm_core_test_sfn_wrap_spm_request(psa_msg_t *msg)
-{
-    return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
-}
-
 static psa_status_t tfm_core_test_sfn_wrap_block(psa_msg_t *msg)
 {
     return test_block();
@@ -568,9 +549,6 @@ psa_status_t core_test_init(void)
         } else if (signals & SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL,
                                    tfm_core_test_sfn_wrap_get_caller_client_id);
-        } else if (signals & SPM_CORE_TEST_SPM_REQUEST_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_SPM_REQUEST_SIGNAL,
-                                    tfm_core_test_sfn_wrap_spm_request);
         } else if (signals & SPM_CORE_TEST_BLOCK_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_BLOCK_SIGNAL,
                                     tfm_core_test_sfn_wrap_block);
