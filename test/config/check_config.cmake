@@ -49,8 +49,15 @@ tfm_invalid_config((TFM_LIB_MODEL) AND (TEST_NS_IPC OR TEST_S_IPC OR TEST_NS_SLI
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 
-# So far all regression tests are triggered from NS app
-tfm_invalid_config(NOT NS)
+########################## Check Framework #####################################
+
+# In IPC model, NS regression test needs NS. Secure regression test can build
+# without NS.
+tfm_invalid_config(NOT NS AND TEST_FRAMEWORK_NS AND NOT TFM_LIB_MODEL)
+
+# In library model, when regression test(TEST_FRAMEWORK_NS or TEST_FRAMEWORK_S)
+# open, NS shall be ON.
+tfm_invalid_config(NOT NS AND (TEST_FRAMEWORK_NS OR TEST_FRAMEWORK_S) AND TFM_LIB_MODEL)
 
 ########################## Check suites dependence #############################
 

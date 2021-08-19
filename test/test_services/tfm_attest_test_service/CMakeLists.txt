@@ -76,22 +76,24 @@ target_include_directories(tfm_psa_rot_partition_attest_test_service_defs
 
 ############################ NS API ############################################
 
-target_sources(tfm_api_ns
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
-)
+if(TEST_FRAMEWORK_NS)
+    target_sources(tfm_api_ns
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
+    )
 
-# The veneers give warnings about not being properly declared so they get hidden
-# to not overshadow _real_ warnings.
-set_source_files_properties(tfm_attest_test_service_ns_api.c
-    PROPERTIES
-        COMPILE_FLAGS -Wno-implicit-function-declaration
-)
+    # The veneers give warnings about not being properly declared so they get hidden
+    # to not overshadow _real_ warnings.
+    set_source_files_properties(tfm_attest_test_service_ns_api.c
+        PROPERTIES
+            COMPILE_FLAGS -Wno-implicit-function-declaration
+    )
 
-target_include_directories(tfm_api_ns
-    PUBLIC
-        .
-)
+    target_include_directories(tfm_api_ns
+        PUBLIC
+            .
+    )
+endif()
 
 ############################ Secure API ########################################
 

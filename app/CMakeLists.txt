@@ -223,6 +223,7 @@ target_compile_definitions(tfm_ns_integration_test
     PUBLIC
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
+        $<$<BOOL:${TFM_LIB_MODEL}>:TFM_LIB_MODEL>
 )
 
 ############################# TFM NS app #######################################

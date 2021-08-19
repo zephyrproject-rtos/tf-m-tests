@@ -56,22 +56,27 @@ target_link_libraries(tfm_spm
 
 ############################ NS API ############################################
 
-target_sources(tfm_api_ns
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_secure_client_service_api.c
-)
+# As secure regression tests can run without non-secure client trigger in IPC
+# model now, function tfm_secure_client_service_api.c will be used only in
+# library model
+if(NS AND TFM_LIB_MODEL)
+    target_sources(tfm_api_ns
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/tfm_secure_client_service_api.c
+    )
 
-# The veneers give warnings about not being properly declared so they get hidden
-# to not overshadow _real_ warnings.
-set_source_files_properties(tfm_secure_client_service_api.c
-    PROPERTIES
-        COMPILE_FLAGS -Wno-implicit-function-declaration
-)
+    # The veneers give warnings about not being properly declared so they get hidden
+    # to not overshadow _real_ warnings.
+    set_source_files_properties(tfm_secure_client_service_api.c
+        PROPERTIES
+            COMPILE_FLAGS -Wno-implicit-function-declaration
+    )
 
-target_include_directories(tfm_api_ns
-    PUBLIC
-        .
-)
+    target_include_directories(tfm_api_ns
+        PUBLIC
+            .
+    )
+endif()
 
 ############################ Partition Defs ####################################
 
