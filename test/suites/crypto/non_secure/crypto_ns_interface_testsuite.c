@@ -59,6 +59,9 @@ static void tfm_crypto_test_1038(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ECDH
 static void tfm_crypto_test_1039(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ECDH */
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+static void tfm_crypto_test_1040(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -138,6 +141,11 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1039, "TFM_NS_CRYPTO_TEST_1039",
      "Non Secure ECDH key agreement", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ECDH */
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+    {&tfm_crypto_test_1040, "TFM_S_CRYPTO_TEST_1040",
+     "Non Secure Symmetric encryption (AES-128-OFB) interface",
+    {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -294,7 +302,7 @@ static void tfm_crypto_test_1035(struct test_result_t *ret)
 
     psa_aead_test(PSA_KEY_TYPE_AES, alg, ret);
 }
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#endif /* TFM_CRYPTO_TEST_ALG_CCM */
 
 static void tfm_crypto_test_1036(struct test_result_t *ret)
 {
@@ -319,3 +327,10 @@ static void tfm_crypto_test_1039(struct test_result_t *ret)
     psa_key_agreement_test(PSA_ALG_ECDH, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ECDH */
+
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+static void tfm_crypto_test_1040(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_OFB, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_OFB */

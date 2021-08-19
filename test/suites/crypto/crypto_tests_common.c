@@ -857,6 +857,9 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
     PSA_ALG_CTR,
 #endif
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+    PSA_ALG_OFB,
+#endif
 #ifdef TFM_CRYPTO_TEST_ALG_GCM
     PSA_ALG_GCM,
 #endif
