@@ -65,6 +65,11 @@ target_include_directories(tfm_test_framework_common
         framework
 )
 
+target_compile_definitions(tfm_test_framework_ns
+    INTERFACE
+        DOMAIN_NS=1
+)
+
 target_link_libraries(tfm_test_framework_ns
     INTERFACE
         tfm_test_framework_common
@@ -97,7 +102,7 @@ target_link_libraries(tfm_test_framework_s
     INTERFACE
         psa_interface
         tfm_test_framework_common
-        tfm_s_log
+        tfm_sp_log_raw
 )
 
 if (TEST_FRAMEWORK_S)
