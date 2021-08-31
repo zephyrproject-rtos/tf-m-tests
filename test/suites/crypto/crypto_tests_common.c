@@ -170,14 +170,16 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Set the IV */
-    status = psa_cipher_set_iv(&handle, iv, iv_length);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting the IV on the cypher operation object");
-        status = psa_cipher_abort(&handle);
+    if (alg != PSA_ALG_ECB_NO_PADDING) {
+        status = psa_cipher_set_iv(&handle, iv, iv_length);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+            TEST_FAIL("Error setting the IV on the cypher operation object");
+            status = psa_cipher_abort(&handle);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key;
         }
-        goto destroy_key;
     }
 
     /* Encrypt one chunk of information */
@@ -236,14 +238,16 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Set the IV for decryption */
-    status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting the IV for decryption");
-        status = psa_cipher_abort(&handle_dec);
+    if (alg != PSA_ALG_ECB_NO_PADDING) {
+        status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+            TEST_FAIL("Error setting the IV for decryption");
+            status = psa_cipher_abort(&handle_dec);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key;
         }
-        goto destroy_key;
     }
 
     /* Decrypt */
@@ -853,6 +857,9 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 #endif
 #ifdef TFM_CRYPTO_TEST_ALG_CFB
     PSA_ALG_CFB,
+#endif
+#ifdef TFM_CRYPTO_TEST_ALG_ECB
+    PSA_ALG_ECB_NO_PADDING,
 #endif
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
     PSA_ALG_CTR,
