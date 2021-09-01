@@ -35,6 +35,9 @@
 #include "audit_s_tests.h"
 #endif
 #endif /* TFM_PSA_API */
+#ifdef EXTRA_S_TEST_SUITE
+#include "extra_s_tests.h"
+#endif
 
 static struct test_suite_t test_suites[] = {
 #ifdef TEST_S_PS
@@ -81,6 +84,12 @@ static struct test_suite_t test_suites[] = {
     /* Secure IPC test cases */
     {&register_testsuite_s_ipc_interface, 0, 0, 0},
 #endif
+
+#ifdef EXTRA_S_TEST_SUITE
+    /* Secure extra test cases */
+    {&register_testsuite_extra_s_interface, 0, 0, 0},
+#endif
+
     /* End of test suites */
     {0, 0, 0, 0}
 };

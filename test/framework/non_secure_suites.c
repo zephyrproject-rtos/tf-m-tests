@@ -53,6 +53,9 @@
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
 #include "irq_testsuite.h"
 #endif
+#ifdef EXTRA_NS_TEST_SUITE
+#include "extra_ns_tests.h"
+#endif
 
 static struct test_suite_t test_suites[] = {
     /* List test cases which are compliant with level 1 isolation */
@@ -114,6 +117,11 @@ static struct test_suite_t test_suites[] = {
 #ifdef TEST_NS_MULTI_CORE
     /* Multi-core topology test cases */
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
+#endif
+
+#ifdef EXTRA_NS_TEST_SUITE
+    /* Non-secure extra test cases */
+    {&register_testsuite_extra_ns_interface, 0, 0, 0},
 #endif
 
 #ifdef TFM_FUZZER_TOOL_TESTS
