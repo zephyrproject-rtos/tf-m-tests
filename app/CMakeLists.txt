@@ -30,6 +30,9 @@ set(INTERFACE_INC_DIR    ${CMAKE_SOURCE_DIR}/interface/include)
 # NS interface implemented by NSPE
 set(NS_INTERFACE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../ns_interface)
 
+# nsid_manager
+set(NSID_MGR_DIR         ${NS_INTERFACE_DIR}/ns_client_ext)
+
 #################### TF-M NS interface (header only) ###########################
 
 add_library(tfm_ns_interface INTERFACE)
@@ -47,6 +50,7 @@ target_include_directories(tfm_ns_interface
 target_include_directories(tfm_ns_interface
     INTERFACE
         ${NS_INTERFACE_DIR}
+        ${NSID_MGR_DIR}
 )
 
 # PSA interface files are generated from a template
@@ -65,7 +69,7 @@ target_compile_definitions(tfm_ns_interface
     INTERFACE
         $<$<BOOL:${TFM_PSA_API}>:TFM_PSA_API>
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:TFM_NS_CLIENT_IDENTIFICATION>
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:TFM_MULTI_CORE_TOPOLOGY>
         $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:TFM_MULTI_CORE_NS_OS>
         $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>,$<BOOL:${TFM_MULTI_CORE_NS_OS}>>:TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD>
@@ -75,6 +79,11 @@ target_compile_definitions(tfm_ns_interface
 ###################### TF-M NS interface api (NS lib) ##########################
 
 add_library(tfm_api_ns STATIC)
+
+target_sources(tfm_api_ns
+    PRIVATE
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${NSID_MGR_DIR}/tfm_nsid_manager.c>
+)
 
 if (${TFM_PSA_API})
     target_sources(tfm_api_ns PRIVATE
@@ -269,9 +278,11 @@ add_library(CMSIS_5_tfm_ns INTERFACE)
 
 target_sources(CMSIS_5_tfm_ns
     INTERFACE
+        ${NSID_MGR_DIR}/tz_shim_layer.c
         ${CMSIS_5_PATH}/RTOS2/RTX/Config/RTX_Config.c
         ${CMSIS_5_PATH}/RTOS2/RTX/Source/rtx_lib.c
         ${CMAKE_CURRENT_SOURCE_DIR}/os_wrapper_cmsis_rtos_v2.c
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_SOURCE_DIR}/tfm_nsid_map_table.c>
 )
 
 target_include_directories(CMSIS_5_tfm_ns
@@ -280,9 +291,15 @@ target_include_directories(CMSIS_5_tfm_ns
         ${CMSIS_5_PATH}/RTOS2/Include
         ${CMSIS_5_PATH}/RTOS2/RTX/Include
         ${CMSIS_5_PATH}/RTOS2/RTX/Config
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 target_link_libraries(CMSIS_5_tfm_ns
     INTERFACE
         platform_ns
+)
+
+target_compile_definitions(CMSIS_5_tfm_ns
+    INTERFACE
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
 )

@@ -9,6 +9,7 @@
 #include "cmsis_os2.h"
 #include "cmsis_compiler.h"
 #include "tfm_ns_interface.h"
+#include "tfm_nsid_manager.h"
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
 #include "tfm_integ_test.h"
 #endif
@@ -52,7 +53,8 @@ __asm("  .global __ARM_use_no_argv\n");
  || defined(PSA_API_TEST_NS)
 static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
-    .stack_size = 4096U
+    .stack_size = 4096U,
+    .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
 };
 #endif
 
