@@ -65,6 +65,10 @@ static void tfm_crypto_test_1040(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_ECB
 static void tfm_crypto_test_1041(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+static void tfm_crypto_test_1042(struct test_result_t *ret);
+static void tfm_crypto_test_1043(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -154,6 +158,13 @@ static struct test_t crypto_tests[] = {
      "Non Secure Symmetric encryption (AES-128-ECB) interface",
     {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+    {&tfm_crypto_test_1042, "TFM_NS_CRYPTO_TEST_1042",
+     "Non Secure Asymmetric encryption interface (RSA_OAEP)", {TEST_PASSED} },
+    {&tfm_crypto_test_1043, "TFM_NS_CRYPTO_TEST_1043",
+     "Non Secure Asymmetric encryption interface (RSA_PKCS1V15)",
+     {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -349,3 +360,15 @@ static void tfm_crypto_test_1041(struct test_result_t *ret)
     psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_ECB_NO_PADDING, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
+
+#ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
+static void tfm_crypto_test_1042(struct test_result_t *ret)
+{
+    psa_asymmetric_encryption_test(PSA_ALG_RSA_OAEP(PSA_ALG_SHA_256), ret);
+}
+
+static void tfm_crypto_test_1043(struct test_result_t *ret)
+{
+    psa_asymmetric_encryption_test(PSA_ALG_RSA_PKCS1V15_CRYPT, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */

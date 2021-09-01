@@ -197,6 +197,16 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
  */
 void psa_key_agreement_test(psa_algorithm_t deriv_alg,
                             struct test_result_t *ret);
+
+/**
+ * \brief Asymmetric encryption/decryption test
+ *
+ *  \param[in] alg  Encryption algorithm
+ *  \param[out] ret Test result
+ */
+void psa_asymmetric_encryption_test(psa_algorithm_t alg,
+                                    struct test_result_t *ret);
+
 #ifdef __cplusplus
 }
 #endif
