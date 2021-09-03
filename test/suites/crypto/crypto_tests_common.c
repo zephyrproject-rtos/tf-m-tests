@@ -1136,12 +1136,12 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
 #define KEY_DERIV_RAW_MAX_PEER_LEN 100
 #define KEY_DERIV_RAW_OUTPUT_LEN   48
 
-/* An example of a 48 bytes / 384 bits ECDSA private key */
-static const uint8_t private_key_384[] = {
-0x03, 0xdf, 0x14, 0xf4, 0xb8, 0xa4, 0x3f, 0xd8, 0xab, 0x75, 0xa6, 0x04, 0x6b,
-0xd2, 0xb5, 0xea, 0xa6, 0xfd, 0x10, 0xb2, 0xb2, 0x03, 0xfd, 0x8a, 0x78, 0xd7,
-0x91, 0x6d, 0xe2, 0x0a, 0xa2, 0x41, 0xeb, 0x37, 0xec, 0x3d, 0x4c, 0x69, 0x3d,
-0x23, 0xba, 0x2b, 0x4f, 0x6e, 0x5b, 0x66, 0xf5, 0x7f};
+/* An example of a 32 bytes / 256 bits ECDSA private key */
+static const uint8_t ecdsa_private_key[] = {
+    0x11, 0xb5, 0x73, 0x7c, 0xf9, 0xd9, 0x3f, 0x17,
+    0xc0, 0xcb, 0x1a, 0x84, 0x65, 0x5d, 0x39, 0x95,
+    0xa0, 0x28, 0x24, 0x09, 0x7e, 0xff, 0xa5, 0xed,
+    0xd8, 0xee, 0x26, 0x38, 0x1e, 0xb5, 0xd6, 0xc3};
 /* Buffer to hold the peer key of the key agreement process */
 static uint8_t raw_agreement_peer_key[KEY_DERIV_RAW_MAX_PEER_LEN] = {0};
 
@@ -1171,8 +1171,8 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
     psa_set_key_id(&input_key_attr, RAW_AGREEMENT_TEST_KEY_ID);
-    status = psa_import_key(&input_key_attr, private_key_384,
-                            sizeof(private_key_384), &input_handle);
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &input_handle);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the private key");
         return;
@@ -1200,7 +1200,7 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
         goto destroy_key;
     }
 
-    if (raw_agreement_output_size != sizeof(private_key_384)) {
+    if (raw_agreement_output_size != sizeof(ecdsa_private_key)) {
         TEST_FAIL("Agreed key size is different than expected!");
         goto destroy_key;
     }
