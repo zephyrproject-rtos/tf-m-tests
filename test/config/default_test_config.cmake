@@ -70,6 +70,10 @@ set(TFM_FWU_TEST_QUERY_WITH_NULL        OFF         CACHE BOOL      "Test psa_fw
 
 set(ATTEST_TEST_GET_PUBLIC_KEY          OFF         CACHE BOOL      "Require to retrieve Initial Attestation public in runtime for test purpose")
 
+############################################ FPU Tests #########################
+
+set(TEST_S_FPU                          OFF         CACHE BOOL      "Whether to build S regression FPU tests")
+
 ################################## Extra test suites ###########################
 
 set(EXTRA_NS_TEST_SUITES_PATHS          ""          CACHE PATH      "List of extra non-secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")

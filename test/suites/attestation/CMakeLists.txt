@@ -48,7 +48,7 @@ if (TEST_NS_ATTESTATION)
 
     target_link_libraries(tfm_test_suite_attestation_ns
         PRIVATE
-            tfm_qcbor
+            tfm_qcbor_ns
             tfm_t_cose_ns
             tfm_test_framework_ns
             #TODO I'm not sure this should _really_ be linked here
@@ -96,9 +96,14 @@ if (TEST_S_ATTESTATION)
             TEST_S_ATTESTATION
     )
 
+    target_compile_options(tfm_test_suite_attestation_s
+        PUBLIC
+            ${COMPILER_CP_FLAG}
+    )
+
     target_link_libraries(tfm_test_suite_attestation_s
         PRIVATE
-            tfm_qcbor
+            tfm_qcbor_s
             tfm_t_cose_s
             tfm_test_framework_s
             tfm_attestation_defs

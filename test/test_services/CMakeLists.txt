@@ -40,3 +40,7 @@ endif()
 if (TEST_NS_FLIH_IRQ)
     add_subdirectory(tfm_flih_test_service)
 endif()
+
+if (TEST_S_FPU)
+    add_subdirectory(tfm_fpu_service)
+endif()

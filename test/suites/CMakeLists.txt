@@ -84,6 +84,7 @@ add_subdirectory(ipc)
 add_subdirectory(irq)
 add_subdirectory(multi_core/non_secure)
 add_subdirectory(nsid)
+add_subdirectory(fpu)
 
 if (TFM_FUZZER_TOOL_TESTS AND TEST_FRAMEWORK_NS)
     if (NOT DEFINED TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH)

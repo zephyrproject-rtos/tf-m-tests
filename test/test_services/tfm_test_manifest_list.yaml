@@ -158,6 +158,20 @@
            "*tfm_*partition_flih_test.*"
          ]
       }
+    },
+    {
+      "name": "TFM FPU Test Service",
+      "short_name": "TFM_SP_FPU_SERVICE_TEST",
+      "manifest": "tfm_fpu_service/tfm_fpu_service_test.yaml",
+      "output_path": "test_services/tfm_fpu_service",
+      "conditional": "@TEST_S_FPU@",
+      "version_major": 0,
+      "version_minor": 1,
+      "linker_pattern": {
+        "library_list": [
+           "*tfm_*partition_fpu_service.*"
+         ]
+      }
     }
   ]
 }

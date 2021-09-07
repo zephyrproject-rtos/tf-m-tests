@@ -67,6 +67,10 @@ if (NOT TFM_NS_MANAGE_NSID)
     set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
 endif()
 
+if (CONFIG_TFM_SPE_FP STREQUAL "0")
+    set(TEST_S_FPU              OFF        CACHE BOOL      "Whether to build S regression FPU tests")
+endif()
+
 ########################## Test framework sync #################################
 
 get_cmake_property(CACHE_VARS CACHE_VARIABLES)

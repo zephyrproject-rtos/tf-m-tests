@@ -34,6 +34,7 @@ message(STATUS "TEST_S_PS is set as ${TEST_S_PS}")
 message(STATUS "TEST_S_PLATFORM is set as ${TEST_S_PLATFORM}")
 message(STATUS "TEST_S_FWU is set as ${TEST_S_FWU}")
 message(STATUS "TEST_S_IPC is set as ${TEST_S_IPC}")
+message(STATUS "TEST_S_FPU is set as ${TEST_S_FPU}")
 
 message(STATUS "---------- Display TEST Configuration - stop ---------------")
 
@@ -47,6 +48,8 @@ tfm_invalid_config((NOT TFM_PARTITION_PLATFORM AND NOT FORWARD_PROT_MSG) AND (TE
 tfm_invalid_config(NOT TFM_PARTITION_FIRMWARE_UPDATE AND (TEST_NS_FWU OR TEST_S_FWU))
 tfm_invalid_config(NOT TFM_PARTITION_AUDIT_LOG AND (TEST_NS_AUDIT OR TEST_S_AUDIT))
 tfm_invalid_config((TFM_LIB_MODEL) AND (TEST_NS_IPC OR TEST_S_IPC OR TEST_NS_SLIH_IRQ OR TEST_NS_FLIH_IRQ))
+tfm_invalid_config(CONFIG_TFM_SPE_FP STREQUAL "0" AND TEST_S_FPU)
+tfm_invalid_config(TFM_LIB_MODEL AND TEST_S_FPU)
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)
