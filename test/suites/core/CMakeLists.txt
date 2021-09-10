@@ -17,7 +17,6 @@ add_library(tfm_test_suite_core_ns STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_test_suite_core_ns
     PRIVATE
-        $<$<BOOL:${TFM_INTERACTIVE_TEST}>:non_secure/core_ns_interactive_testsuite.c>
         non_secure/core_ns_positive_testsuite.c
         non_secure/core_test_api.c
 )

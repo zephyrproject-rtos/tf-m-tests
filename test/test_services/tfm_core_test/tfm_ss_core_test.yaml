@@ -79,15 +79,8 @@
       "version_policy": "STRICT"
     },
     {
-      "name": "SPM_CORE_TEST_BLOCK",
-      "sid": "0x0000F028",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
       "name": "SPM_CORE_TEST_NS_THREAD",
-      "sid": "0x0000F029",
+      "sid": "0x0000F028",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"

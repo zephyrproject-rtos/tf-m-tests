@@ -41,10 +41,6 @@ set(TEST_S_PLATFORM         OFF        CACHE BOOL      "Whether to build S regre
 set(TEST_S_FWU              OFF        CACHE BOOL      "Whether to build S regression FWU tests")
 set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
 
-################################## Core Tests ##################################
-
-set(TFM_INTERACTIVE_TEST                OFF         CACHE BOOL      "Enable interactive tests")
-
 ################################## PS Tests ####################################
 
 set(PS_TEST_NV_COUNTERS                 ON          CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")

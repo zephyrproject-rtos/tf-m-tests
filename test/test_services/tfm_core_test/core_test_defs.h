@@ -27,7 +27,6 @@ extern "C" {
 #define CORE_TEST_ID_IOVEC_SANITIZATION   1014
 #define CORE_TEST_ID_OUTVEC_WRITE         1015
 #define CORE_TEST_ID_SECURE_IRQ           1016
-#define CORE_TEST_ID_BLOCK                2001
 
 /* Use lower 16 bits in return value for error code, upper 16 for line number
  * in test service

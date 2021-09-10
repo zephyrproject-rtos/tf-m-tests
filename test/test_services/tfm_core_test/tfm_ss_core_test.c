@@ -304,39 +304,6 @@ static psa_status_t test_get_caller_client_id(void)
 
 #endif /* !defined(TFM_PSA_API) */
 
-#ifdef CORE_TEST_INTERACTIVE
-static void wait_button_event(void)
-{
-    tfm_plat_test_wait_user_button_pressed();
-    /*
-     * The follow wait is required to skip multiple continues in one go due to
-     * the fast execution of the code and time used by the user to
-     * release button.
-     */
-
-    tfm_plat_test_wait_user_button_released();
-}
-
-psa_status_t test_wait_button(void)
-{
-    TEST_LOG("Inside the service, press button to continue...");
-    wait_button_event();
-    TEST_LOG("Leaving the service");
-    return CORE_TEST_ERRNO_SUCCESS;
-}
-#endif /* defined(CORE_TEST_INTERACTIVE) */
-
-static psa_status_t test_block(void)
-{
-#ifdef CORE_TEST_INTERACTIVE
-    /* Only block if interactive test is turned on */
-    return test_wait_button();
-#else /* defined(CORE_TEST_INTERACTIVE) */
-    /* This test should not be run if interactive tests are disabled */
-    return CORE_TEST_ERRNO_TEST_FAULT;
-#endif /* defined(CORE_TEST_INTERACTIVE) */
-}
-
 #ifndef TFM_PSA_API
 psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
                           struct psa_outvec *out_vec, size_t out_len)
@@ -371,8 +338,6 @@ psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
         return test_outvec_write();
     case CORE_TEST_ID_GET_CALLER_CLIENT_ID:
         return test_get_caller_client_id();
-    case CORE_TEST_ID_BLOCK:
-        return test_block();
     case CORE_TEST_ID_NS_THREAD:
         /* dummy service call is enough */
         return CORE_TEST_ERRNO_SUCCESS;
@@ -450,11 +415,6 @@ static psa_status_t tfm_core_test_sfn_wrap_get_caller_client_id(psa_msg_t *msg)
     return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
 }
 
-static psa_status_t tfm_core_test_sfn_wrap_block(psa_msg_t *msg)
-{
-    return test_block();
-}
-
 static psa_status_t tfm_core_test_sfn_wrap_ns_thread(psa_msg_t *msg)
 {
     return CORE_TEST_ERRNO_SUCCESS;
@@ -516,9 +476,6 @@ psa_status_t core_test_init(void)
         } else if (signals & SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL,
                                    tfm_core_test_sfn_wrap_get_caller_client_id);
-        } else if (signals & SPM_CORE_TEST_BLOCK_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_BLOCK_SIGNAL,
-                                    tfm_core_test_sfn_wrap_block);
         } else if (signals & SPM_CORE_TEST_NS_THREAD_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_NS_THREAD_SIGNAL,
                                     tfm_core_test_sfn_wrap_ns_thread);

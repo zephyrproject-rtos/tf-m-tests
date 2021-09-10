@@ -106,11 +106,6 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_ns_core_positive, 0, 0, 0},
 #endif
 
-#ifdef CORE_TEST_INTERACTIVE
-    /* Non-secure interactive test cases */
-    {&register_testsuite_ns_core_interactive, 0, 0, 0},
-#endif
-
 #ifdef TEST_NS_IPC
     /* Non-secure IPC test cases */
     {&register_testsuite_ns_ipc_interface, 0, 0, 0},
