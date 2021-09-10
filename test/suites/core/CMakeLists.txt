@@ -30,7 +30,6 @@ target_include_directories(tfm_test_suite_core_ns
 target_compile_definitions(tfm_test_suite_core_ns
     PRIVATE
         DOMAIN_NS=1
-        $<$<BOOL:${TFM_PERIPH_ACCESS_TEST}>:TFM_ENABLE_PERIPH_ACCESS_TEST>
     INTERFACE
         TEST_NS_CORE
 )

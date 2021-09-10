@@ -112,29 +112,6 @@ psa_status_t spm_core_test_sfn_direct_recursion(
 }
 #endif /* !defined(TFM_PSA_API) */
 
-static psa_status_t test_peripheral_access(void)
-{
-#ifdef TFM_ENABLE_PERIPH_ACCESS_TEST
-    uint32_t leds;
-    uint32_t invleds;
-    uint32_t userled_mask;
-
-    leds = tfm_plat_test_get_led_status();
-    tfm_plat_test_set_led_status(~leds);
-    invleds = tfm_plat_test_get_led_status();
-    userled_mask = tfm_plat_test_get_userled_mask();
-
-    if ((invleds & userled_mask) != (~leds & userled_mask)) {
-        /* Code failed to invert value in peripheral reg */
-        return CORE_TEST_ERRNO_PERIPHERAL_ACCESS_FAILED;
-    }
-
-    return CORE_TEST_ERRNO_SUCCESS;
-#else
-    return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
-#endif
-}
-
 #define SS_BUFFER_LEN 16
 
 static psa_status_t test_ss_to_ss_buffer(uint32_t *in_ptr, uint32_t *out_ptr,
@@ -392,8 +369,6 @@ psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
         return test_ss_to_ss_buffer((uint32_t *)arg1, (uint32_t *)arg2, arg3);
     case CORE_TEST_ID_OUTVEC_WRITE:
         return test_outvec_write();
-    case CORE_TEST_ID_PERIPHERAL_ACCESS:
-        return test_peripheral_access();
     case CORE_TEST_ID_GET_CALLER_CLIENT_ID:
         return test_get_caller_client_id();
     case CORE_TEST_ID_BLOCK:
@@ -470,11 +445,6 @@ static psa_status_t tfm_core_test_sfn_wrap_outvec_write(psa_msg_t *msg)
     return test_outvec_write();
 }
 
-static psa_status_t tfm_core_test_sfn_wrap_peripheral_access(psa_msg_t *msg)
-{
-    return test_peripheral_access();
-}
-
 static psa_status_t tfm_core_test_sfn_wrap_get_caller_client_id(psa_msg_t *msg)
 {
     return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
@@ -543,9 +513,6 @@ psa_status_t core_test_init(void)
         } else if (signals & SPM_CORE_TEST_OUTVEC_WRITE_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_OUTVEC_WRITE_SIGNAL,
                                     tfm_core_test_sfn_wrap_outvec_write);
-        } else if (signals & SPM_CORE_TEST_PERIPHERAL_ACCESS_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_PERIPHERAL_ACCESS_SIGNAL,
-                                    tfm_core_test_sfn_wrap_peripheral_access);
         } else if (signals & SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL,
                                    tfm_core_test_sfn_wrap_get_caller_client_id);

@@ -44,7 +44,6 @@ set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regre
 ################################## Core Tests ##################################
 
 set(TFM_INTERACTIVE_TEST                OFF         CACHE BOOL      "Enable interactive tests")
-set(TFM_PERIPH_ACCESS_TEST              OFF         CACHE BOOL      "Enable peripheral access tests")
 
 ################################## PS Tests ####################################
 
