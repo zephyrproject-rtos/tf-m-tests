@@ -213,13 +213,10 @@ target_include_directories(tfm_ns_integration_test
 )
 
 target_link_libraries(tfm_ns_integration_test
-    PUBLIC
-        $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
-        tfm_test_framework_ns
     PRIVATE
-        tfm_ns_interface
-        tfm_api_ns
-        CMSIS_5_tfm_ns
+        $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_ns_interface>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_api_ns>
 )
 
 target_compile_definitions(tfm_ns_integration_test

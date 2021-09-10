@@ -7,11 +7,10 @@
 
 #include "tfm_api.h"
 #include "cmsis_os2.h"
-#include "tfm_integ_test.h"
 #include "tfm_ns_svc.h"
 #include "tfm_ns_interface.h"
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
-#include "test_framework_integ_test.h"
+#include "tfm_integ_test.h"
 #endif
 #ifdef PSA_API_TEST_NS
 #include "psa_api_test.h"
@@ -32,12 +31,20 @@
  * \details RTX has a weak definition of osRtxUserSVC, which
  *          is overridden here
  */
-#if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION == 6110004))
+#if defined(__ARMCC_VERSION)
+#if (__ARMCC_VERSION == 6110004)
 /* Workaround needed for a bug in Armclang 6.11, more details at:
  * http://www.keil.com/support/docs/4089.htm
  */
 __attribute__((section(".gnu.linkonce")))
 #endif
+
+/* Avoids the semihosting issue */
+#if (__ARMCC_VERSION >= 6010050)
+__asm("  .global __ARM_use_no_argv\n");
+#endif
+#endif
+
 extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
        void * const osRtxUserSVC[1+USER_SVC_COUNT] = {
   (void *)USER_SVC_COUNT,
