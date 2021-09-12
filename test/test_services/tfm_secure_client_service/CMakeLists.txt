@@ -78,6 +78,14 @@ if(NS AND TFM_LIB_MODEL)
     )
 endif()
 
+# Export test service non-secure interface API in Library model
+if(TFM_LIB_MODEL)
+    install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_secure_client_service_api.c
+            DESTINATION ${TEST_SERVICE_SRC_INSTALL_DIR})
+    install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_secure_client_service_api.h
+            DESTINATION ${TEST_SERVICE_INC_INSTALL_DIR})
+endif()
+
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions

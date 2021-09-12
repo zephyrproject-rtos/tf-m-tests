@@ -94,6 +94,12 @@ if(TEST_FRAMEWORK_NS)
     )
 endif()
 
+# Export test service non-secure interface API
+install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
+        DESTINATION ${TEST_SERVICE_SRC_INSTALL_DIR})
+install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_api.h
+        DESTINATION ${TEST_SERVICE_INC_INSTALL_DIR})
+
 ############################ Secure API ########################################
 
 target_sources(tfm_secure_api

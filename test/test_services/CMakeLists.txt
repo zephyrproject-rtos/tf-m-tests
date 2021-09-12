@@ -5,45 +5,10 @@
 #
 #-------------------------------------------------------------------------------
 
-# Since the main test directory is a NS dir, this subdir is specifically made a
-# secure directory as it build the secure side test services
-if (TFM_MULTI_CORE_TOPOLOGY)
-    include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload.cmake)
-    tfm_toolchain_reload_compiler()
-endif()
-
-if (TEST_FRAMEWORK_S)
-    # Secure tests are declared in this dir so that it can use the secure CPU
-    # definitions
-    add_library(tfm_s_tests INTERFACE)
-    if (TEST_S_CRYPTO)
-        add_library(tfm_test_suite_crypto_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_ATTESTATION)
-        add_library(tfm_test_suite_attestation_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_ITS)
-        add_library(tfm_test_suite_its_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_PS)
-        add_library(tfm_test_suite_ps_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_AUDIT)
-        add_library(tfm_test_suite_audit_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_PLATFORM)
-        add_library(tfm_test_suite_platform_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_IPC)
-        add_library(tfm_test_suite_ipc_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (TEST_S_FWU)
-        add_library(tfm_test_suite_fwu_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-    if (EXTRA_S_TEST_SUITES_PATHS)
-        add_library(tfm_test_suite_extra_s STATIC EXCLUDE_FROM_ALL)
-    endif()
-endif()
+# Install directory for non-secure interface API of test services
+# NS can pick up those interface files to build non-secure test cases
+set(TEST_SERVICE_SRC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/src/test_service)
+set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_service)
 
 if (TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
     add_subdirectory(tfm_attest_test_service)

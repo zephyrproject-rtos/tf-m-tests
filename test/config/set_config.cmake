@@ -70,14 +70,17 @@ endif()
 ########################## Test framework sync #################################
 
 get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-# Force TEST_FRAMEWORK_NS ON if single NS test ON
-foreach(CACHE_VAR ${CACHE_VARS})
-    string(REGEX MATCH "^TEST_NS_.*" _NS_TEST_FOUND "${CACHE_VAR}")
-    if (_NS_TEST_FOUND AND "${${CACHE_VAR}}")
-        set(TEST_FRAMEWORK_NS       ON        CACHE BOOL      "Whether to build NS regression tests framework")
-        break()
-    endif()
-endforeach()
+
+if (NS)
+    # Force TEST_FRAMEWORK_NS ON if single NS test ON
+    foreach(CACHE_VAR ${CACHE_VARS})
+        string(REGEX MATCH "^TEST_NS_.*" _NS_TEST_FOUND "${CACHE_VAR}")
+        if (_NS_TEST_FOUND AND "${${CACHE_VAR}}")
+            set(TEST_FRAMEWORK_NS       ON        CACHE BOOL      "Whether to build NS regression tests framework")
+            break()
+        endif()
+    endforeach()
+endif()
 
 # Force TEST_FRAMEWORK_S ON if single S test ON
 foreach(CACHE_VAR ${CACHE_VARS})
@@ -110,6 +113,13 @@ if (TEST_S)
     include(${TFM_TEST_PATH}/config/default_s_test_config.cmake)
 endif()
 if (TEST_NS)
+    if (NOT NS)
+        # In this case, TEST_NS is used to configure corresponding test secure
+        # services during SPE build alone.
+        # Disable TEST_FRAMEWORK_NS if NS is OFF as NS test framework shall
+        # run inside NS environment
+        set(TEST_FRAMEWORK_NS       OFF        CACHE BOOL      "Whether to build NS regression tests framework")
+    endif()
     include(${TFM_TEST_PATH}/config/default_ns_test_config.cmake)
 endif()
 
