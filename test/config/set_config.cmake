@@ -51,7 +51,7 @@ if (NOT TFM_PARTITION_AUDIT_LOG)
     set(TEST_S_AUDIT            OFF        CACHE BOOL      "Whether to build S regression Audit log tests")
 endif()
 
-if (NOT TFM_PSA_API)
+if (TFM_LIB_MODEL)
     set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
     set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
 
