@@ -57,7 +57,6 @@ target_link_libraries(tfm_psa_rot_partition_attest_test_service
         tfm_secure_api
         psa_interface
         platform_s
-        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm

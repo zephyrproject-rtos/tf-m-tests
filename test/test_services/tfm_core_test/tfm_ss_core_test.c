@@ -8,7 +8,6 @@
 #include <stddef.h>
 #include "core_test_defs.h"
 #include "tfm_ss_core_test.h"
-#include "test_framework.h"
 #include "tfm_veneers.h"
 #include "tfm_secure_api.h"
 #include "psa/service.h"

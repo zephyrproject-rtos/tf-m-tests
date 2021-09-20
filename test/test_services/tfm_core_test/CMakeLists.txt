@@ -45,17 +45,11 @@ target_link_libraries(tfm_psa_rot_partition_core_test
         psa_interface
         platform_s
         tfm_arch
-        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm
     PRIVATE
         tfm_psa_rot_partition_core_test
-)
-
-target_include_directories(tfm_test_framework_s
-    INTERFACE
-        .
 )
 
 # header files included by other libraries
