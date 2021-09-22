@@ -47,7 +47,6 @@ target_include_directories(tfm_ns_interface
 target_include_directories(tfm_ns_interface
     INTERFACE
         ${NS_INTERFACE_DIR}
-        ${NS_INTERFACE_DIR}/ns_client_id
 )
 
 # PSA interface files are generated from a template
@@ -76,12 +75,6 @@ target_compile_definitions(tfm_ns_interface
 ###################### TF-M NS interface api (NS lib) ##########################
 
 add_library(tfm_api_ns STATIC)
-
-target_sources(tfm_api_ns
-    PRIVATE
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_svc_handler.c>
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_api.c>
-)
 
 if (${TFM_PSA_API})
     target_sources(tfm_api_ns PRIVATE
@@ -139,9 +132,6 @@ target_link_libraries(tfm_api_ns
     PRIVATE
         $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         platform_ns
-        # CMSIS is currently only required to provide the NS client IDs. In
-        # future, this should probably be made more OS agnostic
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:CMSIS_5_tfm_ns>
 )
 
 ############################# PSA test integration #############################

@@ -7,7 +7,7 @@
 
 #include "tfm_api.h"
 #include "cmsis_os2.h"
-#include "tfm_ns_svc.h"
+#include "cmsis_compiler.h"
 #include "tfm_ns_interface.h"
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
 #include "tfm_integ_test.h"
@@ -44,25 +44,6 @@ __attribute__((section(".gnu.linkonce")))
 __asm("  .global __ARM_use_no_argv\n");
 #endif
 #endif
-
-extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
-       void * const osRtxUserSVC[1+USER_SVC_COUNT] = {
-  (void *)USER_SVC_COUNT,
-
-#define X(SVC_ENUM, SVC_HANDLER) (void*)SVC_HANDLER,
-
-    /* SVC API for Services */
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
-    LIST_SVC_NSPM
-#endif
-
-#undef X
-
-/*
- * (void *)user_function1,
- *  ...
- */
-};
 
 /**
  * \brief List of RTOS thread attributes
