@@ -63,6 +63,10 @@ if (NOT TFM_MULTI_CORE_TOPOLOGY)
     set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
 endif()
 
+if (NOT TFM_NS_MANAGE_NSID)
+    set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
+endif()
+
 ########################## Test framework sync #################################
 
 get_cmake_property(CACHE_VARS CACHE_VARIABLES)

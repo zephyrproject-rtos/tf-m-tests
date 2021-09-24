@@ -25,3 +25,4 @@ set(TEST_NS_IPC             ON        CACHE BOOL      "Whether to build NS regre
 set(TEST_NS_SLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
 set(TEST_NS_FLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 set(TEST_NS_MULTI_CORE      ON        CACHE BOOL      "Whether to build NS regression multi-core tests")
+set(TEST_NS_MANAGE_NSID     ON        CACHE BOOL      "Whether to build NS regression NSID management tests")

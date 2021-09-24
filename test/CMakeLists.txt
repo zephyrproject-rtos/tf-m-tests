@@ -34,6 +34,7 @@ add_subdirectory(suites/t_cose)
 add_subdirectory(suites/platform)
 add_subdirectory(suites/fwu)
 add_subdirectory(suites/irq)
+add_subdirectory(suites/nsid)
 
 if(TFM_PSA_API)
     add_subdirectory(suites/ipc)

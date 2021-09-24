@@ -50,6 +50,9 @@
 #ifdef TFM_FUZZER_TOOL_TESTS
 #include "tf_fuzz_testsuite.h"
 #endif /* TFM_FUZZER_TOOL_TESTS */
+#ifdef TEST_NS_MANAGE_NSID
+#include "nsid_testsuite.h"
+#endif /* TEST_NS_MANAGE_NSID */
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
 #include "irq_testsuite.h"
 #endif
@@ -127,6 +130,10 @@ static struct test_suite_t test_suites[] = {
 #ifdef TFM_FUZZER_TOOL_TESTS
     {&register_testsuite_tf_fuzz_test, 0, 0, 0},
 #endif /* TFM_FUZZER_TOOL_TESTS */
+
+#ifdef TEST_NS_MANAGE_NSID
+    {&register_testsuite_nsid_test, 0, 0, 0},
+#endif /* TEST_NS_MANAGE_NSID */
 
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
     {&register_testsuite_irq_test, 0, 0, 0},

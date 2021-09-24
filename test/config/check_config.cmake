@@ -25,6 +25,7 @@ message(STATUS "TEST_NS_IPC is set as ${TEST_NS_IPC}")
 message(STATUS "TEST_NS_SLIH_IRQ is set as ${TEST_NS_SLIH_IRQ}")
 message(STATUS "TEST_NS_FLIH_IRQ is set as ${TEST_NS_FLIH_IRQ}")
 message(STATUS "TEST_NS_MULTI_CORE is set as ${TEST_NS_MULTI_CORE}")
+message(STATUS "TEST_NS_MANAGE_NSID is set as ${TEST_NS_MANAGE_NSID}")
 message(STATUS "TEST_S_ATTESTATION is set as ${TEST_S_ATTESTATION}")
 message(STATUS "TEST_S_AUDIT is set as ${TEST_S_AUDIT}")
 message(STATUS "TEST_S_CRYPTO is set as ${TEST_S_CRYPTO}")
@@ -48,6 +49,7 @@ tfm_invalid_config(NOT TFM_PARTITION_AUDIT_LOG AND (TEST_NS_AUDIT OR TEST_S_AUDI
 tfm_invalid_config((TFM_LIB_MODEL) AND (TEST_NS_IPC OR TEST_S_IPC OR TEST_NS_SLIH_IRQ OR TEST_NS_FLIH_IRQ))
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
+tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)
 
 ########################## Check Framework #####################################
 
