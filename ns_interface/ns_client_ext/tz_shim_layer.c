@@ -28,6 +28,10 @@
 static uint8_t nsid_mgr_thread_id = 1;
 #endif
 
+#ifdef TEST_NS_MANAGE_NSID
+uint32_t current_active_token;
+#endif
+
 /*
  * TF-M shim layer of the CMSIS TZ RTOS thread context management API
  */
@@ -46,6 +50,9 @@ uint32_t TZ_InitContextSystem_S(void)
 
     /* Initialize the nsid manager */
     if (nsid_mgr_init() == NSID_MGR_ERR_SUCCESS) {
+#ifdef TEST_NS_MANAGE_NSID
+        current_active_token = TFM_NS_CLIENT_INVALID_TOKEN;
+#endif
         return 1U;    /* Success */
     } else {
         return 0U;    /* Error */
@@ -105,6 +112,11 @@ uint32_t TZ_FreeModuleContext_S(TZ_MemoryId_t id)
     }
 
     if (tfm_nsce_release_ctx(token) == TFM_NS_CLIENT_ERR_SUCCESS) {
+#ifdef TEST_NS_MANAGE_NSID
+        if (current_active_token != TFM_NS_CLIENT_INVALID_TOKEN) {
+            current_active_token = TFM_NS_CLIENT_INVALID_TOKEN;
+        }
+#endif
         return 1U;    /* Success */
     } else {
         return 0U;    /* Error */
@@ -135,6 +147,9 @@ uint32_t TZ_LoadContext_S(TZ_MemoryId_t id)
     }
 
     if (tfm_nsce_load_ctx(token, nsid) == TFM_NS_CLIENT_ERR_SUCCESS) {
+#ifdef TEST_NS_MANAGE_NSID
+        current_active_token = token;
+#endif
         return 1U;    /* Success */
     } else {
         return 0U;    /* Error */
@@ -158,6 +173,11 @@ uint32_t TZ_StoreContext_S(TZ_MemoryId_t id)
     token = (uint32_t)id;
 
     if (tfm_nsce_save_ctx(token) == TFM_NS_CLIENT_ERR_SUCCESS) {
+#ifdef TEST_NS_MANAGE_NSID
+        if (current_active_token != TFM_NS_CLIENT_INVALID_TOKEN) {
+            current_active_token = TFM_NS_CLIENT_INVALID_TOKEN;
+        }
+#endif
         return 1U;    /* Success */
     } else {
         return 0U;    /* Error */

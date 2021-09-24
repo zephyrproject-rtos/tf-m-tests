@@ -35,6 +35,14 @@ extern "C" {
 #define NSID_MGR_ERR_NO_FREE_ENTRY    0x03
 
 /*
+ * Current active NSID token needs to be manually save and reload
+ * before and after calling NS client ext directly from SVC in NSID test suite.
+ */
+#ifdef TEST_NS_MANAGE_NSID
+extern uint32_t current_active_token;
+#endif
+
+/*
  * Initialize the table to map token and nsid.
  * This function should be called before any other NSID manager APIs.
  */
