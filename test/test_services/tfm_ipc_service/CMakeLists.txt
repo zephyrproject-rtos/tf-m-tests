@@ -54,6 +54,12 @@ target_link_libraries(tfm_spm
         tfm_psa_rot_partition_ipc_service
 )
 
+target_compile_definitions(tfm_psa_rot_partition_ipc_service
+    PRIVATE
+        $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
+        $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
+)
+
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions

@@ -53,6 +53,12 @@ target_link_libraries(tfm_spm
         tfm_app_rot_partition_ipc_client
 )
 
+target_compile_definitions(tfm_app_rot_partition_ipc_client
+    PRIVATE
+        $<$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
+        $<$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>:TFM_IPC_ISOLATION_2_MEM_CHECK>
+)
+
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions
