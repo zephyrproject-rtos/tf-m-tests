@@ -728,21 +728,32 @@ void psa_aead_test(const psa_key_type_t key_type,
                    const psa_algorithm_t alg,
                    struct test_result_t *ret)
 {
+    psa_aead_operation_t encop = psa_aead_operation_init();
+    psa_aead_operation_t decop = psa_aead_operation_init();
+    psa_status_t status = PSA_SUCCESS;
     psa_key_handle_t key_handle;
+    const uint8_t data[] = "THIS IS MY KEY1";
     const size_t nonce_length = 12;
     const uint8_t nonce[] = "01234567890";
-    const uint8_t plain_text[BYTE_SIZE_CHUNK] = "Sixteen bytes!!";
-    const uint8_t associated_data[ASSOCIATED_DATA_SIZE] =
-                                                      "This is associated data";
-    uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
+    const uint8_t plain_text[MAX_PLAIN_DATA_SIZE_AEAD] =
+        "This is my plaintext message and it's made of 68 characters...!1234";
+    const uint8_t associated_data[] =
+        "This is my associated data to authenticate";
+    uint8_t decrypted_data[MAX_PLAIN_DATA_SIZE_AEAD] = {0};
+    uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
     size_t encrypted_data_length = 0, decrypted_data_length = 0;
-    uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
-    psa_status_t status;
-    const uint8_t data[] = "THIS IS MY KEY1";
+    size_t total_output_length = 0, total_encrypted_length = 0;
     uint32_t comp_result;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_attributes_t retrieved_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+
+    /* Variables required for multipart operations */
+    uint8_t *tag = &encrypted_data[MAX_PLAIN_DATA_SIZE_AEAD];
+    size_t  tag_size = PSA_AEAD_TAG_LENGTH(key_type,
+                                           psa_get_key_bits(&key_attributes),
+                                           alg);
+    size_t  tag_length = 0;
 
     ret->val = TEST_PASSED;
 
@@ -836,6 +847,205 @@ void psa_aead_test(const psa_key_type_t key_type,
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key_aead;
+    }
+
+    /* Setup the encryption object */
+    status = psa_aead_encrypt_setup(&encop, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
+                     "- skip multipart API flow\r\n");
+        } else {
+            TEST_FAIL("Error setting up encryption object");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Set lengths */
+    status = psa_aead_set_lengths(&encop,
+                                  sizeof(associated_data),
+                                  sizeof(plain_text));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting lengths");
+        status = psa_aead_abort(&encop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Set nonce */
+    status = psa_aead_set_nonce(&encop, nonce, nonce_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting nonce");
+        status = psa_aead_abort(&encop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Update additional data */
+    status = psa_aead_update_ad(&encop,
+                                associated_data,
+                                sizeof(associated_data));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error updating additional data");
+        status = psa_aead_abort(&encop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Encrypt one chunk of information at a time */
+    for (size_t i = 0; i <= sizeof(plain_text)/BYTE_SIZE_CHUNK; i++) {
+
+        size_t size_to_encrypt =
+            (sizeof(plain_text) - i*BYTE_SIZE_CHUNK) > BYTE_SIZE_CHUNK ?
+            BYTE_SIZE_CHUNK : (sizeof(plain_text) - i*BYTE_SIZE_CHUNK);
+
+        status = psa_aead_update(&encop,
+                                 plain_text + i*BYTE_SIZE_CHUNK,
+                                 size_to_encrypt,
+                                 encrypted_data + total_encrypted_length,
+                                 sizeof(encrypted_data) -
+                                                      total_encrypted_length,
+                                 &encrypted_data_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            status = psa_aead_abort(&encop);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key_aead;
+        }
+        total_encrypted_length += encrypted_data_length;
+    }
+
+    /* Finish the aead operation */
+    status = psa_aead_finish(&encop,
+                             encrypted_data + total_encrypted_length,
+                             sizeof(encrypted_data) - total_encrypted_length,
+                             &encrypted_data_length,
+                             tag,
+                             tag_size,
+                             &tag_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error finalising the AEAD operation");
+        status = psa_aead_abort(&encop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+    total_encrypted_length += encrypted_data_length;
+
+    /* Setup up the decryption object */
+    status = psa_aead_decrypt_setup(&decop, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting uup AEAD object");
+        goto destroy_key_aead;
+    }
+
+    /* Set lengths */
+    status = psa_aead_set_lengths(&decop,
+                                  sizeof(associated_data),
+                                  sizeof(plain_text));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting lengths");
+        status = psa_aead_abort(&decop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Set nonce */
+    status = psa_aead_set_nonce(&decop, nonce, nonce_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting nonce");
+        status = psa_aead_abort(&decop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Update additional data */
+    status = psa_aead_update_ad(&decop,
+                                associated_data,
+                                sizeof(associated_data));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error updating additional data");
+        status = psa_aead_abort(&decop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+    /* Decrypt */
+    for (size_t i = 0; i <= total_encrypted_length/BYTE_SIZE_CHUNK; i++) {
+
+        size_t size_to_decrypt =
+            (total_encrypted_length - i*BYTE_SIZE_CHUNK) > BYTE_SIZE_CHUNK ?
+            BYTE_SIZE_CHUNK : (total_encrypted_length - i*BYTE_SIZE_CHUNK);
+
+        status = psa_aead_update(&decop,
+                                 encrypted_data + i*BYTE_SIZE_CHUNK,
+                                 size_to_decrypt,
+                                 decrypted_data + total_output_length,
+                                 sizeof(decrypted_data)
+                                                       - total_output_length,
+                                 &decrypted_data_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error during decryption");
+            status = psa_aead_abort(&decop);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key_aead;
+        }
+        total_output_length += decrypted_data_length;
+    }
+
+    /* Verify the AEAD operation */
+    status = psa_aead_verify(&decop,
+                             decrypted_data + total_output_length,
+                             sizeof(decrypted_data) - total_output_length,
+                             &decrypted_data_length,
+                             tag,
+                             tag_size);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error verifying the AEAD operation");
+        status = psa_aead_abort(&decop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+    total_output_length += decrypted_data_length;
+
+    if (total_output_length != sizeof(plain_text)) {
+        TEST_FAIL("Total decrypted length does not match size of plain text");
+        status = psa_aead_abort(&decop);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error aborting the operation");
+        }
+        goto destroy_key_aead;
+    }
+
+#if DOMAIN_NS == 1U
+    /* Check that the decrypted data is the same as the original data */
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#else
+    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#endif
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
     }
 
 destroy_key_aead:
@@ -1317,7 +1527,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
     }
 
     if (NR_TEST_AES_MODE < 1) {
-        TEST_LOG("No AES algorithm to verify. Output raw data instead");
+        TEST_LOG("No AES algorithm to verify. Output raw data instead\r\n");
         psa_set_key_type(&output_key_attr, PSA_KEY_TYPE_RAW_DATA);
     } else {
         psa_set_key_usage_flags(&output_key_attr, PSA_KEY_USAGE_ENCRYPT);

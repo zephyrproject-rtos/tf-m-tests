@@ -46,11 +46,18 @@ extern "C" {
 #define ENC_DEC_BUFFER_SIZE (32)
 
 /**
- * \brief Size in bytes of the associated data to authenticate
+ * \brief Max size in bytes of the data to be encrypted in AEAD
+ *        tests.
+ */
+#define MAX_PLAIN_DATA_SIZE_AEAD (68)
+
+/**
+ * \brief Size in bytes of the encryption/decryption buffers used
  *        in AEAD tests
  *
  */
-#define ASSOCIATED_DATA_SIZE (24)
+#define ENC_DEC_BUFFER_SIZE_AEAD \
+    (PSA_AEAD_TAG_MAX_SIZE + MAX_PLAIN_DATA_SIZE_AEAD)
 
 /**
  * \brief The maximum allowed key length in bytes used in the
