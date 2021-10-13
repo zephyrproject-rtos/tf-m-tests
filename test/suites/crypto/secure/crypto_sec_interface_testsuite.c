@@ -70,6 +70,7 @@ static void tfm_crypto_test_1042(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
 static void tfm_crypto_test_1043(struct test_result_t *ret);
 static void tfm_crypto_test_1044(struct test_result_t *ret);
+static void tfm_crypto_test_1045(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 
 static struct test_t crypto_tests[] = {
@@ -167,6 +168,9 @@ static struct test_t crypto_tests[] = {
      "Secure Asymmetric encryption interface (RSA_OAEP)", {TEST_PASSED} },
     {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
      "Secure Asymmetric encryption interface (RSA_PKCS1V15)", {TEST_PASSED} },
+    {&tfm_crypto_test_1045, "TFM_NS_CRYPTO_TEST_1045",
+     "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)",
+     {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 };
 
@@ -412,5 +416,11 @@ static void tfm_crypto_test_1043(struct test_result_t *ret)
 static void tfm_crypto_test_1044(struct test_result_t *ret)
 {
     psa_asymmetric_encryption_test(PSA_ALG_RSA_PKCS1V15_CRYPT, ret);
+}
+
+static void tfm_crypto_test_1045(struct test_result_t *ret)
+{
+    psa_sign_verify_message_test(
+        PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), ret);
 }
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */

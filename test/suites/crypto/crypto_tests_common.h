@@ -207,6 +207,15 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
 void psa_asymmetric_encryption_test(psa_algorithm_t alg,
                                     struct test_result_t *ret);
 
+/**
+ * \brief Message sign/verify test
+ *
+ *  \param[in] alg  Signing algorithm
+ *  \param[out] ret Test result
+ */
+void psa_sign_verify_message_test(psa_algorithm_t alg,
+                                  struct test_result_t *ret);
+
 #ifdef __cplusplus
 }
 #endif

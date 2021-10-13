@@ -94,6 +94,7 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 }
 
 #define CIPHER_TEST_KEY_ID (0x1)
+
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
                      struct test_result_t *ret)
@@ -585,6 +586,7 @@ static const uint8_t long_key_hmac_val[PSA_HASH_LENGTH(PSA_ALG_SHA_224)] = {
 };
 
 #define MAC_TEST_KEY_ID (0x1)
+
 void psa_mac_test(const psa_algorithm_t alg,
                   uint8_t use_long_key,
                   struct test_result_t *ret)
@@ -1150,6 +1152,7 @@ static uint8_t key_deriv_label_info[KEY_DERIV_LABEL_INFO_LEN];
 static uint8_t key_deriv_seed_salt[KEY_DERIV_SEED_SALT_LEN];
 
 #define RAW_AGREEMENT_TEST_KEY_ID (0x1)
+
 void psa_key_agreement_test(psa_algorithm_t deriv_alg,
                             struct test_result_t *ret)
 {
@@ -1482,4 +1485,66 @@ destroy_key:
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
+}
+
+#define SIGNATURE_BUFFER_SIZE \
+    (PSA_ECDSA_SIGNATURE_SIZE(PSA_VENDOR_ECC_MAX_CURVE_BITS))
+#define SIGNING_TEST_KEY_ID (0x1)
+
+void psa_sign_verify_message_test(psa_algorithm_t alg,
+                                  struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle = 0;
+    psa_key_type_t key_type;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const uint8_t message[] =
+        "This is the message that I would like to sign";
+    uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
+    size_t signature_length = 0;
+
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr,
+        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+    psa_set_key_id(&input_key_attr, SIGNING_TEST_KEY_ID);
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    status = psa_sign_message(SIGNING_TEST_KEY_ID, alg,
+                              message, sizeof(message) - 1,
+                              signature, SIGNATURE_BUFFER_SIZE,
+                              &signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Message signing failed!");
+        goto destroy_key;
+    }
+
+    if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
+                                PSA_BYTES_TO_BITS(
+                                    sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    status = psa_verify_message(SIGNING_TEST_KEY_ID, alg,
+                                message, sizeof(message) - 1,
+                                signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL(("Signature verification failed!"));
+        goto destroy_key;
+    }
+
+    ret->val = TEST_PASSED;
+
+destroy_key:
+    psa_destroy_key(key_handle);
+
+    return;
 }
