@@ -137,6 +137,7 @@ target_link_libraries(tfm_api_ns
     PUBLIC
         tfm_ns_interface
     PRIVATE
+        $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         platform_ns
         # CMSIS is currently only required to provide the NS client IDs. In
         # future, this should probably be made more OS agnostic
@@ -244,7 +245,6 @@ target_link_libraries(tfm_ns
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
-        $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         tfm_api_ns
         tfm_ns_log
 )
