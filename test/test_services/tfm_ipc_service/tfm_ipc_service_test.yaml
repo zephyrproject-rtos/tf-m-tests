@@ -65,5 +65,15 @@
       "version": 1,
       "version_policy": "STRICT"
     },
+    {
+      "name": "IPC_SERVICE_TEST_MMIOVEC",
+      "sid": "0x0000F086",
+      "non_secure_clients": true,
+      "connection_based": false,
+      "stateless_handle": "auto",
+      "mm_iovec": "enable",
+      "version": 1,
+      "version_policy": "STRICT"
+    },
   ]
 }

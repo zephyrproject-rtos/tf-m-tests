@@ -59,6 +59,14 @@ target_compile_definitions(tfm_psa_rot_partition_ipc_service
         $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
 )
 
+# Interfaces for other targets
+add_library(tfm_mmiovec_test_service_interface INTERFACE)
+
+target_include_directories(tfm_mmiovec_test_service_interface
+    INTERFACE
+        ./
+)
+
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions

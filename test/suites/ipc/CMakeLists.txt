@@ -38,6 +38,7 @@ if (TEST_NS_IPC)
     target_link_libraries(tfm_test_suite_ipc_ns
         PRIVATE
             tfm_test_framework_ns
+            tfm_mmiovec_test_service_interface
     )
 
     target_link_libraries(tfm_ns_tests
