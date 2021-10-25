@@ -10,7 +10,7 @@
 set(TEST_SERVICE_SRC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/src/test_service)
 set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_service)
 
-if (TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
+if (TFM_PARTITION_ATTESTATION_TEST)
     add_subdirectory(tfm_attest_test_service)
 endif()
 
@@ -19,7 +19,7 @@ if (TEST_NS_CORE)
     add_subdirectory(tfm_core_test_2)
 endif()
 
-if (TFM_PSA_API)
+if (TFM_PARTITION_IPC_TEST)
     add_subdirectory(tfm_ipc_client)
     add_subdirectory(tfm_ipc_service)
 endif()

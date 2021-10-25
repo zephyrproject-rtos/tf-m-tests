@@ -26,6 +26,7 @@ set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regr
 set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
 set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
+set(TEST_NS_SFN_BACKEND     OFF        CACHE BOOL      "Whether to build NS regression SFN backend tests")
 
 ########################## S test framework ####################################
 

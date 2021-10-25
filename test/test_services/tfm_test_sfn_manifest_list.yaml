@@ -16,7 +16,7 @@
       "short_name": "TFM_SFN_SP1",
       "manifest": "tfm_test_sfn_partitions/sfn_partition1/sfn_partition1.yaml",
       "output_path": "test_services/sfn_partition1",
-      "conditional": "TFM_PARTITION_SFN1",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
       "version_major": 0,
       "version_minor": 1,
       "linker_pattern": {
@@ -30,7 +30,7 @@
       "short_name": "TFM_SFN_SP2",
       "manifest": "tfm_test_sfn_partitions/sfn_partition2/sfn_partition2.yaml",
       "output_path": "test_services/sfn_partition2",
-      "conditional": "TFM_PARTITION_SFN2",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
       "version_major": 0,
       "version_minor": 1,
       "linker_pattern": {

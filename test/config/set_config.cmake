@@ -123,4 +123,17 @@ if (TEST_NS)
     include(${TFM_TEST_PATH}/config/default_ns_test_config.cmake)
 endif()
 
+###################### Test Partition configurations ###########################
+if (TEST_NS_IPC OR TEST_S_IPC)
+    set(TFM_PARTITION_IPC_TEST  ON)
+else()
+    set(TFM_PARTITION_IPC_TEST  OFF)
+endif()
+
+if (TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
+    set(TFM_PARTITION_ATTESTATION_TEST  ON)
+else()
+    set(TFM_PARTITION_ATTESTATION_TEST  OFF)
+endif()
+
 include(${TFM_TEST_PATH}/config/default_test_config.cmake)
