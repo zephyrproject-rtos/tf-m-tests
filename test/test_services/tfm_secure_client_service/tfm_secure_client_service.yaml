@@ -38,6 +38,10 @@
   ],
   "dependencies": [
     "TFM_SECURE_CLIENT_2",
+  ],
+  "weak_dependencies": [
+    # This Partition can still work without the following "weak" dependencies:
+    # It has checks on whether the corresponding Partitions are enabled.
     "TFM_CRYPTO",
     "TFM_PROTECTED_STORAGE_SERVICE",
     "TFM_INTERNAL_TRUSTED_STORAGE_SERVICE",

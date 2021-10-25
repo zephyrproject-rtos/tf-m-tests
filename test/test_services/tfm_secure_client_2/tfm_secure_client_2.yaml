@@ -30,7 +30,9 @@
       "version_policy": "STRICT"
     }
   ],
-  "dependencies": [
+  "weak_dependencies": [
+    # This Partition can still work without the following "weak" dependencies:
+    # It has checks on whether the corresponding Partitions are enabled.
     "TFM_CRYPTO",
     "TFM_INTERNAL_TRUSTED_STORAGE_SERVICE"
   ]
