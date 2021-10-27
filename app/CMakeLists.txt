@@ -1,5 +1,6 @@
 #-------------------------------------------------------------------------------
 # Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2022, Cypress Semiconductor Corp. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -187,11 +188,11 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
     endif()
 
     if (NOT CPU_ARCH)
-        if (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.main)
+        if (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.main)
             set(CPU_ARCH armv8m_ml)
-        elseif (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.base)
+        elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.base)
             set(CPU_ARCH armv8m_bl)
-        elseif (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
+        elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
             set(CPU_ARCH armv7m)
         endif()
     endif()
