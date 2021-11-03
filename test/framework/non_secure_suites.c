@@ -56,6 +56,9 @@
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
 #include "irq_testsuite.h"
 #endif
+#ifdef TEST_NS_SFN_BACKEND
+#include "sfn_ns_tests.h"
+#endif
 #ifdef EXTRA_NS_TEST_SUITE
 #include "extra_ns_tests.h"
 #endif
@@ -137,6 +140,10 @@ static struct test_suite_t test_suites[] = {
 
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
     {&register_testsuite_irq_test, 0, 0, 0},
+#endif
+
+#ifdef TEST_NS_SFN_BACKEND
+    {&register_testsuite_ns_sfn_interface, 0, 0, 0},
 #endif
 
     /* End of test suites */

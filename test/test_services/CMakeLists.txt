@@ -44,3 +44,8 @@ endif()
 if (TEST_S_FPU)
     add_subdirectory(tfm_fpu_service)
 endif()
+
+if (TEST_NS_SFN_BACKEND)
+    add_subdirectory(tfm_test_sfn_partitions/sfn_partition1)
+    add_subdirectory(tfm_test_sfn_partitions/sfn_partition2)
+endif()

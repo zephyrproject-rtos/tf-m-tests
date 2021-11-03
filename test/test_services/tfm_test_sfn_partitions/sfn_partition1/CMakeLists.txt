@@ -1,14 +1,9 @@
-
 #-------------------------------------------------------------------------------
 # Copyright (c) 2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-if (NOT TFM_PARTITION_SFN1)
-    return()
-endif()
-
 cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0079 NEW)
 
@@ -38,6 +33,7 @@ target_include_directories(tfm_app_rot_partition_sfn1
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         ${CMAKE_BINARY_DIR}/generated/test_services/sfn_partition1
+        ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 
 target_link_libraries(tfm_app_rot_partition_sfn1
