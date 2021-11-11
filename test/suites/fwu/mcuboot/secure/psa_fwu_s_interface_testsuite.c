@@ -48,9 +48,11 @@ static struct test_t psa_fwu_s_tests[] = {
 #if (MCUBOOT_IMAGE_NUMBER > 1)
     {&tfm_fwu_test_common_014, "TFM_S_FWU_TEST_1014",
      "Image update with dependency, no new image is required", {TEST_PASSED} },
-    {&tfm_fwu_test_common_015, "TFM_NS_FWU_TEST_1015",
+    {&tfm_fwu_test_common_015, "TFM_S_FWU_TEST_1015",
      "Image update with dependency, new image is required", {TEST_PASSED} },
 #endif
+    {&tfm_fwu_test_common_016, "TFM_S_FWU_TEST_1016",
+     "psa_fwu_write boundary test", {TEST_PASSED} },
 };
 
 void register_testsuite_s_psa_fwu_interface(struct test_suite_t *p_test_suite)
