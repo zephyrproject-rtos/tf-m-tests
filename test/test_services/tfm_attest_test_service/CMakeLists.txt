@@ -7,15 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
-    return()
-endif()
-
-# This initial attestation test service provide a secure API to enable tests to
-# fetch Initial Attestation public key.
-# This test service shall be only enabled when the public key can only be
-# fetched in runtime.
-if (NOT ATTEST_TEST_GET_PUBLIC_KEY OR SYMMETRIC_INITIAL_ATTESTATION)
+if (NOT TFM_PARTITION_ATTESTATION_TEST)
     return()
 endif()
 

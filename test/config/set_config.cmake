@@ -130,7 +130,12 @@ else()
     set(TFM_PARTITION_IPC_TEST  OFF)
 endif()
 
-if (TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
+if ((TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
+    # This initial attestation test service provide a secure API to enable tests to
+    # fetch Initial Attestation public key.
+    # This test service shall be only enabled when the public key can only be
+    # fetched in runtime.
+    AND (ATTEST_TEST_GET_PUBLIC_KEY AND NOT SYMMETRIC_INITIAL_ATTESTATION))
     set(TFM_PARTITION_ATTESTATION_TEST  ON)
 else()
     set(TFM_PARTITION_ATTESTATION_TEST  OFF)
