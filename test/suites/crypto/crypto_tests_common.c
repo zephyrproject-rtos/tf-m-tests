@@ -10,6 +10,8 @@
 #else
 #include "tfm_memory_utils.h"
 #endif
+
+#include <stdbool.h>
 #include "crypto_tests_common.h"
 
 void psa_key_interface_test(const psa_key_type_t key_type,
@@ -95,6 +97,302 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 
 #define CIPHER_TEST_KEY_ID (0x1)
 
+void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
+                                  const psa_algorithm_t alg,
+                                  uint8_t len,
+                                  struct test_result_t *ret)
+{
+    psa_cipher_operation_t handle = psa_cipher_operation_init();
+    psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle;
+    const uint8_t data[] = "THIS IS MY KEY1";
+    const size_t iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
+    const uint8_t iv[] = "012345678901234";
+    const uint8_t plain_text[PLAIN_DATA_SIZE_PAD_TEST] =
+        "Little text, full!!";
+    uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE_PAD_TEST] = {0};
+    size_t output_length = 0, total_output_length = 0;
+    uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE_PAD_TEST] = {0};
+    uint32_t comp_result;
+    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+    psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+    bool bAbortDecryption = false;
+
+    if (iv_length != sizeof(iv)) {
+        /* Whenever this condition is hit, it's likely the test requires
+         * refactoring to remove any hardcoded behaviour
+         */
+        TEST_FAIL("Hardcoded IV does not match cipher block length");
+        return;
+    }
+
+    if (len > sizeof(plain_text)) {
+        TEST_FAIL("Requested input length is greater than supported");
+        return;
+    }
+
+    ret->val = TEST_PASSED;
+
+    /* Setup the key policy */
+    psa_set_key_usage_flags(&key_attributes, usage);
+    psa_set_key_algorithm(&key_attributes, alg);
+    psa_set_key_type(&key_attributes, key_type);
+    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
+
+    /* Import a key */
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing a key");
+        return;
+    }
+
+    status = psa_get_key_attributes(key_handle, &key_attributes);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error getting key metadata");
+        goto destroy_key;
+    }
+
+    if (psa_get_key_bits(&key_attributes) != BIT_SIZE_TEST_KEY) {
+        TEST_FAIL("The number of key bits is different from expected");
+        goto destroy_key;
+    }
+
+    if (psa_get_key_type(&key_attributes) != key_type) {
+        TEST_FAIL("The type of the key is different from expected");
+        goto destroy_key;
+    }
+
+    /* Setup the encryption object */
+    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error setting up cipher operation object");
+        }
+        goto destroy_key;
+    }
+
+    /* Set the IV */
+    status = psa_cipher_set_iv(&handle, iv, iv_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the IV on the cypher operation object");
+        goto abort;
+    }
+
+    /* Encrypt one chunk of information */
+    if (len < BYTE_SIZE_CHUNK) {
+        status = psa_cipher_update(&handle, plain_text,
+                                   len,
+                                   encrypted_data,
+                                   sizeof(encrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        /* When encrypting less than a block, the output is produced only
+         * when performing the following finish operation
+         */
+        if (output_length != 0) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        status = psa_cipher_finish(&handle, encrypted_data,
+                                   sizeof(encrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error finalising the cipher operation");
+            goto abort;
+        }
+
+    } else if (len < 2 * BYTE_SIZE_CHUNK) {
+        status = psa_cipher_update(&handle, plain_text,
+                                   BYTE_SIZE_CHUNK,
+                                   encrypted_data,
+                                   sizeof(encrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        /* When encrypting one block, the output is produced right away */
+        if (output_length != BYTE_SIZE_CHUNK) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        total_output_length += output_length;
+        status = psa_cipher_update(&handle, &plain_text[BYTE_SIZE_CHUNK],
+                                   len % BYTE_SIZE_CHUNK,
+                                   &encrypted_data[total_output_length],
+                                   sizeof(encrypted_data) - total_output_length,
+                                   &output_length);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        /* When encrypting less than a block, the output is zero */
+        if (output_length != 0) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        /* The output is then produced only when calling finish if the previous
+         * update did not produce any output - We need to take padding into
+         * account
+         */
+        total_output_length += output_length;
+        status = psa_cipher_finish(&handle, &encrypted_data[total_output_length],
+                                   sizeof(encrypted_data) - total_output_length,
+                                   &output_length);
+
+        total_output_length += output_length;
+    }
+
+    /* Setup the decryption object */
+    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting up cipher operation object");
+        goto destroy_key;
+    }
+
+    /* From now on, in case of failure we want to abort the decryption op */
+    bAbortDecryption = true;
+
+    /* Set the IV for decryption */
+    status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the IV for decryption");
+        goto abort;
+    }
+
+    /* Reset total output length */
+    total_output_length = 0;
+    if (len < BYTE_SIZE_CHUNK) {
+        status = psa_cipher_update(&handle_dec,
+                                   encrypted_data,
+                                   BYTE_SIZE_CHUNK,
+                                   decrypted_data,
+                                   sizeof(decrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error decrypting one chunk of information");
+            goto abort;
+        }
+
+        /* Doesn't produce output on the first cipher update */
+        if (output_length != 0) {
+            TEST_FAIL("Expected decrypted length is different from expected");
+            goto abort;
+        }
+
+        status = psa_cipher_finish(&handle_dec, decrypted_data,
+                                   sizeof(decrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error finalising the cipher operation");
+            goto abort;
+        }
+
+        if (output_length != len) {
+            TEST_FAIL("Expected decrypted length is different from expected");
+            goto destroy_key;
+        }
+
+    } else if (len < 2*BYTE_SIZE_CHUNK) {
+        status = psa_cipher_update(&handle_dec, encrypted_data,
+                                   BYTE_SIZE_CHUNK,
+                                   decrypted_data,
+                                   sizeof(decrypted_data),
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        /* Doesn't produce output on the first cipher update */
+        if (output_length != 0) {
+            TEST_FAIL("Expected decrypted length is different from expected");
+            goto abort;
+        }
+
+        total_output_length += output_length;
+        status = psa_cipher_update(&handle_dec,
+                                   &encrypted_data[BYTE_SIZE_CHUNK],
+                                   BYTE_SIZE_CHUNK,
+                                   &decrypted_data[total_output_length],
+                                   sizeof(decrypted_data) - total_output_length,
+                                   &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error decrypting one chunk of information");
+            goto abort;
+        }
+
+        /* We now get the output corresponding to the previous block */
+        if (output_length != BYTE_SIZE_CHUNK) {
+            TEST_FAIL("Expected decrypted length is different from expected");
+            goto abort;
+        }
+
+        total_output_length += output_length;
+        status = psa_cipher_finish(&handle_dec,
+                                   &decrypted_data[total_output_length],
+                                   sizeof(decrypted_data) - total_output_length,
+                                   &output_length);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error finalising the cipher operation");
+            goto abort;
+        }
+
+        total_output_length += output_length;
+        if (total_output_length != len) {
+            TEST_FAIL("Expected decrypted length is different from expected");
+            goto destroy_key;
+        }
+    }
+
+    /* Check that the plain text matches the decrypted data */
+#if DOMAIN_NS == 1U
+    comp_result = memcmp(plain_text, decrypted_data, len);
+#else
+    comp_result = tfm_memcmp(plain_text, decrypted_data, len);
+#endif
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
+        goto destroy_key;
+    }
+
+    /* Go directly to destroy key from here */
+    goto destroy_key;
+
+abort:
+    /* Abort the operation */
+    status = bAbortDecryption ? psa_cipher_abort(&handle_dec) :
+                                psa_cipher_abort(&handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error aborting the operation");
+    }
+destroy_key:
+    /* Destroy the key */
+    status = psa_destroy_key(key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error destroying a key");
+    }
+}
+
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
                      struct test_result_t *ret)
@@ -106,14 +404,26 @@ void psa_cipher_test(const psa_key_type_t key_type,
     const uint8_t data[] = "THIS IS MY KEY1";
     const size_t iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
     const uint8_t iv[] = "012345678901234";
-    const uint8_t plain_text[BYTE_SIZE_CHUNK] = "Sixteen bytes!!";
+    const uint8_t plain_text[PLAIN_DATA_SIZE] =
+        "This is my plaintext to encrypt, 48 bytes long!";
     uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
     size_t output_length = 0, total_output_length = 0;
-    uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
+    union {
+        uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE];
+        uint8_t encrypted_data_pad[ENC_DEC_BUFFER_SIZE_PAD_MODES];
+    } input = {0};
     uint32_t comp_result;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
-    uint32_t i;
+    bool bAbortDecryption = false;
+
+    if (iv_length != sizeof(iv)) {
+        /* Whenever this condition is hit, it's likely the test requires refactoring
+         * to remove any hardcoded behaviour
+         */
+        TEST_FAIL("Hardcoded IV does not match cipher block length");
+        return;
+    }
 
     ret->val = TEST_PASSED;
 
@@ -138,7 +448,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
-        goto destroy_key;
+        return;
     }
 
     status = psa_get_key_attributes(key_handle, &key_attributes);
@@ -175,157 +485,168 @@ void psa_cipher_test(const psa_key_type_t key_type,
         status = psa_cipher_set_iv(&handle, iv, iv_length);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error setting the IV on the cypher operation object");
-            status = psa_cipher_abort(&handle);
-            if (status != PSA_SUCCESS) {
-                TEST_FAIL("Error aborting the operation");
-            }
-            goto destroy_key;
+            goto abort;
         }
     }
 
-    /* Encrypt one chunk of information */
-    status = psa_cipher_update(&handle, plain_text, BYTE_SIZE_CHUNK,
-                               encrypted_data, ENC_DEC_BUFFER_SIZE,
-                               &output_length);
+    size_t data_left = sizeof(plain_text);
+    while (data_left) {
+        /* Encrypt one chunk of information */
+        status = psa_cipher_update(&handle, &plain_text[total_output_length],
+                                   BYTE_SIZE_CHUNK,
+                                   &input.encrypted_data[total_output_length],
+                                   ENC_DEC_BUFFER_SIZE - total_output_length,
+                                   &output_length);
 
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error encrypting one chunk of information");
-        status = psa_cipher_abort(&handle);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
         }
-        goto destroy_key;
-    }
 
-    if (output_length != BYTE_SIZE_CHUNK) {
-        TEST_FAIL("Expected encrypted data length is different from expected");
-        status = psa_cipher_abort(&handle);
-        if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+        if (output_length != BYTE_SIZE_CHUNK) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
         }
-        goto destroy_key;
+
+        data_left -= BYTE_SIZE_CHUNK;
+        total_output_length += output_length;
     }
 
     /* Finalise the cipher operation */
-    status = psa_cipher_finish(&handle, &encrypted_data[output_length],
-                               ENC_DEC_BUFFER_SIZE - output_length,
+    status = psa_cipher_finish(&handle, &input.encrypted_data[total_output_length],
+                               ENC_DEC_BUFFER_SIZE - total_output_length,
                                &output_length);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error finalising the cipher operation");
-        status = psa_cipher_abort(&handle);
-        if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
-        }
-        goto destroy_key;
+        goto abort;
     }
 
-    if (output_length != 0) {
-        TEST_FAIL("Unexpected output length after finalisation");
-        goto destroy_key;
+    if (alg == PSA_ALG_CBC_PKCS7) {
+        /* Finalisation produces an output for padded modes, which is the
+         * encryption of the padded data added
+         */
+        if (output_length != BYTE_SIZE_CHUNK) {
+            TEST_FAIL("Padded mode final output length unexpected");
+            goto abort;
+        }
+    } else {
+        if (output_length != 0) {
+            TEST_FAIL("Un-padded mode final output length unexpected");
+            goto abort;
+        }
     }
+
+    /* Add the last output produced, it might be encrypted padding */
+    total_output_length += output_length;
 
     /* Setup the decryption object */
-    if (alg == PSA_ALG_CFB) {
-        /* In CFB mode the object is always in encryption mode */
-        status = psa_cipher_encrypt_setup(&handle_dec, key_handle, alg);
-    } else {
-        status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
-    }
-
+    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up cipher operation object");
         goto destroy_key;
     }
+
+    /* From now on, in case of failure we want to abort the decryption op */
+    bAbortDecryption = true;
 
     /* Set the IV for decryption */
     if (alg != PSA_ALG_ECB_NO_PADDING) {
         status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error setting the IV for decryption");
-            status = psa_cipher_abort(&handle_dec);
-            if (status != PSA_SUCCESS) {
-                TEST_FAIL("Error aborting the operation");
-            }
-            goto destroy_key;
+            goto abort;
         }
     }
 
-    /* Decrypt */
-    for (i = 0; i < ENC_DEC_BUFFER_SIZE; i += BYTE_SIZE_CHUNK) {
+    /* Padded mode output is produced one block later */
+    bool bIsLagging = false;
+    if (alg == PSA_ALG_CBC_PKCS7) {
+        bIsLagging = true; /* Padded modes lag by 1 block */
+    }
+
+    /* Decrypt - total_output_length considers encrypted padding */
+    data_left = total_output_length;
+    total_output_length = 0;
+    size_t message_start = 0;
+    while (data_left) {
         status = psa_cipher_update(&handle_dec,
-                                   (encrypted_data + i), BYTE_SIZE_CHUNK,
-                                   (decrypted_data + total_output_length),
+                                   &input.encrypted_data[message_start],
+                                   BYTE_SIZE_CHUNK,
+                                   &decrypted_data[total_output_length],
                                    (ENC_DEC_BUFFER_SIZE - total_output_length),
                                    &output_length);
 
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error during decryption");
-            status = psa_cipher_abort(&handle_dec);
-            if (status != PSA_SUCCESS) {
-                TEST_FAIL("Error aborting the operation");
-            }
-            goto destroy_key;
+            TEST_FAIL("Error decrypting one chunk of information");
+            goto abort;
         }
 
+        if (!bIsLagging && output_length != BYTE_SIZE_CHUNK) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        message_start += BYTE_SIZE_CHUNK;
+        data_left -= BYTE_SIZE_CHUNK;
         total_output_length += output_length;
+        bIsLagging = false;
     }
 
-#if DOMAIN_NS == 1U
+    /* Finalise the cipher operation for decryption (destroys decrypted data) */
+    status = psa_cipher_finish(&handle_dec, &decrypted_data[total_output_length],
+                               BYTE_SIZE_CHUNK,
+                               &output_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error finalising the cipher operation");
+        goto abort;
+    }
+
+    /* Finalize the count of output which has been produced */
+    total_output_length += output_length;
+
+    /* Check that the decrypted length is equal to the original length */
+    if (total_output_length != 3*BYTE_SIZE_CHUNK) {
+        TEST_FAIL("After finalising, unexpected decrypted length");
+        goto destroy_key;
+    }
+
     /* Check that the plain text matches the decrypted data */
+#if DOMAIN_NS == 1U
     comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
 #else
     comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
 #endif
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
-        status = psa_cipher_abort(&handle_dec);
-        if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
-        }
-        goto destroy_key;
-    }
-
-    /* Finalise the cipher operation for decryption (destroys decrypted data) */
-    status = psa_cipher_finish(&handle_dec, decrypted_data, BYTE_SIZE_CHUNK,
-                               &output_length);
-
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error finalising the cipher operation");
-        status = psa_cipher_abort(&handle_dec);
-        if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
-        }
-        goto destroy_key;
-    }
-
-    total_output_length += output_length;
-
-    /* Check that the decrypted length is equal to the original length */
-    if (total_output_length != ENC_DEC_BUFFER_SIZE) {
-        TEST_FAIL("After finalising, unexpected decrypted length");
         goto destroy_key;
     }
 
 #if DOMAIN_NS == 1U
     /* Clear intermediate buffers for additional single-shot API tests */
-    memset(encrypted_data, 0, sizeof(plain_text));
+    memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
+    memset(decrypted_data, 0, sizeof(decrypted_data));
 #else
-    tfm_memset(decrypted_data, 0, sizeof(plain_text));
+    tfm_memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
+    tfm_memset(decrypted_data, 0, sizeof(decrypted_data));
 #endif
 
     /* Replicate the encryption-decryption test above using single-shot APIs */
     status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
-                                BYTE_SIZE_CHUNK,
-                                encrypted_data, ENC_DEC_BUFFER_SIZE,
+                                sizeof(plain_text),
+                                input.encrypted_data_pad,
+                                sizeof(input.encrypted_data_pad),
                                 &output_length);
+
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error encrypting with the single-shot API");
         goto destroy_key;
     }
 
-    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg, encrypted_data,
-                                ENC_DEC_BUFFER_SIZE,
+    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg,
+                                input.encrypted_data_pad,
+                                output_length,
                                 decrypted_data, ENC_DEC_BUFFER_SIZE,
                                 &output_length);
     if (status != PSA_SUCCESS) {
@@ -333,6 +654,11 @@ void psa_cipher_test(const psa_key_type_t key_type,
         goto destroy_key;
     }
 
+    if (sizeof(plain_text) != output_length) {
+        TEST_FAIL("Unexpected output length");
+        goto destroy_key;
+    }
+
 #if DOMAIN_NS == 1U
     /* Check that the plain text matches the decrypted data */
     comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
@@ -343,13 +669,22 @@ void psa_cipher_test(const psa_key_type_t key_type,
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
 
+    /* Go directly to the destroy_key label at this point */
+    goto destroy_key;
+
+abort:
+    /* Abort the operation */
+    status = bAbortDecryption ? psa_cipher_abort(&handle_dec) :
+                                psa_cipher_abort(&handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error aborting the operation");
+    }
 destroy_key:
     /* Destroy the key */
     status = psa_destroy_key(key_handle);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
-
 }
 
 void psa_invalid_cipher_test(const psa_key_type_t key_type,

@@ -70,6 +70,11 @@ static void tfm_crypto_test_1042(struct test_result_t *ret);
 static void tfm_crypto_test_1043(struct test_result_t *ret);
 static void tfm_crypto_test_1044(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
+#ifdef TFM_CRYPTO_TEST_ALG_CBC
+static void tfm_crypto_test_1045(struct test_result_t *ret);
+static void tfm_crypto_test_1046(struct test_result_t *ret);
+static void tfm_crypto_test_1047(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_CBC */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -169,6 +174,17 @@ static struct test_t crypto_tests[] = {
      "Non Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)",
      {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
+#ifdef TFM_CRYPTO_TEST_ALG_CBC
+    {&tfm_crypto_test_1045, "TFM_NS_CRYPTO_TEST_1045",
+     "Non Secure Symmetric encryption (AES-128-CBC-PKCS7) interface",
+     {TEST_PASSED} },
+    {&tfm_crypto_test_1046, "TFM_NS_CRYPTO_TEST_1046",
+     "Non Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, shorter",
+     {TEST_PASSED} },
+    {&tfm_crypto_test_1047, "TFM_NS_CRYPTO_TEST_1047",
+     "Non Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer",
+     {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ALG_CBC */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -382,3 +398,20 @@ static void tfm_crypto_test_1044(struct test_result_t *ret)
         PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), ret);
 }
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
+
+#ifdef TFM_CRYPTO_TEST_ALG_CBC
+static void tfm_crypto_test_1045(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7, ret);
+}
+
+static void tfm_crypto_test_1046(struct test_result_t *ret)
+{
+    psa_cipher_padded_modes_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7, 12, ret);
+}
+
+static void tfm_crypto_test_1047(struct test_result_t *ret)
+{
+    psa_cipher_padded_modes_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7, 20, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_CBC */

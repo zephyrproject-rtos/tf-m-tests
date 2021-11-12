@@ -31,7 +31,7 @@ extern "C" {
  * \brief Macro to extract the size of the key in bytes
  *
  */
-#define BYTE_SIZE_TEST_KEY (BIT_SIZE_TEST_KEY/8)
+#define BYTE_SIZE_TEST_KEY (BIT_SIZE_TEST_KEY / 8)
 
 /**
  * \brief Size in bytes of a chunk of data to process
@@ -40,10 +40,39 @@ extern "C" {
 #define BYTE_SIZE_CHUNK (16)
 
 /**
+ * \brief Size in bytes of the plain data processed in cipher
+ *        tests
+ * 
+ */
+#define PLAIN_DATA_SIZE (3 * BYTE_SIZE_CHUNK)
+
+/**
  * \brief Size in bytes of the encryption/decryption buffers
  *
  */
-#define ENC_DEC_BUFFER_SIZE (32)
+#define ENC_DEC_BUFFER_SIZE (4 * BYTE_SIZE_CHUNK)
+
+/**
+ * \brief When the input algorithm has padding, the required encrypted
+ *        data needs one block more due to the fact that it has to
+ *        produce the encrypted padding
+ */
+#define ENC_DEC_BUFFER_SIZE_PAD_MODES (ENC_DEC_BUFFER_SIZE + BYTE_SIZE_CHUNK)
+
+
+/**
+ * \brief Size in bytes of the small input plain data that is used for
+ *        the dedicated tests for padded modes which process smaller
+ *        chunks of data 
+ */
+#define PLAIN_DATA_SIZE_PAD_TEST (BYTE_SIZE_CHUNK + BYTE_SIZE_CHUNK / 2)
+/**
+ * \brief Size in bytes of the encrypted/decrypted buffers for the
+ *        dedicated tests for padded modes which process smaller
+ *        chunks of data
+ * 
+ */
+#define ENC_DEC_BUFFER_SIZE_PAD_TEST (2 * BYTE_SIZE_CHUNK)
 
 /**
  * \brief Max size in bytes of the data to be encrypted in AEAD
@@ -79,6 +108,19 @@ extern "C" {
  */
 void psa_key_interface_test(const psa_key_type_t key_type,
                             struct test_result_t *ret);
+/**
+ * \brief Run block ciphering tests with padded modes only
+ *
+ * \param[in]  key_type PSA key type
+ * \param[in]  alg      PSA algorithm
+ * \param[in]  len      Input length
+ * \param[out] ret      Test result
+ *
+ */
+void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
+                                  const psa_algorithm_t alg,
+                                  uint8_t len,
+                                  struct test_result_t *ret);
 /**
  * \brief Run block ciphering tests with different algorithms and key types
  *
