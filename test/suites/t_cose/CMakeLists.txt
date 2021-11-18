@@ -7,12 +7,6 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_ATTESTATION AND NOT TEST_NS_T_COSE)
-    return()
-endif()
-
-set(T_COSE_SRC_DIR ${CMAKE_SOURCE_DIR}/lib/ext/t_cose)
-
 ############################ t_cose non secure #################################
 
 add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
@@ -32,6 +26,8 @@ endif()
 ############################ t_cose test #######################################
 
 add_library(tfm_t_cose_test STATIC EXCLUDE_FROM_ALL)
+
+set(T_COSE_SRC_DIR ${CMAKE_SOURCE_DIR}/lib/ext/t_cose)
 
 target_sources(tfm_t_cose_test
     PRIVATE

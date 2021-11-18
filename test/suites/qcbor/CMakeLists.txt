@@ -6,10 +6,6 @@
 #-------------------------------------------------------------------------------
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_ATTESTATION AND NOT TEST_NS_QCBOR)
-    return()
-endif()
-
 ######################### qcbor ns ############################
 
 set(QCBOR_SRC_DIR ${CMAKE_SOURCE_DIR}/lib/ext/qcbor)
@@ -35,6 +31,10 @@ target_link_libraries(tfm_qcbor_ns
 )
 
 ####################### Non Secure Test #############################################
+
+if (NOT TEST_NS_QCBOR)
+    return()
+endif()
 
 add_library(tfm_test_suite_qcbor_ns STATIC EXCLUDE_FROM_ALL)
 
@@ -66,10 +66,6 @@ target_link_libraries(tfm_ns_tests
     INTERFACE
         tfm_test_suite_qcbor_ns
 )
-
-if (NOT TEST_NS_QCBOR)
-    return()
-endif()
 
 ############################ qcbor test ########################################
 
