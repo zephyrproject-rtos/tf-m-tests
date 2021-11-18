@@ -1064,6 +1064,7 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
 }
 #endif
 
+#ifdef TFM_PSA_API
 void tfm_fwu_test_common_016(struct test_result_t *ret)
 {
     psa_status_t status;
@@ -1072,7 +1073,7 @@ void tfm_fwu_test_common_016(struct test_result_t *ret)
     status = psa_fwu_write(test_image,
                            0,
                            header_test_image_version_zero,
-                           0xFFFFFFFF);
+                           PSA_FWU_MAX_BLOCK_SIZE + 1);
     if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("psa_fwu_write boundary test failed.");
         return;
@@ -1088,3 +1089,4 @@ void tfm_fwu_test_common_016(struct test_result_t *ret)
     }
     ret->val = TEST_PASSED;
 }
+#endif

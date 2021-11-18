@@ -51,8 +51,10 @@ static struct test_t psa_fwu_s_tests[] = {
     {&tfm_fwu_test_common_015, "TFM_S_FWU_TEST_1015",
      "Image update with dependency, new image is required", {TEST_PASSED} },
 #endif
+#ifdef TFM_PSA_API
     {&tfm_fwu_test_common_016, "TFM_S_FWU_TEST_1016",
      "psa_fwu_write boundary test", {TEST_PASSED} },
+#endif
 };
 
 void register_testsuite_s_psa_fwu_interface(struct test_suite_t *p_test_suite)
