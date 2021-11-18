@@ -114,6 +114,92 @@ static bool check_fp_restored_client(void)
 }
 
 /**
+ * Clear FP registers.
+ */
+__attribute__((naked)) static void fpu_client_fp_clear_test(void)
+{
+    __asm volatile(
+        "eor       r0, r0, r0              \n"
+        "vmov      s0, r0                  \n"
+        "vmov      s1, r0                  \n"
+        "vmov      s2, r0                  \n"
+        "vmov      s3, r0                  \n"
+        "vmov      s4, r0                  \n"
+        "vmov      s5, r0                  \n"
+        "vmov      s6, r0                  \n"
+        "vmov      s7, r0                  \n"
+        "vmov      s8, r0                  \n"
+        "vmov      s9, r0                  \n"
+        "vmov      s10, r0                 \n"
+        "vmov      s11, r0                 \n"
+        "vmov      s12, r0                 \n"
+        "vmov      s13, r0                 \n"
+        "vmov      s14, r0                 \n"
+        "vmov      s15, r0                 \n"
+        "vmov      s16, r0                 \n"
+        "vmov      s17, r0                 \n"
+        "vmov      s18, r0                 \n"
+        "vmov      s19, r0                 \n"
+        "vmov      s20, r0                 \n"
+        "vmov      s21, r0                 \n"
+        "vmov      s22, r0                 \n"
+        "vmov      s23, r0                 \n"
+        "vmov      s24, r0                 \n"
+        "vmov      s25, r0                 \n"
+        "vmov      s26, r0                 \n"
+        "vmov      s27, r0                 \n"
+        "vmov      s28, r0                 \n"
+        "vmov      s29, r0                 \n"
+        "vmov      s30, r0                 \n"
+        "vmov      s31, r0                 \n"
+
+        "bx        lr                      \n"
+    );
+}
+
+/**
+ * Check invalidation of FP registers.
+ * Return:
+ *   1 - FP registers are invalidated
+ *   0 - FP registers are not invalidated
+ */
+static bool check_fp_invalidated(void)
+{
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    const uint32_t fp_expect[NR_FP_REG] = {0};
+
+    __asm volatile(
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
+    );
+
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Description: Clear FP registers in FPU client partition for next test.
+ * Expectation: FP registers in FPU client partition should be cleared.
+ */
+void tfm_fpu_test_clear_client_fp_data(struct test_result_t *ret)
+{
+    ret->val = TEST_FAILED;
+
+    fpu_client_fp_clear_test();
+
+    if (check_fp_invalidated()) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
+}
+
+/**
  * Description: Test FP context protection after psa calls. Change FP registers
  * in FPU client/service partition separately, then check FP registers after
  * psa calls.
@@ -124,6 +210,8 @@ void tfm_fpu_test_fp_protection_psa_call(struct test_result_t *ret)
 {
     psa_handle_t handle;
     psa_status_t status;
+
+    ret->val = TEST_FAILED;
 
     handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_REGISTER_SID,
                             TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
@@ -157,6 +245,8 @@ void tfm_fpu_test_clear_service_fp_data(struct test_result_t *ret)
     psa_handle_t handle;
     psa_status_t status;
 
+    ret->val = TEST_FAILED;
+
     handle = psa_connect(TFM_FPU_SERVICE_CLEAR_FP_REGISTER_SID,
                             TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
@@ -187,13 +277,14 @@ void tfm_fpu_test_fp_protection_psa_call_loop(struct test_result_t *ret)
     psa_status_t status;
     uint32_t itr;
 
+    ret->val = TEST_FAILED;
+
     for (itr = 0; itr < LOOP_ITERATIONS; itr++) {
         TEST_LOG("  > Iteration %d of %d\r", itr + 1, LOOP_ITERATIONS);
 
         handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_REGISTER_SID,
                                 TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
-        if (handle <= 0) {
-            TEST_FAIL("The RoT Service has refused the connection!\r\n");
+        if (!PSA_HANDLE_IS_VALID(handle)) {
             ret->val = TEST_FAILED;
             return;
         }
@@ -217,8 +308,7 @@ void tfm_fpu_test_fp_protection_psa_call_loop(struct test_result_t *ret)
 
         handle = psa_connect(TFM_FPU_SERVICE_CLEAR_FP_REGISTER_SID,
                                 TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
-        if (handle <= 0) {
-            TEST_LOG("The RoT Service has refused the connection!\r\n");
+        if (!PSA_HANDLE_IS_VALID(handle)) {
             ret->val = TEST_FAILED;
             return;
         }
@@ -232,6 +322,4 @@ void tfm_fpu_test_fp_protection_psa_call_loop(struct test_result_t *ret)
 
         psa_close(handle);
     }
-
-    ret->val = TEST_PASSED;
 }
