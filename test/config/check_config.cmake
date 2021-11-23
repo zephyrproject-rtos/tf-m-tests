@@ -61,4 +61,10 @@ tfm_invalid_config(NOT NS AND TEST_FRAMEWORK_NS)
 ########################## Check suites dependence #############################
 
 tfm_invalid_config(TEST_NS_PS AND NOT TEST_NS_ITS)
+
+############################ FLIH/SLIH dependence ##############################
+
+# FLIH and SLIH testing can not be enabled at the same time
 tfm_invalid_config(TEST_NS_SLIH_IRQ AND TEST_NS_FLIH_IRQ)
+tfm_invalid_config(NOT PLATFORM_SLIH_IRQ_TEST_SUPPORT AND TEST_NS_SLIH_IRQ)
+tfm_invalid_config(NOT PLATFORM_FLIH_IRQ_TEST_SUPPORT AND TEST_NS_FLIH_IRQ)

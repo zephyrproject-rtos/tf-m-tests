@@ -78,3 +78,9 @@ set(TEST_S_FPU                          OFF         CACHE BOOL      "Whether to 
 
 set(EXTRA_NS_TEST_SUITES_PATHS          ""          CACHE PATH      "List of extra non-secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
 set(EXTRA_S_TEST_SUITES_PATHS           ""          CACHE PATH      "List of extra secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
+
+######################### Platform specific setting ############################
+
+set(PLATFORM_SLIH_IRQ_TEST_SUPPORT      OFF         CACHE BOOL    "Platform supports SLIH IRQ tests")
+set(PLATFORM_FLIH_IRQ_TEST_SUPPORT      OFF         CACHE BOOL    "Platform supports FLIH IRQ tests")
+

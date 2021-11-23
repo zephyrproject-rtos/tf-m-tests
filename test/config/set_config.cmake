@@ -111,6 +111,19 @@ if (TFM_PROFILE)
     include(${TFM_TEST_PATH}/config/profile/${TFM_PROFILE}_test.cmake)
 endif()
 
+########################## SLIH/FLIH IRQ Test ##################################
+
+# Make FLIH IRQ test as the default IRQ test
+if (NOT TFM_LIB_MODEL AND PLATFORM_FLIH_IRQ_TEST_SUPPORT
+    AND TEST_NS AND NOT TEST_NS_SLIH_IRQ)
+    set(TEST_NS_FLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
+endif()
+
+if (NOT TFM_LIB_MODEL AND PLATFORM_SLIH_IRQ_TEST_SUPPORT
+    AND TEST_NS AND NOT TEST_NS_FLIH_IRQ)
+    set(TEST_NS_SLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
+endif()
+
 ########################## Load default config #################################
 
 if (TEST_S)
