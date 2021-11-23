@@ -5,9 +5,10 @@
  *
  */
 
+#include <stdbool.h>
 #include "fpu_tests_common.h"
 #include "psa_manifest/sid.h"
-#include "tfm_arch.h"
+#include "tfm_memory_utils.h"
 
 /**
  * Change FP registers.
@@ -90,145 +91,26 @@ __attribute__((naked)) static void change_fp_in_client(void)
  *   1 - FP registers are restored correctly
  *   0 - FP registers are not restored correctly
  */
-__attribute__((naked)) static bool check_fp_restored_client(void)
+static bool check_fp_restored_client(void)
 {
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    const uint32_t fp_expect[NR_FP_REG] = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
+                             0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+                             0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7,
+                             0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF};
+
     __asm volatile(
-        "mov       r3, #0                  \n"
-
-        "vmov      r2, s0                  \n"
-        "cmp       r2, 0x000000C0          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s1                  \n"
-        "cmp       r2, 0x000000C1          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s2                  \n"
-        "cmp       r2, 0x000000C2          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s3                  \n"
-        "cmp       r2, 0x000000C3          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s4                  \n"
-        "cmp       r2, 0x000000C4          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s5                  \n"
-        "cmp       r2, 0x000000C5          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s6                  \n"
-        "cmp       r2, 0x000000C6          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s7                  \n"
-        "cmp       r2, 0x000000C7          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s8                  \n"
-        "cmp       r2, 0x000000C8          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s9                  \n"
-        "cmp       r2, 0x000000C9          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s10                 \n"
-        "cmp       r2, 0x000000CA          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s11                 \n"
-        "cmp       r2, 0x000000CB          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s12                 \n"
-        "cmp       r2, 0x000000CC          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s13                 \n"
-        "cmp       r2, 0x000000CD          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s14                 \n"
-        "cmp       r2, 0x000000CE          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s15                 \n"
-        "cmp       r2, 0x000000CF          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s16                 \n"
-        "cmp       r2, 0x000000D0          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s17                 \n"
-        "cmp       r2, 0x000000D1          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s18                 \n"
-        "cmp       r2, 0x000000D2          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s19                 \n"
-        "cmp       r2, 0x000000D3          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s20                 \n"
-        "cmp       r2, 0x000000D4          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s21                 \n"
-        "cmp       r2, 0x000000D5          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s22                 \n"
-        "cmp       r2, 0x000000D6          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s23                 \n"
-        "cmp       r2, 0x000000D7          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s24                 \n"
-        "cmp       r2, 0x000000D8          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s25                 \n"
-        "cmp       r2, 0x000000D9          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s26                 \n"
-        "cmp       r2, 0x000000DA          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s27                 \n"
-        "cmp       r2, 0x000000DB          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s28                 \n"
-        "cmp       r2, 0x000000DC          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s29                 \n"
-        "cmp       r2, 0x000000DD          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s30                 \n"
-        "cmp       r2, 0x000000DE          \n"
-        "bne       exit                    \n"
-
-        "vmov      r2, s31                 \n"
-        "cmp       r2, 0x000000DF          \n"
-        "bne       exit                    \n"
-
-        "mov       r3, #1                  \n"
-        "exit:                             \n"
-        "mov       r0, r3                  \n"
-
-        "bx        lr                      \n"
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
     );
+
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
