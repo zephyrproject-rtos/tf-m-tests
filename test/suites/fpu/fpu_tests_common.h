@@ -22,6 +22,9 @@ extern "C" {
 
 #define LOOP_ITERATIONS                         (300U)
 
+#define NR_FP_REG                               (32U)
+#define FP_BUF_SIZE                             (NR_FP_REG * sizeof(uint32_t))
+
 /**
  * Test FP context protection after psa calls.
  */

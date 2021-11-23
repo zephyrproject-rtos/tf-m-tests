@@ -5,8 +5,10 @@
  *
  */
 
+#include <stdbool.h>
 #include "fpu_s_tests.h"
 #include "../fpu_tests_common.h"
+#include "tfm_memory_utils.h"
 
 static struct test_t fpu_s_tests[] = {
     {
@@ -30,11 +32,6 @@ static struct test_t fpu_s_tests[] = {
         {TEST_PASSED}
     }
 };
-
-/**
- * Check invalidation of FP registers.
- */
-__attribute__((naked)) static uint32_t check_fp_invalidated(void);
 
 void register_testsuite_s_fpu_interface(struct test_suite_t *p_test_suite)
 {
@@ -90,11 +87,38 @@ __attribute__((naked)) static int fpu_client_fp_clear_test(void)
 }
 
 /**
+ * Check invalidation of FP registers.
+ * Return:
+ *   1 - FP registers are invalidated
+ *   0 - FP registers are not invalidated
+ */
+static bool check_fp_invalidated(void)
+{
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    const uint32_t fp_expect[NR_FP_REG] = {0};
+
+    __asm volatile(
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
+    );
+
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Description: Clear FP registers in FPU client partition for next test.
  * Expectation: FP registers in FPU client partition should be cleared.
  */
 void tfm_fpu_test_clear_client_fp_data(struct test_result_t *ret)
 {
+    ret->val = TEST_FAILED;
+
     fpu_client_fp_clear_test();
 
     if (check_fp_invalidated()) {
@@ -102,43 +126,4 @@ void tfm_fpu_test_clear_client_fp_data(struct test_result_t *ret)
     } else {
         ret->val = TEST_FAILED;
     }
-}
-
-/**
- * Check invalidation of FP registers.
- * Return:
- *   1 - FP registers are invalidated
- *   0 - FP registers are not invalidated
- */
-__attribute__((naked)) static uint32_t check_fp_invalidated(void)
-{
-    __asm volatile(
-        "mov       r3, #1                  \n"
-        "mov       r2, #0                  \n"
-
-        "vadd.f32  s2, s1, s0              \n"
-        "vadd.f32  s4, s3, s2              \n"
-        "vadd.f32  s6, s5, s4              \n"
-        "vadd.f32  s8, s7, s6              \n"
-        "vadd.f32  s10, s9, s8            \n"
-        "vadd.f32  s12, s11, s10           \n"
-        "vadd.f32  s14, s13, s12           \n"
-        "vadd.f32  s16, s15, s14           \n"
-        "vadd.f32  s18, s17, s16           \n"
-        "vadd.f32  s20, s19, s18           \n"
-        "vadd.f32  s22, s21, s20           \n"
-        "vadd.f32  s24, s23, s22           \n"
-        "vadd.f32  s26, s25, s24           \n"
-        "vadd.f32  s28, s27, s26           \n"
-        "vadd.f32  s30, s29, s28           \n"
-        "vadd.f32  s31, s29, s30           \n"
-        "vcmp.f32  s31, #0.0               \n"
-        "vmrs      APSR_nzcv, fpscr        \n"
-        "beq       cleared                 \n"
-        "mov       r3, r2                  \n"
-        "cleared:                          \n"
-
-        "mov       r0, r3                  \n"
-        "bx        lr                      \n"
-    );
 }
