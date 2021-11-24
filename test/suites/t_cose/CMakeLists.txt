@@ -16,7 +16,7 @@ target_link_libraries(tfm_t_cose_ns
         tfm_t_cose_common
         tfm_t_cose_defs
         tfm_qcbor_ns
-        tfm_ns_interface
+        tfm_api_ns
 )
 
 if (NOT TEST_NS_T_COSE)
