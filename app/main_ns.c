@@ -7,11 +7,11 @@
 
 #include "tfm_api.h"
 #include "cmsis_os2.h"
-#include "tfm_integ_test.h"
-#include "tfm_ns_svc.h"
+#include "cmsis_compiler.h"
 #include "tfm_ns_interface.h"
+#include "tfm_nsid_manager.h"
 #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
-#include "test_framework_integ_test.h"
+#include "tfm_integ_test.h"
 #endif
 #ifdef PSA_API_TEST_NS
 #include "psa_api_test.h"
@@ -32,30 +32,19 @@
  * \details RTX has a weak definition of osRtxUserSVC, which
  *          is overridden here
  */
-#if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION == 6110004))
+#if defined(__ARMCC_VERSION)
+#if (__ARMCC_VERSION == 6110004)
 /* Workaround needed for a bug in Armclang 6.11, more details at:
  * http://www.keil.com/support/docs/4089.htm
  */
 __attribute__((section(".gnu.linkonce")))
 #endif
-extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
-       void * const osRtxUserSVC[1+USER_SVC_COUNT] = {
-  (void *)USER_SVC_COUNT,
 
-#define X(SVC_ENUM, SVC_HANDLER) (void*)SVC_HANDLER,
-
-    /* SVC API for Services */
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
-    LIST_SVC_NSPM
+/* Avoids the semihosting issue */
+#if (__ARMCC_VERSION >= 6010050)
+__asm("  .global __ARM_use_no_argv\n");
 #endif
-
-#undef X
-
-/*
- * (void *)user_function1,
- *  ...
- */
-};
+#endif
 
 /**
  * \brief List of RTOS thread attributes
@@ -64,7 +53,8 @@ extern void * const osRtxUserSVC[1+USER_SVC_COUNT];
  || defined(PSA_API_TEST_NS)
 static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
-    .stack_size = 4096U
+    .stack_size = 4096U,
+    .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
 };
 #endif
 
@@ -92,10 +82,10 @@ static void tfm_ns_multi_core_boot(void)
 {
     int32_t ret;
 
-    LOG_MSG("Non-secure code running on non-secure core.");
+    LOG_MSG("Non-secure code running on non-secure core.\r\n");
 
     if (tfm_ns_wait_for_s_cpu_ready()) {
-        LOG_MSG("Error sync'ing with secure core.");
+        LOG_MSG("Error sync'ing with secure core.\r\n");
 
         /* Avoid undefined behavior after multi-core sync-up failed */
         for (;;) {
@@ -104,7 +94,7 @@ static void tfm_ns_multi_core_boot(void)
 
     ret = tfm_ns_mailbox_init(&ns_mailbox_queue);
     if (ret != MAILBOX_SUCCESS) {
-        LOG_MSG("Non-secure mailbox initialization failed.");
+        LOG_MSG("Non-secure mailbox initialization failed.\r\n");
 
         /* Avoid undefined behavior after NS mailbox initialization failed */
         for (;;) {

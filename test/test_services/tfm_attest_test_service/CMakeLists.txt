@@ -7,15 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
-    return()
-endif()
-
-# This initial attestation test service provide a secure API to enable tests to
-# fetch Initial Attestation public key.
-# This test service shall be only enabled when the public key can only be
-# fetched in runtime.
-if (NOT ATTEST_TEST_GET_PUBLIC_KEY OR SYMMETRIC_INITIAL_ATTESTATION)
+if (NOT TFM_PARTITION_ATTESTATION_TEST)
     return()
 endif()
 
@@ -57,7 +49,6 @@ target_link_libraries(tfm_psa_rot_partition_attest_test_service
         tfm_secure_api
         psa_interface
         platform_s
-        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm
@@ -76,22 +67,30 @@ target_include_directories(tfm_psa_rot_partition_attest_test_service_defs
 
 ############################ NS API ############################################
 
-target_sources(tfm_api_ns
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
-)
+if(TEST_FRAMEWORK_NS)
+    target_sources(tfm_api_ns
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
+    )
 
-# The veneers give warnings about not being properly declared so they get hidden
-# to not overshadow _real_ warnings.
-set_source_files_properties(tfm_attest_test_service_ns_api.c
-    PROPERTIES
-        COMPILE_FLAGS -Wno-implicit-function-declaration
-)
+    # The veneers give warnings about not being properly declared so they get hidden
+    # to not overshadow _real_ warnings.
+    set_source_files_properties(tfm_attest_test_service_ns_api.c
+        PROPERTIES
+            COMPILE_FLAGS -Wno-implicit-function-declaration
+    )
 
-target_include_directories(tfm_api_ns
-    PUBLIC
-        .
-)
+    target_include_directories(tfm_api_ns
+        PUBLIC
+            .
+    )
+endif()
+
+# Export test service non-secure interface API
+install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_ns_api.c
+        DESTINATION ${TEST_SERVICE_SRC_INSTALL_DIR})
+install(FILES       ${CMAKE_CURRENT_SOURCE_DIR}/tfm_attest_test_service_api.h
+        DESTINATION ${TEST_SERVICE_INC_INSTALL_DIR})
 
 ############################ Secure API ########################################
 

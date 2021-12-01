@@ -1,0 +1,43 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "name": "TF-M secure partition manifests",
+  "type": "manifest_list",
+  "version_major": 0,
+  "version_minor": 1,
+  "manifest_list": [
+    {
+      "name": "TFM SFN Partition1 Service",
+      "short_name": "TFM_SFN_SP1",
+      "manifest": "tfm_test_sfn_partitions/sfn_partition1/sfn_partition1.yaml",
+      "output_path": "test_services/sfn_partition1",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
+      "version_major": 0,
+      "version_minor": 1,
+      "linker_pattern": {
+        "library_list": [
+          "*tfm_*partition_sfn1.*"
+        ]
+      }
+    },
+    {
+      "name": "TFM SFN Partition2 Service",
+      "short_name": "TFM_SFN_SP2",
+      "manifest": "tfm_test_sfn_partitions/sfn_partition2/sfn_partition2.yaml",
+      "output_path": "test_services/sfn_partition2",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
+      "version_major": 0,
+      "version_minor": 1,
+      "linker_pattern": {
+        "library_list": [
+          "*tfm_*partition_sfn2.*"
+        ]
+      }
+    },
+  ]
+}

@@ -8,8 +8,12 @@
 #include <stdio.h>
 #include "ipc_ns_tests.h"
 #include "psa/client.h"
+#include "psa/framework_feature.h"
 #include "test_framework_helpers.h"
 #include "psa_manifest/sid.h"
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+#include "tfm_mm_iovec_test_defs.h"
+#endif
 
 /* List of tests */
 static void tfm_ipc_test_1001(struct test_result_t *ret);
@@ -37,8 +41,14 @@ static void tfm_ipc_test_1010(struct test_result_t *ret);
 static void tfm_ipc_test_1011(struct test_result_t *ret);
 #endif
 
-#ifdef TFM_PARTITION_FFM11
 static void tfm_ipc_test_1012(struct test_result_t *ret);
+
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+static void tfm_ipc_test_1013(struct test_result_t *ret);
+
+static void tfm_ipc_test_1014(struct test_result_t *ret);
+
+static void tfm_ipc_test_1015(struct test_result_t *ret);
 #endif
 
 static struct test_t ipc_veneers_tests[] = {
@@ -72,9 +82,15 @@ static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1011, "TFM_NS_IPC_TEST_1011",
      "Call APP RoT access another APP RoT memory test service", {TEST_PASSED}},
 #endif
-#ifdef TFM_PARTITION_FFM11
     {&tfm_ipc_test_1012, "TFM_NS_IPC_TEST_1012",
      "Accessing stateless service from non-secure client", {TEST_PASSED}},
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+    {&tfm_ipc_test_1013, "TFM_NS_IPC_TEST_1013",
+     "Mapping input vectors and unmapping them", {TEST_PASSED}},
+    {&tfm_ipc_test_1014, "TFM_NS_IPC_TEST_1014",
+     "Mapping output vectors and unmapping them", {TEST_PASSED}},
+    {&tfm_ipc_test_1015, "TFM_NS_IPC_TEST_1015",
+     "Mapping output vectors and not unmapping them", {TEST_PASSED}},
 #endif
 };
 
@@ -412,7 +428,6 @@ static void tfm_ipc_test_1011(struct test_result_t *ret)
 }
 #endif
 
-#ifdef TFM_PARTITION_FFM11
 /**
  * \brief Accessing a stateless service
  *
@@ -426,14 +441,15 @@ static void tfm_ipc_test_1012(struct test_result_t *ret)
     psa_invec in_vec[] = { {&data, sizeof(uint32_t)} };
 
     /* Connecting to a stateless service should fail. */
-    handle = psa_connect(TFM_FFM11_SERVICE1_SID, TFM_FFM11_SERVICE1_VERSION);
+    handle = psa_connect(IPC_SERVICE_TEST_STATELESS_ROT_SID,
+                         IPC_SERVICE_TEST_STATELESS_ROT_VERSION);
     if (handle > 0) {
         TEST_FAIL("Connecting to stateless service test should fail.\r\n");
         return;
     }
 
     /* Calling a stateless service should succeed. */
-    status = psa_call(TFM_FFM11_SERVICE1_HANDLE, PSA_IPC_CALL,
+    status = psa_call(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, PSA_IPC_CALL,
                       in_vec, 1, NULL, 0);
     if (status < 0) {
         TEST_FAIL("Calling a stateless service test fail.\r\n");
@@ -442,4 +458,104 @@ static void tfm_ipc_test_1012(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
+
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+
+/**
+ * \brief Mapping input vectors and unmapping them.
+ *
+ * \note Test psa_map_invec() and psa_unmap_invec() functionality.
+ */
+static void tfm_ipc_test_1013(struct test_result_t *ret)
+{
+    psa_status_t status;
+    uint32_t invec_data[] = MMIOVECT_TEST_INVEC;
+    psa_invec in_vec[] = { {&invec_data[0], sizeof(invec_data[0])},
+                           {&invec_data[1], sizeof(invec_data[1])},
+                           {&invec_data[2], sizeof(invec_data[2])},
+                           {&invec_data[3], sizeof(invec_data[3])} };
+
+    status = psa_call(IPC_SERVICE_TEST_MMIOVEC_HANDLE, INVEC_MAP_AND_UNMAP,
+                      in_vec, MMIOVEC_TEST_VEC_LEN, NULL, 0);
+    if (status < 0) {
+        TEST_FAIL("Input vector mapping test failed.\r\n");
+        return;
+    }
+
+    ret->val = TEST_PASSED;
+}
+
+/**
+ * \brief Mapping output vectors and unmapping them.
+ *
+ * \note Test psa_map_outvec() and psa_unmap_outvec() functionality.
+ */
+static void tfm_ipc_test_1014(struct test_result_t *ret)
+{
+    psa_status_t status;
+    int i;
+    uint8_t *out_data;
+    uint32_t outvec_data[MMIOVEC_TEST_VEC_LEN] = {0};
+    psa_outvec out_vec[] = { {&outvec_data[0], sizeof(outvec_data[0])},
+                             {&outvec_data[1], sizeof(outvec_data[1])},
+                             {&outvec_data[2], sizeof(outvec_data[2])},
+                             {&outvec_data[3], sizeof(outvec_data[3])} };
+
+    status = psa_call(IPC_SERVICE_TEST_MMIOVEC_HANDLE, OUTVEC_MAP_AND_UNMAP,
+                      NULL, 0, out_vec, MMIOVEC_TEST_VEC_LEN);
+
+    if (status < 0) {
+        TEST_FAIL("Output vector mapping test failed.\r\n");
+        return;
+    }
+
+    for (i = 0; i < MMIOVEC_TEST_VEC_LEN; i++) {
+        if (out_vec[i].len != sizeof(uint8_t)) {
+            TEST_FAIL("Output vector mapping test failed.\r\n");
+            return;
+        }
+        out_data = (uint8_t *)(&outvec_data[i]);
+        if (*out_data != MMIOVEC_OUTPUT_DATA) {
+            TEST_FAIL("Output vector mapping test failed.\r\n");
+            return;
+        }
+    }
+
+    ret->val = TEST_PASSED;
+}
+
+/**
+ * \brief Mapping output vectors and not unmapping them.
+ *
+ * \note RoT services map outvecs and does not unmap outvecs, the service caller
+ *       should get a zero out length.
+ */
+static void tfm_ipc_test_1015(struct test_result_t *ret)
+{
+    psa_status_t status;
+    int i;
+    uint32_t outvec_data[MMIOVEC_TEST_VEC_LEN] = {0};
+    psa_outvec out_vec[] = { {&outvec_data[0], sizeof(outvec_data[0])},
+                             {&outvec_data[1], sizeof(outvec_data[1])},
+                             {&outvec_data[2], sizeof(outvec_data[2])},
+                             {&outvec_data[3], sizeof(outvec_data[3])} };
+
+    status = psa_call(IPC_SERVICE_TEST_MMIOVEC_HANDLE, OUTVEC_MAP_NOT_UNMAP,
+                      NULL, 0, out_vec, MMIOVEC_TEST_VEC_LEN);
+
+    if (status < 0) {
+        TEST_FAIL("Output vector mapping test failed.\r\n");
+        return;
+    }
+
+    for (i = 0; i < MMIOVEC_TEST_VEC_LEN; i++) {
+        if (out_vec[i].len != 0) {
+            TEST_FAIL("Output vector mapping test failed.\r\n");
+            return;
+        }
+    }
+
+    ret->val = TEST_PASSED;
+}
+
 #endif

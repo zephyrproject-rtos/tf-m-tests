@@ -9,8 +9,12 @@
 #include "os_wrapper/mutex.h"
 #include "os_wrapper/semaphore.h"
 
-#include <string.h>
 #include "cmsis_os2.h"
+
+#include "tfm_nsid_manager.h"
+#ifdef TFM_NS_MANAGE_NSID
+#include "tfm_nsid_map_table.h"
+#endif
 
 /* This is an example OS abstraction layer for CMSIS-RTOSv2 */
 
@@ -18,7 +22,9 @@ void *os_wrapper_thread_new(const char *name, int32_t stack_size,
                             os_wrapper_thread_func func, void *arg,
                             uint32_t priority)
 {
-    osThreadAttr_t task_attribs = {.tz_module = 1};
+    osThreadAttr_t task_attribs = {
+        .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
+    };
 
     /* By default, the thread starts as osThreadDetached */
     if (stack_size != OS_WRAPPER_DEFAULT_STACK_SIZE) {
@@ -26,6 +32,10 @@ void *os_wrapper_thread_new(const char *name, int32_t stack_size,
     }
     task_attribs.name = name;
     task_attribs.priority = (osPriority_t) priority;
+
+#ifdef TFM_NS_MANAGE_NSID
+    task_attribs.tz_module = (TZ_ModuleId_t)nsid_mgr_get_thread_nsid(name);
+#endif
 
     return (void *)osThreadNew(func, arg, &task_attribs);
 }

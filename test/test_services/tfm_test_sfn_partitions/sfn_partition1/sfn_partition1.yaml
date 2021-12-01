@@ -1,0 +1,27 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2021, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+{
+  "psa_framework_version": 1.1,
+  "name": "TFM_SFN_PARTITION1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "model": "SFN",
+  "entry_init": "sfn_partition_example1_init",
+  "stack_size": "0x200",
+  "services": [
+    {
+      "name": "TFM_SFN1_SERVICE1",
+      "sid": "0x0000F100",
+      "non_secure_clients": true,
+      "connection_based": false,
+      "stateless_handle": "auto",
+      "version": 1,
+      "version_policy": "RELAXED"
+    }
+  ],
+}

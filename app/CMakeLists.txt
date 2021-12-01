@@ -1,5 +1,6 @@
 #-------------------------------------------------------------------------------
 # Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2022, Cypress Semiconductor Corp. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,6 +31,9 @@ set(INTERFACE_INC_DIR    ${CMAKE_SOURCE_DIR}/interface/include)
 # NS interface implemented by NSPE
 set(NS_INTERFACE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../ns_interface)
 
+# nsid_manager
+set(NSID_MGR_DIR         ${NS_INTERFACE_DIR}/ns_client_ext)
+
 #################### TF-M NS interface (header only) ###########################
 
 add_library(tfm_ns_interface INTERFACE)
@@ -47,7 +51,7 @@ target_include_directories(tfm_ns_interface
 target_include_directories(tfm_ns_interface
     INTERFACE
         ${NS_INTERFACE_DIR}
-        ${NS_INTERFACE_DIR}/ns_client_id
+        ${NSID_MGR_DIR}
 )
 
 # PSA interface files are generated from a template
@@ -66,7 +70,8 @@ target_compile_definitions(tfm_ns_interface
     INTERFACE
         $<$<BOOL:${TFM_PSA_API}>:TFM_PSA_API>
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:TFM_NS_CLIENT_IDENTIFICATION>
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
+        $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
         $<$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>:TFM_MULTI_CORE_TOPOLOGY>
         $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:TFM_MULTI_CORE_NS_OS>
         $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>,$<BOOL:${TFM_MULTI_CORE_NS_OS}>>:TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD>
@@ -79,17 +84,16 @@ add_library(tfm_api_ns STATIC)
 
 target_sources(tfm_api_ns
     PRIVATE
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_svc_handler.c>
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:${NS_INTERFACE_DIR}/ns_client_id/tfm_nspm_api.c>
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${NSID_MGR_DIR}/tfm_nsid_manager.c>
 )
 
 if (${TFM_PSA_API})
     target_sources(tfm_api_ns PRIVATE
-        $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_PLATFORM}>>:${INTERFACE_SRC_DIR}/tfm_platform_ipc_api.c>
-        $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_PROTECTED_STORAGE}>>:${INTERFACE_SRC_DIR}/tfm_ps_ipc_api.c>
-        $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>>:${INTERFACE_SRC_DIR}/tfm_its_ipc_api.c>
-        $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_CRYPTO}>>:${INTERFACE_SRC_DIR}/tfm_crypto_ipc_api.c>
-        $<$<OR:$<BOOL:{$FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_ipc_api.c>
+        $<$<OR:$<BOOL:${FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_PLATFORM}>>:${INTERFACE_SRC_DIR}/tfm_platform_ipc_api.c>
+        $<$<OR:$<BOOL:${FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_PROTECTED_STORAGE}>>:${INTERFACE_SRC_DIR}/tfm_ps_ipc_api.c>
+        $<$<OR:$<BOOL:${FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>>:${INTERFACE_SRC_DIR}/tfm_its_ipc_api.c>
+        $<$<OR:$<BOOL:${FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_CRYPTO}>>:${INTERFACE_SRC_DIR}/tfm_crypto_ipc_api.c>
+        $<$<OR:$<BOOL:${FORWARD_PROT_MSG}>,$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_ipc_api.c>
         $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_ipc_api.c>
         )
 
@@ -104,7 +108,7 @@ if (${TFM_PSA_API})
         # NS RTOS specific implementation of NS mailbox
         target_sources(tfm_api_ns PRIVATE
             $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
-            $<$<BOOL:${TEST_NS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
+            $<$<BOOL:${TEST_NS_MULTI_CORE}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
         )
     else()
         target_sources(tfm_api_ns PRIVATE
@@ -137,10 +141,8 @@ target_link_libraries(tfm_api_ns
     PUBLIC
         tfm_ns_interface
     PRIVATE
+        $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         platform_ns
-        # CMSIS is currently only required to provide the NS client IDs. In
-        # future, this should probably be made more OS agnostic
-        $<$<BOOL:${TFM_NS_CLIENT_IDENTIFICATION}>:CMSIS_5_tfm_ns>
 )
 
 ############################# PSA test integration #############################
@@ -186,11 +188,11 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
     endif()
 
     if (NOT CPU_ARCH)
-        if (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.main)
+        if (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.main)
             set(CPU_ARCH armv8m_ml)
-        elseif (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.base)
+        elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.base)
             set(CPU_ARCH armv8m_bl)
-        elseif (${CMAKE_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
+        elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
             set(CPU_ARCH armv7m)
         endif()
     endif()
@@ -213,19 +215,17 @@ target_include_directories(tfm_ns_integration_test
 )
 
 target_link_libraries(tfm_ns_integration_test
-    PUBLIC
-        $<$<BOOL:${TEST_NS}>:tfm_ns_tests>
-        tfm_test_framework_ns
     PRIVATE
-        tfm_ns_interface
-        tfm_api_ns
-        CMSIS_5_tfm_ns
+        $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_ns_interface>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_api_ns>
 )
 
 target_compile_definitions(tfm_ns_integration_test
     PUBLIC
-        $<$<BOOL:${TEST_NS}>:TEST_FRAMEWORK_NS>
-        $<$<BOOL:${TEST_S}>:TEST_FRAMEWORK_S>
+        $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
+        $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
+        $<$<BOOL:${TFM_LIB_MODEL}>:TFM_LIB_MODEL>
 )
 
 ############################# TFM NS app #######################################
@@ -242,11 +242,10 @@ target_link_libraries(tfm_ns
     PRIVATE
         platform_ns
         CMSIS_5_tfm_ns
-        $<$<OR:$<BOOL:${TEST_NS}>,$<BOOL:${TEST_S}>>:tfm_ns_integration_test>
+        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<BOOL:${TEST_FRAMEWORK_S}>>:tfm_ns_integration_test>
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
-        $<$<NOT:$<BOOL:${TFM_MULTI_CORE_TOPOLOGY}>>:tfm_s_veneers>
         tfm_api_ns
         tfm_ns_log
 )
@@ -281,9 +280,11 @@ add_library(CMSIS_5_tfm_ns INTERFACE)
 
 target_sources(CMSIS_5_tfm_ns
     INTERFACE
+        ${NSID_MGR_DIR}/tz_shim_layer.c
         ${CMSIS_5_PATH}/RTOS2/RTX/Config/RTX_Config.c
         ${CMSIS_5_PATH}/RTOS2/RTX/Source/rtx_lib.c
         ${CMAKE_CURRENT_SOURCE_DIR}/os_wrapper_cmsis_rtos_v2.c
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_SOURCE_DIR}/tfm_nsid_map_table.c>
 )
 
 target_include_directories(CMSIS_5_tfm_ns
@@ -292,9 +293,15 @@ target_include_directories(CMSIS_5_tfm_ns
         ${CMSIS_5_PATH}/RTOS2/Include
         ${CMSIS_5_PATH}/RTOS2/RTX/Include
         ${CMSIS_5_PATH}/RTOS2/RTX/Config
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 target_link_libraries(CMSIS_5_tfm_ns
     INTERFACE
         platform_ns
+)
+
+target_compile_definitions(CMSIS_5_tfm_ns
+    INTERFACE
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
 )

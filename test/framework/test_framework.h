@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "tfm_log_raw.h"
+#include "test_log.h"
 #include "test_framework_helpers.h"
 #include "test_framework_error_codes.h"
 
@@ -125,8 +125,6 @@ void set_test_failed(const char *info_msg, const char *filename, uint32_t line,
                      struct test_result_t *ret);
 
 #define TEST_FAIL(info_msg)  set_test_failed(info_msg, __FILE__, __LINE__, ret)
-
-#define TEST_LOG(...) tfm_log_printf(__VA_ARGS__)
 
 #ifdef __cplusplus
 }

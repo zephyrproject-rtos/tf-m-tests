@@ -11,14 +11,14 @@
 #include "test_framework.h"
 #include "tfm_peripherals_def.h"
 #include "tfm_plat_test.h"
-#ifdef TFM_ENABLE_SLIH_TEST
+#ifdef TEST_NS_SLIH_IRQ
 #include "tfm_slih_test_service_types.h"
-#endif /* TFM_ENABLE_SLIH_TEST */
-#ifdef TFM_ENABLE_FLIH_TEST
+#endif /* TEST_NS_SLIH_IRQ */
+#ifdef TEST_NS_FLIH_IRQ
 #include "tfm_flih_test_service_types.h"
-#endif /* TFM_ENABLE_FLIH_TEST */
+#endif /* TEST_NS_FLIH_IRQ */
 
-#ifdef TFM_ENABLE_SLIH_TEST
+#ifdef TEST_NS_SLIH_IRQ
 /*
  * Test process:
  *    - NSPE starts testing
@@ -40,9 +40,9 @@ static void tfm_irq_test_slih_case_1(struct test_result_t *ret) {
 
     ret->val = TEST_PASSED;
 }
-#endif /* TFM_ENABLE_SLIH_TEST */
+#endif /* TEST_NS_SLIH_IRQ */
 
-#ifdef TFM_ENABLE_FLIH_TEST
+#ifdef TEST_NS_FLIH_IRQ
 /*
  * Test process:
  *    - NSPE starts testing
@@ -89,19 +89,19 @@ static void tfm_irq_test_flih_case_2(struct test_result_t *ret) {
 
     ret->val = TEST_PASSED;
 }
-#endif /* TFM_ENABLE_FLIH_TEST */
+#endif /* TEST_NS_FLIH_IRQ */
 
 static struct test_t irq_test_cases[] = {
-#ifdef TFM_ENABLE_SLIH_TEST
+#ifdef TEST_NS_SLIH_IRQ
     {&tfm_irq_test_slih_case_1, "TFM_NS_IRQ_TEST_SLIH_1001",
      "SLIH HANDLING Case 1", {TEST_PASSED}},
-#endif /* TFM_ENABLE_SLIH_TEST */
-#ifdef TFM_ENABLE_FLIH_TEST
+#endif /* TEST_NS_SLIH_IRQ */
+#ifdef TEST_NS_FLIH_IRQ
     {&tfm_irq_test_flih_case_1, "TFM_NS_IRQ_TEST_FLIH_1101",
      "FLIH HANDLING not returning signal", {TEST_PASSED}},
     {&tfm_irq_test_flih_case_2, "TFM_NS_IRQ_TEST_FLIH_1102",
      "FLIH HANDLING returning Signal", {TEST_PASSED}},
-#endif /* TFM_ENABLE_FLIH_TEST */
+#endif /* TEST_NS_FLIH_IRQ */
 };
 
 void register_testsuite_irq_test(struct test_suite_t *p_test_suite)

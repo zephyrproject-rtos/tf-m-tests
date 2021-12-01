@@ -94,6 +94,7 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 }
 
 #define CIPHER_TEST_KEY_ID (0x1)
+
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
                      struct test_result_t *ret)
@@ -170,14 +171,16 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Set the IV */
-    status = psa_cipher_set_iv(&handle, iv, iv_length);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting the IV on the cypher operation object");
-        status = psa_cipher_abort(&handle);
+    if (alg != PSA_ALG_ECB_NO_PADDING) {
+        status = psa_cipher_set_iv(&handle, iv, iv_length);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+            TEST_FAIL("Error setting the IV on the cypher operation object");
+            status = psa_cipher_abort(&handle);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key;
         }
-        goto destroy_key;
     }
 
     /* Encrypt one chunk of information */
@@ -236,14 +239,16 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Set the IV for decryption */
-    status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting the IV for decryption");
-        status = psa_cipher_abort(&handle_dec);
+    if (alg != PSA_ALG_ECB_NO_PADDING) {
+        status = psa_cipher_set_iv(&handle_dec, iv, iv_length);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error aborting the operation");
+            TEST_FAIL("Error setting the IV for decryption");
+            status = psa_cipher_abort(&handle_dec);
+            if (status != PSA_SUCCESS) {
+                TEST_FAIL("Error aborting the operation");
+            }
+            goto destroy_key;
         }
-        goto destroy_key;
     }
 
     /* Decrypt */
@@ -581,6 +586,7 @@ static const uint8_t long_key_hmac_val[PSA_HASH_LENGTH(PSA_ALG_SHA_224)] = {
 };
 
 #define MAC_TEST_KEY_ID (0x1)
+
 void psa_mac_test(const psa_algorithm_t alg,
                   uint8_t use_long_key,
                   struct test_result_t *ret)
@@ -854,8 +860,14 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 #ifdef TFM_CRYPTO_TEST_ALG_CFB
     PSA_ALG_CFB,
 #endif
+#ifdef TFM_CRYPTO_TEST_ALG_ECB
+    PSA_ALG_ECB_NO_PADDING,
+#endif
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
     PSA_ALG_CTR,
+#endif
+#ifdef TFM_CRYPTO_TEST_ALG_OFB
+    PSA_ALG_OFB,
 #endif
 #ifdef TFM_CRYPTO_TEST_ALG_GCM
     PSA_ALG_GCM,
@@ -1118,14 +1130,91 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     ret->val = TEST_PASSED;
 }
 
-#define KEY_DERIVE_OUTPUT_LEN          32
-#define KEY_DERIV_SECRET_LEN           16
-#define KEY_DERIV_LABEL_INFO_LEN       8
-#define KEY_DERIV_SEED_SALT_LEN        8
+#define KEY_DERIV_OUTPUT_LEN       32
+#define KEY_DERIV_SECRET_LEN       16
+#define KEY_DERIV_PEER_LEN         16
+#define KEY_DERIV_LABEL_INFO_LEN   8
+#define KEY_DERIV_SEED_SALT_LEN    8
+#define KEY_DERIV_RAW_MAX_PEER_LEN 100
+#define KEY_DERIV_RAW_OUTPUT_LEN   48
+
+/* An example of a 32 bytes / 256 bits ECDSA private key */
+static const uint8_t ecdsa_private_key[] = {
+    0x11, 0xb5, 0x73, 0x7c, 0xf9, 0xd9, 0x3f, 0x17,
+    0xc0, 0xcb, 0x1a, 0x84, 0x65, 0x5d, 0x39, 0x95,
+    0xa0, 0x28, 0x24, 0x09, 0x7e, 0xff, 0xa5, 0xed,
+    0xd8, 0xee, 0x26, 0x38, 0x1e, 0xb5, 0xd6, 0xc3};
+/* Buffer to hold the peer key of the key agreement process */
+static uint8_t raw_agreement_peer_key[KEY_DERIV_RAW_MAX_PEER_LEN] = {0};
 
 static uint8_t key_deriv_secret[KEY_DERIV_SECRET_LEN];
 static uint8_t key_deriv_label_info[KEY_DERIV_LABEL_INFO_LEN];
 static uint8_t key_deriv_seed_salt[KEY_DERIV_SEED_SALT_LEN];
+
+#define RAW_AGREEMENT_TEST_KEY_ID (0x1)
+
+void psa_key_agreement_test(psa_algorithm_t deriv_alg,
+                            struct test_result_t *ret)
+{
+    psa_status_t status;
+    psa_key_type_t key_type;
+    psa_key_handle_t input_handle = 0;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    uint8_t raw_agreement_output_buffer[KEY_DERIV_RAW_OUTPUT_LEN] = {0};
+    size_t raw_agreement_output_size = 0;
+    size_t public_key_length = 0;
+
+    if (!PSA_ALG_IS_RAW_KEY_AGREEMENT(deriv_alg)) {
+        TEST_FAIL("Unsupported key agreement algorithm");
+        return;
+    }
+
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_DERIVE);
+    psa_set_key_algorithm(&input_key_attr, deriv_alg);
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+    psa_set_key_id(&input_key_attr, RAW_AGREEMENT_TEST_KEY_ID);
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &input_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    /* For simplicity, as the peer key use the public part of private key */
+    status = psa_export_public_key(RAW_AGREEMENT_TEST_KEY_ID,
+                                   raw_agreement_peer_key,
+                                   KEY_DERIV_RAW_MAX_PEER_LEN,
+                                   &public_key_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error extracting the public key as peer key");
+        goto destroy_key;
+    }
+
+    status = psa_raw_key_agreement(deriv_alg,
+                                   RAW_AGREEMENT_TEST_KEY_ID,
+                                   raw_agreement_peer_key,
+                                   public_key_length,
+                                   raw_agreement_output_buffer,
+                                   KEY_DERIV_RAW_OUTPUT_LEN,
+                                   &raw_agreement_output_size);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error performing single step raw key agreement");
+        goto destroy_key;
+    }
+
+    if (raw_agreement_output_size != sizeof(ecdsa_private_key)) {
+        TEST_FAIL("Agreed key size is different than expected!");
+        goto destroy_key;
+    }
+
+    ret->val = TEST_PASSED;
+
+destroy_key:
+    psa_destroy_key(input_handle);
+
+    return;
+}
 
 void psa_key_derivation_test(psa_algorithm_t deriv_alg,
                              struct test_result_t *ret)
@@ -1136,6 +1225,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
     psa_key_derivation_operation_t deriv_ops;
     psa_status_t status;
     uint8_t counter = 0xA5;
+    psa_key_type_t key_type;
 
     /* Prepare the parameters */
 #if DOMAIN_NS == 1U
@@ -1152,11 +1242,11 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
 
     psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_DERIVE);
     psa_set_key_algorithm(&input_key_attr, deriv_alg);
-    psa_set_key_type(&input_key_attr, PSA_KEY_TYPE_DERIVE);
-
-    /* Force to use HMAC-SHA256 as HMAC operation so far */
+    key_type = PSA_KEY_TYPE_DERIVE;
+    psa_set_key_type(&input_key_attr, key_type);
     status = psa_import_key(&input_key_attr, key_deriv_secret,
                             KEY_DERIV_SECRET_LEN, &input_handle);
+
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to import secret");
         return;
@@ -1235,7 +1325,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
         psa_set_key_type(&output_key_attr, PSA_KEY_TYPE_AES);
     }
     psa_set_key_bits(&output_key_attr,
-                     PSA_BYTES_TO_BITS(KEY_DERIVE_OUTPUT_LEN));
+                     PSA_BYTES_TO_BITS(KEY_DERIV_OUTPUT_LEN));
 
     status = psa_key_derivation_output_key(&output_key_attr, &deriv_ops,
                                            &output_handle);
@@ -1253,6 +1343,208 @@ destroy_key:
     if (output_handle) {
         psa_destroy_key(output_handle);
     }
+
+    return;
+}
+
+/* Key is generated using psa_generate_key then psa_export_key, using the
+ * key attributes given in the test function */
+static const uint8_t rsa_key_pair[] = {
+0x30, 0x82, 0x02, 0x5d, 0x02, 0x01, 0x00, 0x02, 0x81, 0x81, 0x00, 0xd1, 0xd9,
+0xa2, 0x11, 0x6f, 0x2c, 0x56, 0x3b, 0x10, 0x01, 0xb8, 0x96, 0xa1, 0x8c, 0x79,
+0xfa, 0x3c, 0x9a, 0x45, 0xe8, 0x03, 0xdb, 0x45, 0x66, 0xd1, 0x75, 0xf3, 0xd8,
+0x3a, 0x10, 0xb3, 0x0f, 0x6c, 0x61, 0x78, 0x05, 0x21, 0xd6, 0x9a, 0x32, 0x25,
+0xf0, 0x04, 0xd8, 0x1b, 0xf7, 0xa4, 0xd7, 0x0d, 0xd6, 0x00, 0xa4, 0x95, 0x92,
+0xeb, 0x24, 0x1e, 0x37, 0xb5, 0x22, 0x9e, 0x7d, 0x22, 0x31, 0x6d, 0xd8, 0xf3,
+0x2e, 0x4f, 0x8a, 0x94, 0x6f, 0xe6, 0x4e, 0x60, 0xa9, 0xed, 0x85, 0x70, 0x5b,
+0xa3, 0x32, 0xbd, 0x8c, 0x1b, 0x11, 0xe4, 0x99, 0xce, 0x1f, 0xb9, 0x1f, 0xe1,
+0xa8, 0x3a, 0x45, 0x55, 0xdd, 0x63, 0x94, 0x01, 0x99, 0xb7, 0xf7, 0x70, 0x7a,
+0xf6, 0x49, 0xf3, 0x2e, 0xd3, 0xd7, 0x61, 0xfe, 0x81, 0x59, 0xd2, 0xe1, 0x45,
+0x57, 0xfd, 0x1e, 0xfe, 0x87, 0x97, 0xbf, 0x40, 0x09, 0x02, 0x03, 0x01, 0x00,
+0x01, 0x02, 0x81, 0x80, 0x03, 0x8d, 0x79, 0x2a, 0x6d, 0x64, 0xe5, 0x42, 0xd3,
+0xb7, 0x0b, 0xbe, 0x75, 0x16, 0xb1, 0x3b, 0xf4, 0xc9, 0xb1, 0xd4, 0x47, 0x38,
+0x6f, 0x98, 0xd9, 0x83, 0xf3, 0x30, 0x5e, 0x6f, 0x48, 0xf0, 0xc2, 0x67, 0x76,
+0x06, 0x34, 0x37, 0xf3, 0x5d, 0x54, 0xfa, 0x16, 0xc2, 0xe7, 0xda, 0x4d, 0xee,
+0x9c, 0x1b, 0xda, 0xdf, 0xee, 0x6e, 0x51, 0xcf, 0xc7, 0x39, 0x2f, 0x36, 0x5a,
+0x53, 0x89, 0x00, 0x20, 0x5d, 0x0c, 0x14, 0x2c, 0xb1, 0x0b, 0xa1, 0x7f, 0xcf,
+0xee, 0x48, 0x34, 0x01, 0x93, 0xb2, 0x67, 0x0b, 0x6b, 0xaa, 0xd8, 0xc6, 0x03,
+0x67, 0xe3, 0xda, 0x64, 0xb4, 0xd1, 0x89, 0x9e, 0x46, 0xc5, 0xdd, 0x6c, 0x8a,
+0xb6, 0x92, 0x0a, 0x24, 0xb7, 0x2d, 0x4a, 0x36, 0x7b, 0x5e, 0x3b, 0x98, 0x42,
+0x5d, 0xa8, 0x58, 0xfe, 0x02, 0xd3, 0x5d, 0x1a, 0xc8, 0x02, 0xef, 0xc3, 0x4b,
+0xe7, 0x59, 0x02, 0x41, 0x00, 0xf5, 0x8d, 0x58, 0xb0, 0x5e, 0x82, 0x17, 0x8b,
+0xa7, 0x31, 0xed, 0x0b, 0xb2, 0x1c, 0x38, 0x7c, 0x07, 0x31, 0x15, 0xe3, 0x74,
+0xc4, 0x7d, 0xd8, 0xd7, 0x29, 0xfe, 0x84, 0xa0, 0x8d, 0x81, 0xdd, 0x6c, 0xb4,
+0x27, 0x41, 0xe3, 0x82, 0xa1, 0x6c, 0xa9, 0x3e, 0x93, 0xe8, 0xfd, 0x3c, 0xa4,
+0xd1, 0x06, 0xb9, 0x9e, 0x07, 0x38, 0x51, 0xa4, 0x45, 0x3d, 0xff, 0x6d, 0x62,
+0x39, 0xa3, 0x11, 0x5d, 0x02, 0x41, 0x00, 0xda, 0xc7, 0x67, 0xe8, 0xf0, 0xa2,
+0xe3, 0xe7, 0x7d, 0x6c, 0xf4, 0xcc, 0x6d, 0x87, 0xf9, 0x76, 0xea, 0x61, 0xb4,
+0xfa, 0xce, 0x05, 0x5e, 0xee, 0x5c, 0x12, 0x53, 0x88, 0xda, 0xc9, 0xc6, 0x81,
+0x7d, 0x5c, 0xd3, 0x89, 0x1f, 0x2f, 0x7f, 0x1f, 0x11, 0x11, 0xd6, 0xd6, 0x45,
+0x44, 0xe9, 0x1d, 0x35, 0x55, 0x1b, 0x02, 0xaf, 0xd4, 0xa5, 0xd1, 0xc2, 0xe7,
+0x55, 0x35, 0x00, 0xf8, 0x62, 0x9d, 0x02, 0x41, 0x00, 0xbc, 0xe8, 0x90, 0x29,
+0xa7, 0x9b, 0xa7, 0xe7, 0x9d, 0xaa, 0x50, 0x36, 0xa6, 0x41, 0x05, 0xc7, 0x8d,
+0x74, 0xda, 0xe5, 0x11, 0x69, 0x35, 0x74, 0x44, 0x1c, 0x1f, 0x9e, 0x03, 0x32,
+0xba, 0x8d, 0x11, 0xdb, 0x0b, 0x34, 0xaa, 0x86, 0x4e, 0x10, 0x1d, 0xa8, 0x71,
+0xfc, 0x56, 0x0e, 0x78, 0xb2, 0x02, 0xdd, 0x7c, 0x51, 0x0b, 0xa7, 0xeb, 0x9c,
+0x05, 0x95, 0x63, 0x9e, 0xa4, 0xbe, 0xea, 0x55, 0x02, 0x41, 0x00, 0x94, 0x8a,
+0xc9, 0x79, 0x76, 0x51, 0x12, 0xae, 0x6d, 0x11, 0x9a, 0x50, 0x66, 0x99, 0xe8,
+0xfe, 0x1d, 0x7b, 0x43, 0x96, 0xfa, 0x64, 0xd9, 0x24, 0xbb, 0xac, 0xd1, 0xbc,
+0xdc, 0xd8, 0x1d, 0x08, 0x74, 0x66, 0x9f, 0x55, 0xbd, 0xaf, 0xd0, 0xfe, 0xf5,
+0xe7, 0x07, 0xd8, 0x29, 0xe5, 0xf4, 0xe5, 0x18, 0xfd, 0xf4, 0xbd, 0xe9, 0x46,
+0x57, 0x63, 0xc9, 0x92, 0xa9, 0xde, 0xb8, 0x0e, 0xed, 0x5d, 0x02, 0x40, 0x39,
+0x30, 0x79, 0xb5, 0xe1, 0x22, 0xa7, 0x0e, 0xff, 0x96, 0x56, 0x7e, 0x16, 0xf3,
+0x4c, 0xbd, 0x81, 0x94, 0x14, 0x53, 0xd4, 0x9b, 0xb6, 0xfa, 0xf9, 0x18, 0xf5,
+0x4b, 0xe3, 0x5f, 0xb1, 0x87, 0x54, 0x67, 0x61, 0xc4, 0x05, 0x05, 0x01, 0x26,
+0x89, 0xb0, 0xa3, 0x8b, 0xde, 0x18, 0xdb, 0x3f, 0x37, 0x09, 0x35, 0x65, 0x17,
+0x9c, 0x37, 0xbe, 0x40, 0xed, 0xc6, 0x5c, 0xf8, 0x7e, 0x4b, 0x04};
+
+#define PLAIN_TEXT_SIZE 16
+#define RSA_KEY_SIZE 128
+
+void psa_asymmetric_encryption_test(psa_algorithm_t alg,
+                                    struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle = 0x0u;
+    const uint8_t plain_text[] = "This is a test.";
+    uint8_t encrypted_data[PSA_ASYMMETRIC_ENCRYPT_OUTPUT_MAX_SIZE] = {0};
+    size_t encrypted_size;
+    size_t encrypted_length = 0;
+    uint8_t decrypted_data[PLAIN_TEXT_SIZE] = {0};
+    size_t decrypted_size = PLAIN_TEXT_SIZE;
+    size_t decrypted_length = 0;
+    const uint8_t * key_pair;
+    size_t key_size;
+    uint32_t comp_result;
+
+    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+
+    /* Setup key attributes */
+    psa_set_key_usage_flags(&key_attributes,
+                            PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+    psa_set_key_algorithm(&key_attributes, alg);
+
+    if (PSA_ALG_IS_RSA_OAEP(alg) || alg == PSA_ALG_RSA_PKCS1V15_CRYPT) {
+        psa_set_key_type(&key_attributes, PSA_KEY_TYPE_RSA_KEY_PAIR);
+        encrypted_size = RSA_KEY_SIZE;
+        key_pair = rsa_key_pair;
+        key_size = sizeof(rsa_key_pair);
+    } else {
+        TEST_FAIL("Unsupported asymmetric encryption algorithm");
+        return;
+    }
+
+    status = psa_import_key(&key_attributes, key_pair, key_size, &key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing a key");
+        return;
+    }
+
+    status = psa_asymmetric_encrypt(key_handle, alg, plain_text,
+                                    sizeof(plain_text), NULL, 0, encrypted_data,
+                                    encrypted_size, &encrypted_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error encrypting the plaintext");
+        goto destroy_key;
+    }
+
+    if (encrypted_size != encrypted_length) {
+        TEST_FAIL("Unexpected encrypted length");
+        goto destroy_key;
+    }
+
+    status = psa_asymmetric_decrypt(key_handle, alg, encrypted_data,
+                                    encrypted_size, NULL, 0, decrypted_data,
+                                    decrypted_size, &decrypted_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error during asymmetric decryption");
+        goto destroy_key;
+    }
+
+    if (decrypted_size != decrypted_length) {
+        TEST_FAIL("Unexpected decrypted length");
+        goto destroy_key;
+    }
+
+#if DOMAIN_NS == 1U
+    /* Check that the plain text matches the decrypted data */
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#else
+    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
+#endif
+
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
+        goto destroy_key;
+    }
+
+    ret->val = TEST_PASSED;
+destroy_key:
+    /* Destroy the key */
+    status = psa_destroy_key(key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error destroying a key");
+    }
+}
+
+#define SIGNATURE_BUFFER_SIZE \
+    (PSA_ECDSA_SIGNATURE_SIZE(PSA_VENDOR_ECC_MAX_CURVE_BITS))
+#define SIGNING_TEST_KEY_ID (0x1)
+
+void psa_sign_verify_message_test(psa_algorithm_t alg,
+                                  struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle = 0;
+    psa_key_type_t key_type;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const uint8_t message[] =
+        "This is the message that I would like to sign";
+    uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
+    size_t signature_length = 0;
+
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr,
+        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+    psa_set_key_id(&input_key_attr, SIGNING_TEST_KEY_ID);
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    status = psa_sign_message(SIGNING_TEST_KEY_ID, alg,
+                              message, sizeof(message) - 1,
+                              signature, SIGNATURE_BUFFER_SIZE,
+                              &signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Message signing failed!");
+        goto destroy_key;
+    }
+
+    if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
+                                PSA_BYTES_TO_BITS(
+                                    sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    status = psa_verify_message(SIGNING_TEST_KEY_ID, alg,
+                                message, sizeof(message) - 1,
+                                signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL(("Signature verification failed!"));
+        goto destroy_key;
+    }
+
+    ret->val = TEST_PASSED;
+
+destroy_key:
+    psa_destroy_key(key_handle);
 
     return;
 }

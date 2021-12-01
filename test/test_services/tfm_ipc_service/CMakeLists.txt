@@ -44,13 +44,27 @@ target_link_libraries(tfm_psa_rot_partition_ipc_service
     PRIVATE
         tfm_secure_api
         platform_s
-        tfm_test_framework_s
         tfm_arch
+        tfm_sprt
 )
 
 target_link_libraries(tfm_spm
     PRIVATE
         tfm_psa_rot_partition_ipc_service
+)
+
+target_compile_definitions(tfm_psa_rot_partition_ipc_service
+    PRIVATE
+        $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
+        $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
+)
+
+# Interfaces for other targets
+add_library(tfm_mmiovec_test_service_interface INTERFACE)
+
+target_include_directories(tfm_mmiovec_test_service_interface
+    INTERFACE
+        ./
 )
 
 ############################ Partition Defs ####################################
