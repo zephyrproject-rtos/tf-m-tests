@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -58,6 +58,9 @@
 #endif
 #ifdef TEST_NS_SFN_BACKEND
 #include "sfn_ns_tests.h"
+#endif
+#ifdef TEST_NS_FPU
+#include "fpu_ns_tests.h"
 #endif
 #ifdef EXTRA_NS_TEST_SUITE
 #include "extra_ns_tests.h"
@@ -144,6 +147,10 @@ static struct test_suite_t test_suites[] = {
 
 #ifdef TEST_NS_SFN_BACKEND
     {&register_testsuite_ns_sfn_interface, 0, 0, 0},
+#endif
+
+#ifdef TEST_NS_FPU
+    {&register_testsuite_ns_fpu_interface, 0, 0, 0},
 #endif
 
     /* End of test suites */

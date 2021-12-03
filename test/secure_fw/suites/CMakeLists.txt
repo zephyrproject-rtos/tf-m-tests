@@ -33,6 +33,11 @@ if (TEST_FRAMEWORK_NS)
             tfm_log
     )
 
+    target_compile_options(tfm_test_framework_ns
+        INTERFACE
+            ${COMPILER_CP_FLAG}
+    )
+
     target_sources(tfm_ns_tests
         INTERFACE
             ../non_secure_suites.c

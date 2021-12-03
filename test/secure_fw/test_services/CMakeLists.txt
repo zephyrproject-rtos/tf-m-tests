@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -40,6 +40,6 @@ if (TEST_NS_FLIH_IRQ)
     add_subdirectory(tfm_flih_test_service)
 endif()
 
-if (TEST_S_FPU)
+if (TEST_PARTITION_FPU_TEST)
     add_subdirectory(tfm_fpu_service)
 endif()

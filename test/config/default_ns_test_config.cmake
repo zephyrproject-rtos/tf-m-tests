@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,6 +26,7 @@ set(TEST_NS_SLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regre
 set(TEST_NS_FLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 set(TEST_NS_MULTI_CORE      ON        CACHE BOOL      "Whether to build NS regression multi-core tests")
 set(TEST_NS_MANAGE_NSID     ON        CACHE BOOL      "Whether to build NS regression NSID management tests")
+set(TEST_NS_FPU             OFF       CACHE BOOL      "Whether to build NS regression FPU tests")
 
 ######################### Platform specific setting ############################
 

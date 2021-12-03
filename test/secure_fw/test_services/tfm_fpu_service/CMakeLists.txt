@@ -61,5 +61,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_partition_defs
     INTERFACE
-        TEST_S_FPU
+        TEST_PARTITION_FPU_TEST
 )

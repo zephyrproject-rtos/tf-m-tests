@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,6 +27,7 @@ message(STATUS "TEST_NS_FLIH_IRQ is set as ${TEST_NS_FLIH_IRQ}")
 message(STATUS "TEST_NS_MULTI_CORE is set as ${TEST_NS_MULTI_CORE}")
 message(STATUS "TEST_NS_MANAGE_NSID is set as ${TEST_NS_MANAGE_NSID}")
 message(STATUS "TEST_NS_SFN_BACKEND is set as ${TEST_NS_SFN_BACKEND}")
+message(STATUS "TEST_NS_FPU is set as ${TEST_NS_FPU}")
 message(STATUS "TEST_S_ATTESTATION is set as ${TEST_S_ATTESTATION}")
 message(STATUS "TEST_S_AUDIT is set as ${TEST_S_AUDIT}")
 message(STATUS "TEST_S_CRYPTO is set as ${TEST_S_CRYPTO}")
@@ -49,8 +50,8 @@ tfm_invalid_config((NOT TFM_PARTITION_PLATFORM AND NOT FORWARD_PROT_MSG) AND (TE
 tfm_invalid_config(NOT TFM_PARTITION_FIRMWARE_UPDATE AND (TEST_NS_FWU OR TEST_S_FWU))
 tfm_invalid_config(NOT TFM_PARTITION_AUDIT_LOG AND (TEST_NS_AUDIT OR TEST_S_AUDIT))
 tfm_invalid_config((TFM_LIB_MODEL) AND (TEST_NS_IPC OR TEST_S_IPC OR TEST_NS_SLIH_IRQ OR TEST_NS_FLIH_IRQ))
-tfm_invalid_config(CONFIG_TFM_SPE_FP STREQUAL "0" AND TEST_S_FPU)
-tfm_invalid_config(TFM_LIB_MODEL AND TEST_S_FPU)
+tfm_invalid_config(CONFIG_TFM_FP STREQUAL "soft" AND (TEST_S_FPU OR TEST_NS_FPU))
+tfm_invalid_config(TFM_LIB_MODEL AND (TEST_S_FPU OR TEST_NS_FPU))
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)

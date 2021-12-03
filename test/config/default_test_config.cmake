@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,6 +27,7 @@ set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regr
 set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
 set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
 set(TEST_NS_SFN_BACKEND     OFF        CACHE BOOL      "Whether to build NS regression SFN backend tests")
+set(TEST_NS_FPU             OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
 
 ########################## S test framework ####################################
 

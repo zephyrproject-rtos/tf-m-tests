@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -67,8 +67,9 @@ if (NOT TFM_NS_MANAGE_NSID)
     set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
 endif()
 
-if (CONFIG_TFM_SPE_FP STREQUAL "0")
-    set(TEST_S_FPU              OFF        CACHE BOOL      "Whether to build S regression FPU tests")
+if (CONFIG_TFM_FP STREQUAL "soft")
+    set(TEST_S_FPU                       OFF        CACHE BOOL      "Whether to build S regression FPU tests")
+    set(TEST_NS_FPU                      OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
 endif()
 
 ########################## Test framework sync #################################
@@ -156,6 +157,13 @@ if ((TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)
     set(TFM_PARTITION_ATTESTATION_TEST  ON)
 else()
     set(TFM_PARTITION_ATTESTATION_TEST  OFF)
+endif()
+
+# Enable FPU test partition if S or NS FP test enabled
+if (TEST_S_FPU OR TEST_NS_FPU)
+    set(TEST_PARTITION_FPU_TEST        ON)
+else()
+    set(TEST_PARTITION_FPU_TEST        OFF)
 endif()
 
 include(${TFM_TEST_PATH}/config/default_test_config.cmake)

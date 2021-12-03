@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,7 +8,11 @@
 #include <stdbool.h>
 #include "fpu_tests_common.h"
 #include "psa_manifest/sid.h"
+#if DOMAIN_NS == 1
+#include <string.h>
+#else
 #include "tfm_memory_utils.h"
+#endif
 
 /**
  * Change FP registers.
@@ -94,7 +98,8 @@ __attribute__((naked)) static void change_fp_in_client(void)
 static bool check_fp_restored_client(void)
 {
     uint32_t fp_buffer[NR_FP_REG] = {0};
-    const uint32_t fp_expect[NR_FP_REG] = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
+    const uint32_t fp_expect[NR_FP_REG] =
+                            {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
                              0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
                              0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7,
                              0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF};
@@ -106,7 +111,12 @@ static bool check_fp_restored_client(void)
         :"memory"
     );
 
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+#if DOMAIN_NS == 1
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
+#else
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
+#endif
+    {
         return true;
     }
 
@@ -175,7 +185,12 @@ static bool check_fp_invalidated(void)
         :"memory"
     );
 
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+#if DOMAIN_NS == 1
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
+#else
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
+#endif
+    {
         return true;
     }
 
@@ -183,7 +198,8 @@ static bool check_fp_invalidated(void)
 }
 
 /**
- * Description: Clear FP registers in FPU client partition for next test.
+ * Description: Clear FP registers to check basic FP register write/read
+ * functionality.
  * Expectation: FP registers in FPU client partition should be cleared.
  */
 void tfm_fpu_test_clear_client_fp_data(struct test_result_t *ret)
@@ -214,13 +230,13 @@ void tfm_fpu_test_fp_protection_psa_call(struct test_result_t *ret)
     ret->val = TEST_FAILED;
 
     handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_REGISTER_SID,
-                            TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
+                         TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         ret->val = TEST_FAILED;
         return;
     }
 
-    /* Change FP registers in secure thread */
+    /* Change FP registers */
     change_fp_in_client();
 
     status = psa_call(handle, PSA_IPC_CALL, NULL, 0, NULL, 0);
@@ -248,7 +264,7 @@ void tfm_fpu_test_clear_service_fp_data(struct test_result_t *ret)
     ret->val = TEST_FAILED;
 
     handle = psa_connect(TFM_FPU_SERVICE_CLEAR_FP_REGISTER_SID,
-                            TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
+                         TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         ret->val = TEST_FAILED;
         return;
@@ -283,13 +299,13 @@ void tfm_fpu_test_fp_protection_psa_call_loop(struct test_result_t *ret)
         TEST_LOG("  > Iteration %d of %d\r", itr + 1, LOOP_ITERATIONS);
 
         handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_REGISTER_SID,
-                                TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
+                             TFM_FPU_SERVICE_CHECK_FP_REGISTER_VERSION);
         if (!PSA_HANDLE_IS_VALID(handle)) {
             ret->val = TEST_FAILED;
             return;
         }
 
-        /* Change FP registers in secure thread */
+        /* Change FP registers */
         change_fp_in_client();
 
         status = psa_call(handle, PSA_IPC_CALL, NULL, 0, NULL, 0);
@@ -307,7 +323,7 @@ void tfm_fpu_test_fp_protection_psa_call_loop(struct test_result_t *ret)
         psa_close(handle);
 
         handle = psa_connect(TFM_FPU_SERVICE_CLEAR_FP_REGISTER_SID,
-                                TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
+                             TFM_FPU_SERVICE_CLEAR_FP_REGISTER_VERSION);
         if (!PSA_HANDLE_IS_VALID(handle)) {
             ret->val = TEST_FAILED;
             return;

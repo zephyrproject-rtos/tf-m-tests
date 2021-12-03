@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -18,14 +18,14 @@
     {
       "name": "TFM_FPU_SERVICE_CLEAR_FP_REGISTER",
       "sid": "0x0000F090",
-      "non_secure_clients": false,
+      "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
       "name": "TFM_FPU_SERVICE_CHECK_FP_REGISTER",
       "sid": "0x0000F091",
-      "non_secure_clients": false,
+      "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     }

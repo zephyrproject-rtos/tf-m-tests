@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,6 +28,11 @@ target_include_directories(tfm_qcbor_ns
 target_link_libraries(tfm_qcbor_ns
     PRIVATE
         tfm_t_cose_defs
+)
+
+target_compile_options(tfm_qcbor_ns
+    PUBLIC
+        ${COMPILER_CP_FLAG}
 )
 
 ####################### Non Secure Test #############################################
