@@ -19,7 +19,7 @@
       "conditional": "@TEST_NS_CORE@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 262,
+      "pid": 3000,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_core_test.*"
@@ -34,7 +34,7 @@
       "conditional": "@TEST_NS_CORE@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 263,
+      "pid": 3001,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_core_test_2.*"
@@ -49,7 +49,7 @@
       "conditional": "@TEST_FRAMEWORK_S@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 264,
+      "pid": 3002,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_secure_client_service.*"
@@ -64,7 +64,7 @@
       "conditional": "@TFM_PARTITION_IPC_TEST@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 265,
+      "pid": 3003,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_ipc_service.*"
@@ -79,7 +79,7 @@
       "conditional": "@TFM_PARTITION_IPC_TEST@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 266,
+      "pid": 3004,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_ipc_client.*"
@@ -94,7 +94,7 @@
       "conditional": "@TEST_S_PS@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 268,
+      "pid": 3005,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_ps_test.*"
@@ -109,7 +109,7 @@
       "conditional": "@TEST_FRAMEWORK_S@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 269,
+      "pid": 3006,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_secure_client_2.*"
@@ -124,7 +124,7 @@
       "conditional": "@TFM_PARTITION_ATTESTATION_TEST@",
       "version_major": 0,
       "version_minor": 1,
-      "pid": 272,
+      "pid": 3007,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_attest_test_service.*"
