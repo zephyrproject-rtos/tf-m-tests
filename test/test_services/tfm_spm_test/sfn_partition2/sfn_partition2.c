@@ -19,7 +19,7 @@
 psa_status_t tfm_sfn2_service1_sfn(const psa_msg_t* msg)
 {
     psa_status_t status = PSA_ERROR_PROGRAMMER_ERROR;
-    uint32_t i, str_size;
+    uint32_t str_size;
     uint8_t buf[SFN_SERVICE_BUFFER_LEN] = {'\0'};
 
     /* Decode the message */

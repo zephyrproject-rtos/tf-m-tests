@@ -59,7 +59,7 @@
     {
       "name": "TFM IPC Service Test",
       "short_name": "TFM_SP_IPC_SERVICE_TEST",
-      "manifest": "tfm_ipc_service/tfm_ipc_service_test.yaml",
+      "manifest": "tfm_spm_test/tfm_ipc_service/tfm_ipc_service_test.yaml",
       "output_path": "test_services/tfm_ipc_service",
       "conditional": "@TFM_PARTITION_IPC_TEST@",
       "version_major": 0,
@@ -74,7 +74,7 @@
     {
       "name": "TFM IPC Client Service",
       "short_name": "TFM_SP_IPC_CLIENT_TEST",
-      "manifest": "tfm_ipc_client/tfm_ipc_client_test.yaml",
+      "manifest": "tfm_spm_test/tfm_ipc_client/tfm_ipc_client_test.yaml",
       "output_path": "test_services/tfm_ipc_client",
       "conditional": "@TFM_PARTITION_IPC_TEST@",
       "version_major": 0,

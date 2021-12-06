@@ -19,9 +19,8 @@ if (TEST_NS_CORE)
     add_subdirectory(tfm_core_test_2)
 endif()
 
-if (TFM_PARTITION_IPC_TEST)
-    add_subdirectory(tfm_ipc_client)
-    add_subdirectory(tfm_ipc_service)
+if (TFM_PARTITION_IPC_TEST OR TEST_NS_SFN_BACKEND)
+    add_subdirectory(tfm_spm_test)
 endif()
 
 if (TEST_S_PS)
@@ -43,9 +42,4 @@ endif()
 
 if (TEST_S_FPU)
     add_subdirectory(tfm_fpu_service)
-endif()
-
-if (TEST_NS_SFN_BACKEND)
-    add_subdirectory(tfm_test_sfn_partitions/sfn_partition1)
-    add_subdirectory(tfm_test_sfn_partitions/sfn_partition2)
 endif()

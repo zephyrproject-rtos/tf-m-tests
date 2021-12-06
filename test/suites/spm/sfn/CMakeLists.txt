@@ -21,7 +21,7 @@ if (TEST_NS_SFN_BACKEND)
         PUBLIC
             non_secure
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../test_services/tfm_test_sfn_partitions
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../../test_services/tfm_spm_test
     )
 
     target_compile_definitions(tfm_test_suite_sfn_ns
