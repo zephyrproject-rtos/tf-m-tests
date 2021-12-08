@@ -19,6 +19,8 @@ if (TEST_NS_IPC)
     target_sources(tfm_test_suite_ipc_ns
         PRIVATE
             non_secure/ipc_ns_interface_testsuite.c
+            $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
+                ${CMAKE_CURRENT_SOURCE_DIR}/../common/mmiovec_test.c>
     )
 
     target_include_directories(tfm_test_suite_ipc_ns
@@ -38,7 +40,7 @@ if (TEST_NS_IPC)
     target_link_libraries(tfm_test_suite_ipc_ns
         PRIVATE
             tfm_test_framework_ns
-            tfm_mmiovec_test_service_interface
+            spm_test_common
     )
 
     target_link_libraries(tfm_ns_tests

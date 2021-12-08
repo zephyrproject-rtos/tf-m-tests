@@ -19,6 +19,8 @@ target_sources(tfm_psa_rot_partition_ipc_service
     PRIVATE
         $<$<BOOL:${TFM_PSA_API}>:
             ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c>
+        $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
+            ${CMAKE_CURRENT_SOURCE_DIR}/../common/tfm_mmiovec_test_service.c>
 )
 
 target_sources(tfm_partitions
@@ -46,6 +48,7 @@ target_link_libraries(tfm_psa_rot_partition_ipc_service
         platform_s
         tfm_arch
         tfm_sprt
+        spm_test_service_common
 )
 
 target_link_libraries(tfm_spm
@@ -57,14 +60,6 @@ target_compile_definitions(tfm_psa_rot_partition_ipc_service
     PRIVATE
         $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
         $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
-)
-
-# Interfaces for other targets
-add_library(tfm_mmiovec_test_service_interface INTERFACE)
-
-target_include_directories(tfm_mmiovec_test_service_interface
-    INTERFACE
-        ./
 )
 
 ############################ Partition Defs ####################################

@@ -5,15 +5,13 @@
  *
  */
 
-#ifndef __TFM_MM_IOVEC_TEST_DEFS_H__
-#define __TFM_MM_IOVEC_TEST_DEFS_H__
+#ifndef __TFM_MMIOVEC_TEST_DEFS_H__
+#define __TFM_MMIOVEC_TEST_DEFS_H__
 
-#include <stdint.h>
-
-/* MMIOVEC test service types */
-#define INVEC_MAP_AND_UNMAP              (0)
-#define OUTVEC_MAP_AND_UNMAP             (1)
-#define OUTVEC_MAP_NOT_UNMAP             (2)
+/* MMIOVEC test service types [0x100, 0x1FF] */
+#define INVEC_MAP_AND_UNMAP              (0x100)
+#define OUTVEC_MAP_AND_UNMAP             (0x101)
+#define OUTVEC_MAP_NOT_UNMAP             (0x102)
 
 #define TFM_MMIOVEC_TEST_ERROR           (-257)
 
@@ -24,4 +22,4 @@
 #define MMIOVECT_TEST_INVEC    {MMIOVEC_INPUT_DATA, MMIOVEC_INPUT_DATA + 1, \
                                 MMIOVEC_INPUT_DATA + 2, MMIOVEC_INPUT_DATA + 3}
 
-#endif /* __TFM_MM_IOVEC_TEST_DEFS_H__ */
+#endif /* __TFM_MMIOVEC_TEST_DEFS_H__ */

@@ -17,3 +17,10 @@ if (TEST_NS_SFN_BACKEND)
     add_subdirectory(sfn_partition1)
     add_subdirectory(sfn_partition2)
 endif()
+
+add_library(spm_test_service_common INTERFACE)
+
+target_include_directories(spm_test_service_common
+    INTERFACE
+        common
+)

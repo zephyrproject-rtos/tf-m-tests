@@ -20,8 +20,6 @@ if (TEST_NS_SFN_BACKEND)
     target_include_directories(tfm_test_suite_sfn_ns
         PUBLIC
             non_secure
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../../test_services/tfm_spm_test
     )
 
     target_compile_definitions(tfm_test_suite_sfn_ns
@@ -34,6 +32,7 @@ if (TEST_NS_SFN_BACKEND)
     target_link_libraries(tfm_test_suite_sfn_ns
         PRIVATE
             tfm_test_framework_ns
+            spm_test_common
     )
 
     target_link_libraries(tfm_ns_tests
