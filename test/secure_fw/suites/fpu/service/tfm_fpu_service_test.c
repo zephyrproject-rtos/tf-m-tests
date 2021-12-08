@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,20 +12,15 @@
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_secure_api.h"
+#include "tfm_memory_utils.h"
+#include "tfm_sp_log.h"
+#include "tfm_plat_test.h"
+#include "device_definition.h"
+#include "fpu_tests_common.h"
 
 /* Define the return status */
 #define FPU_SP_TEST_SUCCESS     (0)
 #define FPU_SP_TEST_FAILED      (-1)
-
-/*
- * Fixme: Temporarily implement abort as infinite loop,
- * will replace it later.
- */
-static void tfm_abort(void)
-{
-    while (1)
-        ;
-}
 
 /**
  * Clear FP registers.
@@ -73,148 +68,32 @@ __attribute__((naked)) static void clear_fp_regs(void)
 /**
  * Check whether FP registers are restored correctly.
  * Return:
- *   1 - FP registers are restored correctly
- *   0 - FP registers are not restored correctly
+ *   True - FP registers are restored correctly
+ *   False - FP registers are not restored correctly
  */
-__attribute__((naked)) static bool check_fp_restored_service(void)
+bool check_fp_restored_service(void)
 {
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    const uint32_t fp_expect[NR_FP_REG] = {
+        0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7,
+        0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
+        0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
+        0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+     };
+
+    /* Dump FP data from FP registers to buffer */
     __asm volatile(
-        "mov       r3, #0                  \n"
-
-        "vmov      r2, s0                  \n"
-        "cmp       r2, 0x000000E0          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s1                  \n"
-        "cmp       r2, 0x000000E1          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s2                  \n"
-        "cmp       r2, 0x000000E2          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s3                  \n"
-        "cmp       r2, 0x000000E3          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s4                  \n"
-        "cmp       r2, 0x000000E4          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s5                  \n"
-        "cmp       r2, 0x000000E5          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s6                  \n"
-        "cmp       r2, 0x000000E6          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s7                  \n"
-        "cmp       r2, 0x000000E7          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s8                  \n"
-        "cmp       r2, 0x000000E8          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s9                  \n"
-        "cmp       r2, 0x000000E9          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s10                 \n"
-        "cmp       r2, 0x000000EA          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s11                 \n"
-        "cmp       r2, 0x000000EB          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s12                 \n"
-        "cmp       r2, 0x000000EC          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s13                 \n"
-        "cmp       r2, 0x000000ED          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s14                 \n"
-        "cmp       r2, 0x000000EE          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s15                 \n"
-        "cmp       r2, 0x000000EF          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s16                 \n"
-        "cmp       r2, 0x000000F0          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s17                 \n"
-        "cmp       r2, 0x000000F1          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s18                 \n"
-        "cmp       r2, 0x000000F2          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s19                 \n"
-        "cmp       r2, 0x000000F3          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s20                 \n"
-        "cmp       r2, 0x000000F4          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s21                 \n"
-        "cmp       r2, 0x000000F5          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s22                 \n"
-        "cmp       r2, 0x000000F6          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s23                 \n"
-        "cmp       r2, 0x000000F7          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s24                 \n"
-        "cmp       r2, 0x000000F8          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s25                 \n"
-        "cmp       r2, 0x000000F9          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s26                 \n"
-        "cmp       r2, 0x000000FA          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s27                 \n"
-        "cmp       r2, 0x000000FB          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s28                 \n"
-        "cmp       r2, 0x000000FC          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s29                 \n"
-        "cmp       r2, 0x000000FD          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s30                 \n"
-        "cmp       r2, 0x000000FE          \n"
-        "bne       quit                    \n"
-
-        "vmov      r2, s31                 \n"
-        "cmp       r2, 0x000000FF          \n"
-        "bne       quit                    \n"
-
-        "mov       r3, #1                  \n"
-        "quit:                             \n"
-        "mov       r0, r3                  \n"
-
-        "bx        lr                      \n"
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
     );
+
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -295,36 +174,138 @@ __attribute__((naked)) static void change_fp_in_service(void)
 /**
  * Check whether FP registers is invalidated.
  */
-__attribute__((naked)) static bool is_fp_cleaned(void)
+bool is_fp_cleaned(void)
+{
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    uint32_t i;
+
+    /* Dump FP data from FP registers to buffer */
+    __asm volatile(
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
+    );
+
+    for (i = 0; i < NR_FP_REG; i++) {
+        if (fp_buffer[i] != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Change FP registers in secure thread.
+ */
+__attribute__((naked)) void change_fp_in_s_thread(void)
 {
     __asm volatile(
-        "mov       r3, #1                  \n"
-        "mov       r2, #0                  \n"
-        "vadd.f32  s2, s1, s0              \n"
-        "vadd.f32  s4, s3, s2              \n"
-        "vadd.f32  s6, s5, s4              \n"
-        "vadd.f32  s8, s7, s6              \n"
-        "vadd.f32  s10, s9, s8             \n"
-        "vadd.f32  s12, s11, s10           \n"
-        "vadd.f32  s14, s13, s12           \n"
-        "vadd.f32  s16, s15, s14           \n"
-        "vadd.f32  s18, s17, s16           \n"
-        "vadd.f32  s20, s19, s18           \n"
-        "vadd.f32  s22, s21, s20           \n"
-        "vadd.f32  s24, s23, s22           \n"
-        "vadd.f32  s26, s25, s24           \n"
-        "vadd.f32  s28, s27, s26           \n"
-        "vadd.f32  s30, s29, s28           \n"
-        "vadd.f32  s31, s29, s30           \n"
-        "vcmp.f32  s31, #0.0               \n"
-        "vmrs      APSR_nzcv, fpscr        \n"
-        "beq       cleaned                 \n"
-        "mov       r3, r2                  \n"
-        "cleaned:                          \n"
-        "mov       r0, r3                  \n"
+        "push      {r4, lr}                    \n"
 
-        "bx       lr                      \n"
+        "mov       r0, #0xB0000000         \n"
+        "vmov      s0, r0                  \n"
+        "mov       r0, #0xB1000000         \n"
+        "vmov      s1, r0                  \n"
+        "mov       r0, #0xB2000000         \n"
+        "vmov      s2, r0                  \n"
+        "mov       r0, #0xB3000000         \n"
+        "vmov      s3, r0                  \n"
+        "mov       r0, #0xB4000000         \n"
+        "vmov      s4, r0                  \n"
+        "mov       r0, #0xB5000000         \n"
+        "vmov      s5, r0                  \n"
+        "mov       r0, #0xB6000000         \n"
+        "vmov      s6, r0                  \n"
+        "mov       r0, #0xB7000000         \n"
+        "vmov      s7, r0                  \n"
+        "mov       r0, #0xB8000000         \n"
+        "vmov      s8, r0                  \n"
+        "mov       r0, #0xB9000000         \n"
+        "vmov      s9, r0                  \n"
+        "mov       r0, #0xBA000000         \n"
+        "vmov      s10, r0                 \n"
+        "mov       r0, #0xBB000000         \n"
+        "vmov      s11, r0                 \n"
+        "mov       r0, #0xBC000000         \n"
+        "vmov      s12, r0                 \n"
+        "mov       r0, #0xBD000000         \n"
+        "vmov      s13, r0                 \n"
+        "mov       r0, #0xBE000000         \n"
+        "vmov      s14, r0                 \n"
+        "mov       r0, #0xBF000000         \n"
+        "vmov      s15, r0                 \n"
+        "mov       r0, #0xC0000000         \n"
+        "vmov      s16, r0                 \n"
+        "mov       r0, #0xC1000000         \n"
+        "vmov      s17, r0                 \n"
+        "mov       r0, #0xC2000000         \n"
+        "vmov      s18, r0                 \n"
+        "mov       r0, #0xC3000000         \n"
+        "vmov      s19, r0                 \n"
+        "mov       r0, #0xC4000000         \n"
+        "vmov      s20, r0                 \n"
+        "mov       r0, #0xC5000000         \n"
+        "vmov      s21, r0                 \n"
+        "mov       r0, #0xC6000000         \n"
+        "vmov      s22, r0                 \n"
+        "mov       r0, #0xC7000000         \n"
+        "vmov      s23, r0                 \n"
+        "mov       r0, #0xC8000000         \n"
+        "vmov      s24, r0                 \n"
+        "mov       r0, #0xC9000000         \n"
+        "vmov      s25, r0                 \n"
+        "mov       r0, #0xCA000000         \n"
+        "vmov      s26, r0                 \n"
+        "mov       r0, #0xCB000000         \n"
+        "vmov      s27, r0                 \n"
+        "mov       r0, #0xCC000000         \n"
+        "vmov      s28, r0                 \n"
+        "mov       r0, #0xCD000000         \n"
+        "vmov      s29, r0                 \n"
+        "mov       r0, #0xCE000000         \n"
+        "vmov      s30, r0                 \n"
+        "mov       r0, #0xCF000000         \n"
+        "vmov      s31, r0                 \n"
+
+        "pop       {r4, pc}                \n"
     );
+}
+
+/**
+ * Check whether FP registers are restored correctly.
+ * Return:
+ *   True - FP registers are restored correctly
+ *   False - FP registers are not restored correctly
+ */
+bool check_fp_restored_s(void)
+{
+    uint32_t fp_buffer[NR_FP_REG] = {0};
+    const uint32_t fp_expect[NR_FP_REG] = {
+        0xB0000000, 0xB1000000, 0xB2000000, 0xB3000000,
+        0xB4000000, 0xB5000000, 0xB6000000, 0xB7000000,
+        0xB8000000, 0xB9000000, 0xBA000000, 0xBB000000,
+        0xBC000000, 0xBD000000, 0xBE000000, 0xBF000000,
+        0xC0000000, 0xC1000000, 0xC2000000, 0xC3000000,
+        0xC4000000, 0xC5000000, 0xC6000000, 0xC7000000,
+        0xC8000000, 0xC9000000, 0xCA000000, 0xCB000000,
+        0xCC000000, 0xCD000000, 0xCE000000, 0xCF000000
+    };
+
+    /* Dump FP data from FP registers to buffer */
+    __asm volatile(
+        "vstm      %0, {S0-S31}            \n"
+        :
+        :"r"(fp_buffer)
+        :"memory"
+    );
+
+    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -353,8 +334,7 @@ static void fpu_service_clear_fp_register(void)
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
     default:
-        /* Should not come here */
-        tfm_abort();
+        psa_panic();
         break;
     }
 }
@@ -383,8 +363,129 @@ static void fpu_service_check_fp_register(void)
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
     default:
-        /* Should not come here */
-        tfm_abort();
+        psa_panic();
+        break;
+    }
+}
+
+/**
+ * Start S timer interrupt.
+ * Expectation: S timer should be started.
+ */
+static void fpu_client_start_secure_timer(void)
+{
+    psa_msg_t msg;
+    psa_status_t r;
+
+    r = psa_get(TFM_FPU_SERVICE_START_S_TIMER_SIGNAL, &msg);
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
+        break;
+    case PSA_IPC_CALL:
+        /* Start the timer */
+        tfm_plat_test_secure_timer_start();
+        psa_reply(msg.handle, PSA_SUCCESS);
+        break;
+    default:
+        psa_panic();
+        break;
+    }
+}
+
+/**
+ * Read S timer reload value.
+ * Expectation: S timer reload value should be read.
+ */
+static void fpu_client_check_secure_timer_triggered(void)
+{
+    psa_msg_t msg;
+    psa_status_t r;
+    int val;
+
+    r = psa_get(TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED_SIGNAL, &msg);
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
+        break;
+    case PSA_IPC_CALL:
+        if (msg.out_size[0] != 0) {
+            /* Read the timer reload value */
+            if (tfm_plat_test_secure_timer_get_reload_value()
+                            == REL_VALUE_FP_REGS_INVALIDATED) {
+                val = S_TIMER_TRIGGERED;
+            } else {
+                val = S_TIMER_NOT_TRIGGERED;
+            }
+            psa_write(msg.handle, 0, &val, 1);
+            r = PSA_SUCCESS;
+        } else {
+            r = PSA_ERROR_PROGRAMMER_ERROR;
+        }
+        psa_reply(msg.handle, r);
+        break;
+    default:
+        psa_panic();
+        break;
+    }
+}
+
+/**
+ * Test FP context protection after NS interrupt.
+ * Expectation: FP register in secure thread should be restored after NS
+ * interrupt.
+ */
+int fpu_client_non_secure_interrupt_secure_test(void)
+{
+    psa_msg_t msg;
+    psa_status_t r;
+    static uint32_t i;
+
+    r = psa_get(TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_SIGNAL, &msg);
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
+        break;
+    case PSA_IPC_CALL:
+        /* Change FP regs */
+        change_fp_in_s_thread();
+        /* Start the timer */
+        tfm_plat_test_non_secure_timer_start();
+        LOG_DBGFMT("Wait for NS timer interrupt!\r\n");
+        /* Spin here */
+        while (1) {
+            /* NS interrupt triggered */
+            if (tfm_plat_test_non_secure_timer_get_reload_value()
+                                == REL_VALUE_FP_REGS_INVALIDATED) {
+                LOG_DBGFMT("S thread interrupted by NS timer interrupt!\r\n");
+                break;
+            } else {
+                i++;
+                if (i > LOOPS_NS_INT_TEST) {
+                    LOG_DBGFMT("Time out: S thread is not interrupted!\r\n");
+                    break;
+                }
+            }
+        }
+        if (i > LOOPS_NS_INT_TEST) {
+            /* Error for time out */
+            r = PSA_ERROR_GENERIC_ERROR;
+        } else {
+            /* FP register should be restored after NS interrupt. */
+            if (check_fp_restored_s()) {
+                r = PSA_SUCCESS;
+            } else {
+                r = PSA_ERROR_GENERIC_ERROR;
+            }
+        }
+        /* Reply with status */
+        psa_reply(msg.handle, r);
+        break;
+    default:
+        psa_panic();
         break;
     }
 }
@@ -403,9 +504,14 @@ void fpu_service_test_main(void *param)
             fpu_service_clear_fp_register();
         } else if (signals & TFM_FPU_SERVICE_CHECK_FP_REGISTER_SIGNAL) {
             fpu_service_check_fp_register();
+        } else if (signals & TFM_FPU_SERVICE_START_S_TIMER_SIGNAL) {
+            fpu_client_start_secure_timer();
+        } else if (signals & TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED_SIGNAL) {
+            fpu_client_check_secure_timer_triggered();
+        }  else if (signals & TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_SIGNAL) {
+            fpu_client_non_secure_interrupt_secure_test();
         } else {
-            /* Should not come here */
-            tfm_abort();
+            psa_panic();
         }
     }
 }

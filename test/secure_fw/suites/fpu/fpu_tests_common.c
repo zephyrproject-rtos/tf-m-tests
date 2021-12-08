@@ -92,8 +92,8 @@ __attribute__((naked)) static void change_fp_in_client(void)
 /**
  * Check whether FP registers are restored correctly.
  * Return:
- *   1 - FP registers are restored correctly
- *   0 - FP registers are not restored correctly
+ *   True - FP registers are restored correctly
+ *   False - FP registers are not restored correctly
  */
 static bool check_fp_restored_client(void)
 {
@@ -170,8 +170,8 @@ __attribute__((naked)) static void fpu_client_fp_clear_test(void)
 /**
  * Check invalidation of FP registers.
  * Return:
- *   1 - FP registers are invalidated
- *   0 - FP registers are not invalidated
+ *   True - FP registers are invalidated
+ *   False - FP registers are not invalidated
  */
 static bool check_fp_invalidated(void)
 {

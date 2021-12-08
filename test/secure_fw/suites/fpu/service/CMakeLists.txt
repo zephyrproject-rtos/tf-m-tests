@@ -15,7 +15,7 @@ add_library(tfm_app_rot_partition_fpu_service STATIC)
 
 target_sources(tfm_app_rot_partition_fpu_service
     PRIVATE
-        ./tfm_fpu_service_test.c
+        tfm_fpu_service_test.c
 )
 
 # The generated sources
@@ -36,6 +36,7 @@ target_include_directories(tfm_app_rot_partition_fpu_service
         .
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service
+        ${TFM_TEST_PATH}/secure_fw/suites/fpu
 )
 
 target_include_directories(tfm_partitions

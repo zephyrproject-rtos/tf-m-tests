@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -20,10 +20,22 @@ extern "C" {
 #endif
 
 
-#define LOOP_ITERATIONS                         (300U)
+#define LOOP_ITERATIONS             (300U)
+#define LOOPS_S_INT_TEST            (50U)
+#define LOOPS_NS_INT_TEST           (5000000U)
+#define WAIT_S_INT                  (20000U)
 
-#define NR_FP_REG                               (32U)
-#define FP_BUF_SIZE                             (NR_FP_REG * sizeof(uint32_t))
+#define NR_FP_REG                   (32U)
+#define NR_FP_CALLER_REG            (NR_FP_REG / 2)
+#define NR_FP_CALLEE_REG            (NR_FP_REG / 2)
+#define FP_BUF_SIZE                 (NR_FP_REG * sizeof(uint32_t))
+#define FP_CALLER_BUF_SIZE          (NR_FP_CALLER_REG * sizeof(uint32_t))
+#define FP_CALLEE_BUF_SIZE          (NR_FP_CALLEE_REG * sizeof(uint32_t))
+
+#define REL_VALUE_FP_REGS_INVALIDATED        (0xDEADBEEF)
+
+#define S_TIMER_TRIGGERED                    (0x19)
+#define S_TIMER_NOT_TRIGGERED                (0x91)
 
 /**
  * Test FP context protection after psa calls.
