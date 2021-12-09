@@ -9,15 +9,24 @@
 #include <string.h>
 #include "sfn_ns_tests.h"
 #include "psa/client.h"
+#include "psa/framework_feature.h"
 #include "test_framework_helpers.h"
 #include "psa_manifest/sid.h"
 #include "tfm_sfn_test_defs.h"
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+#include "mmiovec_test.h"
+#endif
 
 /* List of tests */
 static void tfm_sfn_test_1001(struct test_result_t *ret);
 static void tfm_sfn_test_1002(struct test_result_t *ret);
 static void tfm_sfn_test_1003(struct test_result_t *ret);
 static void tfm_sfn_test_1004(struct test_result_t *ret);
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+static void tfm_sfn_test_1005(struct test_result_t *ret);
+static void tfm_sfn_test_1006(struct test_result_t *ret);
+static void tfm_sfn_test_1007(struct test_result_t *ret);
+#endif
 
 static struct test_t sfn_veneers_tests[] = {
     {&tfm_sfn_test_1001, "TFM_NS_SFN_TEST_1001",
@@ -28,6 +37,14 @@ static struct test_t sfn_veneers_tests[] = {
      "Request a connection-based RoT Service", {TEST_PASSED}},
     {&tfm_sfn_test_1004, "TFM_NS_SFN_TEST_1004",
      "Request a stateless RoT Service", {TEST_PASSED}},
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+    {&tfm_sfn_test_1005, "TFM_NS_SFN_TEST_1005",
+     "Mapping input vectors and unmapping them. ", {TEST_PASSED}},
+    {&tfm_sfn_test_1006, "TFM_NS_SFN_TEST_1006",
+     "Mapping output vectors and unmapping them. ", {TEST_PASSED}},
+    {&tfm_sfn_test_1007, "TFM_NS_SFN_TEST_1007",
+     "Mapping output vectors and not unmapping them. ", {TEST_PASSED}},
+#endif
 };
 
 void register_testsuite_ns_sfn_interface(struct test_suite_t *p_test_suite)
@@ -136,3 +153,37 @@ static void tfm_sfn_test_1004(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
+
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+/**
+ * \brief Mapping input vectors and unmapping them.
+ *
+ * \note Test psa_map_invec() and psa_unmap_invec() functionality.
+ */
+static void tfm_sfn_test_1005(struct test_result_t *ret)
+{
+    invec_map_unmap_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+}
+
+/**
+ * \brief Mapping output vectors and unmapping them.
+ *
+ * \note Test psa_map_outvec() and psa_unmap_outvec() functionality.
+ */
+static void tfm_sfn_test_1006(struct test_result_t *ret)
+{
+    outvec_map_unmap_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+}
+
+/**
+ * \brief Mapping output vectors and not unmapping them.
+ *
+ * \note RoT services map outvecs and does not unmap outvecs, the service caller
+ *       should get a zero out length.
+ */
+static void tfm_sfn_test_1007(struct test_result_t *ret)
+{
+    outvec_map_only_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+}
+
+#endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */
