@@ -13,6 +13,10 @@
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_secure_api.h"
+#include "tfm_sp_log.h"
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+#include "tfm_mm_iovec_test_defs.h"
+#endif
 
 #define IPC_SERVICE_BUFFER_LEN                          32
 
@@ -263,6 +267,126 @@ static void ipc_service_programmer_error(void)
     }
 }
 
+static void ipc_service_stateless_rot(void)
+{
+    psa_status_t status;
+    uint32_t arg;
+    psa_msg_t msg;
+    size_t num;
+
+    /* Retrieve the message corresponding to the example service signal */
+    status = psa_get(IPC_SERVICE_TEST_STATELESS_ROT_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        return;
+    }
+
+    /* Decode the message */
+    switch (msg.type) {
+    case PSA_IPC_CALL:
+        if (msg.in_size[0] != sizeof(arg)) {
+            status = PSA_ERROR_PROGRAMMER_ERROR;
+            break;
+        }
+        /* Print arg from client */
+        num = psa_read(msg.handle, 0, &arg, sizeof(arg));
+        if (num != msg.in_size[0]) {
+            status = PSA_ERROR_PROGRAMMER_ERROR;
+            break;
+        }
+        LOG_INFFMT("[IPC_SERVICE_TEST_STATELESS_ROT] Service called! arg=%x\r\n", arg);
+        status = PSA_SUCCESS;
+        break;
+    default:
+        /* Invalid message type */
+        status = PSA_ERROR_PROGRAMMER_ERROR;
+        break;
+    }
+    /* Reply with the message result status to unblock the client */
+    psa_reply(msg.handle, status);
+}
+
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+
+static psa_status_t ipc_service_mmiovec_invec(psa_msg_t *msg)
+{
+    uint32_t *invec_base = NULL;
+    int i;
+    uint32_t invec_data[] = MMIOVECT_TEST_INVEC;
+
+    for (i = 0; i < MMIOVEC_TEST_VEC_LEN; i++) {
+        /* Map the input vector */
+        invec_base = (uint32_t *)psa_map_invec(msg->handle, i);
+        if (*invec_base != invec_data[i]) {
+            return TFM_MMIOVEC_TEST_ERROR;
+        }
+        /* Unmap the input vector */
+        psa_unmap_invec(msg->handle, i);
+    }
+
+    return PSA_SUCCESS;
+}
+
+static psa_status_t ipc_service_mmiovec_outvec(psa_msg_t *msg)
+{
+    uint8_t *outvec_base = NULL;
+    int i;
+
+    for (i = 0; i < MMIOVEC_TEST_VEC_LEN; i++) {
+        /* Map the output vector */
+        outvec_base = (uint8_t *)psa_map_outvec(msg->handle, i);
+        *outvec_base = MMIOVEC_OUTPUT_DATA;
+        /* Unmap the output vector */
+        psa_unmap_outvec(msg->handle, i, sizeof(uint8_t));
+    }
+
+    return PSA_SUCCESS;
+}
+
+static psa_status_t ipc_service_outvec_not_unmap(psa_msg_t *msg)
+{
+    uint8_t *outvec_base = NULL;
+    int i;
+
+    for (i = 0; i < MMIOVEC_TEST_VEC_LEN; i++) {
+        /* Map the output vector */
+        outvec_base = (uint8_t *)psa_map_outvec(msg->handle, i);
+    }
+
+    return PSA_SUCCESS;
+}
+
+static void ipc_service_mmiovec_test_handle(void)
+{
+    psa_status_t status;
+    psa_msg_t msg;
+
+    /* Retrieve the message corresponding to the MMIO test service signal */
+    status = psa_get(IPC_SERVICE_TEST_MMIOVEC_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        psa_panic();
+    }
+
+    /* Decode the message */
+    switch (msg.type) {
+    case INVEC_MAP_AND_UNMAP:
+        status = ipc_service_mmiovec_invec(&msg);
+        break;
+    case OUTVEC_MAP_AND_UNMAP:
+        status = ipc_service_mmiovec_outvec(&msg);
+        break;
+    case OUTVEC_MAP_NOT_UNMAP:
+        status = ipc_service_outvec_not_unmap(&msg);
+        break;
+    default:
+        /* Invalid message type */
+        status = TFM_MMIOVEC_TEST_ERROR;
+    }
+    /* Reply with the message result status to unblock the client */
+    psa_reply(msg.handle, status);
+}
+
+#endif
+
 /* Test thread */
 void ipc_service_test_main(void *param)
 {
@@ -286,6 +410,12 @@ void ipc_service_test_main(void *param)
 #endif
         } else if (signals & IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL) {
             ipc_service_programmer_error();
+        } else if (signals & IPC_SERVICE_TEST_STATELESS_ROT_SIGNAL) {
+            ipc_service_stateless_rot();
+#if PSA_FRAMEWORK_HAS_MM_IOVEC
+        } else if (signals & IPC_SERVICE_TEST_MMIOVEC_SIGNAL) {
+            ipc_service_mmiovec_test_handle();
+#endif
         } else {
             /* Should not come here */
             tfm_abort();

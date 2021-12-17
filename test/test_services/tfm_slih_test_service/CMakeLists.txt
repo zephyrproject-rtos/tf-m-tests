@@ -57,5 +57,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_partition_defs
     INTERFACE
-        $<$<BOOL:${TFM_ENABLE_SLIH_TEST}>:TFM_ENABLE_SLIH_TEST>
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:TEST_NS_SLIH_IRQ>
 )

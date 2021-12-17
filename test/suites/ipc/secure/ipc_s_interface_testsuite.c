@@ -11,15 +11,11 @@
 #include "test_framework_helpers.h"
 
 /* List of tests */
-#ifdef TFM_PARTITION_FFM11
 static void tfm_ipc_test_1001(struct test_result_t *ret);
-#endif
 
 static struct test_t ipc_veneers_tests[] = {
-#ifdef TFM_PARTITION_FFM11
     {&tfm_ipc_test_1001, "TFM_S_IPC_TEST_1001",
      "Accessing stateless service from secure partition", {TEST_PASSED}},
-#endif
 };
 
 void register_testsuite_s_ipc_interface(struct test_suite_t *p_test_suite)
@@ -32,7 +28,6 @@ void register_testsuite_s_ipc_interface(struct test_suite_t *p_test_suite)
                   ipc_veneers_tests, list_size, p_test_suite);
 }
 
-#ifdef TFM_PARTITION_FFM11
 /**
  * \brief Accessing a stateless service
  *
@@ -49,7 +44,7 @@ static void tfm_ipc_test_1001(struct test_result_t *ret)
      * partition will cause panic. Test calling a stateless service only.
      * The test should succeed.
      */
-    status = psa_call(TFM_FFM11_SERVICE1_HANDLE, PSA_IPC_CALL,
+    status = psa_call(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, PSA_IPC_CALL,
                       in_vec, 1, NULL, 0);
     if (status < 0) {
         TEST_FAIL("Calling a stateless service test fail.\r\n");
@@ -58,4 +53,3 @@ static void tfm_ipc_test_1001(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-#endif

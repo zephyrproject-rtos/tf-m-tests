@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
  * Copyright (c) 2020, Cypress Semiconductor Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -31,7 +31,6 @@
 
 #ifndef TFM_PSA_API
 static void tfm_core_test_get_caller_client_id(struct test_result_t *ret);
-static void tfm_core_test_spm_request(struct test_result_t *ret);
 #endif /* TFM_PSA_API */
 static void tfm_core_test_ns_thread(struct test_result_t *ret);
 static void tfm_core_test_check_init(struct test_result_t *ret);
@@ -41,9 +40,6 @@ static void tfm_core_test_recursion(struct test_result_t *ret);
 static void tfm_core_test_buffer_check(struct test_result_t *ret);
 static void tfm_core_test_ss_to_ss(struct test_result_t *ret);
 static void tfm_core_test_ss_to_ss_buffer(struct test_result_t *ret);
-#ifdef TFM_ENABLE_PERIPH_ACCESS_TEST
-static void tfm_core_test_peripheral_access(struct test_result_t *ret);
-#endif
 static void tfm_core_test_iovec_sanitization(struct test_result_t *ret);
 static void tfm_core_test_outvec_write(struct test_result_t *ret);
 
@@ -63,18 +59,10 @@ CORE_TEST_DESCRIPTION(CORE_TEST_ID_SS_TO_SS, tfm_core_test_ss_to_ss,
 CORE_TEST_DESCRIPTION(CORE_TEST_ID_SS_TO_SS_BUFFER,
     tfm_core_test_ss_to_ss_buffer,
     "Test secure service to service call with buffer handling"),
-#ifdef TFM_ENABLE_PERIPH_ACCESS_TEST
-CORE_TEST_DESCRIPTION(CORE_TEST_ID_PERIPHERAL_ACCESS,
-    tfm_core_test_peripheral_access,
-    "Test service peripheral access"),
-#endif
 #ifndef TFM_PSA_API
 CORE_TEST_DESCRIPTION(CORE_TEST_ID_GET_CALLER_CLIENT_ID,
     tfm_core_test_get_caller_client_id,
     "Test get caller client ID function"),
-CORE_TEST_DESCRIPTION(CORE_TEST_ID_SPM_REQUEST,
-    tfm_core_test_spm_request,
-    "Test SPM request function"),
 #endif /* TFM_PSA_API */
 CORE_TEST_DESCRIPTION(CORE_TEST_ID_IOVEC_SANITIZATION,
     tfm_core_test_iovec_sanitization,
@@ -138,37 +126,6 @@ static void tfm_core_test_ns_thread(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-
-#ifdef TFM_ENABLE_PERIPH_ACCESS_TEST
-static void tfm_core_test_peripheral_access(struct test_result_t *ret)
-{
-    int32_t err;
-
-#ifndef TFM_PSA_API
-    int32_t test_case_id = CORE_TEST_ID_PERIPHERAL_ACCESS;
-    psa_invec in_vec[] = { {&test_case_id, sizeof(int32_t)} };
-    struct tfm_core_test_call_args_t args = {in_vec, 1, NULL, 0};
-
-    err = tfm_core_test_call(tfm_spm_core_test_sfn_veneer, &args);
-#else /* TFM_PSA_API */
-    err = psa_test_common(SPM_CORE_TEST_PERIPHERAL_ACCESS_SID,
-                          SPM_CORE_TEST_PERIPHERAL_ACCESS_VERSION,
-                          NULL, 0, NULL, 0);
-#endif /* TFM_PSA_API */
-
-    switch (err) {
-    case CORE_TEST_ERRNO_SUCCESS:
-        ret->val = TEST_PASSED;
-        return;
-    case CORE_TEST_ERRNO_PERIPHERAL_ACCESS_FAILED:
-        TEST_FAIL("Service peripheral access failed.");
-        return;
-    default:
-        TEST_FAIL("Unexpected return value received.");
-        return;
-    }
-}
-#endif
 
 static void empty_iovecs(psa_invec invec[], psa_outvec outvec[])
 {
@@ -602,28 +559,4 @@ static void tfm_core_test_get_caller_client_id(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-
-static void tfm_core_test_spm_request(struct test_result_t *ret)
-{
-    int32_t err;
-#ifndef TFM_PSA_API
-    int32_t test_case_id = CORE_TEST_ID_SPM_REQUEST;
-    psa_invec in_vec[] = { {&test_case_id, sizeof(int32_t)} };
-    struct tfm_core_test_call_args_t args = {in_vec, 1, NULL, 0};
-
-    err = tfm_core_test_call(tfm_spm_core_test_sfn_veneer, &args);
-#else /* TFM_PSA_API */
-    err = psa_test_common(SPM_CORE_TEST_SPM_REQUEST_SID,
-                          SPM_CORE_TEST_SPM_REQUEST_VERSION,
-                          NULL, 0, NULL, 0);
-#endif /* TFM_PSA_API */
-
-    if (err != CORE_TEST_ERRNO_SUCCESS) {
-        TEST_FAIL("The SPM request failed.");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
 #endif /* TFM_PSA_API */

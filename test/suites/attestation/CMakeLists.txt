@@ -7,65 +7,72 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
+if (NOT TEST_NS_ATTESTATION AND NOT TEST_S_ATTESTATION)
     return()
 endif()
 
 ####################### Non Secure #############################################
 
-add_library(tfm_test_suite_attestation_ns STATIC EXCLUDE_FROM_ALL)
+if (TEST_NS_ATTESTATION)
+    add_library(tfm_test_suite_attestation_ns STATIC EXCLUDE_FROM_ALL)
 
-target_sources(tfm_test_suite_attestation_ns
-    PRIVATE
-        attest_public_key.c
-        attest_token_test.c
-        attest_token_decode_common.c
-        $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:attest_token_decode_symmetric.c>
-        $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:non_secure/attest_symmetric_ns_interface_testsuite.c>
-        $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:attest_token_decode_asymmetric.c>
-        $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:non_secure/attest_asymmetric_ns_interface_testsuite.c>
-)
+    target_sources(tfm_test_suite_attestation_ns
+        PRIVATE
+            attest_public_key.c
+            attest_token_test.c
+            attest_token_decode_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
+            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:attest_token_decode_symmetric.c>
+            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:non_secure/attest_symmetric_ns_interface_testsuite.c>
+            $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:attest_token_decode_asymmetric.c>
+            $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:non_secure/attest_asymmetric_ns_interface_testsuite.c>
+    )
 
-target_include_directories(tfm_test_suite_attestation_ns
-    PUBLIC
-        non_secure
-    PRIVATE
-        .
-)
+    target_include_directories(tfm_test_suite_attestation_ns
+        PUBLIC
+            non_secure
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util
+        PRIVATE
+            .
+    )
 
-target_compile_definitions(tfm_test_suite_attestation_ns
-    PRIVATE
-        DOMAIN_NS=1
-        $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
-        $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
-        $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:ATTEST_TEST_GET_PUBLIC_KEY>
-)
+    target_compile_definitions(tfm_test_suite_attestation_ns
+        PRIVATE
+            DOMAIN_NS=1
+            $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
+            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
+            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:ATTEST_TEST_GET_PUBLIC_KEY>
+        INTERFACE
+            TEST_NS_ATTESTATION
+    )
 
-target_link_libraries(tfm_test_suite_attestation_ns
-    PRIVATE
-        tfm_qcbor
-        tfm_t_cose_ns
-        tfm_test_framework_ns
-        #TODO I'm not sure this should _really_ be linked here
-        tfm_attestation_defs
-        tfm_boot_status
-        platform_ns
-        $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:tfm_psa_rot_partition_attest_test_service_defs>
-)
+    target_link_libraries(tfm_test_suite_attestation_ns
+        PRIVATE
+            tfm_qcbor_ns
+            tfm_t_cose_ns
+            tfm_test_framework_ns
+            #TODO I'm not sure this should _really_ be linked here
+            tfm_attestation_defs
+            tfm_boot_status
+            platform_ns
+            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:tfm_psa_rot_partition_attest_test_service_defs>
+    )
 
-target_link_libraries(tfm_ns_tests
-    INTERFACE
-        tfm_test_suite_attestation_ns
-)
+    target_link_libraries(tfm_ns_tests
+        INTERFACE
+            tfm_test_suite_attestation_ns
+    )
+endif()
 
 ####################### Secure #################################################
 
-if (TEST_S)
+if (TEST_S_ATTESTATION)
     target_sources(tfm_test_suite_attestation_s
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_public_key.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_symmetric.c>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_symmetric_s_interface_testsuite.c>
             $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_asymmetric.c>
@@ -75,6 +82,7 @@ if (TEST_S)
     target_include_directories(tfm_test_suite_attestation_s
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/secure
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
     )
@@ -84,11 +92,18 @@ if (TEST_S)
             $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
             $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:ATTEST_TEST_GET_PUBLIC_KEY>
+        INTERFACE
+            TEST_S_ATTESTATION
+    )
+
+    target_compile_options(tfm_test_suite_attestation_s
+        PUBLIC
+            ${COMPILER_CP_FLAG}
     )
 
     target_link_libraries(tfm_test_suite_attestation_s
         PRIVATE
-            tfm_qcbor
+            tfm_qcbor_s
             tfm_t_cose_s
             tfm_test_framework_s
             tfm_attestation_defs

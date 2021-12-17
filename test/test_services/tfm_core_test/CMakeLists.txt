@@ -45,22 +45,11 @@ target_link_libraries(tfm_psa_rot_partition_core_test
         psa_interface
         platform_s
         tfm_arch
-        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm
     PRIVATE
         tfm_psa_rot_partition_core_test
-)
-
-target_include_directories(tfm_test_framework_s
-    INTERFACE
-        .
-)
-
-target_compile_definitions(tfm_psa_rot_partition_core_test
-    PRIVATE
-        $<$<BOOL:${TFM_INTERACTIVE_TEST}>:CORE_TEST_INTERACTIVE>
 )
 
 # header files included by other libraries
@@ -69,11 +58,6 @@ add_library(tfm_psa_rot_partition_core_test_defs INTERFACE)
 target_include_directories(tfm_psa_rot_partition_core_test_defs
     INTERFACE
         .
-)
-
-target_compile_definitions(tfm_psa_rot_partition_core_test
-    PRIVATE
-        $<$<BOOL:${TFM_PERIPH_ACCESS_TEST}>:TFM_ENABLE_PERIPH_ACCESS_TEST>
 )
 
 ############################ Partition Defs ####################################

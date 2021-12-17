@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,8 +9,6 @@
 
 #include "os_wrapper/thread.h"
 #include "os_wrapper/semaphore.h"
-
-#include "tfm_nspm_api.h"
 
 #define PS_TEST_TASK_STACK_SIZE (768)
 
@@ -30,10 +28,6 @@ static void *test_semaphore;
 static void test_task_runner(void *arg)
 {
     struct test_task_t *test = arg;
-
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
-    tfm_nspm_register_client_id();
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
 
     /* Call the test function */
     test->func(test->ret);

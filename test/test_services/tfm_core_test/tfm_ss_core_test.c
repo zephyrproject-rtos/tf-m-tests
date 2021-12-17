@@ -8,10 +8,8 @@
 #include <stddef.h>
 #include "core_test_defs.h"
 #include "tfm_ss_core_test.h"
-#include "test_framework.h"
 #include "tfm_veneers.h"
 #include "tfm_secure_api.h"
-#include "tfm/tfm_spm_services.h"
 #include "psa/service.h"
 #include "tfm_plat_test.h"
 #include "psa_manifest/pid.h"
@@ -112,29 +110,6 @@ psa_status_t spm_core_test_sfn_direct_recursion(
     }
 }
 #endif /* !defined(TFM_PSA_API) */
-
-static psa_status_t test_peripheral_access(void)
-{
-#ifdef TFM_ENABLE_PERIPH_ACCESS_TEST
-    uint32_t leds;
-    uint32_t invleds;
-    uint32_t userled_mask;
-
-    leds = tfm_plat_test_get_led_status();
-    tfm_plat_test_set_led_status(~leds);
-    invleds = tfm_plat_test_get_led_status();
-    userled_mask = tfm_plat_test_get_userled_mask();
-
-    if ((invleds & userled_mask) != (~leds & userled_mask)) {
-        /* Code failed to invert value in peripheral reg */
-        return CORE_TEST_ERRNO_PERIPHERAL_ACCESS_FAILED;
-    }
-
-    return CORE_TEST_ERRNO_SUCCESS;
-#else
-    return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
-#endif
-}
 
 #define SS_BUFFER_LEN 16
 
@@ -326,51 +301,7 @@ static psa_status_t test_get_caller_client_id(void)
     return CORE_TEST_ERRNO_SUCCESS;
 }
 
-static psa_status_t test_spm_request(void)
-{
-    /* Request a reset vote, should be successful */
-    int32_t ret = tfm_spm_request_reset_vote();
-
-    if (ret != TFM_SUCCESS) {
-        return CORE_TEST_ERRNO_SLAVE_SP_CALL_FAILURE;
-    }
-
-    return CORE_TEST_ERRNO_SUCCESS;
-}
 #endif /* !defined(TFM_PSA_API) */
-
-#ifdef CORE_TEST_INTERACTIVE
-static void wait_button_event(void)
-{
-    tfm_plat_test_wait_user_button_pressed();
-    /*
-     * The follow wait is required to skip multiple continues in one go due to
-     * the fast execution of the code and time used by the user to
-     * release button.
-     */
-
-    tfm_plat_test_wait_user_button_released();
-}
-
-psa_status_t test_wait_button(void)
-{
-    TEST_LOG("Inside the service, press button to continue...");
-    wait_button_event();
-    TEST_LOG("Leaving the service");
-    return CORE_TEST_ERRNO_SUCCESS;
-}
-#endif /* defined(CORE_TEST_INTERACTIVE) */
-
-static psa_status_t test_block(void)
-{
-#ifdef CORE_TEST_INTERACTIVE
-    /* Only block if interactive test is turned on */
-    return test_wait_button();
-#else /* defined(CORE_TEST_INTERACTIVE) */
-    /* This test should not be run if interactive tests are disabled */
-    return CORE_TEST_ERRNO_TEST_FAULT;
-#endif /* defined(CORE_TEST_INTERACTIVE) */
-}
 
 #ifndef TFM_PSA_API
 psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
@@ -404,14 +335,8 @@ psa_status_t spm_core_test_sfn(struct psa_invec *in_vec, size_t in_len,
         return test_ss_to_ss_buffer((uint32_t *)arg1, (uint32_t *)arg2, arg3);
     case CORE_TEST_ID_OUTVEC_WRITE:
         return test_outvec_write();
-    case CORE_TEST_ID_PERIPHERAL_ACCESS:
-        return test_peripheral_access();
     case CORE_TEST_ID_GET_CALLER_CLIENT_ID:
         return test_get_caller_client_id();
-    case CORE_TEST_ID_SPM_REQUEST:
-        return test_spm_request();
-    case CORE_TEST_ID_BLOCK:
-        return test_block();
     case CORE_TEST_ID_NS_THREAD:
         /* dummy service call is enough */
         return CORE_TEST_ERRNO_SUCCESS;
@@ -484,24 +409,9 @@ static psa_status_t tfm_core_test_sfn_wrap_outvec_write(psa_msg_t *msg)
     return test_outvec_write();
 }
 
-static psa_status_t tfm_core_test_sfn_wrap_peripheral_access(psa_msg_t *msg)
-{
-    return test_peripheral_access();
-}
-
 static psa_status_t tfm_core_test_sfn_wrap_get_caller_client_id(psa_msg_t *msg)
 {
     return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
-}
-
-static psa_status_t tfm_core_test_sfn_wrap_spm_request(psa_msg_t *msg)
-{
-    return CORE_TEST_ERRNO_TEST_NOT_SUPPORTED;
-}
-
-static psa_status_t tfm_core_test_sfn_wrap_block(psa_msg_t *msg)
-{
-    return test_block();
 }
 
 static psa_status_t tfm_core_test_sfn_wrap_ns_thread(psa_msg_t *msg)
@@ -562,18 +472,9 @@ psa_status_t core_test_init(void)
         } else if (signals & SPM_CORE_TEST_OUTVEC_WRITE_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_OUTVEC_WRITE_SIGNAL,
                                     tfm_core_test_sfn_wrap_outvec_write);
-        } else if (signals & SPM_CORE_TEST_PERIPHERAL_ACCESS_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_PERIPHERAL_ACCESS_SIGNAL,
-                                    tfm_core_test_sfn_wrap_peripheral_access);
         } else if (signals & SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_GET_CALLER_CLIENT_ID_SIGNAL,
                                    tfm_core_test_sfn_wrap_get_caller_client_id);
-        } else if (signals & SPM_CORE_TEST_SPM_REQUEST_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_SPM_REQUEST_SIGNAL,
-                                    tfm_core_test_sfn_wrap_spm_request);
-        } else if (signals & SPM_CORE_TEST_BLOCK_SIGNAL) {
-            core_test_signal_handle(SPM_CORE_TEST_BLOCK_SIGNAL,
-                                    tfm_core_test_sfn_wrap_block);
         } else if (signals & SPM_CORE_TEST_NS_THREAD_SIGNAL) {
             core_test_signal_handle(SPM_CORE_TEST_NS_THREAD_SIGNAL,
                                     tfm_core_test_sfn_wrap_ns_thread);

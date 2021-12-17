@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
 #include "psa_api_test.h"
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
-#include "tfm_nspm_api.h"
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
 #include "tfm_integ_test.h"
 
 /**
@@ -21,10 +18,6 @@ __attribute__((noreturn))
 void psa_api_test(void *arg)
 {
     UNUSED_VARIABLE(arg);
-
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
-    tfm_nspm_register_client_id();
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
 
     val_entry();
 

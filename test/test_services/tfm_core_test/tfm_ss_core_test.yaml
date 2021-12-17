@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,12 +12,6 @@
   "priority": "NORMAL",
   "entry_point": "core_test_init",
   "stack_size": "0x0380",
-  "mmio_regions": [
-    {
-      "name": "TFM_PERIPHERAL_FPGA_IO",
-      "permission": "READ-WRITE"
-    }
-  ],
   "secure_functions": [
     {
       "name": "TFM_CORE_TEST_SFN",
@@ -78,36 +72,15 @@
       "version_policy": "STRICT"
     },
     {
-      "name": "SPM_CORE_TEST_PERIPHERAL_ACCESS",
+      "name": "SPM_CORE_TEST_GET_CALLER_CLIENT_ID",
       "sid": "0x0000F027",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     },
     {
-      "name": "SPM_CORE_TEST_GET_CALLER_CLIENT_ID",
-      "sid": "0x0000F028",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
-      "name": "SPM_CORE_TEST_SPM_REQUEST",
-      "sid": "0x0000F029",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
-      "name": "SPM_CORE_TEST_BLOCK",
-      "sid": "0x0000F02A",
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
       "name": "SPM_CORE_TEST_NS_THREAD",
-      "sid": "0x0000F02B",
+      "sid": "0x0000F028",
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"

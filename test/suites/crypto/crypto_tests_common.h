@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -187,6 +187,34 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret);
  */
 void psa_key_derivation_test(psa_algorithm_t deriv_alg,
                              struct test_result_t *ret);
+
+/**
+ * \brief Key agreement test
+ *
+ * \param[in] deriv_alg A key derivation algorithm which acts as raw key
+ *                      agreement
+ * \param[out] ret      Test result
+ */
+void psa_key_agreement_test(psa_algorithm_t deriv_alg,
+                            struct test_result_t *ret);
+
+/**
+ * \brief Asymmetric encryption/decryption test
+ *
+ *  \param[in] alg  Encryption algorithm
+ *  \param[out] ret Test result
+ */
+void psa_asymmetric_encryption_test(psa_algorithm_t alg,
+                                    struct test_result_t *ret);
+
+/**
+ * \brief Message sign/verify test
+ *
+ *  \param[in] alg  Signing algorithm
+ *  \param[out] ret Test result
+ */
+void psa_sign_verify_message_test(psa_algorithm_t alg,
+                                  struct test_result_t *ret);
 
 #ifdef __cplusplus
 }

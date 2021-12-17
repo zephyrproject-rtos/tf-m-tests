@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -62,13 +62,13 @@ static void tfm_ps_test_1012(struct test_result_t *ret);
 static void tfm_ps_test_1013(struct test_result_t *ret);
 static void tfm_ps_test_1014(struct test_result_t *ret);
 static void tfm_ps_test_1015(struct test_result_t *ret);
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
+#ifdef TFM_NS_MANAGE_NSID
 static void tfm_ps_test_1016(struct test_result_t *ret);
 static void tfm_ps_test_1017(struct test_result_t *ret);
 static void tfm_ps_test_1018(struct test_result_t *ret);
 static void tfm_ps_test_1019(struct test_result_t *ret);
 static void tfm_ps_test_1020(struct test_result_t *ret);
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
+#endif /* TFM_NS_MANAGE_NSID */
 static void tfm_ps_test_1021(struct test_result_t *ret);
 static void tfm_ps_test_1022(struct test_result_t *ret);
 static void tfm_ps_test_1023(struct test_result_t *ret);
@@ -106,7 +106,7 @@ static struct test_t psa_ps_ns_tests[] = {
      "Remove interface with write once UID"},
     {&tfm_ps_test_1015, "TFM_NS_PS_TEST_1015",
      "Remove interface with invalid UID"},
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
+#ifdef TFM_NS_MANAGE_NSID
     {&tfm_ps_test_1016, "TFM_NS_PS_TEST_1016",
      "Get interface with invalid thread name"},
     {&tfm_ps_test_1017, "TFM_NS_PS_TEST_1017",
@@ -117,7 +117,7 @@ static struct test_t psa_ps_ns_tests[] = {
      "Attempt to access UID belonging to another thread"},
     {&tfm_ps_test_1020, "TFM_NS_PS_TEST_1020",
      "Set UID alternately from two threads"},
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
+#endif /* TFM_NS_MANAGE_NSID */
     {&tfm_ps_test_1021, "TFM_NS_PS_TEST_1021",
      "Block compaction after remove"},
     {&tfm_ps_test_1022, "TFM_NS_PS_TEST_1022",
@@ -855,7 +855,7 @@ TFM_PS_NS_TEST(1015, "Thread_A")
     ret->val = TEST_PASSED;
 }
 
-#ifdef TFM_NS_CLIENT_IDENTIFICATION
+#ifdef TFM_NS_MANAGE_NSID
 /**
  * \brief Sets UID with a valid thread name.
  */
@@ -1449,7 +1449,7 @@ static void tfm_ps_test_1020(struct test_result_t *ret)
 
     tfm_ps_run_test("Thread_A", ret, tfm_ps_test_1020_task_7);
 }
-#endif /* TFM_NS_CLIENT_IDENTIFICATION */
+#endif /* TFM_NS_MANAGE_NSID */
 
 /**
  * \brief Tests data block compact feature.
