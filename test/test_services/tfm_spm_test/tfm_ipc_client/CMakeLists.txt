@@ -33,7 +33,7 @@ target_include_directories(tfm_app_rot_partition_ipc_client
         .
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/test_services/tfm_ipc_client
-        ${CMAKE_CURRENT_SOURCE_DIR}/../tfm_secure_client_2
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../tfm_secure_client_2
 )
 
 target_include_directories(tfm_partitions
