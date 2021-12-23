@@ -16,7 +16,7 @@
   "services": [
     {
       "name": "TFM_SFN2_SERVICE1",
-      "sid": "0x0000F200",
+      "sid": "0x0000F120",
       "non_secure_clients": true,
       "connection_based": true,
       "version": 1,
