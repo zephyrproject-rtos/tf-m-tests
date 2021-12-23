@@ -139,6 +139,7 @@
       "conditional": "@TEST_NS_SLIH_IRQ@",
       "version_major": 0,
       "version_minor": 1,
+      "pid": 3008,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_slih_test.*"
@@ -153,6 +154,7 @@
       "conditional": "@TEST_NS_FLIH_IRQ@",
       "version_major": 0,
       "version_minor": 1,
+      "pid": 3009,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_flih_test.*"
@@ -167,11 +169,42 @@
       "conditional": "@TEST_S_FPU@",
       "version_major": 0,
       "version_minor": 1,
+      "pid": 3010,
       "linker_pattern": {
         "library_list": [
            "*tfm_*partition_fpu_service.*"
          ]
       }
-    }
+    },
+    {
+      "name": "TFM SFN Partition1 Service",
+      "short_name": "TFM_SFN_SP1",
+      "manifest": "tfm_spm_test/sfn_partition1/sfn_partition1.yaml",
+      "output_path": "test_services/sfn_partition1",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
+      "version_major": 0,
+      "version_minor": 1,
+      "pid": 3011,
+      "linker_pattern": {
+        "library_list": [
+          "*tfm_*partition_sfn1.*"
+        ]
+      }
+    },
+    {
+      "name": "TFM SFN Partition2 Service",
+      "short_name": "TFM_SFN_SP2",
+      "manifest": "tfm_spm_test/sfn_partition2/sfn_partition2.yaml",
+      "output_path": "test_services/sfn_partition2",
+      "conditional": "@TEST_NS_SFN_BACKEND@",
+      "version_major": 0,
+      "version_minor": 1,
+      "pid": 3012,
+      "linker_pattern": {
+        "library_list": [
+          "*tfm_*partition_sfn2.*"
+        ]
+      }
+    },
   ]
 }
