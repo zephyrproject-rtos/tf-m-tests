@@ -19,12 +19,6 @@
 #define IPC_SP_TEST_FAILED      (-1)
 
 /*
- * The bit corresponding to service signal indicates whether
- * the service is in use.
- */
-uint32_t service_in_use = 0;
-
-/*
  * Create a global const data, so that it is stored in code
  * section which is read only.
  */
@@ -232,29 +226,18 @@ static int ipc_client_retrieve_app_mem_test(void)
 static void ipc_client_handle_ser_req(psa_msg_t msg, uint32_t signals,
                                       int (*fn)(void))
 {
-    psa_status_t r;
     int32_t ret;
 
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use & signals) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |= signals;
-            r = PSA_SUCCESS;
-        }
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
         ret = (*fn)();
         if (msg.out_size[0] != 0) {
             psa_write(msg.handle, 0, &ret, sizeof(ret));
         }
-        psa_reply(msg.handle, PSA_SUCCESS);
-        break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use & signals) != 0);
-        service_in_use &= ~(signals);
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
     default:

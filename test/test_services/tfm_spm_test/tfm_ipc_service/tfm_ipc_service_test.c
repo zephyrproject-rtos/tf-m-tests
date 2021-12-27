@@ -21,9 +21,6 @@
 
 #define IPC_SERVICE_BUFFER_LEN                          32
 
-/* Define the whether the service is inuse flag. */
-static uint32_t service_in_use = 0;
-
 /* Define the global variable for the IPC_APP_ACCESS_PSA_MEM_SID service. */
 uint8_t ipc_servic_data;
 uint8_t *ipc_service_data_p = &ipc_servic_data;
@@ -41,7 +38,6 @@ static void tfm_abort(void)
 static void ipc_service_basic(void)
 {
     psa_msg_t msg;
-    psa_status_t r;
     int i;
     uint8_t rec_buf[IPC_SERVICE_BUFFER_LEN];
     uint8_t send_buf[IPC_SERVICE_BUFFER_LEN] = "It is just for IPC call test.";
@@ -49,13 +45,8 @@ static void ipc_service_basic(void)
     psa_get(IPC_SERVICE_TEST_BASIC_SIGNAL, &msg);
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use & IPC_SERVICE_TEST_BASIC_SIGNAL) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |= IPC_SERVICE_TEST_BASIC_SIGNAL;
-            r = PSA_SUCCESS;
-        }
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
         for (i = 0; i < PSA_MAX_IOVEC; i++) {
@@ -68,11 +59,6 @@ static void ipc_service_basic(void)
         }
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use & IPC_SERVICE_TEST_BASIC_SIGNAL) != 0);
-        service_in_use &= ~IPC_SERVICE_TEST_BASIC_SIGNAL;
-        psa_reply(msg.handle, PSA_SUCCESS);
-        break;
     default:
         /* cannot get here? [broken SPM]. TODO*/
         tfm_abort();
@@ -83,20 +69,14 @@ static void ipc_service_basic(void)
 static void ipc_service_psa_access_app_mem(void)
 {
     psa_msg_t msg;
-    psa_status_t r;
     char rec_data;
     uint32_t rec_buf;
 
     psa_get(IPC_SERVICE_TEST_PSA_ACCESS_APP_MEM_SIGNAL, &msg);
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use & IPC_SERVICE_TEST_PSA_ACCESS_APP_MEM_SIGNAL) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |= IPC_SERVICE_TEST_PSA_ACCESS_APP_MEM_SIGNAL;
-            r = PSA_SUCCESS;
-        }
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
         /*
@@ -117,12 +97,6 @@ static void ipc_service_psa_access_app_mem(void)
         }
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use & IPC_SERVICE_TEST_PSA_ACCESS_APP_MEM_SIGNAL)
-               != 0);
-        service_in_use &= ~IPC_SERVICE_TEST_PSA_ACCESS_APP_MEM_SIGNAL;
-        psa_reply(msg.handle, PSA_SUCCESS);
-        break;
     default:
         /* cannot get here? [broken SPM]. TODO*/
         tfm_abort();
@@ -134,22 +108,14 @@ static void ipc_service_psa_access_app_mem(void)
 static void ipc_service_psa_access_app_readonly_mem(void)
 {
     psa_msg_t msg;
-    psa_status_t r;
     char rec_data;
     uint32_t rec_buf, attr = 0;
 
     psa_get(IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL, &msg);
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use &
-            IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |=
-                          IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL;
-            r = PSA_SUCCESS;
-        }
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
          /*
@@ -175,13 +141,6 @@ static void ipc_service_psa_access_app_readonly_mem(void)
         }
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use &
-                IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL) != 0);
-        service_in_use &=
-                         ~IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL;
-        psa_reply(msg.handle, PSA_SUCCESS);
-        break;
     default:
         /* cannot get here? [broken SPM]. TODO*/
         tfm_abort();
@@ -195,19 +154,12 @@ static void ipc_service_psa_access_app_readonly_mem(void)
 static void ipc_service_app_access_psa_mem(void)
 {
     psa_msg_t msg;
-    psa_status_t r;
 
     psa_get(IPC_SERVICE_TEST_APP_ACCESS_PSA_MEM_SIGNAL, &msg);
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use & IPC_SERVICE_TEST_APP_ACCESS_PSA_MEM_SIGNAL) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |= IPC_SERVICE_TEST_APP_ACCESS_PSA_MEM_SIGNAL;
-            r = PSA_SUCCESS;
-        }
-
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
         if (msg.out_size[0] != 0) {
@@ -222,12 +174,6 @@ static void ipc_service_app_access_psa_mem(void)
 
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use & IPC_SERVICE_TEST_APP_ACCESS_PSA_MEM_SIGNAL)
-               != 0);
-        service_in_use &= ~IPC_SERVICE_TEST_APP_ACCESS_PSA_MEM_SIGNAL;
-        psa_reply(msg.handle, PSA_SUCCESS);
-        break;
     default:
         /* cannot get here? [broken SPM]. TODO*/
         tfm_abort();
@@ -239,27 +185,15 @@ static void ipc_service_app_access_psa_mem(void)
 static void ipc_service_programmer_error(void)
 {
     psa_msg_t msg;
-    psa_status_t r;
 
     psa_get(IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL, &msg);
     switch (msg.type) {
     case PSA_IPC_CONNECT:
-        if (service_in_use & IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL) {
-            r = PSA_ERROR_CONNECTION_REFUSED;
-        } else {
-            service_in_use |= IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL;
-            r = PSA_SUCCESS;
-        }
-        psa_reply(msg.handle, r);
+    case PSA_IPC_DISCONNECT:
+        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     case PSA_IPC_CALL:
         psa_reply(msg.handle, PSA_ERROR_PROGRAMMER_ERROR);
-        break;
-    case PSA_IPC_DISCONNECT:
-        assert((service_in_use
-                & IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL) != 0);
-        service_in_use &= ~IPC_SERVICE_TEST_CLIENT_PROGRAMMER_ERROR_SIGNAL;
-        psa_reply(msg.handle, PSA_SUCCESS);
         break;
     default:
         /* cannot get here? [broken SPM]. TODO*/
