@@ -11,6 +11,8 @@
  * It can be replaced by RTOS specific implementation.
  */
 
+#include "cmsis_compiler.h"
+
 #ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
 #include "os_wrapper/msg_queue.h"
 #else
@@ -47,6 +49,24 @@ void tfm_ns_mailbox_os_wait_reply(void)
 void tfm_ns_mailbox_os_wake_task_isr(const void *task_handle)
 {
     os_wrapper_thread_set_flag_isr((void *)task_handle, MAILBOX_THREAD_FLAG);
+}
+
+/*
+ * When NSPE mailbox only covers a single non-secure core, spinlock only
+ * requires to disable IRQ.
+ */
+void tfm_ns_mailbox_os_spin_lock(void)
+{
+    __disable_irq();
+}
+
+/*
+ * It is assumed that IRQ is always enabled when spinlock is acquired.
+ * Otherwise, the waiting thread won't be woken up.
+ */
+void tfm_ns_mailbox_os_spin_unlock(void)
+{
+    __enable_irq();
 }
 
 #ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD

@@ -14,7 +14,7 @@
 #include "psa/internal_trusted_storage.h"
 #include "psa_manifest/sid.h"
 #include "test_framework_helpers.h"
-#include "tfm_ns_mailbox.h"
+#include "tfm_ns_mailbox_test.h"
 
 #if (NUM_MAILBOX_QUEUE_SLOT > 1)
 /* Max number of child threads for multiple outstanding PSA client call test */
