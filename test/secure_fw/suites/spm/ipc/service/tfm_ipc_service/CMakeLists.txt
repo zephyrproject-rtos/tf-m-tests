@@ -11,6 +11,7 @@ add_library(tfm_psa_rot_partition_ipc_service STATIC)
 
 target_sources(tfm_psa_rot_partition_ipc_service
     PRIVATE
+        ../../../common/service/client_api_test_service.c
         ./tfm_ipc_service_test.c
 )
 

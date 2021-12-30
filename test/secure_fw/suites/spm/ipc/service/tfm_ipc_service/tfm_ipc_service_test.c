@@ -15,6 +15,8 @@
 #include "tfm_hal_isolation.h"
 #include "tfm_secure_api.h"
 #include "tfm_sp_log.h"
+#include "client_api_test_defs.h"
+#include "client_api_test_service.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 #include "tfm_mmiovec_test_service.h"
 #endif
@@ -38,30 +40,23 @@ static void tfm_abort(void)
 static void ipc_service_basic(void)
 {
     psa_msg_t msg;
-    int i;
-    uint8_t rec_buf[IPC_SERVICE_BUFFER_LEN];
-    uint8_t send_buf[IPC_SERVICE_BUFFER_LEN] = "It is just for IPC call test.";
+    psa_status_t status;
 
-    psa_get(IPC_SERVICE_TEST_BASIC_SIGNAL, &msg);
+    status = psa_get(IPC_SERVICE_TEST_BASIC_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        return;
+    }
+
     switch (msg.type) {
     case PSA_IPC_CONNECT:
     case PSA_IPC_DISCONNECT:
         psa_reply(msg.handle, PSA_SUCCESS);
         break;
-    case PSA_IPC_CALL:
-        for (i = 0; i < PSA_MAX_IOVEC; i++) {
-            if (msg.in_size[i] != 0) {
-                psa_read(msg.handle, i, rec_buf, IPC_SERVICE_BUFFER_LEN);
-            }
-            if (msg.out_size[i] != 0) {
-                psa_write(msg.handle, i, send_buf, IPC_SERVICE_BUFFER_LEN);
-            }
-        }
-        psa_reply(msg.handle, PSA_SUCCESS);
+    case CLIENT_API_TEST_TYPE_REQUEST_SRV:
+        psa_reply(msg.handle, client_api_test_rot_srv(&msg));
         break;
     default:
-        /* cannot get here? [broken SPM]. TODO*/
-        tfm_abort();
+        psa_reply(msg.handle, PSA_ERROR_NOT_SUPPORTED);
         break;
     }
 }
@@ -205,9 +200,7 @@ static void ipc_service_programmer_error(void)
 static void ipc_service_stateless_rot(void)
 {
     psa_status_t status;
-    uint32_t arg;
     psa_msg_t msg;
-    size_t num;
 
     /* Retrieve the message corresponding to the example service signal */
     status = psa_get(IPC_SERVICE_TEST_STATELESS_ROT_SIGNAL, &msg);
@@ -217,25 +210,15 @@ static void ipc_service_stateless_rot(void)
 
     /* Decode the message */
     switch (msg.type) {
-    case PSA_IPC_CALL:
-        if (msg.in_size[0] != sizeof(arg)) {
-            status = PSA_ERROR_PROGRAMMER_ERROR;
-            break;
-        }
-        /* Print arg from client */
-        num = psa_read(msg.handle, 0, &arg, sizeof(arg));
-        if (num != msg.in_size[0]) {
-            status = PSA_ERROR_PROGRAMMER_ERROR;
-            break;
-        }
-        LOG_INFFMT("[IPC_SERVICE_TEST_STATELESS_ROT] Service called! arg=%x\r\n", arg);
-        status = PSA_SUCCESS;
+    case CLIENT_API_TEST_TYPE_REQUEST_SRV:
+        status = client_api_test_rot_srv(&msg);
         break;
     default:
         /* Invalid message type */
         status = PSA_ERROR_PROGRAMMER_ERROR;
         break;
     }
+
     /* Reply with the message result status to unblock the client */
     psa_reply(msg.handle, status);
 }

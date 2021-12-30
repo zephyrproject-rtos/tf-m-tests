@@ -11,6 +11,7 @@
 #include "psa/framework_feature.h"
 #include "test_framework_helpers.h"
 #include "psa_manifest/sid.h"
+#include "client_api_tests.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 #include "mmiovec_test.h"
 #endif
@@ -20,7 +21,6 @@ static void tfm_ipc_test_1001(struct test_result_t *ret);
 static void tfm_ipc_test_1002(struct test_result_t *ret);
 static void tfm_ipc_test_1003(struct test_result_t *ret);
 static void tfm_ipc_test_1004(struct test_result_t *ret);
-static void tfm_ipc_test_1005(struct test_result_t *ret);
 static void tfm_ipc_test_1006(struct test_result_t *ret);
 
 #ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
@@ -59,9 +59,7 @@ static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1003, "TFM_NS_IPC_TEST_1003",
      "Connect to an RoT Service"},
     {&tfm_ipc_test_1004, "TFM_NS_IPC_TEST_1004",
-     "Call an RoT Service"},
-    {&tfm_ipc_test_1005, "TFM_NS_IPC_TEST_1005",
-     "Call IPC_INIT_BASIC_TEST service"},
+     "Request connection-based RoT Service"},
     {&tfm_ipc_test_1006, "TFM_NS_IPC_TEST_1006",
      "Call PSA RoT access APP RoT memory test service"},
 #ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
@@ -83,7 +81,7 @@ static struct test_t ipc_veneers_tests[] = {
      "Call APP RoT access another APP RoT memory test service"},
 #endif
     {&tfm_ipc_test_1012, "TFM_NS_IPC_TEST_1012",
-     "Accessing stateless service from non-secure client"},
+     "Request stateless service"},
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
     {&tfm_ipc_test_1013, "TFM_NS_IPC_TEST_1013",
      "Mapping input vectors and unmapping them"},
@@ -113,15 +111,7 @@ void register_testsuite_ns_ipc_interface(struct test_suite_t *p_test_suite)
  */
 static void tfm_ipc_test_1001(struct test_result_t *ret)
 {
-    uint32_t version;
-
-    version = psa_framework_version();
-    if (version == PSA_FRAMEWORK_VERSION) {
-        TEST_LOG("The version of the PSA Framework API is %d.\r\n", version);
-    } else {
-        TEST_FAIL("The version of the PSA Framework API is not valid!\r\n");
-        return;
-    }
+    psa_framework_version_test(ret);
 }
 
 /**
@@ -129,18 +119,7 @@ static void tfm_ipc_test_1001(struct test_result_t *ret)
  */
 static void tfm_ipc_test_1002(struct test_result_t *ret)
 {
-    uint32_t version;
-
-    version = psa_version(IPC_SERVICE_TEST_BASIC_SID);
-    if (version == PSA_VERSION_NONE) {
-        TEST_FAIL("RoT Service is not implemented or caller is not authorized" \
-                  " to access it!\r\n");
-        return;
-    } else {
-        /* Valid version number */
-        TEST_LOG("The service version is %d.\r\n", version);
-    }
-    ret->val = TEST_PASSED;
+    psa_version_test(IPC_SERVICE_TEST_BASIC_SID, ret);
 }
 
 /**
@@ -163,71 +142,20 @@ static void tfm_ipc_test_1003(struct test_result_t *ret)
 }
 
 /**
- * \brief Call an RoT Service.
+ * \brief Call a Connection-based RoT Service.
  */
 static void tfm_ipc_test_1004(struct test_result_t *ret)
 {
-    char str1[] = "str1";
-    char str2[] = "str2";
-    char str3[128], str4[128];
-    struct psa_invec invecs[2] = {{str1, sizeof(str1)/sizeof(char)},
-                                  {str2, sizeof(str2)/sizeof(char)}};
-    struct psa_outvec outvecs[2] = {{str3, sizeof(str3)/sizeof(char)},
-                                    {str4, sizeof(str4)/sizeof(char)}};
     psa_handle_t handle;
-    psa_status_t status;
-    uint32_t version;
 
-    version = psa_version(IPC_SERVICE_TEST_BASIC_SID);
-    TEST_LOG("TFM service support version is %d.\r\n", version);
     handle = psa_connect(IPC_SERVICE_TEST_BASIC_SID,
                          IPC_SERVICE_TEST_BASIC_VERSION);
-    status = psa_call(handle, PSA_IPC_CALL, invecs, 2, outvecs, 2);
-    if (status >= 0) {
-        TEST_LOG("psa_call is successful!\r\n");
-    } else {
-        TEST_FAIL("psa_call is failed!\r\n");
+    if (!PSA_HANDLE_IS_VALID(handle)) {
+        TEST_FAIL("Connection to service failed!\r\n");
         return;
     }
 
-    TEST_LOG("outvec1 is: %s\r\n", outvecs[0].base);
-    TEST_LOG("outvec2 is: %s\r\n", outvecs[1].base);
-    psa_close(handle);
-    ret->val = TEST_PASSED;
-}
-
-/**
- * \brief Call IPC_CLIENT_TEST_BASIC_SID RoT Service to run the IPC basic test.
- */
-static void tfm_ipc_test_1005(struct test_result_t *ret)
-{
-    psa_handle_t handle;
-    psa_status_t status;
-    int test_result;
-    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
-
-    handle = psa_connect(IPC_CLIENT_TEST_BASIC_SID,
-                         IPC_CLIENT_TEST_BASIC_VERSION);
-    if (handle > 0) {
-        TEST_LOG("Connect success!\r\n");
-    } else {
-        TEST_LOG("The RoT Service has refused the connection!\r\n");
-        ret->val = TEST_FAILED;
-        return;
-    }
-
-    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
-    if (status >= 0) {
-        TEST_LOG("Call success!\r\n");
-        if (test_result > 0) {
-            ret->val = TEST_PASSED;
-        } else {
-            ret->val = TEST_FAILED;
-        }
-    } else {
-        TEST_LOG("Call failed!\r\n");
-        ret->val = TEST_FAILED;
-    }
+    request_rot_service_test(handle, ret);
 
     psa_close(handle);
 }
@@ -435,28 +363,17 @@ static void tfm_ipc_test_1011(struct test_result_t *ret)
  */
 static void tfm_ipc_test_1012(struct test_result_t *ret)
 {
-    uint32_t data = 0xFFFFABCD;
     psa_handle_t handle;
-    psa_status_t status;
-    psa_invec in_vec[] = { {&data, sizeof(uint32_t)} };
 
     /* Connecting to a stateless service should fail. */
     handle = psa_connect(IPC_SERVICE_TEST_STATELESS_ROT_SID,
                          IPC_SERVICE_TEST_STATELESS_ROT_VERSION);
-    if (handle > 0) {
+    if (PSA_HANDLE_IS_VALID(handle)) {
         TEST_FAIL("Connecting to stateless service test should fail.\r\n");
         return;
     }
 
-    /* Calling a stateless service should succeed. */
-    status = psa_call(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, PSA_IPC_CALL,
-                      in_vec, 1, NULL, 0);
-    if (status < 0) {
-        TEST_FAIL("Calling a stateless service test fail.\r\n");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
+    request_rot_service_test(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, ret);
 }
 
 #if PSA_FRAMEWORK_HAS_MM_IOVEC

@@ -19,6 +19,7 @@ if (TEST_NS_IPC)
     target_sources(tfm_test_suite_ipc_ns
         PRIVATE
             non_secure/ipc_ns_interface_testsuite.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/client_api_tests.c
             $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
                 ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/mmiovec_test.c>
     )
@@ -55,6 +56,7 @@ if (TEST_S_IPC)
     target_sources(tfm_test_suite_ipc_s
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/secure/ipc_s_interface_testsuite.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/client_api_tests.c
     )
 
     target_include_directories(tfm_test_suite_ipc_s
@@ -70,6 +72,7 @@ if (TEST_S_IPC)
     target_link_libraries(tfm_test_suite_ipc_s
         PRIVATE
             tfm_test_framework_s
+            spm_test_common
     )
 
     target_link_libraries(tfm_s_tests

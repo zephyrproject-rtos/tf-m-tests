@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2018-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -55,6 +55,7 @@
     "TFM_FWU_QUERY",
     "TFM_FWU_REQUEST_REBOOT",
     "TFM_FWU_ACCEPT",
+    "IPC_SERVICE_TEST_BASIC",
     "IPC_SERVICE_TEST_STATELESS_ROT",
     "TFM_ATTEST_TEST_GET_PUBLIC_KEY",
     "TFM_FPU_SERVICE_CLEAR_FP_REGISTER",

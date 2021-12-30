@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -76,34 +76,6 @@ static int ipc_isolation_2_psa_access_app_memory(void)
     status = psa_call(handle, PSA_IPC_CALL, invecs, 1, NULL, 0);
 
     if ((client_data == 'B') && (status >= 0)) {
-        result = IPC_SP_TEST_SUCCESS;
-    }
-
-    psa_close(handle);
-    return result;
-}
-
-static int ipc_client_base_test(void)
-{
-    psa_handle_t handle;
-    psa_status_t status;
-    int32_t result = IPC_SP_TEST_FAILED;
-    char str1[] = "123";
-    char str2[] = "456";
-    char str3[32], str4[32];
-    struct psa_invec invecs[2] = {{str1, sizeof(str1)/sizeof(char)},
-                                  {str2, sizeof(str2)/sizeof(char)}};
-    struct psa_outvec outvecs[2] = {{str3, sizeof(str3)/sizeof(char)},
-                                    {str4, sizeof(str4)/sizeof(char)}};
-
-    handle = psa_connect(IPC_SERVICE_TEST_BASIC_SID,
-                         IPC_SERVICE_TEST_BASIC_VERSION);
-    if (handle <= 0) {
-        return result;
-    }
-
-    status = psa_call(handle, PSA_IPC_CALL, invecs, 2, outvecs, 2);
-    if (status >= 0) {
         result = IPC_SP_TEST_SUCCESS;
     }
 
@@ -255,10 +227,7 @@ void ipc_client_test_main(void)
     while (1) {
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
         psa_get(signals, &msg);
-        if ((signals & IPC_CLIENT_TEST_BASIC_SIGNAL)) {
-            ipc_client_handle_ser_req(msg, IPC_CLIENT_TEST_BASIC_SIGNAL,
-                                      &ipc_client_base_test);
-        } else if (signals & IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_SIGNAL) {
+        if (signals & IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_SIGNAL) {
             ipc_client_handle_ser_req(msg,
                                      IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_SIGNAL,
                                      &ipc_isolation_2_psa_access_app_memory);

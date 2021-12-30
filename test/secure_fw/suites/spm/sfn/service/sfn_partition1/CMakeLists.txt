@@ -12,6 +12,7 @@ add_library(tfm_app_rot_partition_sfn1 STATIC)
 target_sources(tfm_app_rot_partition_sfn1
     PRIVATE
         sfn_partition1.c
+        ../../../common/service/client_api_test_service.c
         $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
             ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_mmiovec_test_service.c>
 )

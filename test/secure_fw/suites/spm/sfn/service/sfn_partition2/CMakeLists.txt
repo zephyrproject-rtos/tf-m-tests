@@ -12,6 +12,7 @@ add_library(tfm_app_rot_partition_sfn2 STATIC)
 target_sources(tfm_app_rot_partition_sfn2
     PRIVATE
         sfn_partition2.c
+        ../../../common/service/client_api_test_service.c
 )
 
 target_include_directories(tfm_partitions
@@ -42,6 +43,7 @@ target_link_libraries(tfm_app_rot_partition_sfn2
         psa_interface
         platform_s
         tfm_sprt
+        spm_test_service_common
 )
 
 ############################ Partition Defs ####################################

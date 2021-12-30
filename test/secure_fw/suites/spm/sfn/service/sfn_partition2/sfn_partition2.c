@@ -1,16 +1,19 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
 #include <stdint.h>
+
+#include "client_api_test_defs.h"
+#include "client_api_test_service.h"
+
+#include "tfm_sp_log.h"
 #include "psa/service.h"
 #include "psa_manifest/sfn_partition2.h"
-#include "tfm_sp_log.h"
 #include "psa_manifest/sid.h"
-#include "tfm_sfn_test_defs.h"
 
 /**
  * \brief An example service implementation that writes the received data back
@@ -19,8 +22,6 @@
 psa_status_t tfm_sfn2_service1_sfn(const psa_msg_t* msg)
 {
     psa_status_t status = PSA_ERROR_PROGRAMMER_ERROR;
-    uint32_t str_size;
-    uint8_t buf[SFN_SERVICE_BUFFER_LEN] = {'\0'};
 
     /* Decode the message */
     switch (msg->type) {
@@ -28,26 +29,12 @@ psa_status_t tfm_sfn2_service1_sfn(const psa_msg_t* msg)
     case PSA_IPC_DISCONNECT:
         status = PSA_SUCCESS;
         break;
-    case PSA_IPC_CALL:
-        LOG_DBGFMT("[SFN2 partition] Service in SFN2 called!\r\n");
-        /* Read string message from the invec[0]. */
-        str_size = msg->in_size[0];
-        if (str_size != 0) {
-            if (psa_read(msg->handle, 0, buf, SFN_SERVICE_BUFFER_LEN)
-                                                        != str_size) {
-                status = PSA_ERROR_PROGRAMMER_ERROR;
-                break;
-            }
-        }
-        /* Write the string message back to outvec[0]. */
-        if (msg->out_size[0] >= str_size) {
-            psa_write(msg->handle, 0, buf, str_size);
-            status = PSA_SUCCESS;
-        }
+    case CLIENT_API_TEST_TYPE_REQUEST_SRV:
+        status = client_api_test_rot_srv(msg);
         break;
     default:
         /* Invalid message type */
-        status = PSA_ERROR_PROGRAMMER_ERROR;
+        status = PSA_ERROR_NOT_SUPPORTED;
         break;
     }
     return status;
