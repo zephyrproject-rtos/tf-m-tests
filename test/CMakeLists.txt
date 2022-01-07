@@ -29,3 +29,7 @@ target_link_libraries(tfm_test_framework_common
 if(TEST_FRAMEWORK_S OR TEST_FRAMEWORK_NS)
     add_subdirectory(secure_fw)
 endif()
+
+if(TEST_BL2)
+    add_subdirectory(bl2)
+endif()
