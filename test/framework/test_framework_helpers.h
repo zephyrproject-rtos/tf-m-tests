@@ -9,7 +9,6 @@
 #define __TEST_FRAMEWORK_HELPERS_H__
 
 #include <stdint.h>
-#include "psa/protected_storage.h"
 #include "test_framework.h"
 
 #ifdef __cplusplus
