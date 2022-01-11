@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -75,6 +75,9 @@ static void tfm_crypto_test_1045(struct test_result_t *ret);
 static void tfm_crypto_test_1046(struct test_result_t *ret);
 static void tfm_crypto_test_1047(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+static void tfm_crypto_test_1048(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -185,6 +188,10 @@ static struct test_t crypto_tests[] = {
      "Non Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer",
      {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+    {&tfm_crypto_test_1048, "TFM_NS_CRYPTO_TEST_1048",
+     "Non Secure AEAD (CHACHA20-256-POLY1305) interface", {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -311,14 +318,16 @@ static void tfm_crypto_test_1024(struct test_result_t *ret)
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1030(struct test_result_t *ret)
 {
-    psa_aead_test(PSA_KEY_TYPE_AES, PSA_ALG_CCM, ret);
+    psa_aead_test(PSA_KEY_TYPE_AES, PSA_ALG_CCM,
+                  test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
 
 #ifdef TFM_CRYPTO_TEST_ALG_GCM
 static void tfm_crypto_test_1031(struct test_result_t *ret)
 {
-    psa_aead_test(PSA_KEY_TYPE_AES, PSA_ALG_GCM, ret);
+    psa_aead_test(PSA_KEY_TYPE_AES, PSA_ALG_GCM,
+                  test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_GCM */
 
@@ -340,10 +349,11 @@ static void tfm_crypto_test_1034(struct test_result_t *ret)
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1035(struct test_result_t *ret)
 {
-    psa_algorithm_t alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM,
-                                                       TRUNCATED_AUTH_TAG_LEN);
+    psa_algorithm_t alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(
+            PSA_ALG_CCM, TRUNCATED_AUTH_TAG_LEN);
 
-    psa_aead_test(PSA_KEY_TYPE_AES, alg, ret);
+    psa_aead_test(PSA_KEY_TYPE_AES, alg,
+                  test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
 
@@ -419,3 +429,11 @@ static void tfm_crypto_test_1047(struct test_result_t *ret)
     psa_cipher_padded_modes_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7, 20, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
+
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+static void tfm_crypto_test_1048(struct test_result_t *ret)
+{
+    psa_aead_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_CHACHA20_POLY1305,
+                  test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */

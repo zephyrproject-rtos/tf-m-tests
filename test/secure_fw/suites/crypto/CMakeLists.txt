@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -51,6 +51,7 @@ if (TEST_NS_CRYPTO)
             $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
             $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
             $<$<NOT:$<BOOL:${CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED}>>:TFM_CRYPTO_TEST_ASYM_ENCRYPT>
+            $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
         INTERFACE
             TEST_NS_CRYPTO
     )
@@ -96,6 +97,7 @@ if (TEST_S_CRYPTO)
             $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
             $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
             $<$<NOT:$<BOOL:${CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED}>>:TFM_CRYPTO_TEST_ASYM_ENCRYPT>
+            $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
         INTERFACE
             TEST_S_CRYPTO
     )

@@ -1033,13 +1033,14 @@ destroy_key_mac:
 
 void psa_aead_test(const psa_key_type_t key_type,
                    const psa_algorithm_t alg,
+                   const uint8_t *key,
+                   size_t key_bits,
                    struct test_result_t *ret)
 {
     psa_aead_operation_t encop = psa_aead_operation_init();
     psa_aead_operation_t decop = psa_aead_operation_init();
     psa_status_t status = PSA_SUCCESS;
     psa_key_handle_t key_handle;
-    const uint8_t data[] = "THIS IS MY KEY1";
     const size_t nonce_length = 12;
     const uint8_t nonce[] = "01234567890";
     const uint8_t plain_text[MAX_PLAIN_DATA_SIZE_AEAD] =
@@ -1057,10 +1058,10 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     /* Variables required for multipart operations */
     uint8_t *tag = &encrypted_data[MAX_PLAIN_DATA_SIZE_AEAD];
-    size_t  tag_size = PSA_AEAD_TAG_LENGTH(key_type,
-                                           psa_get_key_bits(&key_attributes),
-                                           alg);
-    size_t  tag_length = 0;
+    size_t tag_size = PSA_AEAD_TAG_LENGTH(key_type,
+                                          psa_get_key_bits(&key_attributes),
+                                          alg);
+    size_t tag_length = 0;
 
     ret->val = TEST_PASSED;
 
@@ -1070,7 +1071,9 @@ void psa_aead_test(const psa_key_type_t key_type,
     psa_set_key_type(&key_attributes, key_type);
 
     /* Import a key */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, key, PSA_BITS_TO_BYTES(key_bits),
+                            &key_handle);
+
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
@@ -1082,7 +1085,7 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
-    if (psa_get_key_bits(&retrieved_attributes) != BIT_SIZE_TEST_KEY) {
+    if (psa_get_key_bits(&retrieved_attributes) != key_bits) {
         TEST_FAIL("The number of key bits is different from expected");
         goto destroy_key_aead;
     }
