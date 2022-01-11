@@ -136,11 +136,15 @@ void psa_cipher_padded_modes_test(psa_key_type_t key_type,
  *
  * \param[in]  key_type PSA key type
  * \param[in]  alg      PSA algorithm
+ * \param[in]  key      Encryption key
+ * \param[in]  key_bits Encryption key size in bits
  * \param[out] ret      Test result
  *
  */
-void psa_cipher_test(psa_key_type_t key_type,
-                     psa_algorithm_t alg,
+void psa_cipher_test(const psa_key_type_t key_type,
+                     const psa_algorithm_t alg,
+                     const uint8_t *key,
+                     size_t key_bits,
                      struct test_result_t *ret);
 /**
  * \brief Tests invalid key type and algorithm combinations for block ciphers

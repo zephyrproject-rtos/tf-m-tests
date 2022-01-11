@@ -77,8 +77,11 @@ static void tfm_crypto_test_1046(struct test_result_t *ret);
 static void tfm_crypto_test_1047(struct test_result_t *ret);
 static void tfm_crypto_test_1048(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
-#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+#ifdef TFM_CRYPTO_TEST_CHACHA20
 static void tfm_crypto_test_1049(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+static void tfm_crypto_test_1050(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
 static struct test_t crypto_tests[] = {
@@ -191,8 +194,12 @@ static struct test_t crypto_tests[] = {
      "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer",
      {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
-#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+#ifdef TFM_CRYPTO_TEST_CHACHA20
     {&tfm_crypto_test_1049, "TFM_NS_CRYPTO_TEST_1049",
+     "Secure Symmetric encryption (CHACHA20-256) interface", {TEST_PASSED} },
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+    {&tfm_crypto_test_1050, "TFM_NS_CRYPTO_TEST_1050",
      "Secure AEAD (CHACHA20-256-POLY1305) interface", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
@@ -222,21 +229,24 @@ static void tfm_crypto_test_1001(struct test_result_t *ret)
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1002(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_NO_PADDING,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CFB
 static void tfm_crypto_test_1003(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CFB, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CFB,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CFB */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
 static void tfm_crypto_test_1005(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CTR, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CTR,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CTR */
 
@@ -427,14 +437,16 @@ static void tfm_crypto_test_1040(struct test_result_t *ret)
 #ifdef TFM_CRYPTO_TEST_ALG_OFB
 static void tfm_crypto_test_1041(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_OFB, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_OFB,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_OFB */
 
 #ifdef TFM_CRYPTO_TEST_ALG_ECB
 static void tfm_crypto_test_1042(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_ECB_NO_PADDING, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_ECB_NO_PADDING,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
 
@@ -459,7 +471,8 @@ static void tfm_crypto_test_1045(struct test_result_t *ret)
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1046(struct test_result_t *ret)
 {
-    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7, ret);
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CBC_PKCS7,
+                    test_key_128, BIT_SIZE_TEST_KEY, ret);
 }
 
 static void tfm_crypto_test_1047(struct test_result_t *ret)
@@ -473,8 +486,16 @@ static void tfm_crypto_test_1048(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 
-#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+#ifdef TFM_CRYPTO_TEST_CHACHA20
 static void tfm_crypto_test_1049(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_STREAM_CIPHER,
+                    test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
+}
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+static void tfm_crypto_test_1050(struct test_result_t *ret)
 {
     psa_aead_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_CHACHA20_POLY1305,
                   test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);

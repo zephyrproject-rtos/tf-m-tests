@@ -16,4 +16,5 @@ set(TFM_CRYPTO_TEST_ALG_GCM                 OFF         CACHE BOOL      "Test GC
 set(TFM_CRYPTO_TEST_ALG_SHA_512             OFF         CACHE BOOL      "Test SHA-512 cryptography algorithm")
 set(TFM_CRYPTO_TEST_HKDF                    OFF         CACHE BOOL      "Test the HKDF key derivation algorithm")
 set(TFM_CRYPTO_TEST_ECDH                    ON          CACHE BOOL      "Test the ECDH key agreement algorithm")
+set(TFM_CRYPTO_TEST_CHACHA20                OFF         CACHE BOOL      "Test the ChaCha20 stream cipher")
 set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305   OFF         CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")

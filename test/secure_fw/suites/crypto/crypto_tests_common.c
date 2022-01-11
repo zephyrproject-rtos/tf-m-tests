@@ -395,14 +395,21 @@ destroy_key:
 
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
+                     const uint8_t *key,
+                     size_t key_bits,
                      struct test_result_t *ret)
 {
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
     psa_status_t status = PSA_SUCCESS;
     psa_key_handle_t key_handle;
-    const uint8_t data[] = "THIS IS MY KEY1";
-    const size_t iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
+    size_t iv_length;
+    /* In case of ChaCha20 keys, nonce must be 96 bits */
+    if (key_type == PSA_KEY_TYPE_CHACHA20) {
+        iv_length = 12;
+    } else {
+        iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
+    }
     const uint8_t iv[] = "012345678901234";
     const uint8_t plain_text[PLAIN_DATA_SIZE] =
         "This is my plaintext to encrypt, 48 bytes long!";
@@ -416,14 +423,6 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     bool bAbortDecryption = false;
-
-    if (iv_length != sizeof(iv)) {
-        /* Whenever this condition is hit, it's likely the test requires refactoring
-         * to remove any hardcoded behaviour
-         */
-        TEST_FAIL("Hardcoded IV does not match cipher block length");
-        return;
-    }
 
     ret->val = TEST_PASSED;
 
@@ -445,7 +444,9 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
 
     /* Import a key */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, key, PSA_BITS_TO_BYTES(key_bits),
+                            &key_handle);
+
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
@@ -457,7 +458,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
         goto destroy_key;
     }
 
-    if (psa_get_key_bits(&key_attributes) != BIT_SIZE_TEST_KEY) {
+    if (psa_get_key_bits(&key_attributes) != key_bits) {
         TEST_FAIL("The number of key bits is different from expected");
         goto destroy_key;
     }
