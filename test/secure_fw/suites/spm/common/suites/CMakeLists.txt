@@ -10,6 +10,7 @@ add_library(spm_test_common INTERFACE)
 target_include_directories(spm_test_common
     INTERFACE
         .
+        ./..
         ../service
         ../../sfn/service
 )

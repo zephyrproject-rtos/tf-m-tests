@@ -8,10 +8,10 @@
 #include <stdint.h>
 #include "psa/service.h"
 #include "psa_manifest/sfn_partition1.h"
+#include "spm_test_defs.h"
 #include "tfm_sp_log.h"
 #include "tfm_sfn_test_defs.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
-#include "tfm_mmiovec_test_defs.h"
 #include "tfm_mmiovec_test_service.h"
 #endif
 

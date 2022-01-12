@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,7 +7,7 @@
 
 #include "mmiovec_test.h"
 #include "test_framework.h"
-#include "tfm_mmiovec_test_defs.h"
+#include "spm_test_defs.h"
 #include "psa/client.h"
 #include "psa/error.h"
 #include "psa_manifest/sid.h"

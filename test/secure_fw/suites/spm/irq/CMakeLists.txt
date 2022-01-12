@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -18,6 +18,8 @@ add_library(tfm_test_suite_irq STATIC EXCLUDE_FROM_ALL)
 target_sources(tfm_test_suite_irq
     PRIVATE
         ./irq_testsuite.c
+        $<$<OR:$<BOOL:${TEST_NS_SLIH_IRQ}>,$<BOOL:${TEST_NS_FLIH_IRQ}>>:
+            ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/irq_test.c>
 )
 
 target_include_directories(tfm_test_suite_irq
@@ -37,6 +39,7 @@ target_link_libraries(tfm_test_suite_irq
         $<$<BOOL:${TEST_NS_FLIH_IRQ}>:tfm_flih_test_service_interface>
         $<$<BOOL:${TEST_NS_SLIH_IRQ}>:tfm_slih_test_service_interface>
         platform_ns
+        spm_test_common
 )
 
 target_link_libraries(tfm_ns_tests

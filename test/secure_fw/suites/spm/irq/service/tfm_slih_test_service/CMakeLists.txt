@@ -11,6 +11,8 @@ add_library(tfm_app_rot_partition_slih_test STATIC)
 target_sources(tfm_app_rot_partition_slih_test
     PRIVATE
         ./tfm_slih_test_service.c
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c>
 )
 
 # The generated sources
@@ -33,6 +35,7 @@ target_link_libraries(tfm_app_rot_partition_slih_test
     PRIVATE
         psa_interface
         tfm_sprt
+        spm_test_service_common
 )
 
 target_link_libraries(tfm_spm

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,12 +10,12 @@
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_ipc_service_test.h"
+#include "spm_test_defs.h"
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_secure_api.h"
 #include "tfm_sp_log.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
-#include "tfm_mmiovec_test_defs.h"
 #include "tfm_mmiovec_test_service.h"
 #endif
 
