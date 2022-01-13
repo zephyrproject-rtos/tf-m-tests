@@ -852,6 +852,11 @@ void psa_aead_test(const psa_key_type_t key_type,
     /* Setup the encryption object */
     status = psa_aead_encrypt_setup(&encop, key_handle, alg);
     if (status != PSA_SUCCESS) {
+        /* Implementations using the PSA Crypto Driver APIs, that don't
+         * support multipart API flows, will return PSA_ERROR_NOT_SUPPORTED
+         * when calling psa_aead_encrypt_setup(). In this case, it's fine
+         * just to skip the multipart APIs test flow from this point on
+         */
         if (status == PSA_ERROR_NOT_SUPPORTED) {
             TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
                      "- skip multipart API flow\r\n");
@@ -866,7 +871,17 @@ void psa_aead_test(const psa_key_type_t key_type,
                                   sizeof(associated_data),
                                   sizeof(plain_text));
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting lengths");
+        /* Implementations using the mbed TLS _ALT APIs, that don't support
+         * multipart API flows, will return PSA_ERROR_NOT_SUPPORTED when
+         * calling psa_aead_set_lengths(). In this case, it's fine just
+         * to skip the multipart APIs test flow from this point on
+         */
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
+                     "- skip multipart API flow\r\n");
+        } else {
+            TEST_FAIL("Error setting lengths");
+        }
         status = psa_aead_abort(&encop);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error aborting the operation");
