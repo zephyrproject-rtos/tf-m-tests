@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -106,7 +106,7 @@ extern "C" {
  * \param[out] ret      Test result
  *
  */
-void psa_key_interface_test(const psa_key_type_t key_type,
+void psa_key_interface_test(psa_key_type_t key_type,
                             struct test_result_t *ret);
 /**
  * \brief Run block ciphering tests with padded modes only
@@ -117,8 +117,8 @@ void psa_key_interface_test(const psa_key_type_t key_type,
  * \param[out] ret      Test result
  *
  */
-void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
-                                  const psa_algorithm_t alg,
+void psa_cipher_padded_modes_test(psa_key_type_t key_type,
+                                  psa_algorithm_t alg,
                                   uint8_t len,
                                   struct test_result_t *ret);
 /**
@@ -129,8 +129,8 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
  * \param[out] ret      Test result
  *
  */
-void psa_cipher_test(const psa_key_type_t key_type,
-                     const psa_algorithm_t alg,
+void psa_cipher_test(psa_key_type_t key_type,
+                     psa_algorithm_t alg,
                      struct test_result_t *ret);
 /**
  * \brief Tests invalid key type and algorithm combinations for block ciphers
@@ -141,9 +141,9 @@ void psa_cipher_test(const psa_key_type_t key_type,
  * \param[out] ret       Test result
  *
  */
-void psa_invalid_cipher_test(const psa_key_type_t key_type,
-                             const psa_algorithm_t alg,
-                             const size_t key_size,
+void psa_invalid_cipher_test(psa_key_type_t key_type,
+                             psa_algorithm_t alg,
+                             size_t key_size,
                              struct test_result_t *ret);
 /**
  * \brief Tests setup of an unsupported hash algorithm
@@ -152,7 +152,7 @@ void psa_invalid_cipher_test(const psa_key_type_t key_type,
  * \param[out] ret Test result
  *
  */
-void psa_unsupported_hash_test(const psa_algorithm_t alg,
+void psa_unsupported_hash_test(psa_algorithm_t alg,
                                struct test_result_t *ret);
 /**
  * \brief Tests different hashing algorithms
@@ -161,7 +161,7 @@ void psa_unsupported_hash_test(const psa_algorithm_t alg,
  * \param[out] ret Test result
  *
  */
-void psa_hash_test(const psa_algorithm_t alg,
+void psa_hash_test(psa_algorithm_t alg,
                    struct test_result_t *ret);
 /**
  * \brief Tests setup of an unsupported MAC algorithm
@@ -171,8 +171,8 @@ void psa_hash_test(const psa_algorithm_t alg,
  * \param[out] ret      Test result
  *
  */
-void psa_unsupported_mac_test(const psa_key_type_t key_type,
-                              const psa_algorithm_t alg,
+void psa_unsupported_mac_test(psa_key_type_t key_type,
+                              psa_algorithm_t alg,
                               struct test_result_t *ret);
 /**
  * \brief Tests different MAC algorithms
@@ -182,7 +182,7 @@ void psa_unsupported_mac_test(const psa_key_type_t key_type,
  * \param[out] ret          Test result
  *
  */
-void psa_mac_test(const psa_algorithm_t alg,
+void psa_mac_test(psa_algorithm_t alg,
                   uint8_t use_long_key,
                   struct test_result_t *ret);
 /**
@@ -193,8 +193,8 @@ void psa_mac_test(const psa_algorithm_t alg,
  * \param[out] ret      Test result
  *
  */
-void psa_aead_test(const psa_key_type_t key_type,
-                   const psa_algorithm_t alg,
+void psa_aead_test(psa_key_type_t key_type,
+                   psa_algorithm_t alg,
                    struct test_result_t *ret);
 /**
  * \brief Tests invalid key length
