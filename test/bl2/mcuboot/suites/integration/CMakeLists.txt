@@ -30,5 +30,5 @@ target_link_libraries(mcuboot_test_suite_integration
 
 target_compile_definitions(mcuboot_test_suite_integration
     PUBLIC
-        DOMAIN_NS=1
+        TEST_BL2
 )

@@ -21,11 +21,6 @@ target_include_directories(tfm_test_framework_common
         framework
 )
 
-target_link_libraries(tfm_test_framework_common
-    INTERFACE
-        tfm_log_interface
-)
-
 if(TEST_FRAMEWORK_S OR TEST_FRAMEWORK_NS)
     add_subdirectory(secure_fw)
 endif()
