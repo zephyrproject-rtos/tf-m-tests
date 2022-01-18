@@ -22,13 +22,7 @@ target_include_directories(mcuboot_tests
 target_link_libraries(mcuboot_tests
     PUBLIC
         tfm_test_framework_common
-        tfm_log
     PRIVATE
         platform_bl2
         mcuboot_test_suite_integration
-)
-
-target_compile_definitions(mcuboot_tests
-    PUBLIC
-        TEST_BL2
 )

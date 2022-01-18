@@ -22,7 +22,7 @@ enum serial_color_t {
     GREEN   = 32,
     YELLOW  = 33,
     BLUE    = 34,
-    MAGENDA = 35,
+    MAGENTA = 35,
     CYAN    = 36,
     WHITE   = 37,
 };

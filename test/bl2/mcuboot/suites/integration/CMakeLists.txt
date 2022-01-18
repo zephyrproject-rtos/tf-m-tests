@@ -27,8 +27,3 @@ target_link_libraries(mcuboot_test_suite_integration
         tfm_log
         platform_bl2
 )
-
-target_compile_definitions(mcuboot_test_suite_integration
-    PUBLIC
-        TEST_BL2
-)

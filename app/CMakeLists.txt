@@ -198,6 +198,72 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
     endif()
 
     add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_CURRENT_BINARY_DIR}/psa_api_tests)
+
+    if (TEST_PSA_API STREQUAL IPC)
+        target_include_directories(tfm_partitions
+            INTERFACE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests
+        )
+
+        target_sources(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_driver_partition_psa.c
+        )
+        target_link_libraries(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_app_rot_partition_client_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_client_partition_psa.c
+        )
+        target_link_libraries(tfm_app_rot_partition_client_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_app_rot_partition_client_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_app_rot_partition_server_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_server_partition_psa.c
+        )
+        target_link_libraries(tfm_app_rot_partition_server_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_app_rot_partition_server_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_partitions
+            INTERFACE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_driver_partition_psa.c
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_client_partition_psa.c
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_server_partition_psa.c
+        )
+
+        target_link_libraries(tfm_partitions
+            INTERFACE
+                tfm_psa_rot_partition_driver_partition
+                tfm_app_rot_partition_client_partition
+                tfm_app_rot_partition_server_partition
+        )
+    endif()
 endif()
 
 ############################# Test integration #################################

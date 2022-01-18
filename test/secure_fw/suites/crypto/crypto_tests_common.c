@@ -431,8 +431,10 @@ void psa_cipher_test(const psa_key_type_t key_type,
      */
 #ifdef CRYPTO_HW_ACCELERATOR_CC312
     if (alg == PSA_ALG_CFB) {
+        printf_set_color(MAGENTA);
         TEST_LOG("%s %s", "The CC312 does not support CFB mode.",
                  "The test execution was SKIPPED.\r\n");
+        printf_set_color(DEFAULT);
         return;
     }
 #endif /* CRYPTO_HW_ACCELERATOR_CC312 */

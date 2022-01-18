@@ -45,6 +45,11 @@ target_link_libraries(tfm_test_framework_s
         tfm_sp_log_raw
 )
 
+target_compile_definitions(tfm_test_framework_s
+    INTERFACE
+        USE_SP_LOG
+)
+
 target_sources(tfm_s_tests
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/secure_suites.c

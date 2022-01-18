@@ -8,21 +8,21 @@
 #ifndef __TEST_LOG_H__
 #define __TEST_LOG_H__
 
-#if (DOMAIN_NS == 1) || defined(TEST_BL2)
-#include "tfm_log_raw.h"
-#else
+#ifdef USE_SP_LOG
 #include "tfm_sp_log.h"
-#endif
+#else
+#include "tfm_log_raw.h"
+#endif /* USE_SP_LOG */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if (DOMAIN_NS == 1) || defined(TEST_BL2)
-#define TEST_LOG(...) tfm_log_printf(__VA_ARGS__)
-#else
+#ifdef USE_SP_LOG
 #define TEST_LOG(...) tfm_sp_log_printf(__VA_ARGS__)
-#endif
+#else
+#define TEST_LOG(...) tfm_log_printf(__VA_ARGS__)
+#endif /* USE_SP_LOG */
 
 #ifdef __cplusplus
 }
