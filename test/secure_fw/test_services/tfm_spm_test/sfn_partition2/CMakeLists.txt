@@ -16,7 +16,7 @@ target_sources(tfm_app_rot_partition_sfn2
 
 target_include_directories(tfm_partitions
     INTERFACE
-        ${CMAKE_BINARY_DIR}/generated/test_services/sfn_partition2
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_partition2
 )
 
 # The generated sources
