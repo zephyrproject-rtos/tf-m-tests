@@ -100,6 +100,16 @@ extern "C" {
 #define TRUNCATED_AUTH_TAG_LEN (8)
 
 /**
+ * \brief 128-bit test key
+ */
+static const uint8_t test_key_128[] = "THIS IS MY KEY1";
+
+/**
+ * \brief 256-bit test key
+ */
+static const uint8_t test_key_256[] = "THIS IS MY UNCOMMONLY LONG KEY1";
+
+/**
  * \brief Tests the key interfaces with different key types
  *
  * \param[in]  key_type PSA key type
@@ -178,12 +188,14 @@ void psa_unsupported_mac_test(psa_key_type_t key_type,
  * \brief Tests different MAC algorithms
  *
  * \param[in]  alg          PSA algorithm
- * \param[in]  use_long_key Flag used to indicate to use the long test key
+ * \param[in]  key          Encryption key
+ * \param[in]  key_bits     Encryption key size in bits
  * \param[out] ret          Test result
  *
  */
-void psa_mac_test(psa_algorithm_t alg,
-                  uint8_t use_long_key,
+void psa_mac_test(const psa_algorithm_t alg,
+                  const uint8_t *key,
+                  size_t key_bits,
                   struct test_result_t *ret);
 /**
  * \brief Run AEAD tests with different algorithms and key types
