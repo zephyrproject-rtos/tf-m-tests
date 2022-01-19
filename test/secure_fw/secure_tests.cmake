@@ -12,13 +12,28 @@ if (TFM_MULTI_CORE_TOPOLOGY)
     tfm_toolchain_reload_compiler()
 endif()
 
+# Install directory for non-secure interface API of test services
+# NS can pick up those interface files to build non-secure test cases
+set(TEST_SERVICE_SRC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/src/test_service)
+set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_service)
+
 # Test services are also required by some NS regression tests.
 # Include test services at first no matter whether secure tests are enabled.
-add_subdirectory(test_services)
+add_subdirectory(suites/attestation/service)
+add_subdirectory(suites/core/service)
+add_subdirectory(suites/spm/ipc/service)
+add_subdirectory(suites/spm/sfn/service)
+add_subdirectory(suites/ps/service)
+add_subdirectory(suites/irq/service)
+add_subdirectory(suites/fpu/service)
 
 if (NOT TEST_FRAMEWORK_S)
     return()
 endif()
+
+# secure test services are required if any secure test is opened
+add_subdirectory(common_test_services/tfm_secure_client_service)
+add_subdirectory(common_test_services/tfm_secure_client_2)
 
 add_library(tfm_test_framework_s INTERFACE)
 add_library(tfm_s_tests INTERFACE)

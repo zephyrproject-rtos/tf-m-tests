@@ -13,7 +13,7 @@ target_sources(tfm_app_rot_partition_sfn1
     PRIVATE
         sfn_partition1.c
         $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
-            ${CMAKE_CURRENT_SOURCE_DIR}/../common/tfm_mmiovec_test_service.c>
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_mmiovec_test_service.c>
 )
 
 target_include_directories(tfm_partitions
@@ -35,6 +35,7 @@ target_include_directories(tfm_app_rot_partition_sfn1
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         ${CMAKE_BINARY_DIR}/generated/test_services/sfn_partition1
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service
         ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 

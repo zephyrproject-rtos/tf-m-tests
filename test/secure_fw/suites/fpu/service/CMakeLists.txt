@@ -7,6 +7,10 @@
 
 cmake_policy(SET CMP0079 NEW)
 
+if (NOT TEST_S_FPU)
+    return()
+endif()
+
 add_library(tfm_app_rot_partition_fpu_service STATIC)
 
 target_sources(tfm_app_rot_partition_fpu_service
@@ -63,3 +67,4 @@ target_compile_definitions(tfm_partition_defs
     INTERFACE
         TEST_PARTITION_FPU_TEST
 )
+

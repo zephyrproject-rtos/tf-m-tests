@@ -6,7 +6,7 @@
 #-------------------------------------------------------------------------------
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TFM_PARTITION_PROTECTED_STORAGE)
+if (NOT TFM_PARTITION_PROTECTED_STORAGE OR NOT TEST_S_PS)
     return()
 endif()
 

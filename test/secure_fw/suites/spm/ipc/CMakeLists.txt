@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -20,7 +20,7 @@ if (TEST_NS_IPC)
         PRIVATE
             non_secure/ipc_ns_interface_testsuite.c
             $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
-                ${CMAKE_CURRENT_SOURCE_DIR}/../common/mmiovec_test.c>
+                ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/mmiovec_test.c>
     )
 
     target_include_directories(tfm_test_suite_ipc_ns
