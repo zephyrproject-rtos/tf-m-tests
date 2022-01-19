@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -1207,11 +1207,12 @@ void psa_aead_test(const psa_key_type_t key_type,
                                   sizeof(plain_text));
     if (status != PSA_SUCCESS) {
         /* Implementations using the mbed TLS _ALT APIs, that don't support
-         * multipart API flows, will return PSA_ERROR_NOT_SUPPORTED when
-         * calling psa_aead_set_lengths(). In this case, it's fine just
+         * multipart API flows in CCM mode, will return PSA_ERROR_NOT_SUPPORTED
+         * when calling psa_aead_set_lengths(). In this case, it's fine just
          * to skip the multipart APIs test flow from this point on
          */
-        if (status == PSA_ERROR_NOT_SUPPORTED) {
+        if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_CCM
+            && status == PSA_ERROR_NOT_SUPPORTED) {
             TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
                      "- skip multipart API flow\r\n");
         } else {
@@ -1227,7 +1228,18 @@ void psa_aead_test(const psa_key_type_t key_type,
     /* Set nonce */
     status = psa_aead_set_nonce(&encop, nonce, nonce_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting nonce");
+        /* Implementations using the mbed TLS _ALT APIs, that don't support
+         * multipart API flows in GCM mode, will return PSA_ERROR_NOT_SUPPORTED
+         * when calling psa_aead_set_nonce(). In this case, it's fine just
+         * to skip the multipart APIs test flow from this point on
+         */
+        if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_GCM
+            && status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
+                     "- skip multipart API flow\r\n");
+        } else {
+            TEST_FAIL("Error setting nonce");
+        }
         status = psa_aead_abort(&encop);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Error aborting the operation");
