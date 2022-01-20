@@ -14,3 +14,4 @@ add_subdirectory(common/service)
 # Add ipc and sfn test suite.
 add_subdirectory(ipc)
 add_subdirectory(sfn)
+add_subdirectory(irq)
