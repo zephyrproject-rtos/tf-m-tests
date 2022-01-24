@@ -1229,12 +1229,14 @@ void psa_aead_test(const psa_key_type_t key_type,
     status = psa_aead_set_nonce(&encop, nonce, nonce_length);
     if (status != PSA_SUCCESS) {
         /* Implementations using the mbed TLS _ALT APIs, that don't support
-         * multipart API flows in GCM mode, will return PSA_ERROR_NOT_SUPPORTED
-         * when calling psa_aead_set_nonce(). In this case, it's fine just
-         * to skip the multipart APIs test flow from this point on
+         * multipart API flows in GCM or ChaCha20_Poly1305 modes, will return
+         * PSA_ERROR_NOT_SUPPORTED when calling psa_aead_set_nonce(). In this
+         * case, it's fine just to skip the multipart APIs test flow from
+         * this point on
          */
-        if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_GCM
-            && status == PSA_ERROR_NOT_SUPPORTED) {
+        if ((PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_GCM ||
+             PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) ==
+             PSA_ALG_CHACHA20_POLY1305) && status == PSA_ERROR_NOT_SUPPORTED) {
             TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
                      "- skip multipart API flow\r\n");
         } else {
