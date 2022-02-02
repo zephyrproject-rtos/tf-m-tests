@@ -175,11 +175,11 @@ static struct test_t crypto_tests[] = {
     {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
 #ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
-    {&tfm_crypto_test_1043, "TFM_S_CRYPTO_TEST_1043)",
+    {&tfm_crypto_test_1043, "TFM_S_CRYPTO_TEST_1043",
      "Secure Asymmetric encryption interface (RSA_OAEP)", {TEST_PASSED} },
     {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
      "Secure Asymmetric encryption interface (RSA_PKCS1V15)", {TEST_PASSED} },
-    {&tfm_crypto_test_1045, "TFM_NS_CRYPTO_TEST_1045",
+    {&tfm_crypto_test_1045, "TFM_S_CRYPTO_TEST_1045",
      "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)",
      {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
@@ -187,19 +187,19 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1046, "TFM_S_CRYPTO_TEST_1046",
      "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface",
      {TEST_PASSED} },
-    {&tfm_crypto_test_1047, "TFM_NS_CRYPTO_TEST_1047",
+    {&tfm_crypto_test_1047, "TFM_S_CRYPTO_TEST_1047",
      "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, shorter",
      {TEST_PASSED} },
-    {&tfm_crypto_test_1048, "TFM_NS_CRYPTO_TEST_1048",
+    {&tfm_crypto_test_1048, "TFM_S_CRYPTO_TEST_1048",
      "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer",
      {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
-    {&tfm_crypto_test_1049, "TFM_NS_CRYPTO_TEST_1049",
+    {&tfm_crypto_test_1049, "TFM_S_CRYPTO_TEST_1049",
      "Secure Symmetric encryption (CHACHA20-256) interface", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
-    {&tfm_crypto_test_1050, "TFM_NS_CRYPTO_TEST_1050",
+    {&tfm_crypto_test_1050, "TFM_S_CRYPTO_TEST_1050",
      "Secure AEAD (CHACHA20-256-POLY1305) interface", {TEST_PASSED} },
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
