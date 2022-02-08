@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -981,52 +981,52 @@ static void tfm_nsid_test_case_21(struct test_result_t *ret)
 static struct test_t nsid_test_cases[] = {
     /* Normal test */
     {&tfm_nsid_test_case_1, "TFM_NS_NSID_TEST_1001",
-     "NSID management initialize ctx pass", {TEST_PASSED}},
+     "NSID management initialize ctx pass"},
     {&tfm_nsid_test_case_2, "TFM_NS_NSID_TEST_1002",
-     "NSID management normal full sequence pass", {TEST_PASSED}},
+     "NSID management normal full sequence pass"},
     {&tfm_nsid_test_case_3, "TFM_NS_NSID_TEST_1003",
-     "NSID management acquire-release sequence pass", {TEST_PASSED}},
+     "NSID management acquire-release sequence pass"},
     {&tfm_nsid_test_case_4, "TFM_NS_NSID_TEST_1004",
-     "NSID management acquire-load-release sequence pass", {TEST_PASSED}},
+     "NSID management acquire-load-release sequence pass"},
     {&tfm_nsid_test_case_5, "TFM_NS_NSID_TEST_1005",
-     "NSID management switching contexts pass", {TEST_PASSED}},
+     "NSID management switching contexts pass"},
     {&tfm_nsid_test_case_6, "TFM_NS_NSID_TEST_1006",
-     "NSID management releasing inactive context pass", {TEST_PASSED}},
+     "NSID management releasing inactive context pass"},
     /* Corner case test */
     {&tfm_nsid_test_case_7, "TFM_NS_NSID_TEST_1007",
-     "NSID management pass with max valid NSID", {TEST_PASSED}},
+     "NSID management pass with max valid NSID"},
     {&tfm_nsid_test_case_8, "TFM_NS_NSID_TEST_1008",
-     "NSID management pass with min valid NSID", {TEST_PASSED}},
+     "NSID management pass with min valid NSID"},
     {&tfm_nsid_test_case_9, "TFM_NS_NSID_TEST_1009",
-     "NSID management pass with min TID", {TEST_PASSED}},
+     "NSID management pass with min TID"},
     {&tfm_nsid_test_case_10, "TFM_NS_NSID_TEST_1010",
-     "NSID management pass with max TID", {TEST_PASSED}},
+     "NSID management pass with max TID"},
     {&tfm_nsid_test_case_11, "TFM_NS_NSID_TEST_1011",
-     "NSID management pass when loading B without saving A", {TEST_PASSED}},
+     "NSID management pass when loading B without saving A"},
     /* Error test */
     /* Wrong params */
     {&tfm_nsid_test_case_12, "TFM_NS_NSID_TEST_1012",
-     "NSID management loading fail with non-negative NSID", {TEST_PASSED}},
+     "NSID management loading fail with non-negative NSID"},
     {&tfm_nsid_test_case_13, "TFM_NS_NSID_TEST_1013",
-     "NSID management fail when loading with invalid token", {TEST_PASSED}},
+     "NSID management fail when loading with invalid token"},
     {&tfm_nsid_test_case_14, "TFM_NS_NSID_TEST_1014",
-     "NSID management fail when saving with invalid token", {TEST_PASSED}},
+     "NSID management fail when saving with invalid token"},
     {&tfm_nsid_test_case_15, "TFM_NS_NSID_TEST_1015",
-     "NSID management fail when releasing with invalid token", {TEST_PASSED}},
+     "NSID management fail when releasing with invalid token"},
     {&tfm_nsid_test_case_16, "TFM_NS_NSID_TEST_1016",
-     "NSID management fail when acquiring with undefault GID", {TEST_PASSED}},
+     "NSID management fail when acquiring with undefault GID"},
     {&tfm_nsid_test_case_17, "TFM_NS_NSID_TEST_1017",
-     "NSID management fail with token containing wrong info", {TEST_PASSED}},
+     "NSID management fail with token containing wrong info"},
     /* Wrong sequence */
     {&tfm_nsid_test_case_18, "TFM_NS_NSID_TEST_1018",
-     "NSID management fail when saving without loading", {TEST_PASSED}},
+     "NSID management fail when saving without loading"},
     {&tfm_nsid_test_case_19, "TFM_NS_NSID_TEST_1019",
-     "NSID management fail when saving released token", {TEST_PASSED}},
+     "NSID management fail when saving released token"},
     {&tfm_nsid_test_case_20, "TFM_NS_NSID_TEST_1020",
-     "NSID management fail when saving inactive token", {TEST_PASSED}},
+     "NSID management fail when saving inactive token"},
     /* Other tests */
     {&tfm_nsid_test_case_21, "TFM_NS_NSID_TEST_1021",
-     "NSID management fail when called in thread mode", {TEST_PASSED}},
+     "NSID management fail when called in thread mode"},
 };
 
 void register_testsuite_nsid_test(struct test_suite_t *p_test_suite)

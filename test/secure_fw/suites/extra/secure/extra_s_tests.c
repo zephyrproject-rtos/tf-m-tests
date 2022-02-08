@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -28,7 +28,7 @@ void extra_s_tests_entry(struct test_result_t *ret)
 
 static struct test_t extra_s_interface_tests[] = {
     {&extra_s_tests_entry, "TFM_EXTRA_TEST_1001",
-     "Extra Secure test", {TEST_PASSED} },
+     "Extra Secure test"},
 };
 
 void register_testsuite_extra_s_interface(struct test_suite_t *p_test_suite)

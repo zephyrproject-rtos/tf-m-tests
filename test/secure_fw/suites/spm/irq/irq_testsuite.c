@@ -35,13 +35,13 @@ static void tfm_irq_test_flih_case_2(struct test_result_t *ret)
 static struct test_t irq_test_cases[] = {
 #ifdef TEST_NS_SLIH_IRQ
     {&tfm_irq_test_slih_case_1, "TFM_NS_IRQ_TEST_SLIH_1001",
-     "SLIH HANDLING Case 1", {TEST_PASSED}},
+     "SLIH HANDLING Case 1"},
 #endif /* TEST_NS_SLIH_IRQ */
 #ifdef TEST_NS_FLIH_IRQ
     {&tfm_irq_test_flih_case_1, "TFM_NS_IRQ_TEST_FLIH_1101",
-     "FLIH HANDLING not returning signal", {TEST_PASSED}},
+     "FLIH HANDLING not returning signal"},
     {&tfm_irq_test_flih_case_2, "TFM_NS_IRQ_TEST_FLIH_1102",
-     "FLIH HANDLING returning Signal", {TEST_PASSED}},
+     "FLIH HANDLING returning Signal"},
 #endif /* TEST_NS_FLIH_IRQ */
 };
 

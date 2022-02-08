@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -53,44 +53,44 @@ static void tfm_ipc_test_1015(struct test_result_t *ret);
 
 static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1001, "TFM_NS_IPC_TEST_1001",
-     "Get PSA framework version", {TEST_PASSED}},
+     "Get PSA framework version"},
     {&tfm_ipc_test_1002, "TFM_NS_IPC_TEST_1002",
-     "Get version of an RoT Service", {TEST_PASSED}},
+     "Get version of an RoT Service"},
     {&tfm_ipc_test_1003, "TFM_NS_IPC_TEST_1003",
-     "Connect to an RoT Service", {TEST_PASSED}},
+     "Connect to an RoT Service"},
     {&tfm_ipc_test_1004, "TFM_NS_IPC_TEST_1004",
-     "Call an RoT Service", {TEST_PASSED}},
+     "Call an RoT Service"},
     {&tfm_ipc_test_1005, "TFM_NS_IPC_TEST_1005",
-     "Call IPC_INIT_BASIC_TEST service", {TEST_PASSED}},
+     "Call IPC_INIT_BASIC_TEST service"},
     {&tfm_ipc_test_1006, "TFM_NS_IPC_TEST_1006",
-     "Call PSA RoT access APP RoT memory test service", {TEST_PASSED}},
+     "Call PSA RoT access APP RoT memory test service"},
 #ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
     {&tfm_ipc_test_1007, "TFM_NS_IPC_TEST_1007",
-     "Call PSA RoT access APP RoT readonly memory test service", {TEST_PASSED}},
+     "Call PSA RoT access APP RoT readonly memory test service"},
 #endif
 #ifdef TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM
     {&tfm_ipc_test_1008, "TFM_NS_IPC_TEST_1008",
-     "Call APP RoT access PSA RoT memory test service", {TEST_PASSED}},
+     "Call APP RoT access PSA RoT memory test service"},
 #endif
 #ifdef TFM_IPC_ISOLATION_2_MEM_CHECK
     {&tfm_ipc_test_1009, "TFM_NS_IPC_TEST_1009",
-     "Call APP RoT memory check test service", {TEST_PASSED}},
+     "Call APP RoT memory check test service"},
 #endif
     {&tfm_ipc_test_1010, "TFM_NS_IPC_TEST_1010",
-     "Test psa_call with the status of PSA_ERROR_PROGRAMMER_ERROR", {TEST_PASSED}},
+     "Test psa_call with the status of PSA_ERROR_PROGRAMMER_ERROR"},
 #ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
     {&tfm_ipc_test_1011, "TFM_NS_IPC_TEST_1011",
-     "Call APP RoT access another APP RoT memory test service", {TEST_PASSED}},
+     "Call APP RoT access another APP RoT memory test service"},
 #endif
     {&tfm_ipc_test_1012, "TFM_NS_IPC_TEST_1012",
-     "Accessing stateless service from non-secure client", {TEST_PASSED}},
+     "Accessing stateless service from non-secure client"},
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
     {&tfm_ipc_test_1013, "TFM_NS_IPC_TEST_1013",
-     "Mapping input vectors and unmapping them", {TEST_PASSED}},
+     "Mapping input vectors and unmapping them"},
     {&tfm_ipc_test_1014, "TFM_NS_IPC_TEST_1014",
-     "Mapping output vectors and unmapping them", {TEST_PASSED}},
+     "Mapping output vectors and unmapping them"},
     {&tfm_ipc_test_1015, "TFM_NS_IPC_TEST_1015",
-     "Mapping output vectors and not unmapping them", {TEST_PASSED}},
+     "Mapping output vectors and not unmapping them"},
 #endif
 };
 

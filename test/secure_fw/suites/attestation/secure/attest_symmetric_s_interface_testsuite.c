@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -24,16 +24,16 @@ static void tfm_attest_test_2005(struct test_result_t *ret);
 
 static struct test_t attestation_interface_tests[] = {
     {&tfm_attest_test_2001, "TFM_S_ATTEST_TEST_2001",
-     "Symmetric key algorithm based Initial Attestation test", {0} },
+     "Symmetric key algorithm based Initial Attestation test"},
 #ifdef INCLUDE_TEST_CODE /* Remove them from release build */
     {&tfm_attest_test_2002, "TFM_S_ATTEST_TEST_2002",
-     "Minimal token test of attest token", {0} },
+     "Minimal token test of attest token"},
     {&tfm_attest_test_2003, "TFM_S_ATTEST_TEST_2003",
-     "Minimal token size test of attest token", {0} },
+     "Minimal token size test of attest token"},
     {&tfm_attest_test_2004, "TFM_S_ATTEST_TEST_2004",
-     "Short circuit tag test of attest token", {0} },
+     "Short circuit tag test of attest token"},
     {&tfm_attest_test_2005, "TFM_S_ATTEST_TEST_2005",
-     "Negative test cases for initial attestation service", {0} },
+     "Negative test cases for initial attestation service"},
 #endif
 };
 

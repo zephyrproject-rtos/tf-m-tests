@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  * Copyright (c) 2020, Cypress Semiconductor Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -27,7 +27,7 @@
 #define TOSTRING(x) #x
 #define CORE_TEST_DESCRIPTION(number, fn, description) \
     {fn, "TFM_NS_CORE_TEST_"TOSTRING(number),\
-     description, {TEST_PASSED} }
+     description}
 
 #ifndef TFM_PSA_API
 static void tfm_core_test_get_caller_client_id(struct test_result_t *ret);

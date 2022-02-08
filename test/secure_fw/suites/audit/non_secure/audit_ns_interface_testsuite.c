@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -54,7 +54,7 @@ static void tfm_audit_test_1001(struct test_result_t *ret);
 
 static struct test_t audit_veneers_tests[] = {
     {&tfm_audit_test_1001, "TFM_NS_AUDIT_TEST_1001",
-     "Non Secure functional", {TEST_PASSED} },
+     "Non Secure functional"},
 };
 
 void register_testsuite_ns_audit_interface(struct test_suite_t *p_test_suite)

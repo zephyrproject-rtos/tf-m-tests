@@ -22,24 +22,20 @@ static bool check_fp_callee_restored(void);
 static struct test_t fpu_ns_tests[] = {
     {
         &tfm_fpu_test_clear_client_fp_data, "TFM_NS_FPU_TEST_1001",
-        "Clear FP registers in FPU client partition",
-        {TEST_PASSED}
+        "Clear FP registers in FPU client partition"
     },
     {
         &tfm_fpu_test_fp_protection_psa_call, "TFM_NS_FPU_TEST_1002",
-        "Test FP context protection after psa calls",
-        {TEST_PASSED}
+        "Test FP context protection after psa calls"
     },
     {
         &tfm_fpu_test_fp_protection_secure_interrupt, "TFM_NS_FPU_TEST_1003",
-        "Test FP context protection in S interrupt after interrupt return",
-        {TEST_PASSED}
+        "Test FP context protection in S interrupt after interrupt return"
     },
     {
         &tfm_fpu_test_fp_protection_non_secure_interrupt,
         "TFM_NS_FPU_TEST_1004",
-        "Test FP context protection in S thread after NS interrupt",
-        {TEST_PASSED}
+        "Test FP context protection in S thread after NS interrupt"
     }
 };
 

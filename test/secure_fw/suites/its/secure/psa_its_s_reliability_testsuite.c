@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -35,9 +35,9 @@ static void tfm_its_test_2002(struct test_result_t *ret);
 
 static struct test_t reliability_tests[] = {
     {&tfm_its_test_2001, "TFM_S_ITS_TEST_2001",
-     "repetitive sets and gets in/from an asset", {TEST_PASSED} },
+     "repetitive sets and gets in/from an asset"},
     {&tfm_its_test_2002, "TFM_S_ITS_TEST_2002",
-     "repetitive sets, gets and removes", {TEST_PASSED} },
+     "repetitive sets, gets and removes"},
 };
 
 void register_testsuite_s_psa_its_reliability(struct test_suite_t *p_test_suite)

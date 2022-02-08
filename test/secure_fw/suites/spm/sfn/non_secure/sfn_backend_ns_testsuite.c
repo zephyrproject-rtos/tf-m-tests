@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -30,20 +30,20 @@ static void tfm_sfn_test_1007(struct test_result_t *ret);
 
 static struct test_t sfn_veneers_tests[] = {
     {&tfm_sfn_test_1001, "TFM_NS_SFN_TEST_1001",
-     "Get PSA framework version", {TEST_PASSED}},
+     "Get PSA framework version"},
     {&tfm_sfn_test_1002, "TFM_NS_SFN_TEST_1002",
-     "Get version of an RoT Service", {TEST_PASSED}},
+     "Get version of an RoT Service"},
     {&tfm_sfn_test_1003, "TFM_NS_SFN_TEST_1003",
-     "Request a connection-based RoT Service", {TEST_PASSED}},
+     "Request a connection-based RoT Service"},
     {&tfm_sfn_test_1004, "TFM_NS_SFN_TEST_1004",
-     "Request a stateless RoT Service", {TEST_PASSED}},
+     "Request a stateless RoT Service"},
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
     {&tfm_sfn_test_1005, "TFM_NS_SFN_TEST_1005",
-     "Mapping input vectors and unmapping them. ", {TEST_PASSED}},
+     "Mapping input vectors and unmapping them. "},
     {&tfm_sfn_test_1006, "TFM_NS_SFN_TEST_1006",
-     "Mapping output vectors and unmapping them. ", {TEST_PASSED}},
+     "Mapping output vectors and unmapping them. "},
     {&tfm_sfn_test_1007, "TFM_NS_SFN_TEST_1007",
-     "Mapping output vectors and not unmapping them. ", {TEST_PASSED}},
+     "Mapping output vectors and not unmapping them. "},
 #endif
 };
 

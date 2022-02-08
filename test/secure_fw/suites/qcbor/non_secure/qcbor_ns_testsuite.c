@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -28,7 +28,7 @@ static void tfm_qcbor_test_1001(struct test_result_t *ret);
 
 static struct test_t qcbor_regression_test[] = {
     {&tfm_qcbor_test_1001, "TFM_NS_QCBOR_TEST_1001",
-     "Regression test of QCBOR library", {TEST_PASSED} },
+     "Regression test of QCBOR library"},
 };
 
 /* To execute only selected test cases, then remove unwanted ones from the array

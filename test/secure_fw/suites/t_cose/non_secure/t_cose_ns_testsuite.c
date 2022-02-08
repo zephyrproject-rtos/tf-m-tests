@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -25,7 +25,7 @@ static void tfm_t_cose_test_1001(struct test_result_t *ret);
 
 static struct test_t t_cose_regression_test[] = {
     {&tfm_t_cose_test_1001, "TFM_NS_T_COSE_TEST_1001",
-     "Regression test of t_cose library", {TEST_PASSED} },
+     "Regression test of t_cose library"},
 };
 
 /* To execute all test cases, then pass this array to RunTestsTCose()

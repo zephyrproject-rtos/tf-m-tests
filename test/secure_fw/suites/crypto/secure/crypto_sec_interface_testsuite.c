@@ -86,121 +86,114 @@ static void tfm_crypto_test_1050(struct test_result_t *ret);
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_S_CRYPTO_TEST_1001",
-     "Secure Key management interface", {TEST_PASSED} },
+     "Secure Key management interface"},
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
     {&tfm_crypto_test_1002, "TFM_S_CRYPTO_TEST_1002",
-     "Secure Symmetric encryption (AES-128-CBC) interface", {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CBC) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_ALG_CFB
     {&tfm_crypto_test_1003, "TFM_S_CRYPTO_TEST_1003",
-     "Secure Symmetric encryption (AES-128-CFB) interface", {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CFB) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CFB */
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
     {&tfm_crypto_test_1005, "TFM_S_CRYPTO_TEST_1005",
-     "Secure Symmetric encryption (AES-128-CTR) interface", {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CTR) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CTR */
     {&tfm_crypto_test_1007, "TFM_S_CRYPTO_TEST_1007",
-     "Secure Symmetric encryption invalid cipher", {TEST_PASSED} },
+     "Secure Symmetric encryption invalid cipher"},
     {&tfm_crypto_test_1008, "TFM_S_CRYPTO_TEST_1008",
-     "Secure Symmetric encryption invalid cipher (AES-152)", {TEST_PASSED} },
+     "Secure Symmetric encryption invalid cipher (AES-152)"},
 #ifdef TFM_CRYPTO_TEST_ALG_CFB
     {&tfm_crypto_test_1009, "TFM_S_CRYPTO_TEST_1009",
-     "Secure Symmetric encryption invalid cipher (HMAC-128-CFB)", {TEST_PASSED} },
+     "Secure Symmetric encryption invalid cipher (HMAC-128-CFB)"},
 #endif /* TFM_CRYPTO_TEST_ALG_CFB */
     {&tfm_crypto_test_1010, "TFM_S_CRYPTO_TEST_1010",
-     "Secure Unsupported Hash (SHA-1) interface", {TEST_PASSED} },
+     "Secure Unsupported Hash (SHA-1) interface"},
     {&tfm_crypto_test_1011, "TFM_S_CRYPTO_TEST_1011",
-     "Secure Hash (SHA-224) interface", {TEST_PASSED} },
+     "Secure Hash (SHA-224) interface"},
     {&tfm_crypto_test_1012, "TFM_S_CRYPTO_TEST_1012",
-     "Secure Hash (SHA-256) interface", {TEST_PASSED} },
+     "Secure Hash (SHA-256) interface"},
 #ifdef TFM_CRYPTO_TEST_ALG_SHA_512
     {&tfm_crypto_test_1013, "TFM_S_CRYPTO_TEST_1013",
-     "Secure Hash (SHA-384) interface", {TEST_PASSED} },
+     "Secure Hash (SHA-384) interface"},
     {&tfm_crypto_test_1014, "TFM_S_CRYPTO_TEST_1014",
-     "Secure Hash (SHA-512) interface", {TEST_PASSED} },
+     "Secure Hash (SHA-512) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_SHA_512 */
     {&tfm_crypto_test_1019, "TFM_S_CRYPTO_TEST_1019",
-     "Secure Unsupported HMAC (SHA-1) interface", {TEST_PASSED} },
+     "Secure Unsupported HMAC (SHA-1) interface"},
     {&tfm_crypto_test_1020, "TFM_S_CRYPTO_TEST_1020",
-     "Secure HMAC (SHA-256) interface", {TEST_PASSED} },
+     "Secure HMAC (SHA-256) interface"},
 #ifdef TFM_CRYPTO_TEST_ALG_SHA_512
     {&tfm_crypto_test_1021, "TFM_S_CRYPTO_TEST_1021",
-     "Secure HMAC (SHA-384) interface", {TEST_PASSED} },
+     "Secure HMAC (SHA-384) interface"},
     {&tfm_crypto_test_1022, "TFM_S_CRYPTO_TEST_1022",
-     "Secure HMAC (SHA-512) interface", {TEST_PASSED} },
+     "Secure HMAC (SHA-512) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_SHA_512 */
     {&tfm_crypto_test_1024, "TFM_S_CRYPTO_TEST_1024",
-     "Secure HMAC with long key (SHA-224) interface", {TEST_PASSED} },
+     "Secure HMAC with long key (SHA-224) interface"},
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
     {&tfm_crypto_test_1030, "TFM_S_CRYPTO_TEST_1030",
-     "Secure AEAD (AES-128-CCM) interface", {TEST_PASSED} },
+     "Secure AEAD (AES-128-CCM) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
 #ifdef TFM_CRYPTO_TEST_ALG_GCM
     {&tfm_crypto_test_1031, "TFM_S_CRYPTO_TEST_1031",
-     "Secure AEAD (AES-128-GCM) interface", {TEST_PASSED} },
+     "Secure AEAD (AES-128-GCM) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_GCM */
     {&tfm_crypto_test_1032, "TFM_S_CRYPTO_TEST_1032",
-     "Secure key policy interface", {TEST_PASSED} },
+     "Secure key policy interface"},
     {&tfm_crypto_test_1033, "TFM_S_CRYPTO_TEST_1033",
-     "Secure key policy check permissions", {TEST_PASSED} },
+     "Secure key policy check permissions"},
     {&tfm_crypto_test_1034, "TFM_S_CRYPTO_TEST_1034",
-     "Secure persistent key interface", {TEST_PASSED} },
+     "Secure persistent key interface"},
     {&tfm_crypto_test_1035, "TFM_S_CRYPTO_TEST_1035",
-     "Key access control", {TEST_PASSED} },
+     "Key access control"},
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
     {&tfm_crypto_test_1036, "TFM_S_CRYPTO_TEST_1036",
-     "Secure AEAD interface with truncated auth tag (AES-128-CCM-8)",
-     {TEST_PASSED} },
+     "Secure AEAD interface with truncated auth tag (AES-128-CCM-8)"},
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
     {&tfm_crypto_test_1037, "TFM_S_CRYPTO_TEST_1037",
-     "Secure TLS 1.2 PRF key derivation", {TEST_PASSED} },
+     "Secure TLS 1.2 PRF key derivation"},
     {&tfm_crypto_test_1038, "TFM_S_CRYPTO_TEST_1038",
-     "Secure TLS-1.2 PSK-to-MasterSecret key derivation", {TEST_PASSED} },
+     "Secure TLS-1.2 PSK-to-MasterSecret key derivation"},
 #ifdef TFM_CRYPTO_TEST_HKDF
     {&tfm_crypto_test_1039, "TFM_S_CRYPTO_TEST_1039",
-     "Secure HKDF key derivation", {TEST_PASSED} },
+     "Secure HKDF key derivation"},
 #endif /* TFM_CRYPTO_TEST_HKDF */
 #ifdef TFM_CRYPTO_TEST_ECDH
     {&tfm_crypto_test_1040, "TFM_S_CRYPTO_TEST_1040",
-     "Secure ECDH key agreement", {TEST_PASSED} },
+     "Secure ECDH key agreement"},
 #endif /* TFM_CRYPTO_TEST_ECDH */
 #ifdef TFM_CRYPTO_TEST_ALG_OFB
     {&tfm_crypto_test_1041, "TFM_S_CRYPTO_TEST_1041",
-     "Secure Symmetric encryption (AES-128-OFB) interface",
-    {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-OFB) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_OFB */
 #ifdef TFM_CRYPTO_TEST_ALG_ECB
     {&tfm_crypto_test_1042, "TFM_S_CRYPTO_TEST_1042",
-     "Secure Symmetric encryption (AES-128-ECB) interface",
-    {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-ECB) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
 #ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
     {&tfm_crypto_test_1043, "TFM_S_CRYPTO_TEST_1043",
-     "Secure Asymmetric encryption interface (RSA_OAEP)", {TEST_PASSED} },
+     "Secure Asymmetric encryption interface (RSA_OAEP)"},
     {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
-     "Secure Asymmetric encryption interface (RSA_PKCS1V15)", {TEST_PASSED} },
+     "Secure Asymmetric encryption interface (RSA_PKCS1V15)"},
     {&tfm_crypto_test_1045, "TFM_S_CRYPTO_TEST_1045",
-     "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)",
-     {TEST_PASSED} },
+     "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
     {&tfm_crypto_test_1046, "TFM_S_CRYPTO_TEST_1046",
-     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface",
-     {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface"},
     {&tfm_crypto_test_1047, "TFM_S_CRYPTO_TEST_1047",
-     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, shorter",
-     {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, shorter"},
     {&tfm_crypto_test_1048, "TFM_S_CRYPTO_TEST_1048",
-     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer",
-     {TEST_PASSED} },
+     "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface, longer"},
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
     {&tfm_crypto_test_1049, "TFM_S_CRYPTO_TEST_1049",
-     "Secure Symmetric encryption (CHACHA20-256) interface", {TEST_PASSED} },
+     "Secure Symmetric encryption (CHACHA20-256) interface"},
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
     {&tfm_crypto_test_1050, "TFM_S_CRYPTO_TEST_1050",
-     "Secure AEAD (CHACHA20-256-POLY1305) interface", {TEST_PASSED} },
+     "Secure AEAD (CHACHA20-256-POLY1305) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
 

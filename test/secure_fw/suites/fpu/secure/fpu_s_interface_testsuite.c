@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,23 +11,19 @@
 static struct test_t fpu_s_tests[] = {
     {
         &tfm_fpu_test_clear_client_fp_data, "TFM_S_FPU_TEST_1001",
-        "Clear FP registers in FPU client partition",
-        {TEST_PASSED}
+        "Clear FP registers in FPU client partition"
     },
     {
         &tfm_fpu_test_fp_protection_psa_call, "TFM_S_FPU_TEST_1002",
-        "Test FP context protection after psa calls",
-        {TEST_PASSED}
+        "Test FP context protection after psa calls"
     },
     {
         &tfm_fpu_test_clear_service_fp_data, "TFM_S_FPU_TEST_1003",
-        "Clear FP registers in FPU service partition for next test",
-        {TEST_PASSED}
+        "Clear FP registers in FPU service partition for next test"
     },
     {
         &tfm_fpu_test_fp_protection_psa_call_loop, "TFM_S_FPU_TEST_1004",
-        "Test reliability of FP context protection after psa calls",
-        {TEST_PASSED}
+        "Test reliability of FP context protection after psa calls"
     }
 };
 

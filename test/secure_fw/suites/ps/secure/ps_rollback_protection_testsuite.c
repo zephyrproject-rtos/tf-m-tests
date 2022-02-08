@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -65,29 +65,29 @@ static void tfm_ps_test_3009(struct test_result_t *ret);
 
 static struct test_t interface_tests[] = {
     {&tfm_ps_test_3001, "TFM_S_PS_TEST_3001",
-     "Check PS area version when NV counters 1/2/3 have the same value", {TEST_PASSED}},
+     "Check PS area version when NV counters 1/2/3 have the same value"},
     {&tfm_ps_test_3002, "TFM_S_PS_TEST_3002",
-     "Check PS area version when it is different from NV counters 1/2/3", {TEST_PASSED}},
+     "Check PS area version when it is different from NV counters 1/2/3"},
     {&tfm_ps_test_3003, "TFM_S_PS_TEST_3003",
      "Check PS area version when NV counters 1 and 2 are equals, 3 is "
-     "different, and PS area version match NV counters 1 and 2", {TEST_PASSED}},
+     "different, and PS area version match NV counters 1 and 2"},
     {&tfm_ps_test_3004, "TFM_S_PS_TEST_3004",
      "Check PS area version when NV counters 2 and 3 are equals, 1 is "
-     "different and PS area version match NV counter 2 and 3", {TEST_PASSED}},
+     "different and PS area version match NV counter 2 and 3"},
     {&tfm_ps_test_3005, "TFM_S_PS_TEST_3005",
      "Check PS area version when NV counters 2 and 3 are equals, 1 is "
-     "different and PS area version match NV counter 1", {TEST_PASSED}},
+     "different and PS area version match NV counter 1"},
     {&tfm_ps_test_3006, "TFM_S_PS_TEST_3006",
      "Check PS area version when NV counters 1, 2 and 3 have different values "
-     "and PS area version match NV counter 1 value", {TEST_PASSED}},
+     "and PS area version match NV counter 1 value"},
     {&tfm_ps_test_3007, "TFM_S_PS_TEST_3007",
      "Check PS area version when NV counters 1, 2 and 3 have different values "
-     "and PS area version match NV counter 2 value", {TEST_PASSED}},
+     "and PS area version match NV counter 2 value"},
     {&tfm_ps_test_3008, "TFM_S_PS_TEST_3008",
      "Check PS area version when NV counters 1, 2 and 3 have different values "
-     "and PS area version match NV counter 3 value", {TEST_PASSED}},
+     "and PS area version match NV counter 3 value"},
     {&tfm_ps_test_3009, "TFM_S_PS_TEST_3009",
-     "Check PS area version when NV counter 1 cannot be incremented", {TEST_PASSED}},
+     "Check PS area version when NV counter 1 cannot be incremented"},
 };
 
 void register_testsuite_s_rollback_protection(struct test_suite_t *p_test_suite)

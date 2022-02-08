@@ -275,7 +275,7 @@ out:
 
 static struct test_t integration_tests[] = {
     {&tfm_mcuboot_integration_test_0001, "TFM_MCUBOOT_INTEGRATION_TEST_0001",
-     "Integration invalid image signature test", {TEST_PASSED} },
+     "Integration invalid image signature test"},
 };
 
 void register_testsuite_mcuboot_integration(struct test_suite_t *p_test_suite)
