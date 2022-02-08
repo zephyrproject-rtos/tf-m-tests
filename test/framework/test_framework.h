@@ -23,6 +23,7 @@ extern "C" {
 enum test_status_t {
     TEST_PASSED = 0,  /*!< Test has passed */
     TEST_FAILED = 1,  /*!< Test has failed */
+    TEST_SKIPPED = 2, /*!< Test has skipped */
 };
 
 struct test_result_t {

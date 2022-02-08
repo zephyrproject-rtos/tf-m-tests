@@ -86,6 +86,7 @@ void set_test_failed(const char *info_msg, const char *filename, uint32_t line,
 enum test_suite_err_t run_testsuite(struct test_suite_t *test_suite)
 {
     uint32_t failed_tests = 0;
+    uint32_t skipped_tests = 0;
     uint32_t i;
     struct test_t *p_test;
     struct test_result_t ret = {0};
@@ -127,6 +128,10 @@ enum test_suite_err_t run_testsuite(struct test_suite_t *test_suite)
         if (ret.val == TEST_FAILED) {
             test_failed(&ret, p_test->name);
             failed_tests++;
+        } else if (ret.val == TEST_SKIPPED) {
+            printf_set_color(DEFAULT);
+            TEST_LOG("  TEST: %s - SKIPPED!\r\n", p_test->name);
+            skipped_tests++;
         } else {
             printf_set_color(GREEN);
             TEST_LOG("  TEST: %s - PASSED!\r\n", p_test->name);
@@ -136,6 +141,16 @@ enum test_suite_err_t run_testsuite(struct test_suite_t *test_suite)
         p_test++;
     }
 
+    if (failed_tests != 0) {
+        printf_set_color(DEFAULT);
+        TEST_LOG("Number of failed tests: %d of %d\r\n",
+                 failed_tests, test_suite->list_size);
+    }
+    if (skipped_tests != 0) {
+        printf_set_color(DEFAULT);
+        TEST_LOG("Number of skipped tests: %d of %d\r\n",
+                 skipped_tests, test_suite->list_size);
+    }
 
     if (failed_tests == 0) {
         printf_set_color(GREEN);
@@ -144,9 +159,6 @@ enum test_suite_err_t run_testsuite(struct test_suite_t *test_suite)
     } else {
         printf_set_color(RED);
         TEST_LOG("TESTSUITE FAILED!\r\n");
-        printf_set_color(YELLOW);
-        TEST_LOG("Number of failed tests: %d of %d\r\n",
-                 failed_tests, test_suite->list_size);
         test_suite->val = TEST_FAILED;
     }
 
