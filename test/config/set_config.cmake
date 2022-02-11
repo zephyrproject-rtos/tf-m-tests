@@ -57,6 +57,12 @@ if (TFM_LIB_MODEL)
 
     set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
     set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
+elseif(CONFIG_TFM_SPM_BACKEND_SFN)
+    set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
+    set(TEST_NS_CORE            OFF        CACHE BOOL      "Whether to build NS regression Core tests")
+
+    set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
+    set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 endif()
 
 if (NOT TFM_MULTI_CORE_TOPOLOGY)
