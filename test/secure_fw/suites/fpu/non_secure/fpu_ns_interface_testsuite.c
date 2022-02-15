@@ -225,7 +225,7 @@ static void tfm_fpu_test_fp_protection_secure_interrupt(
     /* Spin here */
     while (1) {
         /* Wait S interrupt triggered */
-        os_wrapper_delay_until(WAIT_S_INT);
+        os_wrapper_delay(WAIT_S_INT);
 
         status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
         if (status == PSA_SUCCESS) {

@@ -508,7 +508,7 @@ void fpu_service_test_main(void *param)
             fpu_client_start_secure_timer();
         } else if (signals & TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED_SIGNAL) {
             fpu_client_check_secure_timer_triggered();
-        }  else if (signals & TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_SIGNAL) {
+        } else if (signals & TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_SIGNAL) {
             fpu_client_non_secure_interrupt_secure_test();
         } else {
             psa_panic();

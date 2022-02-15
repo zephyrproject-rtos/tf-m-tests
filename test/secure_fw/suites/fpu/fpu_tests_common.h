@@ -23,7 +23,7 @@ extern "C" {
 #define LOOP_ITERATIONS             (300U)
 #define LOOPS_S_INT_TEST            (50U)
 #define LOOPS_NS_INT_TEST           (5000000U)
-#define WAIT_S_INT                  (20000U)
+#define WAIT_S_INT                  (2000U)
 
 #define NR_FP_REG                   (32U)
 #define NR_FP_CALLER_REG            (NR_FP_REG / 2)
