@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -82,15 +82,14 @@ static psa_status_t secure_client_2_test_its_access_ctrl(const void *arg,
  */
 static void secure_client_2_test_retrieve_app_mem(psa_msg_t *msg)
 {
-        if (msg->out_size[0] != 0) {
-            /*
-             * Write a pointer to outvec. The pointer points to a RW memory
-             * address in IPC service partition.
-             */
-            psa_write(msg->handle, 0, &secure_client_2_data_p,
-                      sizeof(secure_client_2_data_p));
-        }
-        psa_reply(msg->handle, PSA_SUCCESS);
+    if (msg->out_size[0] != 0) {
+        /*
+         * Write a pointer to outvec. The pointer points to a RW memory
+         * address in IPC service partition.
+         */
+        psa_write(msg->handle, 0, &secure_client_2_data_p,
+                  sizeof(secure_client_2_data_p));
+    }
 }
 #endif /* TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM */
 
@@ -124,34 +123,54 @@ static psa_status_t secure_client_2_dispatch(int32_t id, const void *arg,
 #ifdef TFM_PSA_API
 #define SECURE_CLIENT_2_MAX_ARG_LEN 8U
 
+static psa_status_t tfm_secure_client_2_handle_msg(const psa_msg_t *msg)
+{
+    psa_status_t status = PSA_ERROR_PROGRAMMER_ERROR;
+    size_t len;
+    char arg[SECURE_CLIENT_2_MAX_ARG_LEN] __attribute__((__aligned__(8)));
+
+    /* Decode the message */
+    switch (msg->type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        status = PSA_SUCCESS;
+        break;
+#ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
+    case TFM_SECURE_CLIENT_2_ID_RETRIEVE_APP_MEM:
+        secure_client_2_test_retrieve_app_mem(msg);
+        status = PSA_SUCCESS;
+        break;
+#endif
+    default:
+        len = psa_read(msg->handle, 0, arg, SECURE_CLIENT_2_MAX_ARG_LEN);
+        status = secure_client_2_dispatch(msg->type, arg, len);
+        break;
+    }
+    return status;
+}
+
+#if (TFM_SP_SECURE_CLIENT_2_MODEL_IPC == 1)
 void tfm_secure_client_2_init(void)
 {
     psa_msg_t msg;
-    size_t len;
-    char arg[SECURE_CLIENT_2_MAX_ARG_LEN] __attribute__((__aligned__(8)));
 
     while (1) {
         (void)psa_wait(TFM_SECURE_CLIENT_2_SIGNAL, PSA_BLOCK);
         if (psa_get(TFM_SECURE_CLIENT_2_SIGNAL, &msg) != PSA_SUCCESS) {
             continue;
         }
-        switch (msg.type) {
-        case PSA_IPC_CONNECT:
-        case PSA_IPC_DISCONNECT:
-            psa_reply(msg.handle, PSA_SUCCESS);
-            break;
-#ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
-        case TFM_SECURE_CLIENT_2_ID_RETRIEVE_APP_MEM:
-            secure_client_2_test_retrieve_app_mem(&msg);
-            break;
-#endif
-        default:
-            len = psa_read(msg.handle, 0, arg, SECURE_CLIENT_2_MAX_ARG_LEN);
-            psa_reply(msg.handle, secure_client_2_dispatch(msg.type, arg, len));
-            break;
-        }
+        psa_reply(msg.handle, tfm_secure_client_2_handle_msg(&msg));
     }
 }
+
+#elif (TFM_SP_SECURE_CLIENT_2_MODEL_SFN == 1)
+psa_status_t tfm_secure_client_2_sfn(const psa_msg_t* msg)
+{
+    return tfm_secure_client_2_handle_msg(msg);
+}
+
+#endif /* TFM_SP_SECURE_CLIENT_2_MODEL_IPC==1 */
+
 #else /* TFM_PSA_API */
 psa_status_t tfm_secure_client_2_init(void)
 {
