@@ -60,6 +60,7 @@ if (TFM_LIB_MODEL)
 elseif(CONFIG_TFM_SPM_BACKEND_SFN)
     set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
     set(TEST_NS_CORE            OFF        CACHE BOOL      "Whether to build NS regression Core tests")
+    set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
 
     set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
     set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
@@ -121,14 +122,20 @@ endif()
 ########################## SLIH/FLIH IRQ Test ##################################
 
 # Make FLIH IRQ test as the default IRQ test
-if (NOT TFM_LIB_MODEL AND PLATFORM_FLIH_IRQ_TEST_SUPPORT
+if (CONFIG_TFM_SPM_BACKEND_IPC AND PLATFORM_FLIH_IRQ_TEST_SUPPORT
     AND TEST_NS AND NOT TEST_NS_SLIH_IRQ)
     set(TEST_NS_FLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 endif()
 
-if (NOT TFM_LIB_MODEL AND PLATFORM_SLIH_IRQ_TEST_SUPPORT
+if (CONFIG_TFM_SPM_BACKEND_IPC AND PLATFORM_SLIH_IRQ_TEST_SUPPORT
     AND TEST_NS AND NOT TEST_NS_FLIH_IRQ)
     set(TEST_NS_SLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
+endif()
+
+############################ SFN backend test ##################################
+
+if (CONFIG_TFM_SPM_BACKEND_SFN AND TEST_NS)
+    set(TEST_NS_SFN_BACKEND     ON        CACHE BOOL      "Whether to build NS regression SFN backend tests")
 endif()
 
 ########################## Load default config #################################

@@ -27,6 +27,7 @@ set(TEST_NS_FLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regre
 set(TEST_NS_MULTI_CORE      ON        CACHE BOOL      "Whether to build NS regression multi-core tests")
 set(TEST_NS_MANAGE_NSID     ON        CACHE BOOL      "Whether to build NS regression NSID management tests")
 set(TEST_NS_FPU             OFF       CACHE BOOL      "Whether to build NS regression FPU tests")
+set(TEST_NS_SFN_BACKEND     OFF       CACHE BOOL      "Whether to build NS regression SFN backend tests")
 
 ######################### Platform specific setting ############################
 
