@@ -12,6 +12,26 @@
 #include "psa/service.h"
 #include "psa_manifest/tfm_slih_test_service.h"
 
+static psa_status_t slih_test_handle_msg(const psa_msg_t *msg)
+{
+    psa_status_t status;
+
+    switch (msg->type) {
+    case TFM_SLIH_TEST_CASE_1:
+        slih_test_case_1(msg, TFM_TIMER0_IRQ_SIGNAL);
+        status = PSA_SUCCESS;
+        break;
+    default:
+        LOG_ERRFMT("SLIH test service: Invalid message type: 0x%x\r\n",
+            msg->type);
+        status = PSA_ERROR_PROGRAMMER_ERROR;
+        break;
+    }
+
+    return status;
+}
+
+#if TFM_SP_SLIH_TEST_MODEL_IPC == 1
 static void slih_test_get_msg(psa_signal_t signal, psa_msg_t *msg)
 {
     psa_status_t status;
@@ -31,17 +51,13 @@ void tfm_slih_test_service_entry(void)
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
         if (signals & TFM_SLIH_TEST_CASE_SIGNAL) {
             slih_test_get_msg(TFM_SLIH_TEST_CASE_SIGNAL, &msg);
-            switch (msg.type) {
-            case TFM_SLIH_TEST_CASE_1:
-                slih_test_case_1(&msg, TFM_TIMER0_IRQ_SIGNAL);
-                psa_reply(msg.handle, PSA_SUCCESS);
-                break;
-            default:
-                LOG_ERRFMT("SLIH test service: Invalid message type: 0x%x\r\n",
-                   msg.type);
-                psa_panic();
-                break;
-            }
+            psa_reply(msg.handle, slih_test_handle_msg(&msg));
         }
     }
 }
+#elif TFM_SP_SLIH_TEST_MODEL_SFN == 1
+psa_status_t tfm_slih_test_case_sfn(const psa_msg_t *msg)
+{
+    return slih_test_handle_msg(msg);
+}
+#endif
