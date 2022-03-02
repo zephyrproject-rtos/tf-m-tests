@@ -15,6 +15,24 @@
 static void tfm_ipc_test_1001(struct test_result_t *ret);
 static void tfm_ipc_test_1002(struct test_result_t *ret);
 static void tfm_ipc_test_1004(struct test_result_t *ret);
+static void tfm_ipc_test_1006(struct test_result_t *ret);
+
+#ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
+static void tfm_ipc_test_1007(struct test_result_t *ret);
+#endif
+
+#ifdef TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM
+static void tfm_ipc_test_1008(struct test_result_t *ret);
+#endif
+
+#ifdef TFM_IPC_ISOLATION_2_MEM_CHECK
+static void tfm_ipc_test_1009(struct test_result_t *ret);
+#endif
+
+#ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
+static void tfm_ipc_test_1011(struct test_result_t *ret);
+#endif
+
 static void tfm_ipc_test_1012(struct test_result_t *ret);
 
 static struct test_t ipc_veneers_tests[] = {
@@ -24,6 +42,24 @@ static struct test_t ipc_veneers_tests[] = {
      "Get version of an RoT Service"},
     {&tfm_ipc_test_1004, "TFM_S_IPC_TEST_1004",
      "Request connection-based RoT Service"},
+    {&tfm_ipc_test_1006, "TFM_S_IPC_TEST_1006",
+     "Call PSA RoT access APP RoT memory test service"},
+#ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
+    {&tfm_ipc_test_1007, "TFM_S_IPC_TEST_1007",
+     "Call PSA RoT access APP RoT readonly memory test service"},
+#endif
+#ifdef TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM
+    {&tfm_ipc_test_1008, "TFM_S_IPC_TEST_1008",
+     "Call APP RoT access PSA RoT memory test service"},
+#endif
+#ifdef TFM_IPC_ISOLATION_2_MEM_CHECK
+    {&tfm_ipc_test_1009, "TFM_S_IPC_TEST_1009",
+     "Call APP RoT memory check test service"},
+#endif
+#ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
+    {&tfm_ipc_test_1011, "TFM_S_IPC_TEST_1011",
+     "Call APP RoT access another APP RoT memory test service"},
+#endif
     {&tfm_ipc_test_1012, "TFM_S_IPC_TEST_1012",
      "Request stateless service"},
 };
@@ -76,6 +112,167 @@ static void tfm_ipc_test_1004(struct test_result_t *ret)
 
     psa_close(handle);
 }
+
+/**
+ * \brief Call IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_SID RoT Service
+ *  to run the IPC PSA access APP mem test.
+ */
+static void tfm_ipc_test_1006(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    psa_status_t status;
+    int test_result;
+    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
+
+    handle = psa_connect(IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_SID,
+                         IPC_CLIENT_TEST_PSA_ACCESS_APP_MEM_VERSION);
+    if (handle > 0) {
+        TEST_LOG("Connect success!\r\n");
+    } else {
+        TEST_LOG("The RoT Service has refused the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+    if (status >= 0) {
+        TEST_LOG("Call success!\r\n");
+        if (test_result > 0) {
+            ret->val = TEST_PASSED;
+        } else {
+            ret->val = TEST_FAILED;
+        }
+    } else {
+        TEST_LOG("Call failed!\r\n");
+        ret->val = TEST_FAILED;
+    }
+
+    psa_close(handle);
+}
+
+#ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
+/**
+ * \brief Call IPC_CLIENT_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SID RoT Service
+ *  to run the IPC PSA access APP readonly mem test.
+ */
+static void tfm_ipc_test_1007(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    psa_status_t status;
+    int test_result;
+    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
+
+    handle = psa_connect(IPC_CLIENT_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SID,
+                         IPC_CLIENT_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_VERSION);
+    if (handle > 0) {
+        TEST_LOG("Connect success!\r\n");
+    } else {
+        TEST_LOG("The RoT Service has refused the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+    if (status == PSA_SUCCESS) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
+
+    psa_close(handle);
+}
+#endif
+
+#ifdef TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM
+/**
+ * \brief Call IPC_CLIENT_TEST_APP_ACCESS_PSA_MEM_SID RoT Service
+ *  to run the IPC APP access PSA mem test.
+ */
+static void tfm_ipc_test_1008(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    int test_result;
+    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
+
+    handle = psa_connect(IPC_CLIENT_TEST_APP_ACCESS_PSA_MEM_SID,
+                         IPC_CLIENT_TEST_APP_ACCESS_PSA_MEM_VERSION);
+    if (handle > 0) {
+        TEST_LOG("Connect success!\r\n");
+    } else {
+        TEST_LOG("The RoT Service has refused the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+
+    /* The system should panic in psa_call. If runs here, the test fails. */
+    ret->val = TEST_FAILED;
+    psa_close(handle);
+}
+#endif
+
+#ifdef TFM_IPC_ISOLATION_2_MEM_CHECK
+/**
+ * \brief Call IPC_CLIENT_TEST_MEM_CHECK_SID RoT Service
+ *  to run the IPC mem check test.
+ */
+static void tfm_ipc_test_1009(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    int test_result;
+    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
+
+    handle = psa_connect(IPC_CLIENT_TEST_MEM_CHECK_SID,
+                         IPC_CLIENT_TEST_MEM_CHECK_VERSION);
+    if (handle > 0) {
+        TEST_LOG("Connect success!\r\n");
+    } else {
+        TEST_LOG("The RoT Service has refused the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+
+    /* The system should panic in psa_call. If runs here, the test fails. */
+    ret->val = TEST_FAILED;
+    psa_close(handle);
+}
+#endif
+
+#ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
+/**
+ * \brief Call IPC_CLIENT_TEST_RETRIEVE_APP_MEM_SID RoT Service
+ * to run the ARoT access another ARoT mem test.
+ */
+static void tfm_ipc_test_1011(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    psa_status_t status;
+    int test_result;
+    struct psa_outvec outvecs[1] = {{&test_result, sizeof(test_result)}};
+
+    handle = psa_connect(IPC_CLIENT_TEST_RETRIEVE_APP_MEM_SID,
+                         IPC_CLIENT_TEST_RETRIEVE_APP_MEM_VERSION);
+    if (handle > 0) {
+        TEST_LOG("Connect success!\r\n");
+    } else {
+        TEST_LOG("The RoT Service has refused the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
+    if (status == PSA_SUCCESS) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
+
+    psa_close(handle);
+}
+#endif
 
 /**
  * \brief Accessing a stateless service

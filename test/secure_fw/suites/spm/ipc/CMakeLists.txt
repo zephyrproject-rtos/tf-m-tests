@@ -32,8 +32,6 @@ if (TEST_NS_IPC)
     target_compile_definitions(tfm_test_suite_ipc_ns
         PRIVATE
             DOMAIN_NS=1
-            $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
-            $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
         INTERFACE
             TEST_NS_IPC
     )
@@ -65,6 +63,9 @@ if (TEST_S_IPC)
     )
 
     target_compile_definitions(tfm_test_suite_ipc_s
+        PRIVATE
+            $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_APP_2_PSA}>>:TFM_IPC_ISOLATION_2_APP_ACCESS_PSA_MEM>
+            $<$<AND:$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>,$<BOOL:${TFM_ISOLATION_TEST_MEM_CHECK}>>:TFM_IPC_ISOLATION_2_MEM_CHECK>
         INTERFACE
             TEST_S_IPC
     )
