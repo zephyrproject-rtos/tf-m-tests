@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include "psa/service.h"
-#include "psa_manifest/sfn_partition1.h"
+#include "psa_manifest/sfn_backend_test_partition.h"
 #include "spm_test_defs.h"
 #include "tfm_sp_log.h"
 #include "client_api_test_defs.h"
@@ -16,18 +16,13 @@
 #include "tfm_mmiovec_test_service.h"
 #endif
 
-/**
- * \brief An example stateless service implementation that prints
- *        a received magic number 0xFFFFABCD.
- */
-psa_status_t tfm_sfn1_service1_sfn(const psa_msg_t* msg)
+psa_status_t sfn_test_stateless_sfn(const psa_msg_t* msg)
 {
     psa_status_t status = PSA_ERROR_PROGRAMMER_ERROR;
 
     /* Decode the message */
     switch (msg->type) {
     case PSA_IPC_CALL:
-        LOG_DBGFMT("[SFN1 partition] Service in SFN1 called!\r\n");
         status = PSA_SUCCESS;
         break;
     case CLIENT_API_TEST_TYPE_REQUEST_SRV:
@@ -46,17 +41,35 @@ psa_status_t tfm_sfn1_service1_sfn(const psa_msg_t* msg)
 #endif
     default:
         /* Invalid message type */
+        status = PSA_ERROR_PROGRAMMER_ERROR;
+        break;
+    }
+    return status;
+}
+
+psa_status_t sfn_test_connection_based_sfn(const psa_msg_t* msg)
+{
+    psa_status_t status = PSA_ERROR_PROGRAMMER_ERROR;
+
+    /* Decode the message */
+    switch (msg->type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        status = PSA_SUCCESS;
+        break;
+    case CLIENT_API_TEST_TYPE_REQUEST_SRV:
+        status = client_api_test_rot_srv(msg);
+        break;
+    default:
+        /* Invalid message type */
         status = PSA_ERROR_NOT_SUPPORTED;
         break;
     }
     return status;
 }
 
-/**
- * \brief SFN partition's initialization function is optional.
- */
-psa_status_t sfn_partition_example1_init(void)
+psa_status_t sfn_test_partition_init(void)
 {
-    LOG_DBGFMT("[SFN1 partition] SFN1 initialized.\r\n");
+    LOG_DBGFMT("[SFN Test partition] SFN Test Partition initialized.\r\n");
     return PSA_SUCCESS;
 }

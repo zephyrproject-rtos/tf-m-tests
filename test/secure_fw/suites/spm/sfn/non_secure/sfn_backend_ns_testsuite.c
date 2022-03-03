@@ -70,7 +70,7 @@ static void tfm_sfn_test_1001(struct test_result_t *ret)
  */
 static void tfm_sfn_test_1002(struct test_result_t *ret)
 {
-    psa_version_test(TFM_SFN1_SERVICE1_SID, ret);
+    psa_version_test(SFN_TEST_STATELESS_SID, ret);
 }
 
 /**
@@ -80,7 +80,8 @@ static void tfm_sfn_test_1003(struct test_result_t *ret)
 {
     psa_handle_t handle;
 
-    handle = psa_connect(TFM_SFN2_SERVICE1_SID, TFM_SFN2_SERVICE1_VERSION);
+    handle = psa_connect(SFN_TEST_CONNECTION_BASED_SID,
+                         SFN_TEST_CONNECTION_BASED_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         TEST_FAIL("Connecting to a connection-based service fails.\r\n");
         return;
@@ -99,13 +100,13 @@ static void tfm_sfn_test_1004(struct test_result_t *ret)
     psa_handle_t handle;
 
     /* Connecting to a stateless service should fail. */
-    handle = psa_connect(TFM_SFN1_SERVICE1_SID, TFM_SFN1_SERVICE1_VERSION);
+    handle = psa_connect(SFN_TEST_STATELESS_SID, SFN_TEST_STATELESS_VERSION);
     if (PSA_HANDLE_IS_VALID(handle)) {
         TEST_FAIL("Connecting to a stateless service should not succeed.\r\n");
         return;
     }
 
-    request_rot_service_test(TFM_SFN1_SERVICE1_HANDLE, ret);
+    request_rot_service_test(SFN_TEST_STATELESS_HANDLE, ret);
 }
 
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
@@ -116,7 +117,7 @@ static void tfm_sfn_test_1004(struct test_result_t *ret)
  */
 static void tfm_sfn_test_1005(struct test_result_t *ret)
 {
-    invec_map_unmap_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+    invec_map_unmap_test(ret, SFN_TEST_STATELESS_HANDLE);
 }
 
 /**
@@ -126,7 +127,7 @@ static void tfm_sfn_test_1005(struct test_result_t *ret)
  */
 static void tfm_sfn_test_1006(struct test_result_t *ret)
 {
-    outvec_map_unmap_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+    outvec_map_unmap_test(ret, SFN_TEST_STATELESS_HANDLE);
 }
 
 /**
@@ -137,7 +138,7 @@ static void tfm_sfn_test_1006(struct test_result_t *ret)
  */
 static void tfm_sfn_test_1007(struct test_result_t *ret)
 {
-    outvec_map_only_test(ret, TFM_SFN1_SERVICE1_HANDLE);
+    outvec_map_only_test(ret, SFN_TEST_STATELESS_HANDLE);
 }
 
 #endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */

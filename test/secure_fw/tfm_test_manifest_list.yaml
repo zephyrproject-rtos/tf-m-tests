@@ -177,32 +177,17 @@
       }
     },
     {
-      "name": "TFM SFN Partition1 Service",
-      "short_name": "TFM_SFN_SP1",
-      "manifest": "suites/spm/sfn/service/sfn_partition1/sfn_partition1.yaml",
-      "output_path": "secure_fw/test_services/sfn_partition1",
+      "name": "TFM SFN Backend Test Partition",
+      "short_name": "SFN_BACKEND_TEST",
+      "manifest": "suites/spm/sfn/service/sfn_backend_test_partition/sfn_backend_test_partition.yaml",
+      "output_path": "secure_fw/test_services/sfn_backend_test_partition",
       "conditional": "@TEST_NS_SFN_BACKEND@",
       "version_major": 0,
       "version_minor": 1,
       "pid": 3011,
       "linker_pattern": {
         "library_list": [
-          "*tfm_*partition_sfn1.*"
-        ]
-      }
-    },
-    {
-      "name": "TFM SFN Partition2 Service",
-      "short_name": "TFM_SFN_SP2",
-      "manifest": "suites/spm/sfn/service/sfn_partition2/sfn_partition2.yaml",
-      "output_path": "secure_fw/test_services/sfn_partition2",
-      "conditional": "@TEST_NS_SFN_BACKEND@",
-      "version_major": 0,
-      "version_minor": 1,
-      "pid": 3012,
-      "linker_pattern": {
-        "library_list": [
-          "*tfm_*partition_sfn2.*"
+          "*tfm_*partition_sfn_backend_test.*"
         ]
       }
     },

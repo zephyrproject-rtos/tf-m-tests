@@ -7,11 +7,11 @@
 cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0079 NEW)
 
-add_library(tfm_app_rot_partition_sfn1 STATIC)
+add_library(tfm_app_rot_partition_sfn_backend_test STATIC)
 
-target_sources(tfm_app_rot_partition_sfn1
+target_sources(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
-        sfn_partition1.c
+        sfn_backend_test_partition.c
         ../../../common/service/client_api_test_service.c
         $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
             ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_mmiovec_test_service.c>
@@ -19,28 +19,28 @@ target_sources(tfm_app_rot_partition_sfn1
 
 target_include_directories(tfm_partitions
     INTERFACE
-        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_partition1
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition
 )
 
 # The generated sources
-target_sources(tfm_app_rot_partition_sfn1
+target_sources(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
-        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_partition1/auto_generated/intermedia_sfn_partition1.c
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition/auto_generated/intermedia_sfn_backend_test_partition.c
 )
 target_sources(tfm_partitions
     INTERFACE
-        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_partition1/auto_generated/load_info_sfn_partition1.c
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition/auto_generated/load_info_sfn_backend_test_partition.c
 )
 
-target_include_directories(tfm_app_rot_partition_sfn1
+target_include_directories(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        ${CMAKE_BINARY_DIR}/generated/test_services/sfn_partition1
+        ${CMAKE_BINARY_DIR}/generated/test_services/sfn_backend_test_partition
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service
         ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
 
-target_link_libraries(tfm_app_rot_partition_sfn1
+target_link_libraries(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         tfm_secure_api
         psa_interface
@@ -52,9 +52,5 @@ target_link_libraries(tfm_app_rot_partition_sfn1
 ############################ Partition Defs ####################################
 target_link_libraries(tfm_partitions
     INTERFACE
-        tfm_app_rot_partition_sfn1
-)
-target_compile_definitions(tfm_partition_defs
-    INTERFACE
-        TFM_PARTITION_SFN1
+        tfm_app_rot_partition_sfn_backend_test
 )
