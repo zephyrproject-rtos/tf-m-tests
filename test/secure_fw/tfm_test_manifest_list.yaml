@@ -181,7 +181,7 @@
       "short_name": "SFN_BACKEND_TEST",
       "manifest": "suites/spm/sfn/service/sfn_backend_test_partition/sfn_backend_test_partition.yaml",
       "output_path": "secure_fw/test_services/sfn_backend_test_partition",
-      "conditional": "@TEST_NS_SFN_BACKEND@",
+      "conditional": "@TFM_PARTITION_SFN_BACKEND_TEST@",
       "version_major": 0,
       "version_minor": 1,
       "pid": 3011,

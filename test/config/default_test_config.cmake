@@ -43,6 +43,7 @@ set(TEST_S_PS               OFF        CACHE BOOL      "Whether to build S regre
 set(TEST_S_PLATFORM         OFF        CACHE BOOL      "Whether to build S regression Platform tests")
 set(TEST_S_FWU              OFF        CACHE BOOL      "Whether to build S regression FWU tests")
 set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
+set(TEST_S_SFN_BACKEND      OFF        CACHE BOOL      "Whether to build S regression SFN tests")
 
 ################################## PS Tests ####################################
 

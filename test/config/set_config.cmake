@@ -132,6 +132,10 @@ if (CONFIG_TFM_SPM_BACKEND_SFN AND TEST_NS)
     set(TEST_NS_SFN_BACKEND     ON        CACHE BOOL      "Whether to build NS regression SFN backend tests")
 endif()
 
+if (CONFIG_TFM_SPM_BACKEND_SFN AND TEST_S)
+    set(TEST_S_SFN_BACKEND      ON        CACHE BOOL      "Whether to build S regression SFN backend tests")
+endif()
+
 ######################### Library Model Specific Tests #########################
 if (TFM_LIB_MODEL AND TEST_NS)
     set(TEST_NS_CORE            ON        CACHE BOOL      "Whether to build NS regression Core tests")
@@ -158,6 +162,12 @@ if (TEST_NS_IPC OR TEST_S_IPC)
     set(TFM_PARTITION_IPC_TEST  ON)
 else()
     set(TFM_PARTITION_IPC_TEST  OFF)
+endif()
+
+if (TEST_NS_SFN_BACKEND OR TEST_S_SFN_BACKEND)
+    set(TFM_PARTITION_SFN_BACKEND_TEST  ON)
+else()
+    set(TFM_PARTITION_SFN_BACKEND_TEST  OFF)
 endif()
 
 if ((TEST_NS_ATTESTATION OR TEST_S_ATTESTATION)

@@ -28,13 +28,15 @@
 #ifdef TEST_S_PLATFORM
 #include "platform_s_tests.h"
 #endif
-#ifdef TEST_S_IPC
-#include "ipc_s_tests.h"
-#else
 #ifdef TEST_S_AUDIT
 #include "audit_s_tests.h"
 #endif
-#endif /* TFM_PSA_API */
+#ifdef TEST_S_IPC
+#include "ipc_s_tests.h"
+#endif
+#ifdef TEST_S_SFN_BACKEND
+#include "sfn_s_tests.h"
+#endif
 #if defined (TEST_S_FPU)
 #include "fpu_s_tests.h"
 #endif
@@ -86,6 +88,11 @@ static struct test_suite_t test_suites[] = {
 #ifdef TEST_S_IPC
     /* Secure IPC test cases */
     {&register_testsuite_s_ipc_interface, 0, 0, 0},
+#endif
+
+#ifdef TEST_S_SFN_BACKEND
+    /* Secure SFN backend test cases */
+    {&register_testsuite_s_sfn_interface, 0, 0, 0},
 #endif
 
 #ifdef TEST_S_FPU
