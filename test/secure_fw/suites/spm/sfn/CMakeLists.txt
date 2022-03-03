@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -15,6 +15,7 @@ if (TEST_NS_SFN_BACKEND)
     target_sources(tfm_test_suite_sfn_ns
         PRIVATE
             non_secure/sfn_backend_ns_testsuite.c
+            sfn_backend_tests.c
             ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/client_api_tests.c
             $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
                 ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/mmiovec_test.c>

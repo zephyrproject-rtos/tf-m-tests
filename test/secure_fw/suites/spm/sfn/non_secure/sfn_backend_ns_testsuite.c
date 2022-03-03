@@ -5,30 +5,14 @@
  *
  */
 
-#include <stdio.h>
-#include <string.h>
+#include <stdint.h>
+
 #include "sfn_ns_tests.h"
-#include "psa/client.h"
+#include "../sfn_backend_tests.h"
+
 #include "psa/framework_feature.h"
-#include "test_framework_helpers.h"
-#include "psa_manifest/sid.h"
-#include "client_api_tests.h"
-#if PSA_FRAMEWORK_HAS_MM_IOVEC
-#include "mmiovec_test.h"
-#endif
 
-/* List of tests */
-static void tfm_sfn_test_1001(struct test_result_t *ret);
-static void tfm_sfn_test_1002(struct test_result_t *ret);
-static void tfm_sfn_test_1003(struct test_result_t *ret);
-static void tfm_sfn_test_1004(struct test_result_t *ret);
-#if PSA_FRAMEWORK_HAS_MM_IOVEC
-static void tfm_sfn_test_1005(struct test_result_t *ret);
-static void tfm_sfn_test_1006(struct test_result_t *ret);
-static void tfm_sfn_test_1007(struct test_result_t *ret);
-#endif
-
-static struct test_t sfn_veneers_tests[] = {
+static struct test_t sfn_backend_ns_tests[] = {
     {&tfm_sfn_test_1001, "TFM_NS_SFN_TEST_1001",
      "Get PSA framework version"},
     {&tfm_sfn_test_1002, "TFM_NS_SFN_TEST_1002",
@@ -51,94 +35,8 @@ void register_testsuite_ns_sfn_interface(struct test_suite_t *p_test_suite)
 {
     uint32_t list_size;
 
-    list_size = (sizeof(sfn_veneers_tests) / sizeof(sfn_veneers_tests[0]));
+    list_size = (sizeof(sfn_backend_ns_tests) / sizeof(sfn_backend_ns_tests[0]));
 
-    set_testsuite("SFN non-secure interface test (TFM_NS_SFN_TEST_1XXX)",
-                  sfn_veneers_tests, list_size, p_test_suite);
+    set_testsuite("SFN Backend NS test (TFM_NS_SFN_TEST_1XXX)",
+                  sfn_backend_ns_tests, list_size, p_test_suite);
 }
-
-/**
- * \brief Retrieve the version of the PSA Framework API.
- */
-static void tfm_sfn_test_1001(struct test_result_t *ret)
-{
-    psa_framework_version_test(ret);
-}
-
-/**
- * \brief Retrieve the version of an RoT Service.
- */
-static void tfm_sfn_test_1002(struct test_result_t *ret)
-{
-    psa_version_test(SFN_TEST_STATELESS_SID, ret);
-}
-
-/**
- * \brief Request a connection-based RoT Service
- */
-static void tfm_sfn_test_1003(struct test_result_t *ret)
-{
-    psa_handle_t handle;
-
-    handle = psa_connect(SFN_TEST_CONNECTION_BASED_SID,
-                         SFN_TEST_CONNECTION_BASED_VERSION);
-    if (!PSA_HANDLE_IS_VALID(handle)) {
-        TEST_FAIL("Connecting to a connection-based service fails.\r\n");
-        return;
-    }
-
-    request_rot_service_test(handle, ret);
-
-    psa_close(handle);
-}
-
-/**
- * \brief Request a stateless RoT Service
- */
-static void tfm_sfn_test_1004(struct test_result_t *ret)
-{
-    psa_handle_t handle;
-
-    /* Connecting to a stateless service should fail. */
-    handle = psa_connect(SFN_TEST_STATELESS_SID, SFN_TEST_STATELESS_VERSION);
-    if (PSA_HANDLE_IS_VALID(handle)) {
-        TEST_FAIL("Connecting to a stateless service should not succeed.\r\n");
-        return;
-    }
-
-    request_rot_service_test(SFN_TEST_STATELESS_HANDLE, ret);
-}
-
-#if PSA_FRAMEWORK_HAS_MM_IOVEC
-/**
- * \brief Mapping input vectors and unmapping them.
- *
- * \note Test psa_map_invec() and psa_unmap_invec() functionality.
- */
-static void tfm_sfn_test_1005(struct test_result_t *ret)
-{
-    invec_map_unmap_test(ret, SFN_TEST_STATELESS_HANDLE);
-}
-
-/**
- * \brief Mapping output vectors and unmapping them.
- *
- * \note Test psa_map_outvec() and psa_unmap_outvec() functionality.
- */
-static void tfm_sfn_test_1006(struct test_result_t *ret)
-{
-    outvec_map_unmap_test(ret, SFN_TEST_STATELESS_HANDLE);
-}
-
-/**
- * \brief Mapping output vectors and not unmapping them.
- *
- * \note RoT services map outvecs and does not unmap outvecs, the service caller
- *       should get a zero out length.
- */
-static void tfm_sfn_test_1007(struct test_result_t *ret)
-{
-    outvec_map_only_test(ret, SFN_TEST_STATELESS_HANDLE);
-}
-
-#endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */
