@@ -169,7 +169,7 @@ psa_status_t tfm_secure_client_2_sfn(const psa_msg_t* msg)
     return tfm_secure_client_2_handle_msg(msg);
 }
 
-#endif /* TFM_SP_SECURE_CLIENT_2_MODEL_IPC==1 */
+#endif /* TFM_SP_SECURE_CLIENT_2_MODEL_IPC == 1 */
 
 #else /* TFM_PSA_API */
 psa_status_t tfm_secure_client_2_init(void)
