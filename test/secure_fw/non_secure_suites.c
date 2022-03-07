@@ -68,6 +68,19 @@
 
 static struct test_suite_t test_suites[] = {
     /* List test cases which are compliant with level 1 isolation */
+#ifdef TEST_NS_CORE
+    /* Non-secure core test cases */
+    {&register_testsuite_ns_core_positive, 0, 0, 0},
+#endif
+
+#ifdef TEST_NS_IPC
+    /* Non-secure IPC test cases */
+    {&register_testsuite_ns_ipc_interface, 0, 0, 0},
+#endif
+
+#ifdef TEST_NS_SFN_BACKEND
+    {&register_testsuite_ns_sfn_interface, 0, 0, 0},
+#endif
 
 #ifdef TEST_NS_PS
     {&register_testsuite_ns_psa_ps_interface, 0, 0, 0},
@@ -113,16 +126,6 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_ns_psa_fwu_interface, 0, 0, 0},
 #endif
 
-#ifdef TEST_NS_CORE
-    /* Non-secure core test cases */
-    {&register_testsuite_ns_core_positive, 0, 0, 0},
-#endif
-
-#ifdef TEST_NS_IPC
-    /* Non-secure IPC test cases */
-    {&register_testsuite_ns_ipc_interface, 0, 0, 0},
-#endif
-
 #ifdef TEST_NS_MULTI_CORE
     /* Multi-core topology test cases */
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
@@ -143,10 +146,6 @@ static struct test_suite_t test_suites[] = {
 
 #if defined(TEST_NS_SLIH_IRQ) || defined(TEST_NS_FLIH_IRQ)
     {&register_testsuite_irq_test, 0, 0, 0},
-#endif
-
-#ifdef TEST_NS_SFN_BACKEND
-    {&register_testsuite_ns_sfn_interface, 0, 0, 0},
 #endif
 
 #ifdef TEST_NS_FPU

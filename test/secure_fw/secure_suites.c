@@ -45,6 +45,16 @@
 #endif
 
 static struct test_suite_t test_suites[] = {
+#ifdef TEST_S_IPC
+    /* Secure IPC test cases */
+    {&register_testsuite_s_ipc_interface, 0, 0, 0},
+#endif
+
+#ifdef TEST_S_SFN_BACKEND
+    /* Secure SFN backend test cases */
+    {&register_testsuite_s_sfn_interface, 0, 0, 0},
+#endif
+
 #ifdef TEST_S_PS
     {&register_testsuite_s_psa_ps_interface, 0, 0, 0},
     {&register_testsuite_s_psa_ps_reliability, 0, 0, 0},
@@ -83,16 +93,6 @@ static struct test_suite_t test_suites[] = {
 #ifdef TEST_S_FWU
     /* Secure Firmware Update test cases */
     {&register_testsuite_s_psa_fwu_interface, 0, 0, 0},
-#endif
-
-#ifdef TEST_S_IPC
-    /* Secure IPC test cases */
-    {&register_testsuite_s_ipc_interface, 0, 0, 0},
-#endif
-
-#ifdef TEST_S_SFN_BACKEND
-    /* Secure SFN backend test cases */
-    {&register_testsuite_s_sfn_interface, 0, 0, 0},
 #endif
 
 #ifdef TEST_S_FPU
