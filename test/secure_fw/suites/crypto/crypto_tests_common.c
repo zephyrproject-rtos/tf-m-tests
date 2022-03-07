@@ -95,6 +95,18 @@ void psa_key_interface_test(const psa_key_type_t key_type,
     ret->val = TEST_PASSED;
 }
 
+static inline int compare_buffers(const uint8_t *p1,
+                                  const uint8_t *p2,
+                                  size_t comp_size)
+{
+#if DOMAIN_NS == 1U
+    /* Check that the decrypted data is the same as the original data */
+    return memcmp(p1, p2, comp_size);
+#else
+    return tfm_memcmp(p1, p2, comp_size);
+#endif
+}
+
 #define CIPHER_TEST_KEY_ID (0x1)
 
 void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
@@ -365,11 +377,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     }
 
     /* Check that the plain text matches the decrypted data */
-#if DOMAIN_NS == 1U
-    comp_result = memcmp(plain_text, decrypted_data, len);
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, len);
-#endif
+    comp_result = compare_buffers(plain_text, decrypted_data, len);
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key;
@@ -403,16 +411,11 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
     psa_status_t status = PSA_SUCCESS;
     psa_key_handle_t key_handle;
-    size_t iv_length;
-    /* In case of ChaCha20 keys, nonce must be 96 bits */
-    if (key_type == PSA_KEY_TYPE_CHACHA20) {
-        iv_length = 12;
-    } else {
-        iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
-    }
-    const uint8_t iv[] = "012345678901234";
+    size_t iv_length = PSA_CIPHER_IV_LENGTH(key_type, alg);
+    uint8_t iv[16] = {0};
     const uint8_t plain_text[PLAIN_DATA_SIZE] =
         "This is my plaintext to encrypt, 48 bytes long!";
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE];
     uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
     size_t output_length = 0, total_output_length = 0;
     union {
@@ -423,6 +426,11 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     bool bAbortDecryption = false;
+
+    if (iv_length > 16) {
+        TEST_FAIL("Unexpected IV length greater than 16 for this alg/key type");
+        return;
+    }
 
     ret->val = TEST_PASSED;
 
@@ -458,6 +466,68 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     psa_reset_key_attributes(&key_attributes);
+
+    /* Replicate the encryption-decryption test above using single-shot APIs */
+    status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
+                                sizeof(plain_text),
+                                input.encrypted_data_pad,
+                                sizeof(input.encrypted_data_pad),
+                                &output_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error encrypting with the single-shot API");
+        goto destroy_key;
+    }
+
+    /* Store a copy of the encrypted data for later checking it against
+     * multipart results
+     */
+#if DOMAIN_NS == 1U
+    memcpy(encrypted_data_single_shot, &input.encrypted_data_pad[iv_length],
+           output_length-iv_length);
+#else
+    tfm_memcpy(encrypted_data_single_shot, &input.encrypted_data_pad[iv_length],
+               output_length-iv_length);
+#endif
+
+    /* Make sure to use the randomly generated IV for the multipart flow */
+    for (int i=0; i<iv_length; i++) {
+        iv[i] = input.encrypted_data_pad[i];
+    }
+
+    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg,
+                                input.encrypted_data_pad,
+                                output_length,
+                                decrypted_data, ENC_DEC_BUFFER_SIZE,
+                                &output_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error decrypting with the single shot API");
+        goto destroy_key;
+    }
+
+    if (sizeof(plain_text) != output_length) {
+        TEST_FAIL("Unexpected output length");
+        goto destroy_key;
+    }
+
+    /* Check that the plain text matches the decrypted data */
+    comp_result = compare_buffers(plain_text, decrypted_data,
+                                  sizeof(plain_text));
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
+        goto destroy_key;
+    }
+
+    /* Clear inputs/outputs before moving to multipart tests */
+#if DOMAIN_NS == 1U
+    /* Clear intermediate buffers for additional single-shot API tests */
+    memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
+    memset(decrypted_data, 0, sizeof(decrypted_data));
+#else
+    tfm_memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
+    tfm_memset(decrypted_data, 0, sizeof(decrypted_data));
+#endif
+    /* Replicate the same test as above, but now using the multipart APIs */
 
     /* Setup the encryption object */
     status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
@@ -503,7 +573,8 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Finalise the cipher operation */
-    status = psa_cipher_finish(&handle, &input.encrypted_data[total_output_length],
+    status = psa_cipher_finish(&handle,
+                               &input.encrypted_data[total_output_length],
                                ENC_DEC_BUFFER_SIZE - total_output_length,
                                &output_length);
 
@@ -529,6 +600,15 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     /* Add the last output produced, it might be encrypted padding */
     total_output_length += output_length;
+
+    /* Compare encrypted data produced with single-shot and multipart APIs */
+    comp_result = compare_buffers(encrypted_data_single_shot,
+                                  input.encrypted_data,
+                                  total_output_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single-shot crypt doesn't match with multipart crypt");
+        goto destroy_key;
+    }
 
     /* Setup the decryption object */
     status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
@@ -603,58 +683,8 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Check that the plain text matches the decrypted data */
-#if DOMAIN_NS == 1U
-    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#endif
-    if (comp_result != 0) {
-        TEST_FAIL("Decrypted data doesn't match with plain text");
-        goto destroy_key;
-    }
-
-#if DOMAIN_NS == 1U
-    /* Clear intermediate buffers for additional single-shot API tests */
-    memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
-    memset(decrypted_data, 0, sizeof(decrypted_data));
-#else
-    tfm_memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
-    tfm_memset(decrypted_data, 0, sizeof(decrypted_data));
-#endif
-
-    /* Replicate the encryption-decryption test above using single-shot APIs */
-    status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
-                                sizeof(plain_text),
-                                input.encrypted_data_pad,
-                                sizeof(input.encrypted_data_pad),
-                                &output_length);
-
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error encrypting with the single-shot API");
-        goto destroy_key;
-    }
-
-    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg,
-                                input.encrypted_data_pad,
-                                output_length,
-                                decrypted_data, ENC_DEC_BUFFER_SIZE,
-                                &output_length);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error decrypting with the single shot API");
-        goto destroy_key;
-    }
-
-    if (sizeof(plain_text) != output_length) {
-        TEST_FAIL("Unexpected output length");
-        goto destroy_key;
-    }
-
-#if DOMAIN_NS == 1U
-    /* Check that the plain text matches the decrypted data */
-    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#endif
+    comp_result = compare_buffers(plain_text, decrypted_data,
+                                  sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
@@ -1021,6 +1051,20 @@ destroy_key_mac:
     }
 }
 
+static const uint8_t chacha20_poly1305_ref_encrypted[] = {
+0xae, 0x42, 0xf0, 0xd7, 0x3f, 0x7b, 0xe4, 0xaa,
+0xb7, 0x50, 0xe0, 0xd6, 0x66, 0x12, 0xe8, 0x5f,
+0x27, 0x51, 0x7d, 0xcb, 0x4f, 0x09, 0xd6, 0x98,
+0x83, 0x08, 0xda, 0x16, 0xb7, 0xf4, 0xb7, 0xb0,
+0xda, 0x88, 0xa9, 0xe8, 0xc0, 0x02, 0x62, 0xea,
+0xa6, 0xcd, 0xc2, 0x10, 0x05, 0x17, 0x56, 0x77,
+0xd7, 0xd7, 0x4e, 0xca, 0x7d, 0x96, 0xc1, 0xd1,
+0xd9, 0x46, 0xd8, 0xcd, 0x95, 0xf3, 0x47, 0xd1,
+0x55, 0xb7, 0xbf, 0x7e, 0x5d, 0xfe, 0x52, 0x57,
+0x4a, 0x1a, 0xe1, 0xf5, 0xc8, 0x2a, 0x5b, 0xf8,
+0xdd, 0xc6, 0x71, 0x70
+};
+
 void psa_aead_test(const psa_key_type_t key_type,
                    const psa_algorithm_t alg,
                    const uint8_t *key,
@@ -1113,6 +1157,17 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
+    if (key_type == PSA_KEY_TYPE_CHACHA20) {
+        /* Check that the decrypted data is the same as the original data */
+        comp_result = compare_buffers(encrypted_data,
+                                      chacha20_poly1305_ref_encrypted,
+                                      sizeof(encrypted_data));
+        if (comp_result != 0) {
+            TEST_FAIL("Encrypted data does not match reference data");
+            goto destroy_key_aead;
+        }
+    }
+
     /* Perform AEAD decryption */
     status = psa_aead_decrypt(key_handle, alg, nonce, nonce_length,
                               associated_data,
@@ -1138,12 +1193,9 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
-#if DOMAIN_NS == 1U
     /* Check that the decrypted data is the same as the original data */
-    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#endif
+    comp_result = compare_buffers(plain_text, decrypted_data,
+                                  sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key_aead;
@@ -1367,12 +1419,9 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
-#if DOMAIN_NS == 1U
     /* Check that the decrypted data is the same as the original data */
-    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#endif
+    comp_result = compare_buffers(plain_text, decrypted_data,
+                                  sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
@@ -1649,11 +1698,7 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     }
 
     /* Check that the exported key is the same as the imported one */
-#if DOMAIN_NS == 1U
-    comp_result = memcmp(data_out, data, sizeof(data));
-#else
-    comp_result = tfm_memcmp(data_out, data, sizeof(data));
-#endif
+    comp_result = compare_buffers(data_out, data, sizeof(data));
     if (comp_result != 0) {
         TEST_FAIL("Exported key does not match the imported key");
         return;
@@ -2005,13 +2050,9 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
-#if DOMAIN_NS == 1U
     /* Check that the plain text matches the decrypted data */
-    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#else
-    comp_result = tfm_memcmp(plain_text, decrypted_data, sizeof(plain_text));
-#endif
-
+    comp_result = compare_buffers(plain_text, decrypted_data,
+                                  sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key;
