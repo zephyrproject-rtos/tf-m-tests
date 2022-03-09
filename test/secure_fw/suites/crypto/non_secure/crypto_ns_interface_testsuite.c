@@ -185,11 +185,11 @@ static struct test_t crypto_tests[] = {
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
     {&tfm_crypto_test_1048, "TFM_NS_CRYPTO_TEST_1048",
-     "Non Secure Symmetric encryption (CHACHA20-256) interface"},
+     "Non Secure Symmetric encryption (CHACHA20) interface"},
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
     {&tfm_crypto_test_1049, "TFM_NS_CRYPTO_TEST_1049",
-     "Non Secure AEAD (CHACHA20-256-POLY1305) interface"},
+     "Non Secure AEAD (CHACHA20-POLY1305) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
 

@@ -189,7 +189,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     /* Set the IV */
     status = psa_cipher_set_iv(&handle, iv, iv_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting the IV on the cypher operation object");
+        TEST_FAIL("Error setting the IV on the cipher operation object");
         goto abort;
     }
 
@@ -401,6 +401,572 @@ destroy_key:
     }
 }
 
+#ifdef TFM_CRYPTO_TEST_CHACHA20
+/* Chacha20 test vectors are taken directly from RFC7539 */
+static const uint8_t chacha20_testKey[] = {
+  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
+};
+
+static const uint8_t chacha20_testNonce[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x4a,
+  0x00, 0x00, 0x00, 0x00
+};
+
+/* The initial counter of the Chacha20 RFC7539 test vectors is 1, while the PSA
+ * APIs assume it to be zero. This means that this expected ciphertext is not
+ * the same as the one presented in the RFC
+ */
+static const uint8_t chacha20_testCiphertext_expected[] = {
+  0xe3, 0x64, 0x7a, 0x29, 0xde, 0xd3, 0x15, 0x28, 0xef, 0x56, 0xba, 0xc7,
+  0x0f, 0x7a, 0x7a, 0xc3, 0xb7, 0x35, 0xc7, 0x44, 0x4d, 0xa4, 0x2d, 0x99,
+  0x82, 0x3e, 0xf9, 0x93, 0x8c, 0x8e, 0xbf, 0xdc, 0xf0, 0x5b, 0xb7, 0x1a,
+  0x82, 0x2c, 0x62, 0x98, 0x1a, 0xa1, 0xea, 0x60, 0x8f, 0x47, 0x93, 0x3f,
+  0x2e, 0xd7, 0x55, 0xb6, 0x2d, 0x93, 0x12, 0xae, 0x72, 0x03, 0x76, 0x74,
+  0xf3, 0xe9, 0x3e, 0x24, 0x4c, 0x23, 0x28, 0xd3, 0x2f, 0x75, 0xbc, 0xc1,
+  0x5b, 0xb7, 0x57, 0x4f, 0xde, 0x0c, 0x6f, 0xcd, 0xf8, 0x7b, 0x7a, 0xa2,
+  0x5b, 0x59, 0x72, 0x97, 0x0c, 0x2a, 0xe6, 0xcc, 0xed, 0x86, 0xa1, 0x0b,
+  0xe9, 0x49, 0x6f, 0xc6, 0x1c, 0x40, 0x7d, 0xfd, 0xc0, 0x15, 0x10, 0xed,
+  0x8f, 0x4e, 0xb3, 0x5d, 0x0d, 0x62
+};
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+
+#if defined(TFM_CRYPTO_TEST_CHACHA20) ||      \
+    defined(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305)
+/* The plaintext of the vectors is the same for both Chacha20 and
+ * Chacha20-Poly1305
+ */
+static const uint8_t chacha20_testPlaintext[] = {
+  0x4c, 0x61, 0x64, 0x69, 0x65, 0x73, 0x20, 0x61, 0x6e, 0x64, 0x20, 0x47,
+  0x65, 0x6e, 0x74, 0x6c, 0x65, 0x6d, 0x65, 0x6e, 0x20, 0x6f, 0x66, 0x20,
+  0x74, 0x68, 0x65, 0x20, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x20, 0x6f, 0x66,
+  0x20, 0x27, 0x39, 0x39, 0x3a, 0x20, 0x49, 0x66, 0x20, 0x49, 0x20, 0x63,
+  0x6f, 0x75, 0x6c, 0x64, 0x20, 0x6f, 0x66, 0x66, 0x65, 0x72, 0x20, 0x79,
+  0x6f, 0x75, 0x20, 0x6f, 0x6e, 0x6c, 0x79, 0x20, 0x6f, 0x6e, 0x65, 0x20,
+  0x74, 0x69, 0x70, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x74, 0x68, 0x65, 0x20,
+  0x66, 0x75, 0x74, 0x75, 0x72, 0x65, 0x2c, 0x20, 0x73, 0x75, 0x6e, 0x73,
+  0x63, 0x72, 0x65, 0x65, 0x6e, 0x20, 0x77, 0x6f, 0x75, 0x6c, 0x64, 0x20,
+  0x62, 0x65, 0x20, 0x69, 0x74, 0x2e
+};
+/* To hold intermediate results in both Chacha20 and Chacha20-Poly1305 */
+static uint8_t chacha20_testCiphertext[sizeof(chacha20_testPlaintext)] = {0};
+static uint8_t chacha20_testDecryptedtext[sizeof(chacha20_testPlaintext)] = {0};
+#endif /* TFM_CRYPTO_TEST_CHACHA20 || TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+/* Chacha20-Poly1305 test vectors are taken directly from RFC7539 */
+static const uint8_t chacha20poly1305_testKey[] = {
+  0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+  0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+  0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+  0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f
+};
+
+static const uint8_t chacha20poly1305_testNonce[] = {
+  0x07, 0x00, 0x00, 0x00, /* constant */
+  0x40, 0x41, 0x42, 0x43, /* IV[0] */
+  0x44, 0x45, 0x46, 0x47  /* IV[1] */
+};
+
+static const uint8_t chacha20poly1305_testAad[] = {
+  0x50, 0x51, 0x52, 0x53, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7
+};
+
+static const uint8_t chacha20poly1305_testCiphertext_expected[] = {
+  0xd3, 0x1a, 0x8d, 0x34, 0x64, 0x8e, 0x60, 0xdb, 0x7b, 0x86, 0xaf, 0xbc,
+  0x53, 0xef, 0x7e, 0xc2, 0xa4, 0xad, 0xed, 0x51, 0x29, 0x6e, 0x08, 0xfe,
+  0xa9, 0xe2, 0xb5, 0xa7, 0x36, 0xee, 0x62, 0xd6, 0x3d, 0xbe, 0xa4, 0x5e,
+  0x8c, 0xa9, 0x67, 0x12, 0x82, 0xfa, 0xfb, 0x69, 0xda, 0x92, 0x72, 0x8b,
+  0x1a, 0x71, 0xde, 0x0a, 0x9e, 0x06, 0x0b, 0x29, 0x05, 0xd6, 0xa5, 0xb6,
+  0x7e, 0xcd, 0x3b, 0x36, 0x92, 0xdd, 0xbd, 0x7f, 0x2d, 0x77, 0x8b, 0x8c,
+  0x98, 0x03, 0xae, 0xe3, 0x28, 0x09, 0x1b, 0x58, 0xfa, 0xb3, 0x24, 0xe4,
+  0xfa, 0xd6, 0x75, 0x94, 0x55, 0x85, 0x80, 0x8b, 0x48, 0x31, 0xd7, 0xbc,
+  0x3f, 0xf4, 0xde, 0xf0, 0x8e, 0x4b, 0x7a, 0x9d, 0xe5, 0x76, 0xd2, 0x65,
+  0x86, 0xce, 0xc6, 0x4b, 0x61, 0x16
+};
+
+static const uint8_t chacha20poly1305_testTag_expected[] = {
+  0x1a, 0xe1, 0x0b, 0x59, 0x4f, 0x09, 0xe2, 0x6a,
+  0x7e, 0x90, 0x2e, 0xcb, 0xd0, 0x60, 0x06, 0x91
+};
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+
+#define LOG_INF(...) printf(__VA_ARGS__)
+#define LOG_HEXDUMP_INF(a,b,c)      \
+    do {                            \
+       LOG_INF(c);            \
+       for (int i=0; i<b; i++) {    \
+           LOG_INF("0x%x, ", a[i]); \
+       }                            \
+       printf("\r\n");              \
+    }                               \
+    while (0)
+
+#ifdef TFM_CRYPTO_TEST_CHACHA20
+void psa_cipher_rfc7539_test(struct test_result_t *ret)
+{
+    psa_cipher_operation_t handle = psa_cipher_operation_init();
+    psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle;
+    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+    psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+    const psa_key_type_t key_type = PSA_KEY_TYPE_CHACHA20;
+    const psa_algorithm_t alg = PSA_ALG_STREAM_CIPHER;
+    bool bAbortDecryption = false;
+    /* Variables required during multipart update */
+    size_t data_left = sizeof(chacha20_testPlaintext);
+    size_t lengths[] = {42, 24, 48};
+    size_t start_idx = 0;
+    size_t output_length = 0; size_t total_output_length = 0;
+    int comp_result;
+
+    ret->val = TEST_PASSED;
+
+    /* Setup the key policy */
+    psa_set_key_usage_flags(&key_attributes, usage);
+    psa_set_key_algorithm(&key_attributes, alg);
+    psa_set_key_type(&key_attributes, key_type);
+    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
+    status = psa_import_key(&key_attributes, chacha20_testKey,
+                            sizeof(chacha20_testKey), &key_handle);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing a key");
+        return;
+    }
+
+    /* Setup the encryption object */
+    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Encryption setup shouldn't fail");
+        goto destroy_key;
+    }
+
+    /* Set the IV */
+    status = psa_cipher_set_iv(&handle,
+                               chacha20_testNonce, sizeof(chacha20_testNonce));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the IV on the cipher operation object");
+        goto abort;
+    }
+
+    for (int i=0; i<sizeof(lengths)/sizeof(size_t); i++) {
+        /* Encrypt one chunk of information */
+        status = psa_cipher_update(
+                        &handle,
+                        &chacha20_testPlaintext[start_idx],
+                        lengths[i],
+                        &chacha20_testCiphertext[total_output_length],
+                        sizeof(chacha20_testCiphertext) - total_output_length,
+                        &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        if (output_length != lengths[i]) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        data_left -= lengths[i];
+        total_output_length += output_length;
+
+        start_idx += lengths[i];
+    }
+
+    /* Finalise the cipher operation */
+    status = psa_cipher_finish(
+                    &handle,
+                    &chacha20_testCiphertext[total_output_length],
+                    sizeof(chacha20_testCiphertext) - total_output_length,
+                    &output_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error finalising the cipher operation");
+        goto abort;
+    }
+
+    if (output_length != 0) {
+        TEST_FAIL("Un-padded mode final output length unexpected");
+        goto abort;
+    }
+
+    /* Add the last output produced, it might be encrypted padding */
+    total_output_length += output_length;
+
+    /* Compare encrypted data produced with single-shot and multipart APIs */
+    comp_result = compare_buffers(chacha20_testCiphertext_expected,
+                                  chacha20_testCiphertext,
+                                  total_output_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single-shot crypt doesn't match with multipart crypt");
+        goto destroy_key;
+    }
+
+    /* Setup the decryption object */
+    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting up cipher operation object");
+        goto destroy_key;
+    }
+
+    /* From now on, in case of failure we want to abort the decryption op */
+    bAbortDecryption = true;
+
+    /* Set the IV for decryption */
+    status = psa_cipher_set_iv(&handle_dec,
+                               chacha20_testNonce, sizeof(chacha20_testNonce));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the IV for decryption");
+        goto abort;
+    }
+
+    /* Decrypt - total_output_length considers encrypted padding */
+    data_left = total_output_length;
+    /* Update in different chunks of plainText */
+    lengths[0] = 14; lengths[1] = 70; lengths[2] = 30;
+    start_idx = 0;
+    output_length = 0; total_output_length = 0;
+    for (int i=0; i<sizeof(lengths)/sizeof(size_t); i++) {
+        status = psa_cipher_update(
+                    &handle_dec,
+                    &chacha20_testCiphertext[start_idx],
+                    lengths[i],
+                    &chacha20_testDecryptedtext[total_output_length],
+                    sizeof(chacha20_testDecryptedtext) - total_output_length,
+                    &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error decrypting one chunk of information");
+            goto abort;
+        }
+
+        if (output_length != lengths[i]) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        data_left -= lengths[i];
+        total_output_length += output_length;
+
+        start_idx += lengths[i];
+    }
+
+    /* Finalise the cipher operation for decryption */
+    status = psa_cipher_finish(
+                    &handle_dec,
+                    &chacha20_testDecryptedtext[total_output_length],
+                    sizeof(chacha20_testDecryptedtext) - total_output_length,
+                    &output_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error finalising the cipher operation");
+        goto abort;
+    }
+
+    /* Finalize the count of output which has been produced */
+    total_output_length += output_length;
+
+    /* Check that the decrypted length is equal to the original length */
+    if (total_output_length != sizeof(chacha20_testPlaintext)) {
+        TEST_FAIL("After finalising, unexpected decrypted length");
+        goto destroy_key;
+    }
+
+    /* Check that the plain text matches the decrypted data */
+    comp_result = compare_buffers(chacha20_testPlaintext,
+                                  chacha20_testDecryptedtext,
+                                  sizeof(chacha20_testPlaintext));
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
+    }
+
+    /* Go directly to the destroy_key label at this point */
+    goto destroy_key;
+
+abort:
+    /* Abort the operation */
+    status = bAbortDecryption ? psa_cipher_abort(&handle_dec) :
+                                psa_cipher_abort(&handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error aborting the operation");
+    }
+destroy_key:
+    /* Destroy the key */
+    status = psa_destroy_key(key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error destroying a key");
+    }
+
+    return;
+}
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+void psa_aead_rfc7539_test(struct test_result_t *ret)
+{
+    psa_aead_operation_t handle = psa_aead_operation_init();
+    psa_aead_operation_t handle_dec = psa_aead_operation_init();
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_handle_t key_handle;
+    psa_key_attributes_t key_attributes = psa_key_attributes_init();
+    psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+    const psa_key_type_t key_type = PSA_KEY_TYPE_CHACHA20;
+    const psa_algorithm_t alg = PSA_ALG_CHACHA20_POLY1305;
+    uint8_t tag[16] = {0}; /* tag in chacha20-poly1305 is 16 bytes */
+    size_t tag_length = 0;
+    bool bAbortDecryption = false;
+    /* Variables related to multipart update */
+    size_t data_left = sizeof(chacha20_testPlaintext);
+    size_t lengths[] = {42, 24, 48};
+    size_t start_idx = 0;
+    size_t output_length = 0; size_t total_output_length = 0;
+    int comp_result;
+
+    ret->val = TEST_PASSED;
+
+    /* Setup the key policy */
+    psa_set_key_usage_flags(&key_attributes, usage);
+    psa_set_key_algorithm(&key_attributes, alg);
+    psa_set_key_type(&key_attributes, key_type);
+    status = psa_import_key(&key_attributes, chacha20poly1305_testKey,
+                            sizeof(chacha20poly1305_testKey), &key_handle);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing a key");
+        return;
+    }
+
+    /* Setup the encryption object */
+    status = psa_aead_encrypt_setup(&handle, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Encryption setup shouldn't fail");
+        goto destroy_key;
+    }
+
+    /* Set the IV */
+    status = psa_aead_set_nonce(&handle,
+                                chacha20poly1305_testNonce,
+                                sizeof(chacha20poly1305_testNonce));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the nonce on the aead operation object");
+        goto abort;
+    }
+
+    /* Set lengths */
+    status = psa_aead_set_lengths(&handle,
+                                  sizeof(chacha20poly1305_testAad),
+                                  sizeof(chacha20_testPlaintext));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the lengths on the aead operation object");
+        goto abort;
+    }
+
+    /* Update AD in one go */
+    status = psa_aead_update_ad(&handle,
+                                chacha20poly1305_testAad,
+                                sizeof(chacha20poly1305_testAad));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error updating AD");
+        goto abort;
+    }
+
+    for (int i=0; i<sizeof(lengths)/sizeof(size_t); i++) {
+        /* Encrypt one chunk of information */
+        status = psa_aead_update(
+                        &handle,
+                        &chacha20_testPlaintext[start_idx],
+                        lengths[i],
+                        &chacha20_testCiphertext[total_output_length],
+                        sizeof(chacha20_testCiphertext) - total_output_length,
+                        &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error encrypting one chunk of information");
+            goto abort;
+        }
+
+        if (output_length != lengths[i]) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        data_left -= lengths[i];
+        total_output_length += output_length;
+
+        start_idx += lengths[i];
+    }
+
+    /* Finalise the cipher operation */
+    status = psa_aead_finish(
+                    &handle,
+                    &chacha20_testCiphertext[total_output_length],
+                    sizeof(chacha20_testCiphertext) - total_output_length,
+                    &output_length,
+                    tag,
+                    sizeof(tag),
+                    &tag_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error finalising the cipher operation");
+        goto abort;
+    }
+
+    if (output_length != 0) {
+        TEST_FAIL("Un-padded mode final output length unexpected");
+        goto abort;
+    }
+
+    if (tag_length != 16) {
+        TEST_FAIL("Unexpected tag length different than 16");
+        goto abort;
+    }
+
+    /* Add the last output produced, it might be encrypted padding */
+    total_output_length += output_length;
+
+    /* Compare encrypted data produced with single-shot and multipart APIs */
+    comp_result = compare_buffers(chacha20poly1305_testCiphertext_expected,
+                                  chacha20_testCiphertext,
+                                  total_output_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Encrypted data does not match reference data");
+        goto destroy_key;
+    }
+
+    comp_result = compare_buffers(chacha20poly1305_testTag_expected,
+                                  tag, tag_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Computed tag does not match reference data");
+        goto destroy_key;
+    }
+
+    /* Setup the decryption object */
+    status = psa_aead_decrypt_setup(&handle_dec, key_handle, alg);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting up aead operation object");
+        goto destroy_key;
+    }
+
+    /* From now on, in case of failure we want to abort the decryption op */
+    bAbortDecryption = true;
+
+    /* Set the IV for decryption */
+    status = psa_aead_set_nonce(&handle_dec,
+                                chacha20poly1305_testNonce,
+                                sizeof(chacha20poly1305_testNonce));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the nonce for decryption");
+        goto abort;
+    }
+
+    /* Set lengths */
+    status = psa_aead_set_lengths(&handle_dec,
+                                  sizeof(chacha20poly1305_testAad),
+                                  sizeof(chacha20_testPlaintext));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error setting the lengths on the aead operation object");
+        goto abort;
+    }
+
+    /* Update AD in one go */
+    status = psa_aead_update_ad(&handle_dec,
+                                chacha20poly1305_testAad,
+                                sizeof(chacha20poly1305_testAad));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error updating AD");
+        goto abort;
+    }
+
+    /* Decrypt - total_output_length considers encrypted padding */
+    data_left = total_output_length;
+    /* Update in different chunks of plainText */
+    lengths[0] = 14; lengths[1] = 70; lengths[2] = 30;
+    start_idx = 0;
+    output_length = 0; total_output_length = 0;
+    for (int i=0; i<sizeof(lengths)/sizeof(size_t); i++) {
+        status = psa_aead_update(
+                    &handle_dec,
+                    &chacha20_testCiphertext[start_idx],
+                    lengths[i],
+                    &chacha20_testDecryptedtext[total_output_length],
+                    sizeof(chacha20_testDecryptedtext) - total_output_length,
+                    &output_length);
+
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error decrypting one chunk of information");
+            goto abort;
+        }
+
+        if (output_length != lengths[i]) {
+            TEST_FAIL("Expected encrypted length is different from expected");
+            goto abort;
+        }
+
+        data_left -= lengths[i];
+        total_output_length += output_length;
+
+        start_idx += lengths[i];
+    }
+
+    /* Finalise the cipher operation for decryption (destroys decrypted data) */
+    status = psa_aead_verify(
+                    &handle_dec,
+                    &chacha20_testDecryptedtext[total_output_length],
+                    sizeof(chacha20_testDecryptedtext) - total_output_length,
+                    &output_length,
+                    tag,
+                    tag_length);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error verifying the aead operation");
+        goto abort;
+    }
+
+    /* Finalize the count of output which has been produced */
+    total_output_length += output_length;
+
+    /* Check that the decrypted length is equal to the original length */
+    if (total_output_length != sizeof(chacha20_testPlaintext)) {
+        TEST_FAIL("After finalising, unexpected decrypted length");
+        goto destroy_key;
+    }
+
+    /* Check that the plain text matches the decrypted data */
+    comp_result = compare_buffers(chacha20_testPlaintext,
+                                  chacha20_testDecryptedtext,
+                                  sizeof(chacha20_testPlaintext));
+    if (comp_result != 0) {
+        TEST_FAIL("Decrypted data doesn't match with plain text");
+    }
+
+    /* Go directly to the destroy_key label at this point */
+    goto destroy_key;
+
+abort:
+    /* Abort the operation */
+    status = bAbortDecryption ? psa_aead_abort(&handle_dec) :
+                                psa_aead_abort(&handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error aborting the operation");
+    }
+destroy_key:
+    /* Destroy the key */
+    status = psa_destroy_key(key_handle);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error destroying a key");
+    }
+
+    return;
+}
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+
 void psa_cipher_test(const psa_key_type_t key_type,
                      const psa_algorithm_t alg,
                      const uint8_t *key,
@@ -467,7 +1033,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&key_attributes);
 
-    /* Replicate the encryption-decryption test above using single-shot APIs */
+    /* Encrypt single part functions */
     status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
                                 sizeof(plain_text),
                                 input.encrypted_data_pad,
@@ -544,7 +1110,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     if (alg != PSA_ALG_ECB_NO_PADDING) {
         status = psa_cipher_set_iv(&handle, iv, iv_length);
         if (status != PSA_SUCCESS) {
-            TEST_FAIL("Error setting the IV on the cypher operation object");
+            TEST_FAIL("Error setting the IV on the cipher operation object");
             goto abort;
         }
     }
@@ -1210,8 +1776,8 @@ void psa_aead_test(const psa_key_type_t key_type,
          * just to skip the multipart APIs test flow from this point on
          */
         if (status == PSA_ERROR_NOT_SUPPORTED) {
-            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
-                     "- skip multipart API flow\r\n");
+            TEST_LOG("psa_aead_encrypt_setup(): Algorithm NOT SUPPORTED by"\
+                     " the implementation - skip multipart API flow\r\n");
         } else {
             TEST_FAIL("Error setting up encryption object");
         }
@@ -1230,8 +1796,8 @@ void psa_aead_test(const psa_key_type_t key_type,
          */
         if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_CCM
             && status == PSA_ERROR_NOT_SUPPORTED) {
-            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
-                     "- skip multipart API flow\r\n");
+            TEST_LOG("psa_aead_set_lengths(): Algorithm NOT SUPPORTED by the"\
+                     "implementation - skip multipart API flow\r\n");
         } else {
             TEST_FAIL("Error setting lengths");
         }
@@ -1246,16 +1812,14 @@ void psa_aead_test(const psa_key_type_t key_type,
     status = psa_aead_set_nonce(&encop, nonce, nonce_length);
     if (status != PSA_SUCCESS) {
         /* Implementations using the mbed TLS _ALT APIs, that don't support
-         * multipart API flows in GCM or ChaCha20_Poly1305 modes, will return
-         * PSA_ERROR_NOT_SUPPORTED when calling psa_aead_set_nonce(). In this
-         * case, it's fine just to skip the multipart APIs test flow from
-         * this point on
+         * multipart API flows in GCM, will return PSA_ERROR_NOT_SUPPORTED when
+         * calling psa_aead_set_nonce(). In this case, it's fine just to skip
+         * the multipart APIs test flow from this point on
          */
-        if ((PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_GCM ||
-             PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) ==
-             PSA_ALG_CHACHA20_POLY1305) && status == PSA_ERROR_NOT_SUPPORTED) {
-            TEST_LOG("Algorithm NOT SUPPORTED by the implementation "\
-                     "- skip multipart API flow\r\n");
+        if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_GCM
+            && status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("psa_aead_set_nonce(): Algorithm NOT SUPPORTED by the "\
+                     "implementation - skip multipart API flow\r\n");
         } else {
             TEST_FAIL("Error setting nonce");
         }

@@ -79,9 +79,11 @@ static void tfm_crypto_test_1048(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 static void tfm_crypto_test_1049(struct test_result_t *ret);
+static void tfm_crypto_test_1051(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
 static void tfm_crypto_test_1050(struct test_result_t *ret);
+static void tfm_crypto_test_1052(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
 static struct test_t crypto_tests[] = {
@@ -189,11 +191,19 @@ static struct test_t crypto_tests[] = {
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
     {&tfm_crypto_test_1049, "TFM_S_CRYPTO_TEST_1049",
-     "Secure Symmetric encryption (CHACHA20-256) interface"},
+     "Secure Symmetric encryption (CHACHA20) interface"},
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
     {&tfm_crypto_test_1050, "TFM_S_CRYPTO_TEST_1050",
-     "Secure AEAD (CHACHA20-256-POLY1305) interface"},
+     "Secure AEAD (CHACHA20-POLY1305) interface"},
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+#ifdef TFM_CRYPTO_TEST_CHACHA20
+    {&tfm_crypto_test_1051, "TFM_S_CRYPTO_TEST_1051",
+     "Secure RFC7539 verification on Chacha20"},
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+    {&tfm_crypto_test_1052, "TFM_S_CRYPTO_TEST_1052",
+     "Secure RFC7539 verification on Chacha20-Poly1305"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
 
@@ -485,6 +495,11 @@ static void tfm_crypto_test_1049(struct test_result_t *ret)
     psa_cipher_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_STREAM_CIPHER,
                     test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
 }
+
+static void tfm_crypto_test_1051(struct test_result_t *ret)
+{
+    psa_cipher_rfc7539_test(ret);
+}
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
@@ -492,5 +507,10 @@ static void tfm_crypto_test_1050(struct test_result_t *ret)
 {
     psa_aead_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_CHACHA20_POLY1305,
                   test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
+}
+
+static void tfm_crypto_test_1052(struct test_result_t *ret)
+{
+    psa_aead_rfc7539_test(ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
