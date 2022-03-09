@@ -51,21 +51,6 @@ if (NOT TFM_PARTITION_AUDIT_LOG)
     set(TEST_S_AUDIT            OFF        CACHE BOOL      "Whether to build S regression Audit log tests")
 endif()
 
-if (TFM_LIB_MODEL)
-    set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
-    set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
-
-    set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
-    set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
-elseif(CONFIG_TFM_SPM_BACKEND_SFN)
-    set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
-    set(TEST_NS_CORE            OFF        CACHE BOOL      "Whether to build NS regression Core tests")
-    set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
-
-    set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
-    set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
-endif()
-
 if (NOT TFM_MULTI_CORE_TOPOLOGY)
     set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
 endif()
@@ -132,10 +117,24 @@ if (CONFIG_TFM_SPM_BACKEND_IPC AND PLATFORM_SLIH_IRQ_TEST_SUPPORT
     set(TEST_NS_SLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
 endif()
 
+############################ IPC backend test ##################################
+if (CONFIG_TFM_SPM_BACKEND_IPC AND TEST_NS)
+    set(TEST_NS_IPC             ON        CACHE BOOL      "Whether to build NS regression SFN backend tests")
+endif()
+
+if (CONFIG_TFM_SPM_BACKEND_IPC AND TEST_S)
+    set(TEST_S_IPC              ON        CACHE BOOL      "Whether to build NS regression SFN backend tests")
+endif()
+
 ############################ SFN backend test ##################################
 
 if (CONFIG_TFM_SPM_BACKEND_SFN AND TEST_NS)
     set(TEST_NS_SFN_BACKEND     ON        CACHE BOOL      "Whether to build NS regression SFN backend tests")
+endif()
+
+######################### Library Model Specific Tests #########################
+if (TFM_LIB_MODEL AND TEST_NS)
+    set(TEST_NS_CORE            ON        CACHE BOOL      "Whether to build NS regression Core tests")
 endif()
 
 ########################## Load default config #################################
