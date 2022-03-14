@@ -117,21 +117,6 @@
       }
     },
     {
-      "name": "TFM Initial Attestation Test Service",
-      "short_name": "TFM_ATTEST_TEST_SERVICE",
-      "manifest": "suites/attestation/service/tfm_attest_test_service.yaml",
-      "output_path": "secure_fw/test_services/tfm_attest_test_service",
-      "conditional": "@TFM_PARTITION_ATTESTATION_TEST@",
-      "version_major": 0,
-      "version_minor": 1,
-      "pid": 3007,
-      "linker_pattern": {
-        "library_list": [
-           "*tfm_*partition_attest_test_service.*"
-         ]
-      }
-    },
-    {
       "name": "TFM SLIH Test Service",
       "short_name": "TFM_SP_SLIH_TEST",
       "manifest": "suites/spm/irq/service/tfm_slih_test_service/tfm_slih_test_service.yaml",

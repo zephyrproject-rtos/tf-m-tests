@@ -19,7 +19,6 @@ set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_serv
 
 # Test services are also required by some NS regression tests.
 # Include test services at first no matter whether secure tests are enabled.
-add_subdirectory(suites/attestation/service)
 add_subdirectory(suites/core/service)
 add_subdirectory(suites/spm/ipc/service)
 add_subdirectory(suites/spm/sfn/service)

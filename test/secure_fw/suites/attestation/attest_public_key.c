@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,9 +9,6 @@
 #include "psa/crypto.h"
 #include <stdint.h>
 #include "attest.h"
-#ifdef ATTEST_TEST_GET_PUBLIC_KEY
-#include "tfm_attest_test_service_api.h"
-#endif
 
 /*!
  * \def ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH
@@ -45,40 +42,6 @@ static psa_status_t attest_import_public_key(psa_key_handle_t *public_key,
     return psa_import_key(&key_attributes, key_buf, ken_len, public_key);
 }
 
-#ifdef ATTEST_TEST_GET_PUBLIC_KEY
-enum psa_attest_err_t
-attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
-{
-    psa_status_t res;
-    uint8_t public_key_buff[ECC_CURVE_SECP256R1_PUBLIC_KEY_LENGTH] = {0};
-    size_t public_key_len;
-    psa_ecc_family_t ecc_curve;
-
-    /* Public key should be unregistered at this point */
-    if (public_key_registered != 0) {
-        return PSA_ATTEST_ERR_GENERAL;
-    }
-
-    res = tfm_initial_attest_get_public_key(public_key_buff,
-                                            sizeof(public_key_buff),
-                                            &public_key_len,
-                                            &ecc_curve);
-    if (res != PSA_SUCCESS) {
-        return PSA_ATTEST_ERR_GENERAL;
-    }
-
-    res = attest_import_public_key(public_key, public_key_buff, public_key_len,
-                                   ecc_curve);
-    if (res != PSA_SUCCESS) {
-        return PSA_ATTEST_ERR_GENERAL;
-    }
-
-    public_key_registered = 1;
-
-    return PSA_ATTEST_ERR_SUCCESS;
-}
-
-#else /* ATTEST_TEST_GET_PUBLIC_KEY */
 extern const psa_ecc_family_t initial_attest_curve_type;
 extern const uint8_t initial_attest_pub_key[];
 extern const uint32_t initial_attest_pub_key_size;
@@ -112,7 +75,6 @@ attest_register_initial_attestation_public_key(psa_key_handle_t *public_key)
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
-#endif /* ATTEST_TEST_GET_PUBLIC_KEY */
 
 enum psa_attest_err_t
 attest_unregister_initial_attestation_public_key(psa_key_handle_t public_key)

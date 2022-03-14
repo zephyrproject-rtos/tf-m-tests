@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -41,7 +41,6 @@ if (TEST_NS_ATTESTATION)
             DOMAIN_NS=1
             $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
-            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:ATTEST_TEST_GET_PUBLIC_KEY>
         INTERFACE
             TEST_NS_ATTESTATION
     )
@@ -55,7 +54,6 @@ if (TEST_NS_ATTESTATION)
             tfm_attestation_defs
             tfm_boot_status
             platform_ns
-            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:tfm_psa_rot_partition_attest_test_service_defs>
     )
 
     target_link_libraries(tfm_ns_tests
@@ -91,7 +89,6 @@ if (TEST_S_ATTESTATION)
         PRIVATE
             $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
-            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:ATTEST_TEST_GET_PUBLIC_KEY>
         INTERFACE
             TEST_S_ATTESTATION
     )
@@ -110,7 +107,6 @@ if (TEST_S_ATTESTATION)
             tfm_boot_status
             $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_crypto>
             platform_s
-            $<$<AND:$<BOOL:${ATTEST_TEST_GET_PUBLIC_KEY}>,$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>>:tfm_psa_rot_partition_attest_test_service_defs>
     )
 
     target_link_libraries(tfm_s_tests
