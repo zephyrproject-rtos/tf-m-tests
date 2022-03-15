@@ -285,6 +285,7 @@ target_link_libraries(tfm_ns_integration_test
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_ns_interface>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_api_ns>
+        tfm_log
 )
 
 target_compile_definitions(tfm_ns_integration_test
