@@ -18,7 +18,6 @@ if (TEST_NS_ATTESTATION)
 
     target_sources(tfm_test_suite_attestation_ns
         PRIVATE
-            attest_public_key.c
             attest_token_test.c
             attest_token_decode_common.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
@@ -67,7 +66,6 @@ endif()
 if (TEST_S_ATTESTATION)
     target_sources(tfm_test_suite_attestation_s
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/attest_public_key.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
