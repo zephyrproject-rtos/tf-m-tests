@@ -74,3 +74,20 @@ tfm_invalid_config(TEST_NS_PS AND NOT TEST_NS_ITS)
 tfm_invalid_config(TEST_NS_SLIH_IRQ AND TEST_NS_FLIH_IRQ)
 tfm_invalid_config(NOT PLATFORM_SLIH_IRQ_TEST_SUPPORT AND TEST_NS_SLIH_IRQ)
 tfm_invalid_config(NOT PLATFORM_FLIH_IRQ_TEST_SUPPORT AND TEST_NS_FLIH_IRQ)
+
+####### Disable FP tests for MVE feature enabled platform and GCC Release #####
+
+# Disable FP test cases under particular configurations: For MVE feature
+# enabled platform, hard ABI and Release build type for GNU Arm Embedded
+# Toolchain.
+# The config above can generate FP context in SPM when MVE instructions
+# in C sub-routines are called. It is a normal behavior.
+# Current FP test cases are designed by using specific setup of FP context, to
+# check secure FP context protection. Then those test cases can be affected by
+# the generated FP context mentioned above. The secure FP context protection
+# mechanism still works as expected.
+# Re-enable those test cases later when the test mechanism is enhanced.
+tfm_invalid_config(CONFIG_TFM_FP STREQUAL "hard" AND CMAKE_C_COMPILER_ID STREQUAL "GNU"
+                AND CMAKE_BUILD_TYPE STREQUAL "Release"
+                AND ${TFM_SYSTEM_ARCHITECTURE} STREQUAL "armv8.1-m.main"
+                AND (TEST_S_FPU OR TEST_NS_FPU))
