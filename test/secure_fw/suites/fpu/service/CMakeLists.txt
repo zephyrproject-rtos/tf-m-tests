@@ -49,7 +49,6 @@ target_link_libraries(tfm_app_rot_partition_fpu_service
         tfm_secure_api
         platform_s
         tfm_test_framework_s
-        tfm_arch
 )
 
 target_link_libraries(tfm_spm

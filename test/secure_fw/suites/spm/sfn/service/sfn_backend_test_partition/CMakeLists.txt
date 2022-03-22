@@ -35,7 +35,7 @@ target_sources(tfm_partitions
 target_include_directories(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        ${CMAKE_BINARY_DIR}/generated/test_services/sfn_backend_test_partition
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service
         ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
