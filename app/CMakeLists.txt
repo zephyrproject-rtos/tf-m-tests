@@ -309,7 +309,7 @@ target_link_libraries(tfm_ns
     PRIVATE
         platform_ns
         CMSIS_5_tfm_ns
-        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<BOOL:${TEST_FRAMEWORK_S}>>:tfm_ns_integration_test>
+        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<AND:$<NOT:$<BOOL:${TFM_PSA_API}>>,$<BOOL:${TEST_FRAMEWORK_S}>>>:tfm_ns_integration_test>
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
