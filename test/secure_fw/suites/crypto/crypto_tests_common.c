@@ -477,17 +477,6 @@ static const uint8_t chacha20poly1305_testTag_expected[] = {
 };
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
-#define LOG_INF(...) printf(__VA_ARGS__)
-#define LOG_HEXDUMP_INF(a,b,c)      \
-    do {                            \
-       LOG_INF(c);            \
-       for (int i=0; i<b; i++) {    \
-           LOG_INF("0x%x, ", a[i]); \
-       }                            \
-       printf("\r\n");              \
-    }                               \
-    while (0)
-
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 void psa_cipher_rfc7539_test(struct test_result_t *ret)
 {
@@ -1594,20 +1583,6 @@ destroy_key_mac:
     }
 }
 
-static const uint8_t chacha20_poly1305_ref_encrypted[] = {
-0xae, 0x42, 0xf0, 0xd7, 0x3f, 0x7b, 0xe4, 0xaa,
-0xb7, 0x50, 0xe0, 0xd6, 0x66, 0x12, 0xe8, 0x5f,
-0x27, 0x51, 0x7d, 0xcb, 0x4f, 0x09, 0xd6, 0x98,
-0x83, 0x08, 0xda, 0x16, 0xb7, 0xf4, 0xb7, 0xb0,
-0xda, 0x88, 0xa9, 0xe8, 0xc0, 0x02, 0x62, 0xea,
-0xa6, 0xcd, 0xc2, 0x10, 0x05, 0x17, 0x56, 0x77,
-0xd7, 0xd7, 0x4e, 0xca, 0x7d, 0x96, 0xc1, 0xd1,
-0xd9, 0x46, 0xd8, 0xcd, 0x95, 0xf3, 0x47, 0xd1,
-0x55, 0xb7, 0xbf, 0x7e, 0x5d, 0xfe, 0x52, 0x57,
-0x4a, 0x1a, 0xe1, 0xf5, 0xc8, 0x2a, 0x5b, 0xf8,
-0xdd, 0xc6, 0x71, 0x70
-};
-
 void psa_aead_test(const psa_key_type_t key_type,
                    const psa_algorithm_t alg,
                    const uint8_t *key,
@@ -1626,6 +1601,7 @@ void psa_aead_test(const psa_key_type_t key_type,
         "This is my associated data to authenticate";
     uint8_t decrypted_data[MAX_PLAIN_DATA_SIZE_AEAD] = {0};
     uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
     size_t encrypted_data_length = 0, decrypted_data_length = 0;
     size_t total_output_length = 0, total_encrypted_length = 0;
     uint32_t comp_result;
@@ -1700,16 +1676,14 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
-    if (key_type == PSA_KEY_TYPE_CHACHA20) {
-        /* Check that the decrypted data is the same as the original data */
-        comp_result = memcmp(encrypted_data,
-                             chacha20_poly1305_ref_encrypted,
-                             sizeof(encrypted_data));
-        if (comp_result != 0) {
-            TEST_FAIL("Encrypted data does not match reference data");
-            goto destroy_key_aead;
-        }
+    /* Store a copy of the encrypted data for later checking it against
+     * multipart results
+     */
+    if (encrypted_data_length > ENC_DEC_BUFFER_SIZE_AEAD) {
+        TEST_FAIL("Encrypted data length is above the maximum expected value");
+        goto destroy_key_aead;
     }
+    memcpy(encrypted_data_single_shot, encrypted_data, encrypted_data_length);
 
     /* Perform AEAD decryption */
     status = psa_aead_decrypt(key_handle, alg, nonce, nonce_length,
@@ -1862,6 +1836,24 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
     total_encrypted_length += encrypted_data_length;
+
+    /* Compare tag between single part and multipart case */
+    comp_result = memcmp(
+                      &encrypted_data_single_shot[total_encrypted_length],
+                      tag, tag_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot tag does not match with multipart");
+        goto destroy_key_aead;
+    }
+
+    /* Compare encrypted data between single part and multipart case */
+    comp_result = memcmp(
+                      encrypted_data_single_shot,
+                      encrypted_data, total_encrypted_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot encrypted data does not match with multipart");
+        goto destroy_key_aead;
+    }
 
     /* Setup up the decryption object */
     status = psa_aead_decrypt_setup(&decop, key_handle, alg);
