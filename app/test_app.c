@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
-#include "tfm_integ_test.h"
+#include "test_app.h"
 #include "tfm_log.h"
 
 #ifdef TEST_FRAMEWORK_NS
@@ -18,7 +18,14 @@
 #include "tfm_secure_client_service_api.h"
 #endif
 
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
+#if PSA_API_TEST_NS
+/**
+ * \brief This symbol is the entry point provided by the PSA API compliance
+ *        test libraries
+ */
+extern void val_entry(void);
+#endif
+
 /**
  * \brief Services test thread
  *
@@ -36,13 +43,19 @@ void test_app(void *argument)
      * order of these test classes should be reversed. */
     tfm_secure_client_run_tests();
 #endif
+
 #ifdef TEST_FRAMEWORK_NS
     tfm_non_secure_client_run_tests();
 #endif
+
+#ifdef PSA_API_TEST_NS
+    val_entry();
+#endif
+
     /* Output EOT char for test environments like FVP. */
     LOG_MSG("\x04");
+
     /* End of test */
     for (;;) {
     }
 }
-#endif /* TEST_FRAMEWORK_NS OR TEST_FRAMEWORK_S */

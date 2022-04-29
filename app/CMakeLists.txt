@@ -268,31 +268,33 @@ endif()
 
 ############################# Test integration #################################
 
-add_library(tfm_ns_integration_test STATIC EXCLUDE_FROM_ALL)
+add_library(tfm_test_app STATIC EXCLUDE_FROM_ALL)
 
-target_sources(tfm_ns_integration_test
+target_sources(tfm_test_app
     PRIVATE
-        tfm_integ_test.c
+        test_app.c
 )
 
-target_include_directories(tfm_ns_integration_test
+target_include_directories(tfm_test_app
     PUBLIC
         .
 )
 
-target_link_libraries(tfm_ns_integration_test
+target_link_libraries(tfm_test_app
     PRIVATE
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
-        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_ns_interface>
-        $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_api_ns>
+        $<$<BOOL:${TEST_PSA_API}>:val_nspe>
+        $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
+        $<$<BOOL:${TEST_PSA_API}>:test_combine>
         tfm_log
 )
 
-target_compile_definitions(tfm_ns_integration_test
-    PUBLIC
+target_compile_definitions(tfm_test_app
+    PRIVATE
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
         $<$<BOOL:${TFM_LIB_MODEL}>:TFM_LIB_MODEL>
+        $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
 
 ############################# TFM NS app #######################################
@@ -302,24 +304,15 @@ add_executable(tfm_ns)
 target_sources(tfm_ns
     PRIVATE
         main_ns.c
-        $<$<BOOL:${TEST_PSA_API}>:psa_api_test.c>
 )
 
 target_link_libraries(tfm_ns
     PRIVATE
         platform_ns
         CMSIS_5_tfm_ns
-        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<BOOL:${TEST_FRAMEWORK_S}>>:tfm_ns_integration_test>
-        $<$<BOOL:${TEST_PSA_API}>:val_nspe>
-        $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
-        $<$<BOOL:${TEST_PSA_API}>:test_combine>
+        tfm_test_app
         tfm_api_ns
         tfm_log
-)
-
-target_compile_definitions(tfm_ns
-    PUBLIC
-    $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
 
 set_target_properties(tfm_ns PROPERTIES

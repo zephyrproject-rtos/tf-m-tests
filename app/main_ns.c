@@ -10,12 +10,7 @@
 #include "cmsis_compiler.h"
 #include "tfm_ns_interface.h"
 #include "tfm_nsid_manager.h"
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
-#include "tfm_integ_test.h"
-#endif
-#ifdef PSA_API_TEST_NS
-#include "psa_api_test.h"
-#endif
+#include "test_app.h"
 #include "tfm_plat_ns.h"
 #include "driver/Driver_USART.h"
 #include "device_cfg.h"
@@ -52,14 +47,16 @@ __asm("  .global __ARM_use_no_argv\n");
 /**
  * \brief List of RTOS thread attributes
  */
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
- || defined(PSA_API_TEST_NS)
 static const osThreadAttr_t thread_attr = {
     .name = "test_thread",
     .stack_size = 4096U,
     .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
 };
-#endif
+/**
+ * \brief Static globals to hold RTOS related quantities,
+ *        main thread
+ */
+static osThreadFunc_t thread_func = test_app;
 
 #ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
 static osThreadFunc_t mailbox_thread_func = tfm_ns_mailbox_thread_runner;
@@ -67,15 +64,6 @@ static const osThreadAttr_t mailbox_thread_attr = {
     .name = "mailbox_thread",
     .stack_size = 1024U
 };
-#endif
-
-/**
- * \brief Static globals to hold RTOS related quantities,
- *        main thread
- */
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
- || defined(PSA_API_TEST_NS)
-static osThreadFunc_t thread_func;
 #endif
 
 #ifdef TFM_MULTI_CORE_TOPOLOGY
@@ -178,16 +166,7 @@ int main(void)
     (void) osThreadNew(mailbox_thread_func, NULL, &mailbox_thread_attr);
 #endif
 
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S)
-    thread_func = test_app;
-#elif defined(PSA_API_TEST_NS)
-    thread_func = psa_api_test;
-#endif
-
-#if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
- || defined(PSA_API_TEST_NS)
     (void) osThreadNew(thread_func, NULL, &thread_attr);
-#endif
 
     LOG_MSG("Non-Secure system starting...\r\n");
     (void) osKernelStart();
