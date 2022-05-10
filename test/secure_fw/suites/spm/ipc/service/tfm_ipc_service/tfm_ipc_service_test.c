@@ -100,11 +100,17 @@ static void ipc_service_psa_access_app_mem(void)
 }
 
 #ifdef TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM
+/*
+ * Fixme: Temporarily using a predefined boundary value.
+ * will replace it later.
+ */
+#define PROT_BOUNDARY   2
+
 static void ipc_service_psa_access_app_readonly_mem(void)
 {
     psa_msg_t msg;
     char rec_data;
-    uint32_t rec_buf, attr = 0;
+    uint32_t rec_buf;
 
     psa_get(IPC_SERVICE_TEST_PSA_ACCESS_APP_READ_ONLY_MEM_SIGNAL, &msg);
     switch (msg.type) {
@@ -126,10 +132,8 @@ static void ipc_service_psa_access_app_readonly_mem(void)
                 psa_reply(msg.handle, -1);
                 break;
             }
-            attr |= (TFM_HAL_ACCESS_READABLE | TFM_HAL_ACCESS_WRITABLE
-                     | TFM_HAL_ACCESS_UNPRIVILEGED);
-            if (tfm_hal_memory_has_access((uintptr_t)rec_buf, 4, attr) !=
-                                                      TFM_HAL_ERROR_MEM_FAULT) {
+            if (tfm_hal_memory_check(PROT_BOUNDARY, (uintptr_t)rec_buf, 4,
+                         TFM_HAL_ACCESS_READWRITE) != TFM_HAL_ERROR_MEM_FAULT) {
                 psa_reply(msg.handle, PSA_ERROR_GENERIC_ERROR);
                 break;
             }
