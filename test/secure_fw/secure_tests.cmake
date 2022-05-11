@@ -19,20 +19,20 @@ set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_serv
 
 # Test services are also required by some NS regression tests.
 # Include test services at first no matter whether secure tests are enabled.
-add_subdirectory(suites/core/service)
-add_subdirectory(suites/spm/ipc/service)
-add_subdirectory(suites/spm/sfn/service)
-add_subdirectory(suites/spm/irq/service)
-add_subdirectory(suites/ps/service)
-add_subdirectory(suites/fpu/service)
+add_subdirectory(suites/core/service ${CMAKE_BINARY_DIR}/tf-m-tests/core_srv)
+add_subdirectory(suites/spm/ipc/service ${CMAKE_BINARY_DIR}/tf-m-tests/ipc_srv)
+add_subdirectory(suites/spm/sfn/service ${CMAKE_BINARY_DIR}/tf-m-tests/sfn_srv)
+add_subdirectory(suites/spm/irq/service ${CMAKE_BINARY_DIR}/tf-m-tests/irq_srv)
+add_subdirectory(suites/ps/service ${CMAKE_BINARY_DIR}/tf-m-tests/ps_srv)
+add_subdirectory(suites/fpu/service ${CMAKE_BINARY_DIR}/tf-m-tests/fpu_srv)
 
 if (NOT TEST_FRAMEWORK_S)
     return()
 endif()
 
 # secure test services are required if any secure test is opened
-add_subdirectory(common_test_services/tfm_secure_client_service)
-add_subdirectory(common_test_services/tfm_secure_client_2)
+add_subdirectory(common_test_services/tfm_secure_client_service ${CMAKE_BINARY_DIR}/tf-m-tests/secure_client_srv)
+add_subdirectory(common_test_services/tfm_secure_client_2 ${CMAKE_BINARY_DIR}/tf-m-tests/secure_client_2_srv)
 
 add_library(tfm_test_framework_s INTERFACE)
 add_library(tfm_s_tests INTERFACE)
