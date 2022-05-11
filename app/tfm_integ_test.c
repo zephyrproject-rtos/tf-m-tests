@@ -6,6 +6,7 @@
  */
 
 #include "tfm_integ_test.h"
+#include "tfm_log.h"
 
 #ifdef TEST_FRAMEWORK_NS
 #include "test_framework_integ_test.h"
@@ -38,6 +39,8 @@ void test_app(void *argument)
 #ifdef TEST_FRAMEWORK_NS
     tfm_non_secure_client_run_tests();
 #endif
+    /* Output EOT char for test environments like FVP. */
+    LOG_MSG("\x04");
     /* End of test */
     for (;;) {
     }

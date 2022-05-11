@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 # Copyright (c) 2022, Cypress Semiconductor Corp. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -198,6 +198,72 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
     endif()
 
     add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_CURRENT_BINARY_DIR}/psa_api_tests)
+
+    if (TEST_PSA_API STREQUAL IPC)
+        target_include_directories(tfm_partitions
+            INTERFACE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests
+        )
+
+        target_sources(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_driver_partition_psa.c
+        )
+        target_link_libraries(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_psa_rot_partition_driver_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_app_rot_partition_client_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_client_partition_psa.c
+        )
+        target_link_libraries(tfm_app_rot_partition_client_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_app_rot_partition_client_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_app_rot_partition_server_partition
+            PRIVATE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/intermedia_server_partition_psa.c
+        )
+        target_link_libraries(tfm_app_rot_partition_server_partition
+            PRIVATE
+                psa_interface
+                platform_s
+        )
+        target_compile_definitions(tfm_app_rot_partition_server_partition
+            PRIVATE
+                CONFIG_TFM_BUILDING_SPE=1
+                TFM_LVL=${TFM_ISOLATION_LEVEL}
+        )
+
+        target_sources(tfm_partitions
+            INTERFACE
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_driver_partition_psa.c
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_client_partition_psa.c
+                ${CMAKE_BINARY_DIR}/generated/api-tests/platform/manifests/auto_generated/load_info_server_partition_psa.c
+        )
+
+        target_link_libraries(tfm_partitions
+            INTERFACE
+                tfm_psa_rot_partition_driver_partition
+                tfm_app_rot_partition_client_partition
+                tfm_app_rot_partition_server_partition
+        )
+    endif()
 endif()
 
 ############################# Test integration #################################
@@ -219,6 +285,7 @@ target_link_libraries(tfm_ns_integration_test
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_ns_interface>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:tfm_api_ns>
+        tfm_log
 )
 
 target_compile_definitions(tfm_ns_integration_test
@@ -242,12 +309,12 @@ target_link_libraries(tfm_ns
     PRIVATE
         platform_ns
         CMSIS_5_tfm_ns
-        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<BOOL:${TEST_FRAMEWORK_S}>>:tfm_ns_integration_test>
+        $<$<OR:$<BOOL:${TEST_FRAMEWORK_NS}>,$<AND:$<NOT:$<BOOL:${TFM_PSA_API}>>,$<BOOL:${TEST_FRAMEWORK_S}>>>:tfm_ns_integration_test>
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
         tfm_api_ns
-        tfm_ns_log
+        tfm_log
 )
 
 target_compile_definitions(tfm_ns

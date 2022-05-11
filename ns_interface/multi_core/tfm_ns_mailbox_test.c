@@ -6,6 +6,7 @@
  */
 
 #include "tfm_ns_mailbox.h"
+#include "tfm_ns_mailbox_test.h"
 
 static struct ns_mailbox_queue_t *stats_queue_ptr = NULL;
 
@@ -42,10 +43,10 @@ void tfm_ns_mailbox_tx_stats_update(void)
         return;
     }
 
-    ns_mailbox_spin_lock();
+    tfm_ns_mailbox_os_spin_lock();
     /* Count the number of used slots when this tx arrives */
     empty_status = stats_queue_ptr->empty_slots;
-    ns_mailbox_spin_unlock();
+    tfm_ns_mailbox_os_spin_unlock();
 
     if (empty_status) {
         for (idx = 0; idx < NUM_MAILBOX_QUEUE_SLOT; idx++) {
@@ -55,10 +56,10 @@ void tfm_ns_mailbox_tx_stats_update(void)
         }
     }
 
-    ns_mailbox_spin_lock();
+    tfm_ns_mailbox_os_spin_lock();
     stats_queue_ptr->nr_used_slots += (NUM_MAILBOX_QUEUE_SLOT - nr_empty);
     stats_queue_ptr->nr_tx++;
-    ns_mailbox_spin_unlock();
+    tfm_ns_mailbox_os_spin_unlock();
 }
 
 void tfm_ns_mailbox_stats_avg_slot(struct ns_mailbox_stats_res_t *stats_res)
