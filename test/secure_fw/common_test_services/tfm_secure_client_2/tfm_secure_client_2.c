@@ -80,7 +80,7 @@ static psa_status_t secure_client_2_test_its_access_ctrl(const void *arg,
  *
  * \param[in] msg    Pointer to the message of the test function
  */
-static void secure_client_2_test_retrieve_app_mem(psa_msg_t *msg)
+static void secure_client_2_test_retrieve_app_mem(const psa_msg_t *msg)
 {
     if (msg->out_size[0] != 0) {
         /*

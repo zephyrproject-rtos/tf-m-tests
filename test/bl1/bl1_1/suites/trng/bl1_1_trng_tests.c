@@ -23,7 +23,7 @@ static void tfm_bl1_trng_test_3001(struct test_result_t *ret)
 {
     uint8_t buf[TEST_VAL_AM];
     size_t buf_idx;
-    uint16_t table[UINT8_MAX];
+    uint16_t table[UINT8_MAX + 1];
     size_t table_idx;
     bool failed = false;
     int rc;
@@ -44,7 +44,7 @@ static void tfm_bl1_trng_test_3001(struct test_result_t *ret)
      * it is a failure. Note that we can't make this too close to P = 1/256 as
      * this would lead to unpredictable failures even with unbiased TRNGs.
      */
-    for (table_idx = 0; table_idx < sizeof(table); table_idx++) {
+    for (table_idx = 0; table_idx < (sizeof(table) / sizeof(table[0])); table_idx++) {
         if (table[table_idx] >= REPEAT_THRESHOLD) {
             TEST_LOG("Byte 0x%x was repeated %d times\r\n", table_idx,
                                                             table[table_idx]);
