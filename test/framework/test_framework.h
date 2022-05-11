@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -23,6 +23,7 @@ extern "C" {
 enum test_status_t {
     TEST_PASSED = 0,  /*!< Test has passed */
     TEST_FAILED = 1,  /*!< Test has failed */
+    TEST_SKIPPED = 2, /*!< Test has skipped */
 };
 
 struct test_result_t {
@@ -45,7 +46,6 @@ struct test_t {
     TEST_FUN * const test;         /*!< Test function to call */
     const char *name;              /*!< Test name */
     const char *desc;              /*!< Test description */
-    struct test_result_t ret;      /*!< Test result */
 };
 
 struct test_suite_t;

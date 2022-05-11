@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,8 +21,19 @@ target_include_directories(tfm_test_framework_common
         framework
 )
 
-# Build test services and add secure test suite targets
-include(secure_tests.cmake)
+target_link_libraries(tfm_test_framework_common
+    INTERFACE
+        tfm_log_interface
+)
 
-# Include test suites at last after other targets are setup.
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/suites)
+if(TEST_FRAMEWORK_S OR TEST_FRAMEWORK_NS)
+    add_subdirectory(secure_fw)
+endif()
+
+if(TEST_BL2)
+    add_subdirectory(bl2)
+endif()
+
+if(TEST_BL1_1 OR TEST_BL1_2)
+    add_subdirectory(bl1)
+endif()

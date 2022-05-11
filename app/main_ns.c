@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -25,6 +25,9 @@
 #endif
 #include "tfm_log.h"
 #include "uart_stdout.h"
+#if (CONFIG_TFM_FP >= 1)
+#include "cmsis.h"
+#endif
 
 /**
  * \brief Modified table template for user defined SVC functions
@@ -131,6 +134,19 @@ __WEAK int32_t tfm_ns_platform_uninit(void)
     return ARM_DRIVER_OK;
 }
 
+
+__WEAK int32_t tfm_ns_cp_init(void)
+{
+#if (CONFIG_TFM_FP >= 1)
+#ifdef __GNUC__
+    /* Enable NSPE privileged and unprivilged access to the FP Extension */
+    SCB->CPACR |= (3U << 10U*2U)     /* enable CP10 full access */
+                  | (3U << 11U*2U);  /* enable CP11 full access */
+#endif
+#endif
+    return ARM_DRIVER_OK;
+}
+
 /**
  * \brief main() function
  */
@@ -141,6 +157,11 @@ int main(void)
 {
     if (tfm_ns_platform_init() != ARM_DRIVER_OK) {
         /* Avoid undefined behavior if platform init failed */
+        while(1);
+    }
+
+    if (tfm_ns_cp_init() != ARM_DRIVER_OK) {
+        /* Avoid undefined behavior if co-porcessor init failed */
         while(1);
     }
 

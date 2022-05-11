@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,6 +8,7 @@
 #include "os_wrapper/thread.h"
 #include "os_wrapper/mutex.h"
 #include "os_wrapper/semaphore.h"
+#include "os_wrapper/delay.h"
 
 #include "cmsis_os2.h"
 
@@ -254,6 +255,18 @@ int32_t os_wrapper_msg_queue_receive(void *mq_handle,
     osStatus_t status;
 
     status = osMessageQueueGet(mq_handle, msg_ptr, NULL, osWaitForever);
+    if (status == osOK) {
+        return OS_WRAPPER_SUCCESS;
+    }
+
+    return OS_WRAPPER_ERROR;
+}
+
+int32_t os_wrapper_delay(uint32_t ticks)
+{
+    osStatus_t status;
+
+    status = osDelay(ticks);
     if (status == osOK) {
         return OS_WRAPPER_SUCCESS;
     }
