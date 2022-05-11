@@ -286,6 +286,7 @@ target_link_libraries(tfm_test_app
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
+        tfm_api_ns
         tfm_log
 )
 
@@ -311,7 +312,6 @@ target_link_libraries(tfm_ns
         platform_ns
         CMSIS_5_tfm_ns
         tfm_test_app
-        tfm_api_ns
         tfm_log
 )
 
