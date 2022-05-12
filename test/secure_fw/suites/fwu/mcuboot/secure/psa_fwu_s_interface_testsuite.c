@@ -5,12 +5,10 @@
  *
  */
 
-
 #include "fwu_s_tests.h"
 #include "psa/update.h"
 #include "test_framework_helpers.h"
 #include "../fwu_tests_common.h"
-#include "tfm_memory_utils.h"
 
 static struct test_t psa_fwu_s_tests[] = {
     {&tfm_fwu_test_common_001, "TFM_S_FWU_TEST_1001",

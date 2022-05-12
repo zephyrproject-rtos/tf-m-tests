@@ -8,11 +8,11 @@
 #include "ps_tests.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "nv_counters/ps_nv_counters.h"
 #include "test_ps_nv_counters.h"
 #include "psa/protected_storage.h"
-#include "tfm_memory_utils.h"
 #include "s_test_helpers.h"
 
 /* This include is required to expose the ps_system_prepare function, via the
@@ -200,7 +200,7 @@ static void tfm_ps_test_3001(struct test_result_t *ret)
     }
 
     /* Checks that the data has not changed */
-    if (tfm_memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
+    if (memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
         TEST_FAIL("The data should not have changed");
         return;
     }
@@ -365,7 +365,7 @@ static void tfm_ps_test_3003(struct test_result_t *ret)
     }
 
     /* Checks that the data has not changed */
-    if (tfm_memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
+    if (memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
         TEST_FAIL("The data should not have changed");
         return;
     }
@@ -435,7 +435,7 @@ static void tfm_ps_test_3004(struct test_result_t *ret)
     }
 
     /* Checks that the data has not changed */
-    if (tfm_memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
+    if (memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
         TEST_FAIL("The data should not have changed");
         return;
     }
@@ -510,7 +510,7 @@ static void tfm_ps_test_3005(struct test_result_t *ret)
     }
 
     /* Checks that the data has not changed */
-    if (tfm_memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
+    if (memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
         TEST_FAIL("The data should not have changed");
         return;
     }
@@ -588,7 +588,7 @@ static void tfm_ps_test_3006(struct test_result_t *ret)
     }
 
     /* Checks that the data has not changed */
-    if (tfm_memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
+    if (memcmp(read_data, RESULT_DATA, sizeof(read_data)) != 0) {
         TEST_FAIL("The data should not have changed");
         return;
     }

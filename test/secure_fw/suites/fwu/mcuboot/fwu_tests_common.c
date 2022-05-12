@@ -5,11 +5,7 @@
  *
  */
 
-#if DOMAIN_NS == 1
 #include <string.h>
-#else
-#include "tfm_memory_utils.h"
-#endif
 #include "fwu_tests_common.h"
 #include "region_defs.h"
 

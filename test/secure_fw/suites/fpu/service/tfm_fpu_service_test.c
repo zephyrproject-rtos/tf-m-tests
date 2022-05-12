@@ -6,13 +6,13 @@
  */
 
 #include <stdbool.h>
+#include <string.h>
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_fpu_service_test.h"
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_secure_api.h"
-#include "tfm_memory_utils.h"
 #include "tfm_sp_log.h"
 #include "tfm_plat_test.h"
 #include "device_definition.h"
@@ -89,7 +89,7 @@ bool check_fp_restored_service(void)
         :"memory"
     );
 
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
         return true;
     }
 
@@ -301,7 +301,7 @@ bool check_fp_restored_s(void)
         :"memory"
     );
 
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
         return true;
     }
 

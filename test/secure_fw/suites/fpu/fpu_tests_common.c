@@ -8,11 +8,8 @@
 #include <stdbool.h>
 #include "fpu_tests_common.h"
 #include "psa_manifest/sid.h"
-#if DOMAIN_NS == 1
 #include <string.h>
-#else
-#include "tfm_memory_utils.h"
-#endif
+
 
 /**
  * Change FP registers.
@@ -111,12 +108,7 @@ static bool check_fp_restored_client(void)
         :"memory"
     );
 
-#if DOMAIN_NS == 1
-    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
-#else
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
-#endif
-    {
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE)) {
         return true;
     }
 
@@ -188,7 +180,7 @@ static bool check_fp_invalidated(void)
 #if DOMAIN_NS == 1
     if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
 #else
-    if (!tfm_memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
+    if (!memcmp(fp_buffer, fp_expect, FP_BUF_SIZE))
 #endif
     {
         return true;
