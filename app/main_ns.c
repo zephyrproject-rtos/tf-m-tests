@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+ * or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,7 +16,7 @@
 #include "tfm_plat_ns.h"
 #include "driver/Driver_USART.h"
 #include "device_cfg.h"
-#ifdef TFM_MULTI_CORE_TOPOLOGY
+#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
 #include "tfm_multi_core_api.h"
 #include "tfm_ns_mailbox.h"
 #endif
@@ -66,7 +68,7 @@ static const osThreadAttr_t mailbox_thread_attr = {
 };
 #endif
 
-#ifdef TFM_MULTI_CORE_TOPOLOGY
+#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
 static struct ns_mailbox_queue_t ns_mailbox_queue;
 
 static void tfm_ns_multi_core_boot(void)
@@ -92,7 +94,9 @@ static void tfm_ns_multi_core_boot(void)
         }
     }
 }
-#else
+#endif /* TFM_PARTITION_NS_AGENT_MAILBOX */
+
+#ifdef CONFIG_TFM_USE_TRUSTZONE
 extern uint32_t tfm_ns_interface_init(void);
 #endif
 
@@ -155,9 +159,11 @@ int main(void)
 
     (void) osKernelInitialize();
 
-#ifdef TFM_MULTI_CORE_TOPOLOGY
+#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
     tfm_ns_multi_core_boot();
-#else
+#endif
+
+#ifdef CONFIG_TFM_USE_TRUSTZONE
     /* Initialize the TFM NS interface */
     tfm_ns_interface_init();
 #endif
