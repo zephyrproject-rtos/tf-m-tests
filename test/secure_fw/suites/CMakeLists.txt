@@ -1,5 +1,7 @@
 #-------------------------------------------------------------------------------
 # Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+# or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,7 +13,7 @@ cmake_minimum_required(VERSION 3.13)
 # Secure code. To facilitate this, we once again reload the compiler to load the
 # setting for the NS CPU. Cmake settings are directory scoped so this affects
 # anything loaded from or declared in this dir.
-if (TFM_MULTI_CORE_TOPOLOGY)
+if (EXISTS ${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
     include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
     tfm_toolchain_reload_compiler()
 endif()
