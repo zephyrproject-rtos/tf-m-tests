@@ -78,6 +78,11 @@ target_compile_definitions(tfm_ns_interface
         $<$<BOOL:${FORWARD_PROT_MSG}>:FORWARD_PROT_MSG>
 )
 
+target_compile_options(tfm_ns_interface
+    INTERFACE
+        ${COMPILER_CP_FLAG}
+)
+
 ###################### TF-M NS interface api (NS lib) ##########################
 
 add_library(tfm_api_ns STATIC)
