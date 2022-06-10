@@ -17,6 +17,10 @@ static void tfm_fpu_test_fp_protection_s_psa_call(struct test_result_t *ret);
 static void tfm_fpu_test_fp_protection_s_psa_call_loop(
                                                     struct test_result_t *ret);
 
+/* Test FP caller and callee protection after secure interrupt. */
+static void tfm_fpu_test_fp_protection_s_after_s_interrupt(
+                                                    struct test_result_t *ret);
+
 static struct test_t fpu_s_tests[] = {
     {
         &tfm_fpu_test_clear_client_fp_data, "TFM_S_FPU_TEST_1001",
@@ -25,7 +29,11 @@ static struct test_t fpu_s_tests[] = {
     {
         &tfm_fpu_test_fp_protection_s_psa_call_loop, "TFM_S_FPU_TEST_1002",
         "Test reliability of FP context protection after psa calls"
-    }
+    },
+    {
+        &tfm_fpu_test_fp_protection_s_after_s_interrupt, "TFM_S_FPU_TEST_1003",
+        "Test FP context protection in S thread after S interrupt"
+    },
 };
 
 void register_testsuite_s_fpu_interface(struct test_suite_t *p_test_suite)
@@ -87,8 +95,8 @@ static void tfm_fpu_test_fp_protection_s_psa_call(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 
-    handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_CALLEE_REGISTER_SID,
-                         TFM_FPU_SERVICE_CHECK_FP_CALLEE_REGISTER_VERSION);
+    handle = psa_connect(TFM_FPU_CHECK_FP_CALLEE_REGISTER_SID,
+                         TFM_FPU_CHECK_FP_CALLEE_REGISTER_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         TEST_FAIL("PSA Connect fail!");
         return;
@@ -128,5 +136,49 @@ static void tfm_fpu_test_fp_protection_s_psa_call_loop(
         TEST_LOG("  > Iteration %d of %d\r", itr + 1, LOOP_ITERATIONS);
 
         tfm_fpu_test_fp_protection_s_psa_call(ret);
+    }
+}
+
+/*
+ * Description: Secure client trigger a secure interrupt and check caller and
+ * callee registers.
+ * Expectation: FP register in secure client should be restored after S
+ * interrupt.
+ */
+static void tfm_fpu_test_fp_protection_s_after_s_interrupt(
+                                                struct test_result_t *ret)
+{
+    uint32_t fp_caller_buffer[NR_FP_CALLER_REG] = {0};
+    uint32_t fp_callee_buffer[NR_FP_CALLEE_REG] = {0};
+    const uint32_t expecting_caller_content[NR_FP_CALLER_REG] = {
+        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
+        0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF
+    };
+    const uint32_t expecting_callee_content[NR_FP_CALLEE_REG] = {
+        0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7,
+        0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF
+    };
+
+    ret->val = TEST_PASSED;
+
+    uintptr_t func_table[] = {
+        (uintptr_t)populate_caller_fp_regs, (uintptr_t)expecting_caller_content,
+        (uintptr_t)populate_callee_fp_regs, (uintptr_t)expecting_callee_content,
+        (uintptr_t)fpu_interrupt_trigger, (uintptr_t)TFM_FPU_S_TEST_IRQ,
+        (uintptr_t)dump_fp_caller, (uintptr_t)fp_caller_buffer,
+        (uintptr_t)dump_fp_callee, (uintptr_t)fp_callee_buffer
+    };
+    uintptr_t func_return[ARRAY_SIZE(func_table)/2] = {0};
+
+    fp_func_jump_template(func_table, func_return, ARRAY_SIZE(func_table)/2);
+
+    if (memcmp(fp_caller_buffer, expecting_caller_content,
+               FP_CALLER_BUF_SIZE)) {
+        TEST_FAIL("FP caller registers are not correctly retored in client!");
+    }
+
+    if (memcmp(fp_callee_buffer, expecting_callee_content,
+               FP_CALLEE_BUF_SIZE)) {
+        TEST_FAIL("FP callee registers are not correctly retored in client!");
     }
 }

@@ -8,18 +8,19 @@
 #include <string.h>
 #include "fpu_ns_tests.h"
 #include "../fpu_tests_common.h"
-#include "os_wrapper/delay.h"
 #include "tfm_psa_call_pack.h"
 
-static void tfm_fpu_test_fp_protection_secure_interrupt(
-                                                struct test_result_t *ret);
-static void tfm_fpu_test_fp_protection_non_secure_interrupt(
-                                                struct test_result_t *ret);
 /* Test FP context protection after psa calls. */
 static void tfm_fpu_test_fp_protection_ns_psa_call(struct test_result_t *ret);
 
 /* Test reliability of FP context protection after psa calls by loops. */
 static void tfm_fpu_test_fp_protection_ns_psa_call_loop(
+                                                struct test_result_t *ret);
+
+static void tfm_fpu_test_fp_protection_ns_after_ns_interrupt(
+                                                struct test_result_t *ret);
+
+static void tfm_fpu_test_fp_protection_s_after_ns_interrupt(
                                                 struct test_result_t *ret);
 
 static struct test_t fpu_ns_tests[] = {
@@ -32,14 +33,15 @@ static struct test_t fpu_ns_tests[] = {
         "Test reliability of FP context protection after psa calls"
     },
     {
-        &tfm_fpu_test_fp_protection_secure_interrupt, "TFM_NS_FPU_TEST_1003",
-        "Test FP context protection in S interrupt after interrupt return"
+        &tfm_fpu_test_fp_protection_ns_after_ns_interrupt,
+        "TFM_NS_FPU_TEST_1003",
+        "Test FP context protection in NS thread after NS interrupt"
     },
     {
-        &tfm_fpu_test_fp_protection_non_secure_interrupt,
+        &tfm_fpu_test_fp_protection_s_after_ns_interrupt,
         "TFM_NS_FPU_TEST_1004",
         "Test FP context protection in S thread after NS interrupt"
-    }
+    },
 };
 
 void register_testsuite_ns_fpu_interface(struct test_suite_t *p_test_suite)
@@ -50,130 +52,6 @@ void register_testsuite_ns_fpu_interface(struct test_suite_t *p_test_suite)
 
     set_testsuite("FPU non-secure interface test (TFM_NS_FPU_TEST_1XXX)",
                   fpu_ns_tests, list_size, p_test_suite);
-}
-
-/**
- * \brief Test FP context protection in S interrupt. Change FP registers in
- * non-secure thread first, then change them in S interrupt. After interrupt
- * return, check FP context protection in non-secure thread.
- * Expectation: FP registers in S interrupt should not be view in non-secure
- * thread.
- */
-static void tfm_fpu_test_fp_protection_secure_interrupt(
-                                                struct test_result_t *ret)
-{
-    psa_handle_t handle;
-    psa_status_t status;
-    uint8_t outvec_data[1] = {0};
-    struct psa_outvec outvecs[1] = {{outvec_data, sizeof(outvec_data[0])}};
-    static uint8_t i;
-
-    uint32_t fp_caller_buffer[NR_FP_CALLER_REG] = {0};
-    uint32_t fp_callee_buffer[NR_FP_CALLEE_REG] = {0};
-    const uint32_t expecting_caller_content[NR_FP_CALLER_REG] = {
-        0xC0000000, 0xC1000000, 0xC2000000, 0xC3000000,
-        0xC4000000, 0xC5000000, 0xC6000000, 0xC7000000,
-        0xC8000000, 0xC9000000, 0xCA000000, 0xCB000000,
-        0xCC000000, 0xCD000000, 0xCE000000, 0xCF000000
-    };
-    const uint32_t expecting_callee_content[NR_FP_CALLEE_REG] = {
-        0xD0000000, 0xD1000000, 0xD2000000, 0xD3000000,
-        0xD4000000, 0xD5000000, 0xD6000000, 0xD7000000,
-        0xD8000000, 0xD9000000, 0xDA000000, 0xDB000000,
-        0xDC000000, 0xDD000000, 0xDE000000, 0xDF000000
-    };
-
-    ret->val = TEST_FAILED;
-
-    /* Change FP regs */
-    populate_caller_fp_regs(expecting_caller_content);
-    populate_callee_fp_regs(expecting_callee_content);
-
-    /* Start the timer */
-    handle = psa_connect(TFM_FPU_SERVICE_START_S_TIMER_SID,
-                            TFM_FPU_SERVICE_START_S_TIMER_VERSION);
-    if (!PSA_HANDLE_IS_VALID(handle)) {
-        return;
-    }
-    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, NULL, 0);
-    if (status != PSA_SUCCESS) {
-        return;
-    }
-    psa_close(handle);
-
-    handle = psa_connect(TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED_SID,
-                            TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED_VERSION);
-    if (!PSA_HANDLE_IS_VALID(handle)) {
-        return;
-    }
-    /* Spin here */
-    while (1) {
-        /* Wait S interrupt triggered */
-        os_wrapper_delay(WAIT_S_INT);
-
-        status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
-        if (status == PSA_SUCCESS) {
-            /* S interrupt triggered */
-            if (outvec_data[0] == S_TIMER_TRIGGERED) {
-                break;
-            } else {
-                i++;
-                if (i > LOOPS_S_INT_TEST) {
-                    TEST_FAIL("Time out: NS thread not interrupted!\r\n");
-                    psa_close(handle);
-                    return;
-                }
-            }
-        } else {
-            TEST_FAIL("Check S interrupt triggered failed!\r\n");
-            return;
-        }
-    }
-
-    psa_close(handle);
-
-    /* FP registers should be restored correctly after S interrupt */
-    dump_fp_caller(fp_caller_buffer);
-    dump_fp_callee(fp_callee_buffer);
-
-    if ((!memcmp(fp_caller_buffer, expecting_caller_content,
-                 FP_CALLER_BUF_SIZE)) &&
-        (!memcmp(fp_callee_buffer, expecting_callee_content,
-                 FP_CALLEE_BUF_SIZE))) {
-        ret->val = TEST_PASSED;
-    } else {
-        ret->val = TEST_FAILED;
-    }
-}
-
-/**
- * \brief In secure thread, trigger non-secure timer interrupt, check FP
- *  context protection after NS interrupt.
- * Expectation: FP register in secure thread should be restored after NS
- *  interrupt.
- */
-static void tfm_fpu_test_fp_protection_non_secure_interrupt(
-                                                    struct test_result_t *ret)
-{
-    psa_handle_t handle;
-    psa_status_t status;
-    uint8_t *outvec_data[1] = {0};
-    struct psa_outvec outvecs[1] = {{outvec_data, sizeof(outvec_data[0])}};
-
-    ret->val = TEST_FAILED;
-
-    handle = psa_connect(TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_SID,
-                            TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST_VERSION);
-    if (!PSA_HANDLE_IS_VALID(handle)) {
-        return;
-    }
-
-    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, outvecs, 1);
-    if (status == PSA_SUCCESS) {
-        ret->val = TEST_PASSED;
-    }
-
-    psa_close(handle);
 }
 
 /*
@@ -225,8 +103,8 @@ static void tfm_fpu_test_fp_protection_ns_psa_call(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 
-    handle = psa_connect(TFM_FPU_SERVICE_CHECK_FP_CALLEE_REGISTER_SID,
-                         TFM_FPU_SERVICE_CHECK_FP_CALLEE_REGISTER_VERSION);
+    handle = psa_connect(TFM_FPU_CHECK_FP_CALLEE_REGISTER_SID,
+                         TFM_FPU_CHECK_FP_CALLEE_REGISTER_VERSION);
     if (!PSA_HANDLE_IS_VALID(handle)) {
         TEST_FAIL("PSA Connect fail!");
         return;
@@ -267,4 +145,81 @@ static void tfm_fpu_test_fp_protection_ns_psa_call_loop(
 
         tfm_fpu_test_fp_protection_ns_psa_call(ret);
     }
+}
+
+/*
+ * Description: Non-secure client trigger a non-secure interrupt and check
+ * caller and callee registers.
+ * Expectation: FP caller register in non-secure client should be restored after
+ * NS interrupt. Callee register should be same with values set in
+ * TFM_FPU_NS_TEST_Handler.
+ */
+static void tfm_fpu_test_fp_protection_ns_after_ns_interrupt(
+                                                    struct test_result_t *ret)
+{
+    uint32_t fp_caller_buffer[NR_FP_CALLER_REG] = {0};
+    uint32_t fp_callee_buffer[NR_FP_CALLEE_REG] = {0};
+    const uint32_t expecting_caller_content[NR_FP_CALLER_REG] = {
+        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
+        0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF
+    };
+
+    /* Callee registers are changed in TFM_FPU_NS_TEST_Handler. */
+    const uint32_t expecting_callee_content[NR_FP_CALLEE_REG] = {
+        0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
+        0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+    };
+
+    uintptr_t func_table[] = {
+        (uintptr_t)populate_caller_fp_regs, (uintptr_t)expecting_caller_content,
+        (uintptr_t)fpu_interrupt_trigger, (uintptr_t)TFM_FPU_NS_TEST_IRQ,
+        (uintptr_t)dump_fp_caller, (uintptr_t)fp_caller_buffer,
+        (uintptr_t)dump_fp_callee, (uintptr_t)fp_callee_buffer
+    };
+    uintptr_t func_return[ARRAY_SIZE(func_table)/2] = {0};
+
+    ret->val = TEST_PASSED;
+
+    fp_func_jump_template(func_table, func_return, ARRAY_SIZE(func_table)/2);
+
+    if (memcmp(fp_caller_buffer, expecting_caller_content,
+               FP_CALLER_BUF_SIZE)) {
+        TEST_FAIL("FP caller registers are not correctly retored in client!");
+    }
+
+    if (memcmp(fp_callee_buffer, expecting_callee_content,
+               FP_CALLEE_BUF_SIZE)) {
+        TEST_FAIL("FP callee registers are not same with NS interrupt change!");
+    }
+}
+
+/*
+ * Description: Secure client trigger a non-secure interrupt and check caller
+ * and callee registers in secure service.
+ * Expectation: FP register in secure client should be restored after NS
+ * interrupt.
+ */
+static void tfm_fpu_test_fp_protection_s_after_ns_interrupt(
+                                                struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    psa_status_t status;
+
+    ret->val = TEST_PASSED;
+
+    handle = psa_connect(TFM_FPU_TEST_NS_PREEMPT_S_SID,
+                         TFM_FPU_TEST_NS_PREEMPT_S_VERSION);
+    if (!PSA_HANDLE_IS_VALID(handle)) {
+        ret->val = TEST_FAILED;
+        TEST_FAIL("PSA Connect fail!");
+        return;
+    }
+
+    status = psa_call(handle, PSA_IPC_CALL, NULL, 0, NULL, 0);
+
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Secure client trigger NS interrupt FP protection failed!");
+    }
+
+    psa_close(handle);
 }

@@ -17,7 +17,7 @@
   ],
   "services" : [
     {
-      "name": "TFM_FPU_SERVICE_CHECK_FP_CALLEE_REGISTER",
+      "name": "TFM_FPU_CHECK_FP_CALLEE_REGISTER",
       "sid": "0x0000F091",
       "connection_based": true,
       "non_secure_clients": true,
@@ -25,38 +25,12 @@
       "version_policy": "STRICT"
     },
     {
-      "name": "TFM_FPU_SERVICE_START_S_TIMER",
+      "name": "TFM_FPU_TEST_NS_PREEMPT_S",
       "sid": "0x0000F092",
-      "connection_based": true,
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
-      "name": "TFM_FPU_SERVICE_CHECK_S_TIMER_TRIGGERED",
-      "sid": "0x0000F093",
-      "connection_based": true,
-      "non_secure_clients": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
-    {
-      "name": "TFM_FPU_SERVICE_CHECK_NS_INTERRUPT_S_TEST",
-      "sid": "0x0000F094",
       "connection_based": true,
       "non_secure_clients": true,
       "version": 1,
       "version_policy": "STRICT"
     }
   ],
-  "mmio_regions": [
-    {
-      "name": "TFM_PERIPHERAL_TIMER0",
-      "permission": "READ-WRITE"
-    },
-    {
-      "name": "TFM_PERIPHERAL_TIMER1",
-      "permission": "READ-WRITE"
-    }
-  ]
 }
