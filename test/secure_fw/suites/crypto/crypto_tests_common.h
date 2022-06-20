@@ -14,6 +14,7 @@ extern "C" {
 
 #include "psa/crypto.h"
 #include "test_framework_helpers.h"
+#include "crypto_tests_check_config.h"
 
 /**
  * \brief Size of the key to use in tests in bits
@@ -303,4 +304,4 @@ void psa_aead_rfc7539_test(struct test_result_t *ret);
 }
 #endif
 
-#endif /* __CRYPTO_TESTS_COMMON__ */
+#endif /* __CRYPTO_TESTS_COMMON_H__ */
