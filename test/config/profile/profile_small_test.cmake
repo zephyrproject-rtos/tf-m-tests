@@ -19,3 +19,4 @@ set(TFM_CRYPTO_TEST_HKDF                    OFF         CACHE BOOL      "Test th
 set(TFM_CRYPTO_TEST_ECDH                    OFF         CACHE BOOL      "Test the ECDH key agreement algorithm")
 set(TFM_CRYPTO_TEST_CHACHA20                OFF         CACHE BOOL      "Test the ChaCha20 stream cipher")
 set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305   OFF         CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")
+set(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS       OFF         CACHE BOOL      "Test single-part operations in hash, MAC, AEAD and symmetric ciphers")

@@ -1000,6 +1000,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&key_attributes);
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Encrypt single part functions */
     status = psa_cipher_encrypt(key_id_local, alg, plain_text,
                                 sizeof(plain_text),
@@ -1050,6 +1051,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     /* Clear intermediate buffers for additional single-shot API tests */
     memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
     memset(decrypted_data, 0, sizeof(decrypted_data));
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Replicate the same test as above, but now using the multipart APIs */
 
@@ -1125,6 +1127,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     /* Add the last output produced, it might be encrypted padding */
     total_output_length += output_length;
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Compare encrypted data produced with single-shot and multipart APIs */
     comp_result = memcmp(encrypted_data_single_shot,
                          input.encrypted_data,
@@ -1133,6 +1136,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
         TEST_FAIL("Single-shot crypt doesn't match with multipart crypt");
         goto destroy_key;
     }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the decryption object */
     status = psa_cipher_decrypt_setup(&handle_dec, key_id_local, alg);
@@ -1377,6 +1381,7 @@ void psa_hash_test(const psa_algorithm_t alg,
         return;
     }
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Do the same as above with the single shot APIs */
     status = psa_hash_compare(alg,
                               (const uint8_t *)msg, strlen(msg),
@@ -1385,6 +1390,7 @@ void psa_hash_test(const psa_algorithm_t alg,
         TEST_FAIL("Error using the single shot API");
         return;
     }
+#endif
 
     ret->val = TEST_PASSED;
 }
@@ -1550,6 +1556,7 @@ void psa_mac_test(const psa_algorithm_t alg,
         goto destroy_key_mac;
     }
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Do the same as above with the single shot APIs */
     status = psa_mac_verify(key_id_local, alg,
                             (const uint8_t *)msg, strlen(msg),
@@ -1558,6 +1565,7 @@ void psa_mac_test(const psa_algorithm_t alg,
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error using the single shot API");
     }
+#endif
 
 destroy_key_mac:
     /* Destroy the key */
@@ -1634,6 +1642,7 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&retrieved_attributes);
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Perform AEAD encryption */
     status = psa_aead_encrypt(key_id_local, alg, nonce, nonce_length,
                               associated_data,
@@ -1700,6 +1709,7 @@ void psa_aead_test(const psa_key_type_t key_type,
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key_aead;
     }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the encryption object */
     status = psa_aead_encrypt_setup(&encop, key_id_local, alg);
@@ -1821,6 +1831,7 @@ void psa_aead_test(const psa_key_type_t key_type,
     }
     total_encrypted_length += encrypted_data_length;
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Compare tag between single part and multipart case */
     comp_result = memcmp(
                       &encrypted_data_single_shot[total_encrypted_length],
@@ -1838,6 +1849,7 @@ void psa_aead_test(const psa_key_type_t key_type,
         TEST_FAIL("Single shot encrypted data does not match with multipart");
         goto destroy_key_aead;
     }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup up the decryption object */
     status = psa_aead_decrypt_setup(&decop, key_id_local, alg);
