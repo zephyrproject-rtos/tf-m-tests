@@ -183,9 +183,9 @@ static struct test_t crypto_tests[] = {
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
 #ifdef TFM_CRYPTO_TEST_ASYM_ENCRYPT
     {&tfm_crypto_test_1043, "TFM_S_CRYPTO_TEST_1043",
-     "Secure Asymmetric encryption interface (RSA_OAEP)"},
+     "Secure Asymmetric encryption interface (RSA-OAEP)"},
     {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
-     "Secure Asymmetric encryption interface (RSA_PKCS1V15)"},
+     "Secure Asymmetric encryption interface (RSA-PKCS1V15)"},
     {&tfm_crypto_test_1045, "TFM_S_CRYPTO_TEST_1045",
      "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ASYM_ENCRYPT */
