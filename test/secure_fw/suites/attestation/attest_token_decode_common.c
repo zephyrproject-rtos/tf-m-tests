@@ -261,16 +261,16 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
     memset(items, 0, sizeof(struct attest_token_iat_simple_t));
 
     /* Re use flags as array indexes because it works nicely */
-    list[NONCE_FLAG].label              = IAT_CHALLENGE;
-    list[UEID_FLAG].label               = IAT_UEID;
-    list[BOOT_SEED_FLAG].label          = IAT_BOOT_SEED;
-    list[HW_VERSION_FLAG].label         = IAT_HW_VERSION;
-    list[IMPLEMENTATION_ID_FLAG].label  = IAT_IMPLEMENTATION_ID;
-    list[CLIENT_ID_FLAG].label          = IAT_CLIENT_ID;
-    list[SECURITY_LIFECYCLE_FLAG].label = IAT_SECURITY_LIFECYCLE;
-    list[PROFILE_DEFINITION_FLAG].label = IAT_PROFILE_DEFINITION;
-    list[ORIGINATION_FLAG].label        = IAT_ORIGINATION;
-    list[NUMBER_OF_ITEMS].label         = 0; /* terminate the list. */
+    list[NONCE_FLAG].label                = IAT_NONCE;
+    list[INSTANCE_ID_FLAG].label          = IAT_INSTANCE_ID;
+    list[BOOT_SEED_FLAG].label            = IAT_BOOT_SEED;
+    list[CERT_REF_FLAG].label             = IAT_CERTIFICATION_REFERENCE;
+    list[IMPLEMENTATION_ID_FLAG].label    = IAT_IMPLEMENTATION_ID;
+    list[CLIENT_ID_FLAG].label            = IAT_CLIENT_ID;
+    list[SECURITY_LIFECYCLE_FLAG].label   = IAT_SECURITY_LIFECYCLE;
+    list[PROFILE_DEFINITION_FLAG].label   = IAT_PROFILE_DEFINITION;
+    list[VERIFICATION_SERVICE_FLAG].label = IAT_VERIFICATION_SERVICE;
+    list[NUMBER_OF_ITEMS].label           = 0; /* terminate the list. */
 
     if(me->last_error != ATTEST_TOKEN_ERR_SUCCESS) {
         return_value = me->last_error;
@@ -291,10 +291,10 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
         items->item_flags |= CLAIM_PRESENT_BIT(NONCE_FLAG);
     }
 
-    /* ---- UEID -------*/
-    if(list[UEID_FLAG].item.uDataType == QCBOR_TYPE_BYTE_STRING) {
-        items->ueid = list[UEID_FLAG].item.val.string;
-        items->item_flags |= CLAIM_PRESENT_BIT(UEID_FLAG);
+    /* ---- Instance ID -------*/
+    if(list[INSTANCE_ID_FLAG].item.uDataType == QCBOR_TYPE_BYTE_STRING) {
+        items->instance_id = list[INSTANCE_ID_FLAG].item.val.string;
+        items->item_flags |= CLAIM_PRESENT_BIT(INSTANCE_ID_FLAG);
     }
 
     /* ---- BOOT SEED -------*/
@@ -303,10 +303,10 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
         items->item_flags |= CLAIM_PRESENT_BIT(BOOT_SEED_FLAG);\
     }
 
-    /* ---- HW VERSION -------*/
-    if(list[HW_VERSION_FLAG].item.uDataType == QCBOR_TYPE_TEXT_STRING) {
-        items->hw_version = list[HW_VERSION_FLAG].item.val.string;
-        items->item_flags |= CLAIM_PRESENT_BIT(HW_VERSION_FLAG);
+    /* ---- CERTIFICATION REFERENCE -------*/
+    if(list[CERT_REF_FLAG].item.uDataType == QCBOR_TYPE_TEXT_STRING) {
+        items->cert_ref = list[CERT_REF_FLAG].item.val.string;
+        items->item_flags |= CLAIM_PRESENT_BIT(CERT_REF_FLAG);
 
     }
 
@@ -340,10 +340,11 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
         items->item_flags |= CLAIM_PRESENT_BIT(PROFILE_DEFINITION_FLAG);
     }
 
-    /* ---- ORIGINATION -------*/
-    if(list[ORIGINATION_FLAG].item.uDataType == QCBOR_TYPE_TEXT_STRING) {
-        items->origination = list[ORIGINATION_FLAG].item.val.string;
-        items->item_flags |= CLAIM_PRESENT_BIT(ORIGINATION_FLAG);
+    /* ---- VERIFICATION_SERVICE -------*/
+    if(list[VERIFICATION_SERVICE_FLAG].item.uDataType == QCBOR_TYPE_TEXT_STRING) {
+        items->verif_serv =
+            list[VERIFICATION_SERVICE_FLAG].item.val.string;
+        items->item_flags |= CLAIM_PRESENT_BIT(VERIFICATION_SERVICE_FLAG);
     }
 
 Done:

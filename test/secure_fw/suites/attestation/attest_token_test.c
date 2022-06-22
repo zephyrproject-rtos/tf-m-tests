@@ -2,7 +2,7 @@
  * attest_token_test.c
  *
  * Copyright (c) 2018-2019, Laurence Lundblade.
- * Copyright (c) 2020, Arm Limited.
+ * Copyright (c) 2020-2022, Arm Limited.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -367,10 +367,10 @@ static int_fast16_t check_simple_claims(
         }
     }
 
-    /* -- check value of the UEID claim -- */
-    if(!IS_ITEM_FLAG_SET(UEID_FLAG, simple_claims->item_flags)) {
+    /* -- check value of the instance ID claim -- */
+    if(!IS_ITEM_FLAG_SET(INSTANCE_ID_FLAG, simple_claims->item_flags)) {
         /* Claim is not present in token */
-        if(TOKEN_TEST_REQUIRE_UEID) {
+        if(TOKEN_TEST_REQUIRE_INSTANCE_ID) {
             /* It should have been present */
             return_value = -52;
             goto Done;
@@ -378,9 +378,9 @@ static int_fast16_t check_simple_claims(
     } else {
         /* Claim is present */
         /* Don't have to check if its presence is required */
-        tmp = TOKEN_TEST_VALUE_UEID;
+        tmp = TOKEN_TEST_VALUE_INSTANCE_ID;
         if(!q_useful_buf_c_is_null(tmp) &&
-           q_useful_buf_compare(simple_claims->ueid, tmp)) {
+           q_useful_buf_compare(simple_claims->instance_id, tmp)) {
             /* Check of its value was requested and failed */
             return_value = -53;
             goto Done;
@@ -407,10 +407,10 @@ static int_fast16_t check_simple_claims(
         }
     }
 
-    /* -- check value of the hw_version claim -- */
-    if(!IS_ITEM_FLAG_SET(HW_VERSION_FLAG, simple_claims->item_flags)) {
+    /* -- check value of the cert_ref claim -- */
+    if(!IS_ITEM_FLAG_SET(CERT_REF_FLAG, simple_claims->item_flags)) {
         /* Claim is not present in token */
-        if(TOKEN_TEST_REQUIRE_HW_VERSION) {
+        if(TOKEN_TEST_REQUIRE_CERT_REF) {
             /* It should have been present */
             return_value = -56;
             goto Done;
@@ -418,10 +418,10 @@ static int_fast16_t check_simple_claims(
     } else {
         /* Claim is present */
         /* Don't have to check if its presence is required */
-        tmp_string = TOKEN_TEST_VALUE_HW_VERSION;
+        tmp_string = TOKEN_TEST_VALUE_CERT_REF;
         if(tmp_string != NULL) {
-            tmp = Q_USEFUL_BUF_FROM_SZ_LITERAL(TOKEN_TEST_VALUE_HW_VERSION);
-            if(q_useful_buf_compare(simple_claims->hw_version, tmp)) {
+            tmp = Q_USEFUL_BUF_FROM_SZ_LITERAL(TOKEN_TEST_VALUE_CERT_REF);
+            if(q_useful_buf_compare(simple_claims->cert_ref, tmp)) {
                 /* Check of its value was requested and failed */
                 return_value = -57;
                 goto Done;
@@ -516,10 +516,10 @@ static int_fast16_t check_simple_claims(
         }
     }
 
-    /* -- check value of the origination claim -- */
-    if(!IS_ITEM_FLAG_SET(ORIGINATION_FLAG, simple_claims->item_flags)) {
+    /* -- check value of the verification_service claim -- */
+    if(!IS_ITEM_FLAG_SET(VERIFICATION_SERVICE_FLAG, simple_claims->item_flags)) {
         /* Claim is not present in token */
-        if(TOKEN_TEST_REQUIRE_ORIGINATION) {
+        if(TOKEN_TEST_REQUIRE_VERIFICATION_SERVICE) {
             /* It should have been present */
             return_value = -66;
             goto Done;
@@ -527,10 +527,10 @@ static int_fast16_t check_simple_claims(
     } else {
         /* Claim is present */
         /* Don't have to check if its presence is required */
-        tmp_string = TOKEN_TEST_VALUE_ORIGINATION;
+        tmp_string = TOKEN_TEST_VALUE_VERIFICATION_SERVICE;
         if(tmp_string != NULL) {
-            tmp = Q_USEFUL_BUF_FROM_SZ_LITERAL(TOKEN_TEST_VALUE_ORIGINATION);
-            if(q_useful_buf_compare(simple_claims->origination, tmp)) {
+            tmp = Q_USEFUL_BUF_FROM_SZ_LITERAL(TOKEN_TEST_VALUE_VERIFICATION_SERVICE);
+            if(q_useful_buf_compare(simple_claims->verif_serv, tmp)) {
                 /* Check of its value was requested and failed */
                 return_value = -67;
                 goto Done;

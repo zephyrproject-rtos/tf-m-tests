@@ -253,16 +253,16 @@ attest_token_decode_get_payload(struct attest_token_decode_context *me,
 /** Label for bits in \c item_flags in \ref
     attest_token_iat_simple_t */
 enum attest_token_item_index_t {
-    NONCE_FLAG =              0,
-    UEID_FLAG  =              1,
-    BOOT_SEED_FLAG =          2,
-    HW_VERSION_FLAG =         3,
-    IMPLEMENTATION_ID_FLAG =  4,
-    CLIENT_ID_FLAG =          5,
-    SECURITY_LIFECYCLE_FLAG = 6,
-    PROFILE_DEFINITION_FLAG = 7,
-    ORIGINATION_FLAG =        8,
-    NUMBER_OF_ITEMS =         9
+    NONCE_FLAG =                0,
+    INSTANCE_ID_FLAG  =         1,
+    BOOT_SEED_FLAG =            2,
+    CERT_REF_FLAG =             3,
+    IMPLEMENTATION_ID_FLAG =    4,
+    CLIENT_ID_FLAG =            5,
+    SECURITY_LIFECYCLE_FLAG =   6,
+    PROFILE_DEFINITION_FLAG =   7,
+    VERIFICATION_SERVICE_FLAG = 8,
+    NUMBER_OF_ITEMS =           9
 };
 
 
@@ -274,14 +274,14 @@ enum attest_token_item_index_t {
  */
 struct attest_token_iat_simple_t {
     struct q_useful_buf_c nonce; /* byte string */
-    struct q_useful_buf_c ueid; /* byte string */
+    struct q_useful_buf_c instance_id; /* byte string */
     struct q_useful_buf_c boot_seed; /* byte string */
-    struct q_useful_buf_c hw_version; /* text string */
+    struct q_useful_buf_c cert_ref; /* text string */
     struct q_useful_buf_c implementation_id; /* byte string */
     uint32_t              security_lifecycle;
     int32_t               client_id;
     struct q_useful_buf_c profile_definition; /* text string */
-    struct q_useful_buf_c origination; /* text string */
+    struct q_useful_buf_c verif_serv; /* text string */
     uint32_t              item_flags;
 };
 
@@ -352,38 +352,35 @@ attest_token_decode_get_boot_seed(struct attest_token_decode_context *me,
 
 
 /**
- * \brief Get the UEID out of the token.
+ * \brief Get the instance id out of the token.
  *
- * \param[in]  me    The token decoder context.
- * \param[out] ueid  Returned pointer and length of ueid.
+ * \param[in]  me           The token decoder context.
+ * \param[out] instance_id  Returned pointer and length of instance_id.
  *
  * \return An error from \ref attest_token_err_t.
  *
- * The UEID is a byte string.
+ * The instance id is a byte string.
  */
 static enum attest_token_err_t
-attest_token_decode_get_ueid(struct attest_token_decode_context *me,
-                             struct q_useful_buf_c *ueid);
+attest_token_decode_get_instance_id(struct attest_token_decode_context *me,
+                                    struct q_useful_buf_c *instance_id);
 
 
 
 /**
- * \brief Get the HW Version out of the token
+ * \brief Get the certification reference out of the token
  *
  * \param[in]  me          The token decoder context.
- * \param[out] hw_version  Returned pointer and length of
- *                         \c hw_version.
+ * \param[out] cert_ref    Returned pointer and length of \c cert_ref.
  *
  * \return An error from \ref attest_token_err_t.
  *
- * This is also known as the HW ID.
- *
- * The HW Version is a UTF-8 text string. It is returned as a pointer
- * and length. It is NOT \c NULL terminated.
+ * The certification reference is a UTF-8 text string. It is returned as a
+ * pointer and length. It is NOT \c NULL terminated.
  */
 static enum attest_token_err_t
-attest_token_decode_get_hw_version(struct attest_token_decode_context *me,
-                                   struct q_useful_buf_c *hw_version);
+attest_token_decode_get_cert_ref(struct attest_token_decode_context *me,
+                                struct q_useful_buf_c *cert_ref);
 
 
 /**
@@ -403,21 +400,21 @@ attest_token_decode_get_implementation_id(struct attest_token_decode_context*me,
 
 
 /**
- * \brief Get the origination out of the token.
+ * \brief Get the verification service identification out of the token.
  *
  * \param[in]  me           The token decoder context.
- * \param[out] origination  Returned pointer and length of origination.
+ * \param[out] verif_serv   Returned pointer and length of verif_serv.
  *
  * \return An error from \ref attest_token_err_t.
  *
  * This is also known as the Verification Service Indicator.
  *
- * The \c origination is a UTF-8 text string. It is returned as a
+ * The \c verif_serv is a UTF-8 text string. It is returned as a
  * pointer* and length. It is NOT \c NULL terminated.
  */
 static enum attest_token_err_t
-attest_token_decode_get_origination(struct attest_token_decode_context *me,
-                                    struct q_useful_buf_c *origination);
+attest_token_decode_get_verif_serv(struct attest_token_decode_context *me,
+                                    struct q_useful_buf_c *verif_serv);
 
 
 /**
@@ -728,16 +725,16 @@ attest_token_decode_get_nonce(struct attest_token_decode_context *me,
                               struct q_useful_buf_c *nonce)
 {
     return attest_token_decode_get_bstr(me,
-                                        IAT_CHALLENGE,
+                                        IAT_NONCE,
                                         nonce);
 }
 
 
 static inline enum attest_token_err_t
-attest_token_decode_get_ueid(struct attest_token_decode_context *me,
-                             struct q_useful_buf_c *ueid)
+attest_token_decode_get_instance_id(struct attest_token_decode_context *me,
+                                    struct q_useful_buf_c *instance_id)
 {
-    return attest_token_decode_get_bstr(me, IAT_UEID, ueid);
+    return attest_token_decode_get_bstr(me, IAT_INSTANCE_ID, instance_id);
 }
 
 
@@ -752,12 +749,12 @@ attest_token_decode_get_boot_seed(struct attest_token_decode_context *me,
 
 
 static inline enum attest_token_err_t
-attest_token_decode_get_hw_version(struct attest_token_decode_context *me,
-                                   struct q_useful_buf_c *hw_version)
+attest_token_decode_get_cert_ref(struct attest_token_decode_context *me,
+                                 struct q_useful_buf_c *cert_ref)
 {
     return attest_token_decode_get_tstr(me,
-                                        IAT_HW_VERSION,
-                                        hw_version);
+                                        IAT_CERTIFICATION_REFERENCE,
+                                        cert_ref);
 }
 
 
@@ -829,12 +826,12 @@ attest_token_decode_get_profile_definition(
 }
 
 static inline enum attest_token_err_t
-attest_token_decode_get_origination(struct attest_token_decode_context*me,
-                                    struct q_useful_buf_c *origination)
+attest_token_decode_get_verif_serv(struct attest_token_decode_context*me,
+                                    struct q_useful_buf_c *verif_serv)
 {
     return attest_token_decode_get_tstr(me,
-                                        IAT_ORIGINATION,
-                                        origination);
+                                        IAT_VERIFICATION_SERVICE,
+                                        verif_serv);
 }
 
 /**
