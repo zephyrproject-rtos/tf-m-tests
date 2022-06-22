@@ -2,7 +2,7 @@
  * attest_token_decode.h
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -14,7 +14,7 @@
 #include "q_useful_buf.h"
 #include <stdbool.h>
 #include "attest_token.h"
-#include "attest_eat_defines.h"
+#include "attest_iat_defines.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -728,7 +728,7 @@ attest_token_decode_get_nonce(struct attest_token_decode_context *me,
                               struct q_useful_buf_c *nonce)
 {
     return attest_token_decode_get_bstr(me,
-                                        EAT_CBOR_ARM_LABEL_CHALLENGE,
+                                        IAT_CHALLENGE,
                                         nonce);
 }
 
@@ -737,7 +737,7 @@ static inline enum attest_token_err_t
 attest_token_decode_get_ueid(struct attest_token_decode_context *me,
                              struct q_useful_buf_c *ueid)
 {
-    return attest_token_decode_get_bstr(me, EAT_CBOR_ARM_LABEL_UEID, ueid);
+    return attest_token_decode_get_bstr(me, IAT_UEID, ueid);
 }
 
 
@@ -746,7 +746,7 @@ attest_token_decode_get_boot_seed(struct attest_token_decode_context *me,
                                   struct q_useful_buf_c *boot_seed)
 {
     return attest_token_decode_get_bstr(me,
-                                        EAT_CBOR_ARM_LABEL_BOOT_SEED,
+                                        IAT_BOOT_SEED,
                                         boot_seed);
 }
 
@@ -756,7 +756,7 @@ attest_token_decode_get_hw_version(struct attest_token_decode_context *me,
                                    struct q_useful_buf_c *hw_version)
 {
     return attest_token_decode_get_tstr(me,
-                                        EAT_CBOR_ARM_LABEL_HW_VERSION,
+                                        IAT_HW_VERSION,
                                         hw_version);
 }
 
@@ -767,7 +767,7 @@ attest_token_decode_get_implementation_id(
                                        struct q_useful_buf_c*implementation_id)
 {
     return attest_token_decode_get_bstr(me,
-                                        EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID,
+                                        IAT_IMPLEMENTATION_ID,
                                         implementation_id);
 }
 
@@ -780,7 +780,7 @@ attest_token_decode_get_client_id(struct attest_token_decode_context *me,
     int64_t caller_id_64;
 
     return_value = attest_token_decode_get_int(me,
-                                               EAT_CBOR_ARM_LABEL_CLIENT_ID,
+                                               IAT_CLIENT_ID,
                                                &caller_id_64);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
         goto Done;
@@ -805,7 +805,7 @@ attest_token_decode_get_security_lifecycle(
     uint64_t security_lifecycle_64;
 
     return_value = attest_token_decode_get_uint(me,
-                                       EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE,
+                                       IAT_SECURITY_LIFECYCLE,
                                        &security_lifecycle_64);
     if(security_lifecycle_64 > UINT32_MAX) {
         return_value = ATTEST_TOKEN_ERR_INTEGER_VALUE;
@@ -824,7 +824,7 @@ attest_token_decode_get_profile_definition(
                                     struct q_useful_buf_c *profile_definition)
 {
     return attest_token_decode_get_tstr(me,
-                                        EAT_CBOR_ARM_LABEL_PROFILE_DEFINITION,
+                                        IAT_PROFILE_DEFINITION,
                                         profile_definition);
 }
 
@@ -833,7 +833,7 @@ attest_token_decode_get_origination(struct attest_token_decode_context*me,
                                     struct q_useful_buf_c *origination)
 {
     return attest_token_decode_get_tstr(me,
-                                        EAT_CBOR_ARM_LABEL_ORIGINATION,
+                                        IAT_ORIGINATION,
                                         origination);
 }
 

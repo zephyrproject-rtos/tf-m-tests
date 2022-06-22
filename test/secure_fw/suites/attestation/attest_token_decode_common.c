@@ -2,7 +2,7 @@
  * attest_token_decode_common.c
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -261,15 +261,15 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
     memset(items, 0, sizeof(struct attest_token_iat_simple_t));
 
     /* Re use flags as array indexes because it works nicely */
-    list[NONCE_FLAG].label              = EAT_CBOR_ARM_LABEL_CHALLENGE;
-    list[UEID_FLAG].label               = EAT_CBOR_ARM_LABEL_UEID;
-    list[BOOT_SEED_FLAG].label          = EAT_CBOR_ARM_LABEL_BOOT_SEED;
-    list[HW_VERSION_FLAG].label         = EAT_CBOR_ARM_LABEL_HW_VERSION;
-    list[IMPLEMENTATION_ID_FLAG].label  = EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID;
-    list[CLIENT_ID_FLAG].label          = EAT_CBOR_ARM_LABEL_CLIENT_ID;
-    list[SECURITY_LIFECYCLE_FLAG].label = EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE;
-    list[PROFILE_DEFINITION_FLAG].label = EAT_CBOR_ARM_LABEL_PROFILE_DEFINITION;
-    list[ORIGINATION_FLAG].label        = EAT_CBOR_ARM_LABEL_ORIGINATION;
+    list[NONCE_FLAG].label              = IAT_CHALLENGE;
+    list[UEID_FLAG].label               = IAT_UEID;
+    list[BOOT_SEED_FLAG].label          = IAT_BOOT_SEED;
+    list[HW_VERSION_FLAG].label         = IAT_HW_VERSION;
+    list[IMPLEMENTATION_ID_FLAG].label  = IAT_IMPLEMENTATION_ID;
+    list[CLIENT_ID_FLAG].label          = IAT_CLIENT_ID;
+    list[SECURITY_LIFECYCLE_FLAG].label = IAT_SECURITY_LIFECYCLE;
+    list[PROFILE_DEFINITION_FLAG].label = IAT_PROFILE_DEFINITION;
+    list[ORIGINATION_FLAG].label        = IAT_ORIGINATION;
     list[NUMBER_OF_ITEMS].label         = 0; /* terminate the list. */
 
     if(me->last_error != ATTEST_TOKEN_ERR_SUCCESS) {
@@ -367,7 +367,7 @@ attest_token_get_num_sw_components(struct attest_token_decode_context *me,
     }
 
     return_value = qcbor_util_get_top_level_item_in_map(me->payload,
-                                        EAT_CBOR_ARM_LABEL_SW_COMPONENTS,
+                                        IAT_SW_COMPONENTS,
                                         QCBOR_TYPE_ARRAY,
                                         &item);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
@@ -377,7 +377,7 @@ attest_token_get_num_sw_components(struct attest_token_decode_context *me,
         } else {
             /* Now decide if it was intentionally left out. */
             return_value = qcbor_util_get_top_level_item_in_map(me->payload,
-                                          EAT_CBOR_ARM_LABEL_NO_SW_COMPONENTS,
+                                          IAT_NO_SW_COMPONENTS,
                                           QCBOR_TYPE_INT64,
                                           &item);
             if(return_value == ATTEST_TOKEN_ERR_SUCCESS) {
@@ -454,7 +454,7 @@ decode_sw_component(QCBORDecodeContext               *decode_context,
 
         if(claim_item.uLabelType == QCBOR_TYPE_INT64) {
             switch(claim_item.label.int64) {
-            case EAT_CBOR_SW_COMPONENT_MEASUREMENT_TYPE:
+            case IAT_SW_COMPONENT_MEASUREMENT_TYPE:
                 if(claim_item.uDataType != QCBOR_TYPE_TEXT_STRING) {
                     return_value = ATTEST_TOKEN_ERR_CBOR_TYPE;
                     goto Done;
@@ -465,7 +465,7 @@ decode_sw_component(QCBORDecodeContext               *decode_context,
 
                 break;
 
-            case EAT_CBOR_SW_COMPONENT_MEASUREMENT_VALUE:
+            case IAT_SW_COMPONENT_MEASUREMENT_VALUE:
                 if(claim_item.uDataType != QCBOR_TYPE_BYTE_STRING) {
                     return_value = ATTEST_TOKEN_ERR_CBOR_TYPE;
                     goto Done;
@@ -475,7 +475,7 @@ decode_sw_component(QCBORDecodeContext               *decode_context,
                     CLAIM_PRESENT_BIT(SW_MEASURMENT_VAL_FLAG);
                 break;
 
-            case EAT_CBOR_SW_COMPONENT_VERSION:
+            case IAT_SW_COMPONENT_VERSION:
                 if(claim_item.uDataType != QCBOR_TYPE_TEXT_STRING) {
                     return_value = ATTEST_TOKEN_ERR_CBOR_TYPE;
                     goto Done;
@@ -485,7 +485,7 @@ decode_sw_component(QCBORDecodeContext               *decode_context,
                     CLAIM_PRESENT_BIT(SW_VERSION_FLAG);
                 break;
 
-            case EAT_CBOR_SW_COMPONENT_SIGNER_ID:
+            case IAT_SW_COMPONENT_SIGNER_ID:
                 if(claim_item.uDataType != QCBOR_TYPE_BYTE_STRING) {
                     return_value = ATTEST_TOKEN_ERR_CBOR_TYPE;
                     goto Done;
@@ -495,7 +495,7 @@ decode_sw_component(QCBORDecodeContext               *decode_context,
                     CLAIM_PRESENT_BIT(SW_SIGNER_ID_FLAG);
                 break;
 
-            case EAT_CBOR_SW_COMPONENT_MEASUREMENT_DESC:
+            case IAT_SW_COMPONENT_MEASUREMENT_DESC:
                 if(claim_item.uDataType != QCBOR_TYPE_TEXT_STRING) {
                     return_value = ATTEST_TOKEN_ERR_CBOR_TYPE;
                     goto Done;
@@ -548,7 +548,7 @@ attest_token_get_sw_component(struct attest_token_decode_context *me,
 
     /* Find the map containing all the SW Components */
     return_value = qcbor_util_decode_to_labeled_item(&decode_context,
-                                              EAT_CBOR_ARM_LABEL_SW_COMPONENTS,
+                                              IAT_SW_COMPONENTS,
                                               &sw_components_array_item);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
         goto Done;
