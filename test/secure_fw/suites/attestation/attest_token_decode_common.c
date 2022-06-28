@@ -372,10 +372,8 @@ attest_token_get_num_sw_components(struct attest_token_decode_context *me,
                                         QCBOR_TYPE_ARRAY,
                                         &item);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
-        if(return_value != ATTEST_TOKEN_ERR_NOT_FOUND) {
-            /* Something very wrong. Bail out passing on the return_value */
-            goto Done;
-        } else {
+#ifdef ATTEST_TOKEN_PROFILE_PSA_IOT_1 /* Other profiles mandates the SW comp*/
+        if(return_value == ATTEST_TOKEN_ERR_NOT_FOUND) {
             /* Now decide if it was intentionally left out. */
             return_value = qcbor_util_get_top_level_item_in_map(me->payload,
                                           IAT_NO_SW_COMPONENTS,
@@ -395,13 +393,15 @@ attest_token_get_num_sw_components(struct attest_token_decode_context *me,
                 return_value = ATTEST_TOKEN_ERR_SW_COMPONENTS_MISSING;
             }
         }
+#endif /* ATTEST_TOKEN_PROFILE_PSA_IOT_1 */
+        goto Done;
     } else {
         /* The SW components claim exists */
         if(item.val.uCount == 0) {
             /* Empty SW component not allowed */
             return_value = ATTEST_TOKEN_ERR_SW_COMPONENTS_MISSING;
         } else {
-            /* SUCESSS! Pass on the success return_value */
+            /* SUCCESS! Pass on the success return_value */
             /* Note that this assumes the array is definite length */
             *num_sw_components = item.val.uCount;
         }
