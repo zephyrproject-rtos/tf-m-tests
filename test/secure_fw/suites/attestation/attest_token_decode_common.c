@@ -270,6 +270,10 @@ attest_token_decode_get_iat_simple(struct attest_token_decode_context *me,
     list[SECURITY_LIFECYCLE_FLAG].label   = IAT_SECURITY_LIFECYCLE;
     list[PROFILE_DEFINITION_FLAG].label   = IAT_PROFILE_DEFINITION;
     list[VERIFICATION_SERVICE_FLAG].label = IAT_VERIFICATION_SERVICE;
+#ifdef ATTEST_TOKEN_PROFILE_ARM_CCA
+    list[PLAT_HASH_ALGO_ID].label         = IAT_PLATFORM_HASH_ALGO_ID;
+    list[PLAT_CONFIG].label               = IAT_PLATFORM_CONFIG;
+#endif
     list[NUMBER_OF_ITEMS].label           = 0; /* terminate the list. */
 
     if(me->last_error != ATTEST_TOKEN_ERR_SUCCESS) {

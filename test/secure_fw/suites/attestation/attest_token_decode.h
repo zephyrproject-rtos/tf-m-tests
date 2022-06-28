@@ -262,7 +262,9 @@ enum attest_token_item_index_t {
     SECURITY_LIFECYCLE_FLAG =   6,
     PROFILE_DEFINITION_FLAG =   7,
     VERIFICATION_SERVICE_FLAG = 8,
-    NUMBER_OF_ITEMS =           9
+    PLAT_HASH_ALGO_ID =         9,
+    PLAT_CONFIG =              10,
+    NUMBER_OF_ITEMS
 };
 
 
@@ -270,7 +272,7 @@ enum attest_token_item_index_t {
  * This structure holds the simple-to-get fields from the
  * token that can be bundled into one structure.
  *
- * This is 7 * 8 + 12 = 72 bytes on a 32-bit machine.
+ * This is 9 * 8 + 12 = 84 bytes on a 32-bit machine.
  */
 struct attest_token_iat_simple_t {
     struct q_useful_buf_c nonce; /* byte string */
@@ -282,6 +284,8 @@ struct attest_token_iat_simple_t {
     int32_t               client_id;
     struct q_useful_buf_c profile_definition; /* text string */
     struct q_useful_buf_c verif_serv; /* text string */
+    struct q_useful_buf_c hash_algo_id; /* text string */
+    struct q_useful_buf_c plat_config; /* byte string */
     uint32_t              item_flags;
 };
 

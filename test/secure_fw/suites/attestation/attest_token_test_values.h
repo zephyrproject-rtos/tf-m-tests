@@ -220,7 +220,7 @@
  *     )
  * The above is in CBOR Diagnostic notation. See RFC 8152.
  */
-#define ASYM_KEY_SIGNED_MINIMAL_TOKEN_PSA_2_0_0 \
+#define ASYM_KEY_SIGNED_MINIMAL_TOKEN_PSA_2_0_0_ARM_CCA \
     0xD2, 0x84, 0x43, 0xA1, 0x01, 0x26, 0xA1, 0x04, \
     0x58, 0x20, 0xEF, 0x95, 0x4B, 0x4B, 0xD9, 0xBD, \
     0xF6, 0x70, 0xD0, 0x33, 0x60, 0x82, 0xF5, 0xEF, \
@@ -257,8 +257,8 @@
     #ifdef ATTEST_TOKEN_PROFILE_PSA_IOT_1
     #define MINIMAL_TOKEN ASYM_KEY_SIGNED_MINIMAL_TOKEN_PSA_IOT_1
     #else
-    /* PSA_2_0_0 */
-    #define MINIMAL_TOKEN ASYM_KEY_SIGNED_MINIMAL_TOKEN_PSA_2_0_0
+    /* PSA_2_0_0 or ARM_CCA profiles */
+    #define MINIMAL_TOKEN ASYM_KEY_SIGNED_MINIMAL_TOKEN_PSA_2_0_0_ARM_CCA
     #endif
 #endif
 
@@ -317,6 +317,15 @@
     #define TOKEN_TEST_REQUIRE_CLIENT_ID            true  /* Mandatory claim */
     #define TOKEN_TEST_REQUIRE_CERT_REF             false /* Optional  claim */
     #define TOKEN_TEST_REQUIRE_PROFILE_DEFINITION   false /* Optional  claim */
+    #define TOKEN_TEST_REQUIRE_PLAT_HASH_ALGO_ID    false /* Not required    */
+    #define TOKEN_TEST_REQUIRE_PLAT_CONFIG          false /* Not required    */
+#elif defined(ATTEST_TOKEN_PROFILE_ARM_CCA)
+    #define TOKEN_TEST_REQUIRE_BOOT_SEED            false /* Not required    */
+    #define TOKEN_TEST_REQUIRE_CLIENT_ID            false /* Not required    */
+    #define TOKEN_TEST_REQUIRE_CERT_REF             false /* Not required    */
+    #define TOKEN_TEST_REQUIRE_PROFILE_DEFINITION   true  /* Mandatory claim */
+    #define TOKEN_TEST_REQUIRE_PLAT_HASH_ALGO_ID    true  /* Mandatory claim */
+    #define TOKEN_TEST_REQUIRE_PLAT_CONFIG          true  /* Mandatory claim */
 #else
     #error "Attestation token profile is incorrect"
 #endif
@@ -370,9 +379,12 @@
 #define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "PSA_IOT_PROFILE_1"
 #elif defined(ATTEST_TOKEN_PROFILE_PSA_2_0_0)
 #define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "http://arm.com/psa/2.0.0"
+#elif defined(ATTEST_TOKEN_PROFILE_ARM_CCA)
+#define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "http://arm.com/CCA-SSD/1.0.0"
 #else
     #error "Attestation token profile is incorrect"
 #endif
+
 /* Text string with verification URL or similar
  *    platform/ext/common/template/attest_hal.c
  */
@@ -468,7 +480,7 @@
 #define TOKEN_TEST_REQUIRE_SWC1_SIGNER_ID true /* Mandatory field */
 
 /* Text string */
-#define TOKEN_TEST_VALUE_SWC1_MEASUREMENT_DESC "SHA256" /* Hard-coded value */
+#define TOKEN_TEST_VALUE_SWC1_MEASUREMENT_DESC NULL /* Value not checked */
 #define TOKEN_TEST_REQUIRE_SWC1_MEASUREMENT_DESC false /* Optional field */
 
 /* Text string */
@@ -518,7 +530,7 @@
 #define TOKEN_TEST_REQUIRE_SWC2_SIGNER_ID true /* Mandatory field */
 
 /* Text string */
-#define TOKEN_TEST_VALUE_SWC2_MEASUREMENT_DESC "SHA256" /* Hard-coded value */
+#define TOKEN_TEST_VALUE_SWC2_MEASUREMENT_DESC NULL /* Value not checked */
 #define TOKEN_TEST_REQUIRE_SWC2_MEASUREMENT_DESC false /* Optional field */
 
 /* Attest token maximum size, there are also platform dependent values
