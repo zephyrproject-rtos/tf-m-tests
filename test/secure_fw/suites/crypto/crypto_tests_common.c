@@ -949,7 +949,6 @@ void psa_cipher_test(const psa_key_type_t key_type,
     uint8_t iv[16] = {0};
     const uint8_t plain_text[PLAIN_DATA_SIZE] =
         "This is my plaintext to encrypt, 48 bytes long!";
-    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE];
     uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
     size_t output_length = 0, total_output_length = 0;
     union {
@@ -960,6 +959,9 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     bool bAbortDecryption = false;
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE];
+#endif
 
     if (iv_length > 16) {
         TEST_FAIL("Unexpected IV length greater than 16 for this alg/key type");
@@ -1593,13 +1595,15 @@ void psa_aead_test(const psa_key_type_t key_type,
         "This is my associated data to authenticate";
     uint8_t decrypted_data[MAX_PLAIN_DATA_SIZE_AEAD] = {0};
     uint8_t encrypted_data[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
-    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
     size_t encrypted_data_length = 0, decrypted_data_length = 0;
     size_t total_output_length = 0, total_encrypted_length = 0;
     uint32_t comp_result;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_attributes_t retrieved_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
+#endif
 
     /* Variables required for multipart operations */
     uint8_t *tag = &encrypted_data[MAX_PLAIN_DATA_SIZE_AEAD];
