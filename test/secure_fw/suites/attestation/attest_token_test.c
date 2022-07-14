@@ -79,7 +79,7 @@ int token_main_alt(uint32_t option_flags,
     struct q_useful_buf_c        actual_nonce;
     Q_USEFUL_BUF_MAKE_STACK_UB(  actual_nonce_storage, 64);
 
-    if(nonce.len == 64 && q_useful_buf_is_value(nonce, 0)) {
+    if(nonce.len == 64 && (q_useful_buf_is_value(nonce, 0) == SIZE_MAX)) {
         /* Go into special option-packed nonce mode */
         actual_nonce = q_useful_buf_copy(actual_nonce_storage, nonce);
         /* Use memcpy as it always works and avoids type punning */
