@@ -1744,7 +1744,7 @@ void psa_aead_test(const psa_key_type_t key_type,
          */
         if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_CCM
             && status == PSA_ERROR_NOT_SUPPORTED) {
-            TEST_LOG("psa_aead_set_lengths(): Algorithm NOT SUPPORTED by the"\
+            TEST_LOG("psa_aead_set_lengths(): Algorithm NOT SUPPORTED by the "\
                      "implementation - skip multipart API flow\r\n");
         } else {
             TEST_FAIL("Error setting lengths");
