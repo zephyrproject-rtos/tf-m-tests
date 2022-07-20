@@ -54,17 +54,18 @@ __attribute__((naked)) static uint32_t fpu_s_call(uintptr_t psa_call_param)
 {
         __asm volatile(
 #if !defined(__ICCARM__)
-        ".syntax unified                        \n"
+        ".syntax unified                          \n"
 #endif
-        "   push    {r12, lr}                   \n"
-        "   mov     r12, r0                     \n"
-        /* Load params of tfm_psa_call_pack into r0~r4. */
-        "   ldr     r0, [r12], #4               \n"  /* psa handle */
-        "   ldr     r1, [r12], #4               \n"  /* ctrl_param */
-        "   ldr     r2, [r12], #4               \n"  /* in_vec */
-        "   ldr     r3, [r12]                   \n"  /* out_vec */
-        "   blx     "M2S(tfm_psa_call_pack)"    \n"
-        "   pop     {r12, pc}                   \n"
+        "   push    {r4-r6, lr}                   \n"
+        "   mov     r4, r0                        \n"
+        /* Load params of tfm_psa_call_pack into r0~r3. */
+        "   ldr     r0, [r4], #4                  \n"  /* psa handle */
+        "   ldr     r1, [r4], #4                  \n"  /* ctrl_param */
+        "   ldr     r2, [r4], #4                  \n"  /* in_vec */
+        "   ldr     r3, [r4]                      \n"  /* out_vec */
+        "   ldr     r5, ="M2S(tfm_psa_call_pack)" \n"
+        "   blx     r5                            \n"
+        "   pop     {r4-r6, pc}                   \n"
     );
 }
 
