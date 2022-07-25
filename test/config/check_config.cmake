@@ -7,39 +7,40 @@
 
 ########################## TEST Configuration ##################################
 
-message(STATUS "---------- Display TEST Configuration - start --------------")
-
-message(STATUS "TEST_NS is set as ${TEST_NS}")
-message(STATUS "TEST_S is set as ${TEST_S}")
-message(STATUS "TEST_NS_ATTESTATION is set as ${TEST_NS_ATTESTATION}")
-message(STATUS "TEST_NS_AUDIT is set as ${TEST_NS_AUDIT}")
-message(STATUS "TEST_NS_CORE is set as ${TEST_NS_CORE}")
-message(STATUS "TEST_NS_CRYPTO is set as ${TEST_NS_CRYPTO}")
-message(STATUS "TEST_NS_ITS is set as ${TEST_NS_ITS}")
-message(STATUS "TEST_NS_QCBOR is set as ${TEST_NS_QCBOR}")
-message(STATUS "TEST_NS_PS is set as ${TEST_NS_PS}")
-message(STATUS "TEST_NS_T_COSE is set as ${TEST_NS_T_COSE}")
-message(STATUS "TEST_NS_PLATFORM is set as ${TEST_NS_PLATFORM}")
-message(STATUS "TEST_NS_FWU is set as ${TEST_NS_FWU}")
-message(STATUS "TEST_NS_IPC is set as ${TEST_NS_IPC}")
-message(STATUS "TEST_NS_SLIH_IRQ is set as ${TEST_NS_SLIH_IRQ}")
-message(STATUS "TEST_NS_FLIH_IRQ is set as ${TEST_NS_FLIH_IRQ}")
-message(STATUS "TEST_NS_MULTI_CORE is set as ${TEST_NS_MULTI_CORE}")
-message(STATUS "TEST_NS_MANAGE_NSID is set as ${TEST_NS_MANAGE_NSID}")
-message(STATUS "TEST_NS_SFN_BACKEND is set as ${TEST_NS_SFN_BACKEND}")
-message(STATUS "TEST_NS_FPU is set as ${TEST_NS_FPU}")
-message(STATUS "TEST_S_ATTESTATION is set as ${TEST_S_ATTESTATION}")
-message(STATUS "TEST_S_AUDIT is set as ${TEST_S_AUDIT}")
-message(STATUS "TEST_S_CRYPTO is set as ${TEST_S_CRYPTO}")
-message(STATUS "TEST_S_ITS is set as ${TEST_S_ITS}")
-message(STATUS "TEST_S_PS is set as ${TEST_S_PS}")
-message(STATUS "TEST_S_PLATFORM is set as ${TEST_S_PLATFORM}")
-message(STATUS "TEST_S_FWU is set as ${TEST_S_FWU}")
-message(STATUS "TEST_S_IPC is set as ${TEST_S_IPC}")
-message(STATUS "TEST_S_SFN_BACKEND is set as ${TEST_S_SFN_BACKEND}")
-message(STATUS "TEST_S_FPU is set as ${TEST_S_FPU}")
-
-message(STATUS "---------- Display TEST Configuration - stop ---------------")
+include(utils)
+    dump_options("TEST Configuration"
+    "
+        TEST_NS;
+        TEST_S;
+        TEST_NS_ATTESTATION;
+        TEST_NS_AUDIT;
+        TEST_NS_CORE;
+        TEST_NS_CRYPTO;
+        TEST_NS_ITS;
+        TEST_NS_QCBOR;
+        TEST_NS_PS;
+        TEST_NS_T_COSE;
+        TEST_NS_PLATFORM;
+        TEST_NS_FWU;
+        TEST_NS_IPC;
+        TEST_NS_SLIH_IRQ;
+        TEST_NS_FLIH_IRQ;
+        TEST_NS_MULTI_CORE;
+        TEST_NS_MANAGE_NSID;
+        TEST_NS_SFN_BACKEND;
+        TEST_NS_FPU;
+        TEST_S_ATTESTATION;
+        TEST_S_AUDIT;
+        TEST_S_CRYPTO;
+        TEST_S_ITS;
+        TEST_S_PS;
+        TEST_S_PLATFORM;
+        TEST_S_FWU;
+        TEST_S_IPC;
+        TEST_S_SFN_BACKEND;
+        TEST_S_FPU;
+    "
+    )
 
 ########################## Check Flags Input ###################################
 
