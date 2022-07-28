@@ -15,6 +15,7 @@
 #include "attest_token_decode.h"
 #include "attest_token_test_values.h"
 #include "psa/crypto.h"
+#include "test_log.h"
 
 
 /**
@@ -35,6 +36,24 @@
  * values.
  */
 
+#ifdef DUMP_TOKEN
+static void dump_token(struct q_useful_buf_c *token)
+{
+    int i;
+    unsigned char num;
+
+    TEST_LOG("\r\n");
+    TEST_LOG("########### token(len: %d): ###########\r\n", token->len);
+    for (i = 0; i < token->len; ++i) {
+        num = ((unsigned char *)token->ptr)[i];
+        TEST_LOG(" 0x%X%X", (num & 0xF0) >> 4, num & 0x0F);
+        if (((i + 1) % 8) == 0) {
+            TEST_LOG("\r\n");
+        }
+    }
+    TEST_LOG("\r\n############## token end  ##############\r\n");
+}
+#endif
 
 /**
  * \brief An alternate token_main() that packs the option flags into the nonce.
@@ -77,13 +96,15 @@ int token_main_alt(uint32_t option_flags,
                                                 buffer.ptr,
                                                 token_buf_size,
                                                 &completed_token_size);
-
     *completed_token =
         (struct q_useful_buf_c){buffer.ptr, completed_token_size};
-
     if (return_value != PSA_SUCCESS) {
         return (int)return_value;
     }
+
+#ifdef DUMP_TOKEN
+    dump_token(completed_token);
+#endif
 
     return 0;
 }
