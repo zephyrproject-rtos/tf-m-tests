@@ -1,5 +1,7 @@
 #-------------------------------------------------------------------------------
 # Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+# or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,7 +14,7 @@
   "version_minor": 1,
   "manifest_list": [
     {
-      "name": "TFM Core Test Service",
+      "name": "TFM Core Test Partition",
       "short_name": "TFM_SP_CORE_TEST",
       "manifest": "suites/core/service/tfm_core_test/tfm_ss_core_test.yaml",
       "output_path": "secure_fw/test_services/tfm_core_test",
@@ -27,7 +29,7 @@
       }
     },
     {
-      "name": "TFM Core Test Service 2",
+      "name": "TFM Core Test Partition 2",
       "short_name": "TFM_SP_CORE_TEST_2",
       "manifest": "suites/core/service/tfm_core_test_2/tfm_ss_core_test_2.yaml",
       "output_path": "secure_fw/test_services/tfm_core_test_2",
@@ -42,7 +44,7 @@
       }
     },
     {
-      "name": "TFM Secure Client Service",
+      "name": "TFM Secure Client Partition",
       "short_name": "TFM_SP_SECURE_TEST_PARTITION",
       "manifest": "common_test_services/tfm_secure_client_service/tfm_secure_client_service.yaml",
       "output_path": "secure_fw/test_services/tfm_secure_client_service",
@@ -57,7 +59,7 @@
       }
     },
     {
-      "name": "TFM IPC Service Test",
+      "name": "TFM IPC Test Partition",
       "short_name": "TFM_SP_IPC_SERVICE_TEST",
       "manifest": "suites/spm/ipc/service/tfm_ipc_service/tfm_ipc_service_test.yaml",
       "output_path": "secure_fw/test_services/tfm_ipc_service",
@@ -72,7 +74,7 @@
       }
     },
     {
-      "name": "TFM IPC Client Service",
+      "name": "TFM IPC Client Partition",
       "short_name": "TFM_SP_IPC_CLIENT_TEST",
       "manifest": "suites/spm/ipc/service/tfm_ipc_client/tfm_ipc_client_test.yaml",
       "output_path": "secure_fw/test_services/tfm_ipc_client",
@@ -87,7 +89,7 @@
       }
     },
     {
-      "name": "TF-M PS Test Service",
+      "name": "TF-M PS Test Partition",
       "short_name": "TFM_SP_PS_TEST",
       "manifest": "suites/ps/service/tfm_ps_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_ps_test_service",
@@ -102,7 +104,7 @@
       }
     },
     {
-      "name": "TF-M Secure Client 2 Service",
+      "name": "TF-M Secure Client 2 Partition",
       "short_name": "TFM_SP_SECURE_CLIENT_2",
       "manifest": "common_test_services/tfm_secure_client_2/tfm_secure_client_2.yaml",
       "output_path": "secure_fw/test_services/tfm_secure_client_2",
@@ -117,7 +119,7 @@
       }
     },
     {
-      "name": "TFM SLIH Test Service",
+      "name": "TFM SLIH Test Partition",
       "short_name": "TFM_SP_SLIH_TEST",
       "manifest": "suites/spm/irq/service/tfm_slih_test_service/tfm_slih_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_slih_test_service",
@@ -132,7 +134,7 @@
       }
     },
     {
-      "name": "TFM FLIH Test Service",
+      "name": "TFM FLIH Test Partition",
       "short_name": "TFM_SP_FLIH_TEST",
       "manifest": "suites/spm/irq/service/tfm_flih_test_service/tfm_flih_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_flih_test_service",
@@ -147,7 +149,7 @@
       }
     },
     {
-      "name": "TFM FPU Test Service",
+      "name": "TFM FPU Test Partition",
       "short_name": "TFM_SP_FPU_SERVICE_TEST",
       "manifest": "suites/fpu/service/tfm_fpu_service_test.yaml",
       "output_path": "secure_fw/test_services/tfm_fpu_service",
