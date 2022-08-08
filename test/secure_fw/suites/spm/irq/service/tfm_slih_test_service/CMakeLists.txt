@@ -33,11 +33,9 @@ target_include_directories(tfm_app_rot_partition_slih_test
 
 target_link_libraries(tfm_app_rot_partition_slih_test
     PRIVATE
-        psa_interface
         tfm_sprt
         spm_test_service_common
         platform_s
-        tfm_secure_api
 )
 
 target_link_libraries(tfm_spm

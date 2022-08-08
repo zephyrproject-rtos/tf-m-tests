@@ -43,7 +43,7 @@ target_link_libraries(tfm_test_framework_s
     INTERFACE
         psa_interface
         tfm_test_framework_common
-        tfm_sp_log_raw
+        tfm_sprt
 )
 
 target_compile_definitions(tfm_test_framework_s

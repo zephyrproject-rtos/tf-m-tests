@@ -46,7 +46,7 @@ target_include_directories(tfm_partitions
 
 target_link_libraries(tfm_app_rot_partition_fpu_service
     PRIVATE
-        tfm_secure_api
+        tfm_sprt
         platform_s
         tfm_test_framework_s
 )
