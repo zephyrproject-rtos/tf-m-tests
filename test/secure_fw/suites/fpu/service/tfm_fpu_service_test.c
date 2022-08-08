@@ -10,10 +10,10 @@
 #include "psa_manifest/tfm_fpu_service_test.h"
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
-#include "tfm_secure_api.h"
 #include "tfm_sp_log.h"
 #include "tfm_plat_test.h"
 #include "fpu_tests_common.h"
+#include "utilities.h"
 
 /*
  * Description: Service handler for checking FP register.

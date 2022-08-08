@@ -13,7 +13,6 @@
 #include "spm_test_defs.h"
 #include "tfm_api.h"
 #include "tfm_hal_isolation.h"
-#include "tfm_secure_api.h"
 #include "tfm_sp_log.h"
 #include "client_api_test_defs.h"
 #include "client_api_test_service.h"

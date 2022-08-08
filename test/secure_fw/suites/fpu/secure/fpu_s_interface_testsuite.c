@@ -8,7 +8,7 @@
 #include "fpu_s_tests.h"
 #include "../fpu_tests_common.h"
 #include "tfm_psa_call_pack.h"
-#include "tfm_secure_api.h"
+#include "utilities.h"
 
 /* Test FP context protection after psa calls. */
 static void tfm_fpu_test_fp_protection_s_psa_call(struct test_result_t *ret);
