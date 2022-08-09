@@ -38,7 +38,7 @@ if (TEST_NS_ATTESTATION)
     target_compile_definitions(tfm_test_suite_attestation_ns
         PRIVATE
             DOMAIN_NS=1
-            $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
+            $<$<BOOL:${ATTEST_INCLUDE_TEST_CODE}>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
         INTERFACE
             TEST_NS_ATTESTATION
@@ -85,7 +85,7 @@ if (TEST_S_ATTESTATION)
 
     target_compile_definitions(tfm_test_suite_attestation_s
         PRIVATE
-            $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
+            $<$<BOOL:${ATTEST_INCLUDE_TEST_CODE}>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
         INTERFACE
             TEST_S_ATTESTATION

@@ -109,7 +109,7 @@ int token_main_alt(uint32_t option_flags,
     return 0;
 }
 
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
+#ifdef INCLUDE_TEST_CODE
 static const uint8_t expected_minimal_token_bytes[] = {MINIMAL_TOKEN};
 /*
  * Public function. See token_test.h
