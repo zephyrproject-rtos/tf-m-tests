@@ -8,13 +8,13 @@
 #-------------------------------------------------------------------------------
 
 {
-  "name": "TF-M secure partition manifests",
+  "description": "TF-M secure partition manifests",
   "type": "manifest_list",
   "version_major": 0,
   "version_minor": 1,
   "manifest_list": [
     {
-      "name": "TFM Core Test Partition",
+      "description": "TFM Core Test Partition",
       "manifest": "suites/core/service/tfm_core_test/tfm_ss_core_test.yaml",
       "output_path": "secure_fw/test_services/tfm_core_test",
       "conditional": "TEST_NS_CORE",
@@ -28,7 +28,7 @@
       }
     },
     {
-      "name": "TFM Core Test Partition 2",
+      "description": "TFM Core Test Partition 2",
       "manifest": "suites/core/service/tfm_core_test_2/tfm_ss_core_test_2.yaml",
       "output_path": "secure_fw/test_services/tfm_core_test_2",
       "conditional": "TEST_NS_CORE",
@@ -42,7 +42,7 @@
       }
     },
     {
-      "name": "TFM Secure Client Partition",
+      "description": "TFM Secure Client Partition",
       "manifest": "common_test_services/tfm_secure_client_service/tfm_secure_client_service.yaml",
       "output_path": "secure_fw/test_services/tfm_secure_client_service",
       "conditional": "TEST_FRAMEWORK_S",
@@ -56,7 +56,7 @@
       }
     },
     {
-      "name": "TFM IPC Test Partition",
+      "description": "TFM IPC Test Partition",
       "manifest": "suites/spm/ipc/service/tfm_ipc_service/tfm_ipc_service_test.yaml",
       "output_path": "secure_fw/test_services/tfm_ipc_service",
       "conditional": "TFM_PARTITION_IPC_TEST",
@@ -70,7 +70,7 @@
       }
     },
     {
-      "name": "TFM IPC Client Partition",
+      "description": "TFM IPC Client Partition",
       "manifest": "suites/spm/ipc/service/tfm_ipc_client/tfm_ipc_client_test.yaml",
       "output_path": "secure_fw/test_services/tfm_ipc_client",
       "conditional": "TFM_PARTITION_IPC_TEST",
@@ -84,7 +84,7 @@
       }
     },
     {
-      "name": "TF-M PS Test Partition",
+      "description": "TF-M PS Test Partition",
       "manifest": "suites/ps/service/tfm_ps_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_ps_test_service",
       "conditional": "TEST_S_PS",
@@ -98,7 +98,7 @@
       }
     },
     {
-      "name": "TF-M Secure Client 2 Partition",
+      "description": "TF-M Secure Client 2 Partition",
       "manifest": "common_test_services/tfm_secure_client_2/tfm_secure_client_2.yaml",
       "output_path": "secure_fw/test_services/tfm_secure_client_2",
       "conditional": "TEST_FRAMEWORK_S",
@@ -112,7 +112,7 @@
       }
     },
     {
-      "name": "TFM SLIH Test Partition",
+      "description": "TFM SLIH Test Partition",
       "manifest": "suites/spm/irq/service/tfm_slih_test_service/tfm_slih_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_slih_test_service",
       "conditional": "TEST_NS_SLIH_IRQ",
@@ -126,7 +126,7 @@
       }
     },
     {
-      "name": "TFM FLIH Test Partition",
+      "description": "TFM FLIH Test Partition",
       "manifest": "suites/spm/irq/service/tfm_flih_test_service/tfm_flih_test_service.yaml",
       "output_path": "secure_fw/test_services/tfm_flih_test_service",
       "conditional": "TEST_NS_FLIH_IRQ",
@@ -140,7 +140,7 @@
       }
     },
     {
-      "name": "TFM FPU Test Partition",
+      "description": "TFM FPU Test Partition",
       "manifest": "suites/fpu/service/tfm_fpu_service_test.yaml",
       "output_path": "secure_fw/test_services/tfm_fpu_service",
       "conditional": "TEST_PARTITION_FPU_TEST",
@@ -154,7 +154,7 @@
       }
     },
     {
-      "name": "TFM SFN Backend Test Partition",
+      "description": "TFM SFN Backend Test Partition",
       "manifest": "suites/spm/sfn/service/sfn_backend_test_partition/sfn_backend_test_partition.yaml",
       "output_path": "secure_fw/test_services/sfn_backend_test_partition",
       "conditional": "TFM_PARTITION_SFN_BACKEND_TEST",
