@@ -7,7 +7,6 @@
 
 #include "attest_s_tests.h"
 #include "psa/initial_attestation.h"
-#include "attest.h"
 #include "../attest_tests_common.h"
 #include "../attest_token_test_values.h"
 #include "../attest_token_test.h"

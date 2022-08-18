@@ -14,7 +14,7 @@
 #include "q_useful_buf.h"
 #include <stdbool.h>
 #include "attest_token.h"
-#include "attest_iat_defines.h"
+#include "tfm_attest_iat_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
