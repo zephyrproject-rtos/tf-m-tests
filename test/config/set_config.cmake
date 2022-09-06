@@ -59,7 +59,7 @@ if (NOT TFM_NS_MANAGE_NSID)
     set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
 endif()
 
-if (CONFIG_TFM_FP STREQUAL "soft")
+if (CONFIG_TFM_FLOAT_ABI STREQUAL "soft")
     set(TEST_S_FPU                       OFF        CACHE BOOL      "Whether to build S regression FPU tests")
     set(TEST_NS_FPU                      OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
 endif()

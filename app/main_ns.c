@@ -22,7 +22,7 @@
 #endif
 #include "tfm_log.h"
 #include "uart_stdout.h"
-#if (CONFIG_TFM_FP >= 1)
+#if (CONFIG_TFM_FLOAT_ABI >= 1)
 #include "cmsis.h"
 #endif
 
@@ -129,7 +129,7 @@ __WEAK int32_t tfm_ns_platform_uninit(void)
 
 __WEAK int32_t tfm_ns_cp_init(void)
 {
-#if (CONFIG_TFM_FP >= 1)
+#if (CONFIG_TFM_FLOAT_ABI >= 1)
 #ifdef __GNUC__
     /* Enable NSPE privileged and unprivilged access to the FP Extension */
     SCB->CPACR |= (3U << 10U*2U)     /* enable CP10 full access */
