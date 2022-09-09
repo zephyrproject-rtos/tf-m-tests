@@ -7,12 +7,12 @@
 
 ########################## TEST SYNC ###########################################
 
-if ((NOT TFM_PARTITION_PROTECTED_STORAGE AND NOT FORWARD_PROT_MSG))
+if ((NOT TFM_PARTITION_PROTECTED_STORAGE))
     set(TEST_NS_PS              OFF        CACHE BOOL      "Whether to build NS regression PS tests")
     set(TEST_S_PS               OFF        CACHE BOOL      "Whether to build S regression PS tests")
 endif()
 
-if (NOT TFM_PARTITION_INTERNAL_TRUSTED_STORAGE AND NOT FORWARD_PROT_MSG)
+if (NOT TFM_PARTITION_INTERNAL_TRUSTED_STORAGE)
     set(TEST_NS_ITS             OFF        CACHE BOOL      "Whether to build NS regression ITS tests")
     set(TEST_S_ITS              OFF        CACHE BOOL      "Whether to build S regression ITS tests")
 
@@ -20,12 +20,12 @@ if (NOT TFM_PARTITION_INTERNAL_TRUSTED_STORAGE AND NOT FORWARD_PROT_MSG)
     set(TEST_NS_PS              OFF        CACHE BOOL      "Whether to build NS regression PS tests")
 endif()
 
-if (NOT TFM_PARTITION_CRYPTO AND NOT FORWARD_PROT_MSG)
+if (NOT TFM_PARTITION_CRYPTO)
     set(TEST_NS_CRYPTO          OFF        CACHE BOOL      "Whether to build NS regression Crypto tests")
     set(TEST_S_CRYPTO           OFF        CACHE BOOL      "Whether to build S regression Crypto tests")
 endif()
 
-if (NOT TFM_PARTITION_INITIAL_ATTESTATION AND NOT FORWARD_PROT_MSG)
+if (NOT TFM_PARTITION_INITIAL_ATTESTATION)
     set(TEST_NS_ATTESTATION     OFF        CACHE BOOL      "Whether to build NS regression Attestation tests")
     set(TEST_S_ATTESTATION      OFF        CACHE BOOL      "Whether to build S regression Attestation tests")
     set(TEST_NS_QCBOR           OFF        CACHE BOOL      "Whether to build NS regression QCBOR tests")
@@ -36,7 +36,7 @@ if (SYMMETRIC_INITIAL_ATTESTATION)
     set(TEST_NS_T_COSE          OFF        CACHE BOOL      "Whether to build NS regression t_cose tests")
 endif()
 
-if (NOT TFM_PARTITION_PLATFORM AND NOT FORWARD_PROT_MSG)
+if (NOT TFM_PARTITION_PLATFORM)
     set(TEST_NS_PLATFORM        OFF        CACHE BOOL      "Whether to build NS regression Platform tests")
     set(TEST_S_PLATFORM         OFF        CACHE BOOL      "Whether to build S regression Platform tests")
 endif()

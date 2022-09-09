@@ -103,7 +103,7 @@ if (TEST_S_ATTESTATION)
             tfm_test_framework_s
             tfm_attestation_defs
             tfm_boot_status
-            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_crypto>
+            tfm_psa_rot_partition_crypto
             platform_s
     )
 

@@ -59,12 +59,10 @@ if (TEST_S_PS)
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
     )
 
-if (NOT FORWARD_PROT_MSG)
     target_sources(tfm_app_rot_partition_ps
         PRIVATE
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters/test_ps_nv_counters.c>
     )
-endif()
 
     target_include_directories(tfm_test_suite_ps_s
         PUBLIC
@@ -85,7 +83,7 @@ endif()
             tfm_test_framework_s
             platform_region_defs
             tfm_app_rot_partition_ps
-            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_ps_test>
+            tfm_psa_rot_partition_ps_test
             tfm_spm
             platform_s
     )
