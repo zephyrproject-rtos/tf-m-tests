@@ -19,6 +19,7 @@ static void tfm_crypto_test_1003(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CFB */
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
 static void tfm_crypto_test_1005(struct test_result_t *ret);
+static void tfm_crypto_test_1006(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CTR */
 static void tfm_crypto_test_1007(struct test_result_t *ret);
 static void tfm_crypto_test_1008(struct test_result_t *ret);
@@ -100,6 +101,8 @@ static struct test_t crypto_tests[] = {
 #ifdef TFM_CRYPTO_TEST_ALG_CTR
     {&tfm_crypto_test_1005, "TFM_NS_CRYPTO_TEST_1005",
      "Non Secure Symmetric encryption (AES-128-CTR) interface"},
+    {&tfm_crypto_test_1006, "TFM_NS_CRYPTO_TEST_1006",
+     "Non Secure Symmetric encryption (AES-256-CTR) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CTR */
     {&tfm_crypto_test_1007, "TFM_NS_CRYPTO_TEST_1007",
      "Non Secure Symmetric encryption invalid cipher"},
@@ -244,6 +247,12 @@ static void tfm_crypto_test_1005(struct test_result_t *ret)
 {
     psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CTR,
                     test_key_128, BIT_SIZE_TEST_KEY, ret);
+}
+
+static void tfm_crypto_test_1006(struct test_result_t *ret)
+{
+    psa_cipher_test(PSA_KEY_TYPE_AES, PSA_ALG_CTR,
+                    test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CTR */
 
