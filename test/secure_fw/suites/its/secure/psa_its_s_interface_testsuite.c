@@ -100,12 +100,12 @@ static void tfm_its_test_1020(struct test_result_t *ret)
      * maximum permitted, it is treated as a secure violation.
      * TF-M framework rejects the request with a proper error code.
      * The ITS secure PSA implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
+     * PSA_ERROR_PROGRAMMER_ERROR in that case.
      */
 
     /* Set with data length longer than the maximum supported */
     status = psa_its_set(uid, data_len, write_data, flags);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
         TEST_FAIL("Set should not succeed with invalid data length");
         return;
     }
@@ -148,12 +148,12 @@ static void tfm_its_test_1021(struct test_result_t *ret)
      * maximum permitted, it is treated as a secure violation.
      * TF-M framework rejects the request with a proper error code.
      * The ITS secure PSA implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
+     * PSA_ERROR_PROGRAMMER_ERROR in that case.
      */
 
     status = psa_its_get(uid, offset, read_len, read_data + HALF_PADDING_SIZE,
                          &read_data_length);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
         TEST_FAIL("Get should not succeed with invalid arguments");
         return;
     }
@@ -214,13 +214,13 @@ static void tfm_its_test_1022(struct test_result_t *ret)
     /* A parameter with a null pointer is treated as a secure violation.
      * TF-M framework rejects the request with a proper error code.
      * The secure PSA ITS implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
+     * PSA_ERROR_PROGRAMMER_ERROR in that case.
      */
 
     /* Get info with NULL info pointer */
 #ifndef TFM_PSA_API
     status = psa_its_get_info(uid, NULL);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
         TEST_FAIL("Get info should not succeed with NULL info pointer");
         return;
     }
