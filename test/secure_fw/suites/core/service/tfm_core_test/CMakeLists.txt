@@ -16,14 +16,12 @@ target_sources(tfm_psa_rot_partition_core_test
 # The generated sources
 target_sources(tfm_psa_rot_partition_core_test
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_core_test/auto_generated/intermedia_tfm_ss_core_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_core_test/auto_generated/intermedia_tfm_ss_core_test.c
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_core_test/auto_generated/load_info_tfm_ss_core_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_core_test/auto_generated/load_info_tfm_ss_core_test.c
 )
 
 # Set include directory

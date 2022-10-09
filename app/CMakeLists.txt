@@ -70,7 +70,7 @@ target_link_libraries(tfm_ns_interface
 
 target_compile_definitions(tfm_ns_interface
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:TFM_PSA_API>
+        TFM_PSA_API
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
         $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
         $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
@@ -95,44 +95,32 @@ target_sources(tfm_api_ns
         $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${NSID_MGR_DIR}/tfm_nsid_manager.c>
 )
 
-if (TFM_PSA_API)
-    target_sources(tfm_api_ns PRIVATE
-        $<$<BOOL:${TFM_PARTITION_PLATFORM}>:${INTERFACE_SRC_DIR}/tfm_platform_ipc_api.c>
-        $<$<BOOL:${TFM_PARTITION_PROTECTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_ps_ipc_api.c>
-        $<$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_its_ipc_api.c>
-        $<$<BOOL:${TFM_PARTITION_CRYPTO}>:${INTERFACE_SRC_DIR}/tfm_crypto_ipc_api.c>
-        $<$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_ipc_api.c>
-        $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_ipc_api.c>
-        )
+target_sources(tfm_api_ns PRIVATE
+    $<$<BOOL:${TFM_PARTITION_PLATFORM}>:${INTERFACE_SRC_DIR}/tfm_platform_ipc_api.c>
+    $<$<BOOL:${TFM_PARTITION_PROTECTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_ps_ipc_api.c>
+    $<$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_its_ipc_api.c>
+    $<$<BOOL:${TFM_PARTITION_CRYPTO}>:${INTERFACE_SRC_DIR}/tfm_crypto_ipc_api.c>
+    $<$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_ipc_api.c>
+    $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_ipc_api.c>
+    )
 
-    if (TFM_PARTITION_NS_AGENT_MAILBOX)
-        target_sources(tfm_api_ns PRIVATE
-            ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
-            ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
-            $<$<NOT:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c>
-            $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS}>,$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_thread.c>
-        )
-
-        # NS RTOS specific implementation of NS mailbox
-        target_sources(tfm_api_ns PRIVATE
-            $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
-            $<$<BOOL:${TEST_NS_MULTI_CORE}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
-        )
-    endif()
-else()
+if (TFM_PARTITION_NS_AGENT_MAILBOX)
     target_sources(tfm_api_ns PRIVATE
-        $<$<BOOL:${TFM_PARTITION_PLATFORM}>:${INTERFACE_SRC_DIR}/tfm_platform_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_AUDIT_LOG}>:${INTERFACE_SRC_DIR}/tfm_audit_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_PROTECTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_ps_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_INTERNAL_TRUSTED_STORAGE}>:${INTERFACE_SRC_DIR}/tfm_its_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_CRYPTO}>:${INTERFACE_SRC_DIR}/tfm_crypto_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_INITIAL_ATTESTATION}>:${INTERFACE_SRC_DIR}/tfm_initial_attestation_func_api.c>
-        $<$<BOOL:${TFM_PARTITION_FIRMWARE_UPDATE}>:${INTERFACE_SRC_DIR}/tfm_firmware_update_func_api.c>
+        ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_ns_api.c
+        ${INTERFACE_SRC_DIR}/multi_core/tfm_multi_core_psa_ns_api.c
+        $<$<NOT:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox.c>
+        $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS}>,$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>>:${INTERFACE_SRC_DIR}/multi_core/tfm_ns_mailbox_thread.c>
+    )
+
+    # NS RTOS specific implementation of NS mailbox
+    target_sources(tfm_api_ns PRIVATE
+        $<$<BOOL:${TFM_MULTI_CORE_NS_OS}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_rtos_api.c>
+        $<$<BOOL:${TEST_NS_MULTI_CORE}>:${NS_INTERFACE_DIR}/multi_core/tfm_ns_mailbox_test.c>
     )
 endif()
 
 target_sources(tfm_api_ns PRIVATE
-    $<$<AND:$<BOOL:${TFM_PSA_API}>,$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>>:${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c>
+    $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c>
     # NS specific implementation of NS interface dispacther
     $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${CMAKE_CURRENT_SOURCE_DIR}/tfm_ns_interface.c>
 )
@@ -294,7 +282,6 @@ target_compile_definitions(tfm_test_app
     PRIVATE
         $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
         $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
-        $<$<BOOL:${TFM_LIB_MODEL}>:TFM_LIB_MODEL>
         $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
 

@@ -34,7 +34,7 @@ if (TEST_NS_FWU)
     target_compile_definitions(tfm_test_suite_fwu_ns
         PRIVATE
             DOMAIN_NS=1
-            $<$<BOOL:${TFM_PSA_API}>:TFM_PSA_API>
+            TFM_PSA_API
             $<$<BOOL:${TFM_FWU_TEST_WRITE_WITH_NULL}>:TFM_FWU_TEST_WRITE_WITH_NULL>
             $<$<BOOL:${TFM_FWU_TEST_REQUEST_REBOOT}>:TFM_FWU_TEST_REQUEST_REBOOT>
             $<$<BOOL:${TFM_FWU_TEST_QUERY_WITH_NULL}>:TFM_FWU_TEST_QUERY_WITH_NULL>
@@ -71,7 +71,7 @@ if (TEST_S_FWU)
 
     target_compile_definitions(tfm_test_suite_fwu_s
         PRIVATE
-            $<$<BOOL:${TFM_PSA_API}>:TFM_PSA_API>
+            TFM_PSA_API
             $<$<BOOL:${TFM_FWU_TEST_WRITE_WITH_NULL}>:TFM_FWU_TEST_WRITE_WITH_NULL>
             $<$<BOOL:${TFM_FWU_TEST_REQUEST_REBOOT}>:TFM_FWU_TEST_REQUEST_REBOOT>
             $<$<BOOL:${TFM_FWU_TEST_QUERY_WITH_NULL}>:TFM_FWU_TEST_QUERY_WITH_NULL>

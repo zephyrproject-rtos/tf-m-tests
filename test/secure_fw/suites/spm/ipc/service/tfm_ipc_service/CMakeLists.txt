@@ -18,16 +18,14 @@ target_sources(tfm_psa_rot_partition_ipc_service
 # The generated sources
 target_sources(tfm_psa_rot_partition_ipc_service
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c
         $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
             ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_mmiovec_test_service.c>
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/load_info_tfm_ipc_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/load_info_tfm_ipc_service_test.c
 )
 
 # Set include directory

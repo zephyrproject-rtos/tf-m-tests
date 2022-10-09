@@ -107,12 +107,12 @@ endif()
 ########################## SLIH/FLIH IRQ Test ##################################
 
 # Make FLIH IRQ test as the default IRQ test
-if (NOT TFM_LIB_MODEL AND PLATFORM_FLIH_IRQ_TEST_SUPPORT
+if (PLATFORM_FLIH_IRQ_TEST_SUPPORT
     AND TEST_NS AND NOT TEST_NS_SLIH_IRQ)
     set(TEST_NS_FLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
 endif()
 
-if (NOT TFM_LIB_MODEL AND PLATFORM_SLIH_IRQ_TEST_SUPPORT
+if (PLATFORM_SLIH_IRQ_TEST_SUPPORT
     AND TEST_NS AND NOT TEST_NS_FLIH_IRQ)
     set(TEST_NS_SLIH_IRQ        ON        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
 endif()
@@ -134,11 +134,6 @@ endif()
 
 if (CONFIG_TFM_SPM_BACKEND_SFN AND TEST_S)
     set(TEST_S_SFN_BACKEND      ON        CACHE BOOL      "Whether to build S regression SFN backend tests")
-endif()
-
-######################### Library Model Specific Tests #########################
-if (TFM_LIB_MODEL AND TEST_NS)
-    set(TEST_NS_CORE            ON        CACHE BOOL      "Whether to build NS regression Core tests")
 endif()
 
 ########################## Load default config #################################

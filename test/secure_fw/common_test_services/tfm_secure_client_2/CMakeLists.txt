@@ -16,14 +16,12 @@ target_sources(tfm_app_rot_partition_secure_client_2
 # The generated sources
 target_sources(tfm_app_rot_partition_secure_client_2
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_secure_client_2/auto_generated/intermedia_tfm_secure_client_2.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_secure_client_2/auto_generated/intermedia_tfm_secure_client_2.c
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_secure_client_2/auto_generated/load_info_tfm_secure_client_2.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_secure_client_2/auto_generated/load_info_tfm_secure_client_2.c
 )
 
 # Set include directory

@@ -21,14 +21,12 @@ target_sources(tfm_app_rot_partition_fpu_service
 # The generated sources
 target_sources(tfm_app_rot_partition_fpu_service
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service/auto_generated/intermedia_tfm_fpu_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service/auto_generated/intermedia_tfm_fpu_service_test.c
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service/auto_generated/load_info_tfm_fpu_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service/auto_generated/load_info_tfm_fpu_service_test.c
 )
 
 target_include_directories(tfm_app_rot_partition_fpu_service
