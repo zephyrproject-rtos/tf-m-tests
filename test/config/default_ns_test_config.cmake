@@ -28,4 +28,3 @@ set(TEST_NS_FLIH_IRQ        OFF       CACHE BOOL      "Whether to build NS regre
 set(TEST_NS_FPU             OFF       CACHE BOOL      "Whether to build NS regression FPU tests")
 set(TEST_NS_IPC             OFF       CACHE BOOL      "Whether to build NS regression IPC tests")
 set(TEST_NS_SFN_BACKEND     OFF       CACHE BOOL      "Whether to build NS regression SFN backend tests")
-set(TEST_NS_CORE            OFF       CACHE BOOL      "Whether to build NS regression Core tests")

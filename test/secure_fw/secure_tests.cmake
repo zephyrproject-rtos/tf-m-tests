@@ -21,7 +21,6 @@ set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_serv
 
 # Test services are also required by some NS regression tests.
 # Include test services at first no matter whether secure tests are enabled.
-add_subdirectory(suites/core/service ${CMAKE_BINARY_DIR}/tf-m-tests/core_srv)
 add_subdirectory(suites/spm/ipc/service ${CMAKE_BINARY_DIR}/tf-m-tests/ipc_srv)
 add_subdirectory(suites/spm/sfn/service ${CMAKE_BINARY_DIR}/tf-m-tests/sfn_srv)
 add_subdirectory(suites/spm/irq/service ${CMAKE_BINARY_DIR}/tf-m-tests/irq_srv)

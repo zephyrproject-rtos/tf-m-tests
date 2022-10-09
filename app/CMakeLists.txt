@@ -70,7 +70,6 @@ target_link_libraries(tfm_ns_interface
 
 target_compile_definitions(tfm_ns_interface
     INTERFACE
-        TFM_PSA_API
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
         $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
         $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>

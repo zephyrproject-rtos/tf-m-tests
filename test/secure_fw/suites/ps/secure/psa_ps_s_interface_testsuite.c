@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -254,28 +254,6 @@ static void tfm_ps_test_1003(struct test_result_t *ret)
  */
 static void tfm_ps_test_1004(struct test_result_t *ret)
 {
-#ifndef TFM_PSA_API
-    psa_status_t status;
-    const psa_storage_uid_t uid = TEST_UID_1;
-    const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
-    const uint32_t data_len = INVALID_DATA_LEN;
-    const uint8_t write_data[] = WRITE_DATA;
-
-    /* A parameter with a buffer pointer where its data length is longer than
-     * maximum permitted, it is treated as a secure violation.
-     * TF-M framework rejects the request with a proper error code.
-     * The PS secure PSA PS implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
-     */
-
-    /* Set with data length longer than the maximum supported */
-    status = psa_ps_set(uid, data_len, write_data, flags);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Set should not succeed with invalid data length");
-        return;
-    }
-
-#endif
     ret->val = TEST_PASSED;
 }
 
@@ -602,35 +580,6 @@ static void tfm_ps_test_1009(struct test_result_t *ret)
         return;
     }
 
-#ifndef TFM_PSA_API
-    /* Get with data length and offset set to invalid values */
-    read_len = INVALID_DATA_LEN;
-    offset = INVALID_OFFSET;
-
-    /* Reset read_data to original READ_DATA */
-    memcpy(read_data, READ_DATA, sizeof(read_data));
-
-    /* A parameter with a buffer pointer where its data length is longer than
-     * maximum permitted, it is treated as a secure violation.
-     * TF-M framework rejects the request with a proper error code.
-     * The PS secure PSA PS implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
-     */
-
-    status = psa_ps_get(uid, offset, read_len, read_data + HALF_PADDING_SIZE,
-                        &read_data_len);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Get should not succeed with invalid arguments");
-        return;
-    }
-
-    /* Check that the read data is unchanged */
-    if (memcmp(read_data, READ_DATA, sizeof(read_data)) != 0) {
-        TEST_FAIL("Read data should be equal to original read data");
-        return;
-    }
-#endif
-
     /* Call remove to clean up storage for the next test */
     status = psa_ps_remove(uid);
     if (status != PSA_SUCCESS) {
@@ -834,15 +783,6 @@ static void tfm_ps_test_1014(struct test_result_t *ret)
      * The PS secure PSA PS implementation returns
      * PSA_ERROR_GENERIC_ERROR in that case.
      */
-
-    /* Get info with NULL info pointer */
-#ifndef TFM_PSA_API
-    status = psa_ps_get_info(uid, NULL);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Get info should not succeed with NULL info pointer");
-        return;
-    }
-#endif
 
     /* Call remove to clean up storage for the next test */
     status = psa_ps_remove(uid);

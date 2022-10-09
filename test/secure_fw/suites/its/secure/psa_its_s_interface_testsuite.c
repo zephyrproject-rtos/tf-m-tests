@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -88,28 +88,6 @@ void register_testsuite_s_psa_its_interface(struct test_suite_t *p_test_suite)
  */
 static void tfm_its_test_1020(struct test_result_t *ret)
 {
-#ifndef TFM_PSA_API
-    psa_status_t status;
-    const psa_storage_uid_t uid = TEST_UID_1;
-    const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
-    const size_t data_len = INVALID_DATA_LEN;
-    const uint8_t write_data[] = WRITE_DATA;
-
-    /* A parameter with a buffer pointer where its data length is longer than
-     * maximum permitted, it is treated as a secure violation.
-     * TF-M framework rejects the request with a proper error code.
-     * The ITS secure PSA implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
-     */
-
-    /* Set with data length longer than the maximum supported */
-    status = psa_its_set(uid, data_len, write_data, flags);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Set should not succeed with invalid data length");
-        return;
-    }
-
-#endif
     ret->val = TEST_PASSED;
 }
 
@@ -122,71 +100,6 @@ static void tfm_its_test_1020(struct test_result_t *ret)
  */
 static void tfm_its_test_1021(struct test_result_t *ret)
 {
-#ifndef TFM_PSA_API
-    psa_status_t status;
-    const psa_storage_uid_t uid = TEST_UID_2;
-    const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
-    const size_t write_len = WRITE_DATA_SIZE;
-    size_t read_len;
-    size_t offset;
-    const uint8_t write_data[] = WRITE_DATA;
-    uint8_t read_data[] = READ_DATA;
-    size_t read_data_length = 0;
-
-    status = psa_its_set(uid, write_len, write_data, flags);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Set should not fail");
-        return;
-    }
-
-    /* Get with data length and offset set to invalid values */
-    read_len = INVALID_DATA_LEN;
-    offset = INVALID_OFFSET;
-
-    /* A parameter with a buffer pointer where its data length is longer than
-     * maximum permitted, it is treated as a secure violation.
-     * TF-M framework rejects the request with a proper error code.
-     * The ITS secure PSA implementation returns
-     * PSA_ERROR_INVALID_ARGUMENT in that case.
-     */
-
-    status = psa_its_get(uid, offset, read_len, read_data + HALF_PADDING_SIZE,
-                         &read_data_length);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Get should not succeed with invalid arguments");
-        return;
-    }
-
-    /* Check that the read data is unchanged */
-    if (memcmp(read_data, READ_DATA, sizeof(read_data)) != 0) {
-        TEST_FAIL("Read data should be equal to original read data");
-        return;
-    }
-
-    read_len = 1;
-    offset = 0;
-
-    status = psa_its_get(uid, offset, read_len, read_data + HALF_PADDING_SIZE,
-                         NULL);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Get should not succeed with invalid arguments");
-        return;
-    }
-
-    /* Check that the read data is unchanged */
-    if (memcmp(read_data, READ_DATA, sizeof(read_data)) != 0) {
-        TEST_FAIL("Read data should be equal to original read data");
-        return;
-    }
-
-    /* Call remove to clean up storage for the next test */
-    status = psa_its_remove(uid);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Remove should not fail with valid UID");
-        return;
-    }
-
-#endif
     ret->val = TEST_PASSED;
 }
 
@@ -215,15 +128,6 @@ static void tfm_its_test_1022(struct test_result_t *ret)
      * The secure PSA ITS implementation returns
      * PSA_ERROR_INVALID_ARGUMENT in that case.
      */
-
-    /* Get info with NULL info pointer */
-#ifndef TFM_PSA_API
-    status = psa_its_get_info(uid, NULL);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Get info should not succeed with NULL info pointer");
-        return;
-    }
-#endif
 
     /* Call remove to clean up storage for the next test */
     status = psa_its_remove(uid);

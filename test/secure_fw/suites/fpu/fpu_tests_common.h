@@ -16,9 +16,7 @@ extern "C" {
 #include "psa/client.h"
 #include "tfm_peripherals_def.h"
 #include "test_framework_helpers.h"
-#ifdef TFM_PSA_API
 #include "psa_manifest/sid.h"
-#endif
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))

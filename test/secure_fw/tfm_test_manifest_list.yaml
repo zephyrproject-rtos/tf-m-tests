@@ -14,34 +14,6 @@
   "version_minor": 1,
   "manifest_list": [
     {
-      "description": "TFM Core Test Partition",
-      "manifest": "suites/core/service/tfm_core_test/tfm_ss_core_test.yaml",
-      "output_path": "secure_fw/test_services/tfm_core_test",
-      "conditional": "TEST_NS_CORE",
-      "version_major": 0,
-      "version_minor": 1,
-      "pid": 3000,
-      "linker_pattern": {
-        "library_list": [
-           "*tfm_*partition_core_test.*"
-         ]
-      }
-    },
-    {
-      "description": "TFM Core Test Partition 2",
-      "manifest": "suites/core/service/tfm_core_test_2/tfm_ss_core_test_2.yaml",
-      "output_path": "secure_fw/test_services/tfm_core_test_2",
-      "conditional": "TEST_NS_CORE",
-      "version_major": 0,
-      "version_minor": 1,
-      "pid": 3001,
-      "linker_pattern": {
-        "library_list": [
-           "*tfm_*partition_core_test_2.*"
-         ]
-      }
-    },
-    {
       "description": "TFM Secure Client Partition",
       "manifest": "common_test_services/tfm_secure_client_service/tfm_secure_client_service.yaml",
       "output_path": "secure_fw/test_services/tfm_secure_client_service",

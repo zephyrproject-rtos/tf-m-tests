@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -1060,7 +1060,6 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
 }
 #endif
 
-#ifdef TFM_PSA_API
 void tfm_fwu_test_common_016(struct test_result_t *ret)
 {
     psa_status_t status;
@@ -1085,4 +1084,3 @@ void tfm_fwu_test_common_016(struct test_result_t *ret)
     }
     ret->val = TEST_PASSED;
 }
-#endif
