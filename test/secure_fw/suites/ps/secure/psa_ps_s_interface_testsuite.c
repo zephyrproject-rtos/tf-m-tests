@@ -50,7 +50,6 @@ static size_t read_asset_datal_len = 0;
 static void tfm_ps_test_1001(struct test_result_t *ret);
 static void tfm_ps_test_1002(struct test_result_t *ret);
 static void tfm_ps_test_1003(struct test_result_t *ret);
-static void tfm_ps_test_1004(struct test_result_t *ret);
 static void tfm_ps_test_1005(struct test_result_t *ret);
 static void tfm_ps_test_1006(struct test_result_t *ret);
 static void tfm_ps_test_1007(struct test_result_t *ret);
@@ -60,7 +59,6 @@ static void tfm_ps_test_1010(struct test_result_t *ret);
 static void tfm_ps_test_1011(struct test_result_t *ret);
 static void tfm_ps_test_1012(struct test_result_t *ret);
 static void tfm_ps_test_1013(struct test_result_t *ret);
-static void tfm_ps_test_1014(struct test_result_t *ret);
 static void tfm_ps_test_1015(struct test_result_t *ret);
 static void tfm_ps_test_1016(struct test_result_t *ret);
 static void tfm_ps_test_1017(struct test_result_t *ret);
@@ -77,8 +75,6 @@ static struct test_t psa_ps_s_tests[] = {
      "Set interface with create flags"},
     {&tfm_ps_test_1003, "TFM_S_PS_TEST_1003",
      "Set interface with NULL data pointer"},
-    {&tfm_ps_test_1004, "TFM_S_PS_TEST_1004",
-     "Set interface with invalid data length"},
     {&tfm_ps_test_1005, "TFM_S_PS_TEST_1005",
      "Set interface with write once UID"},
     {&tfm_ps_test_1006, "TFM_S_PS_TEST_1006",
@@ -97,8 +93,6 @@ static struct test_t psa_ps_s_tests[] = {
      "Get info interface with valid UID"},
     {&tfm_ps_test_1013, "TFM_S_PS_TEST_1013",
      "Get info interface with invalid UIDs"},
-    {&tfm_ps_test_1014, "TFM_S_PS_TEST_1014",
-     "Get info interface with NULL info pointer"},
     {&tfm_ps_test_1015, "TFM_S_PS_TEST_1015",
      "Remove interface with valid UID"},
     {&tfm_ps_test_1016, "TFM_S_PS_TEST_1016",
@@ -245,15 +239,6 @@ static void tfm_ps_test_1003(struct test_result_t *ret)
         return;
     }
 
-    ret->val = TEST_PASSED;
-}
-
-/**
- * \brief Tests set function with:
- * - Data length longer than maximum permitted
- */
-static void tfm_ps_test_1004(struct test_result_t *ret)
-{
     ret->val = TEST_PASSED;
 }
 
@@ -491,7 +476,6 @@ static void tfm_ps_test_1008(struct test_result_t *ret)
  * - Offset greater than UID length
  * - Data length greater than UID length
  * - Data length + offset greater than UID length
- * - Invalid data len and offset
  */
 static void tfm_ps_test_1009(struct test_result_t *ret)
 {
@@ -754,40 +738,6 @@ static void tfm_ps_test_1013(struct test_result_t *ret)
 
     if (info.flags != 0) {
         TEST_FAIL("Flags should not have changed");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-/**
- * \brief Tests get info function with:
- * - NULL info pointer
- */
-static void tfm_ps_test_1014(struct test_result_t *ret)
-{
-    psa_status_t status;
-    const psa_storage_uid_t uid = TEST_UID_3;
-    const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
-    const uint32_t data_len = WRITE_DATA_SIZE;
-    const uint8_t write_data[] = WRITE_DATA;
-
-    status = psa_ps_set(uid, data_len, write_data, flags);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Set should not fail");
-        return;
-    }
-
-    /* A parameter with a null pointer is treated as a secure violation.
-     * TF-M framework rejects the request with a proper error code.
-     * The PS secure PSA PS implementation returns
-     * PSA_ERROR_GENERIC_ERROR in that case.
-     */
-
-    /* Call remove to clean up storage for the next test */
-    status = psa_ps_remove(uid);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Remove should not fail with valid UID");
         return;
     }
 
