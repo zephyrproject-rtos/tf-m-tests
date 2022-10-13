@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,7 +12,6 @@ set(TEST_FRAMEWORK_S        ON        CACHE BOOL      "Whether to build S regres
 ########################## S test suites #######################################
 
 set(TEST_S_ATTESTATION      ON        CACHE BOOL      "Whether to build S regression Attestation tests")
-set(TEST_S_AUDIT            ON        CACHE BOOL      "Whether to build S regression Audit log tests")
 set(TEST_S_CRYPTO           ON        CACHE BOOL      "Whether to build S regression Crypto tests")
 set(TEST_S_ITS              ON        CACHE BOOL      "Whether to build S regression ITS tests")
 set(TEST_S_PS               ON        CACHE BOOL      "Whether to build S regression PS tests")

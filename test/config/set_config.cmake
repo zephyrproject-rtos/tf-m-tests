@@ -46,11 +46,6 @@ if (NOT TFM_PARTITION_FIRMWARE_UPDATE)
     set(TEST_S_FWU              OFF        CACHE BOOL      "Whether to build S regression FWU tests")
 endif()
 
-if (NOT TFM_PARTITION_AUDIT_LOG)
-    set(TEST_NS_AUDIT           OFF        CACHE BOOL      "Whether to build NS regression Audit log tests")
-    set(TEST_S_AUDIT            OFF        CACHE BOOL      "Whether to build S regression Audit log tests")
-endif()
-
 if (NOT TFM_MULTI_CORE_TOPOLOGY)
     set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
 endif()

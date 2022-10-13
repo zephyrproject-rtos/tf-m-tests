@@ -14,7 +14,6 @@ set(TEST_FRAMEWORK_NS       OFF        CACHE BOOL      "Whether to build NS regr
 set(TEST_NS_ATTESTATION     OFF        CACHE BOOL      "Whether to build NS regression Attestation tests")
 set(TEST_NS_T_COSE          OFF        CACHE BOOL      "Whether to build NS regression t_cose tests")
 set(TEST_NS_QCBOR           OFF        CACHE BOOL      "Whether to build NS regression QCBOR tests")
-set(TEST_NS_AUDIT           OFF        CACHE BOOL      "Whether to build NS regression Audit log tests")
 set(TEST_NS_CRYPTO          OFF        CACHE BOOL      "Whether to build NS regression Crypto tests")
 set(TEST_NS_ITS             OFF        CACHE BOOL      "Whether to build NS regression ITS tests")
 set(TEST_NS_PS              OFF        CACHE BOOL      "Whether to build NS regression PS tests")
@@ -35,7 +34,6 @@ set(TEST_FRAMEWORK_S        OFF        CACHE BOOL      "Whether to build S regre
 ########################## S test suites #######################################
 
 set(TEST_S_ATTESTATION      OFF        CACHE BOOL      "Whether to build S regression Attestation tests")
-set(TEST_S_AUDIT            OFF        CACHE BOOL      "Whether to build S regression Audit log tests")
 set(TEST_S_CRYPTO           OFF        CACHE BOOL      "Whether to build S regression Crypto tests")
 set(TEST_S_ITS              OFF        CACHE BOOL      "Whether to build S regression ITS tests")
 set(TEST_S_PS               OFF        CACHE BOOL      "Whether to build S regression PS tests")

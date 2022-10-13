@@ -39,9 +39,6 @@
 #ifdef TEST_NS_IPC
 #include "ipc_ns_tests.h"
 #else
-#ifdef TEST_NS_AUDIT
-#include "audit_ns_tests.h"
-#endif
 #endif /* TEST_NS_IPC */
 #ifdef TEST_NS_MULTI_CORE
 #include "multi_core_ns_test.h"
@@ -108,11 +105,6 @@ static struct test_suite_t test_suites[] = {
 #ifdef TEST_NS_T_COSE
     /* Non-secure T_COSE library test cases */
     {&register_testsuite_ns_t_cose, 0, 0, 0},
-#endif
-
-#ifdef TEST_NS_AUDIT
-    /* Non-secure Audit Logging test cases */
-    {&register_testsuite_ns_audit_interface, 0, 0, 0},
 #endif
 
 #ifdef TEST_NS_FWU
