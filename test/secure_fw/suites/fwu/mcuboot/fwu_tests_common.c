@@ -48,8 +48,7 @@
 #define PROTECTED_TLV_OFF_NONSECURE (IMAGE_HEADER_SIZE + NONSECURE_IMAGE_SIZE)
 
 #if (MCUBOOT_IMAGE_NUMBER > 1)
-#define image_type_test FWU_IMAGE_TYPE_SECURE
-#define image_type_dependency FWU_IMAGE_TYPE_NONSECURE
+#define dependency_component FWU_COMPONENT_ID_NONSECURE
 /* The off of the first byte of depdency version in the TLV area of secure
  * image.
  */
@@ -62,8 +61,6 @@
 
 /* The off of the image version in the image header. */
 #define HEADER_IMAGE_VERSION_OFF                    20
-#else
-#define image_type_test FWU_IMAGE_TYPE_FULL
 #endif
 
 /* Version: Major */
@@ -78,15 +75,10 @@
 /* Version: High byte o f revision */
 #define   IMAGE_VERSION_FOR_TEST_REVISION_HIGH      0x00
 
-static psa_image_id_t test_image = \
-                (psa_image_id_t)FWU_CALCULATE_IMAGE_ID(FWU_IMAGE_ID_SLOT_STAGE,
-                                                       image_type_test,
-                                                       0);
-#if (MCUBOOT_IMAGE_NUMBER > 1)
-static psa_image_id_t dependency_image = \
-                (psa_image_id_t)FWU_CALCULATE_IMAGE_ID(FWU_IMAGE_ID_SLOT_STAGE,
-                                                       image_type_dependency,
-                                                       0);
+#if MCUBOOT_IMAGE_NUMBER > 1
+static psa_fwu_component_t test_component = FWU_COMPONENT_ID_SECURE;
+#else
+static psa_fwu_component_t test_component = FWU_COMPONENT_ID_FULL;
 #endif
 
 /* The secure image header(from image header magic to image version). The image
@@ -137,50 +129,119 @@ static const uint8_t tlv_dep_version_zero[128] = \
                           0x50, 0x01, 0x10 /* Part of the SHA256 */  \
                         };
 
-#if (MCUBOOT_IMAGE_NUMBER > 1)
-/* Compare image version numbers not including the build number.
- * Return 1 if image_ver_1 is greater than image_ver_2.
- * Return -1 if image_ver_1 is less than image_ver_2.
- * Return 0 if image_ver_1 equal to image_ver_2.
- */
-static int version_compare(const psa_image_version_t *image_ver_1,
-                           const psa_image_version_t *image_ver_2)
+/* Return 0 if the test suite is setup successfully. */
+static int8_t test_setup(uint8_t test_suite_number, struct test_result_t *ret)
 {
-    if (image_ver_1->iv_major > image_ver_2->iv_major) {
-        return 1;
-    }
-    if (image_ver_1->iv_major < image_ver_2->iv_major) {
+    psa_status_t status;
+    psa_fwu_component_info_t info;
+
+    /* Query the state of the component. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Test: %d setup failed.", test_suite_number);
+        TEST_FAIL("Query should succeed");
         return -1;
     }
-    /* The major version numbers are equal, continue comparison. */
-    if (image_ver_1->iv_minor > image_ver_2->iv_minor) {
+
+    /* If the component isn't in READY state, skip running the FWU tests. */
+    if (info.state != PSA_FWU_READY) {
+        TEST_LOG("The component isn't in READY state: the device is not ready to run FWU tests, skip FWU test: %d.",
+                 test_suite_number);
+        ret->val = TEST_PASSED;
         return 1;
-    }
-    if (image_ver_1->iv_minor < image_ver_2->iv_minor) {
-        return -1;
-    }
-    /* The minor version numbers are equal, continue comparison. */
-    if (image_ver_1->iv_revision > image_ver_2->iv_revision) {
-        return 1;
-    }
-    if (image_ver_1->iv_revision < image_ver_2->iv_revision) {
-        return -1;
     }
     return 0;
 }
-#endif
+
+static void test_tear_down(uint8_t test_suite_number, struct test_result_t *ret)
+{
+    psa_status_t status;
+    psa_fwu_component_info_t info;
+
+    /* Cancel a FWU process when a component is in WRITTING or CANDIDATE state. */
+    status = psa_fwu_cancel(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("psa_fwu_cancel should succeed");
+        return;
+    }
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_FAILED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_FAILED after psa_fwu_cancel(), actual state is %d",
+                  info.state);
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("Wrong component state is returned.");
+    }
+
+    /* Clean the component to make the component back to READY state. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("psa_fwu_clean should succeed");
+        return;
+    }
+
+    /* Query the staging image. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_READY) {
+        TEST_LOG("The component is expected to be in PSA_FWU_READY after psa_fwu_clean(), actual state is %d",
+                  info.state);
+        TEST_LOG("Test: %d tear down failed.", test_suite_number);
+        TEST_FAIL("Wrong component state is returned.");
+    }
+}
 
 void tfm_fwu_test_common_001(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_image_id_t dependency_uuid;
-    psa_image_version_t dependency_version;
-    psa_image_info_t info;
+    psa_fwu_component_info_t info;
+    uint8_t test_suite_number = 1;
+
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
+        return;
+    }
+
+    /* Trigger a FWU process. Image manifest is bundled within the image. */
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start fails.");
+        return;
+    }
+
+    /* Query the component. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query fails");
+        return;
+    }
+
+    /* The component should be in PSA_FWU_WRITING after psa_fwu_start(). */
+    if (info.state != PSA_FWU_WRITING) {
+        TEST_LOG("The component is expected to be in PSA_FWU_WRITING after psa_fwu_start(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
+        return;
+    }
 
     /* The image header(from header magic to image version) is downloaded
      * into the target device by this psa_fwu_write operation.
      */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            0,
                            header_test_image_version_zero,
                            sizeof(header_test_image_version_zero));
@@ -190,15 +251,17 @@ void tfm_fwu_test_common_001(struct test_result_t *ret)
     }
 
     /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
+    status = psa_fwu_query(test_component, &info);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+        TEST_FAIL("Query fails");
         return;
     }
 
-    /* Check the image state. */
-    if (info.state != PSA_IMAGE_CANDIDATE) {
-        TEST_FAIL("Image should be in CANDIDATE state after succesfull write");
+    /* The component should be in PSA_FWU_WRITING after psa_fwu_write(). */
+    if (info.state != PSA_FWU_WRITING) {
+        TEST_LOG("The component is expected to be in PSA_FWU_WRITING after psa_fwu_write(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
         return;
     }
 
@@ -206,7 +269,7 @@ void tfm_fwu_test_common_001(struct test_result_t *ret)
      * The image dependency information is downloaded into the target device
      * by this psa_fwu_write operation.
      */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            (size_t)PROTECTED_TLV_OFF_SECURE,
                            tlv_dep_version_zero,
                            sizeof(tlv_dep_version_zero));
@@ -215,9 +278,28 @@ void tfm_fwu_test_common_001(struct test_result_t *ret)
         return;
     }
 
-    status = psa_fwu_install(test_image,
-                             &dependency_uuid,
-                             &dependency_version);
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_finish should not fail.");
+        return;
+    }
+
+    /* Query the staging image. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query fails");
+        return;
+    }
+
+    /* The component should be in PSA_FWU_WRITING after psa_fwu_write(). */
+    if (info.state != PSA_FWU_CANDIDATE) {
+        TEST_LOG("The component is expected to be in PSA_FWU_CANDIDATE after psa_fwu_finish(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
+        return;
+    }
+
+    status = psa_fwu_install();
 
     /* Dependency check in multiple images:
      * dependency image ID: nonsecure image.
@@ -233,100 +315,139 @@ void tfm_fwu_test_common_001(struct test_result_t *ret)
     }
 
     /* Query the staging image. */
-    if (psa_fwu_query(test_image, &info) != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+    if (psa_fwu_query(test_component, &info) != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
         return;
     }
 
     /* Check the image state. */
-    if (info.state != PSA_IMAGE_REBOOT_NEEDED) {
-        TEST_FAIL("PSA_SUCCESS_REBOOT is retuned in install and image should be in REBOOT_NEEDED state. ");
+    if (info.state != PSA_FWU_STAGED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_STAGED after psa_fwu_install(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
         return;
     }
 
-    /* Abort the fwu process. */
-    status = psa_fwu_abort(test_image);
+    /* The state of the component should change to FAILED after reject and PSA_SUCCESS should be returned. */
+    status = psa_fwu_reject(PSA_ERROR_GENERIC_ERROR);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
+        TEST_LOG("PSA_SUCCESS is expected to be return by psa_fwu_reject when component is in STAGED state, \
+                  actual return status is %d",
+                  status);
+        TEST_FAIL("Wrong error code is returned.");
         return;
     }
 
     /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
+    status = psa_fwu_query(test_component, &info);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+        TEST_FAIL("Query should succeed");
         return;
     }
 
     /* Check the image state. */
-    if (info.state != PSA_IMAGE_UNDEFINED) {
-        TEST_FAIL("Image should be in UNDEFINED state after abort");
+    if (info.state != PSA_FWU_FAILED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_FAILED after psa_fwu_reject(PSA_ERROR_NOT_PERMITTED), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
         return;
     }
 
-    /* The image header(from header magic to image version) is downloaded
-     * into the target device again by this psa_fwu_write operation.
-     */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           sizeof(header_test_image_version_zero));
+    /* Check the error code. */
+    if (info.error != PSA_ERROR_GENERIC_ERROR) {
+        TEST_LOG("The error is expected to be PSA_ERROR_GENERIC_ERROR, actual error is %x",
+                  info.error);
+        TEST_FAIL("Wrong info.error is returned.");
+        return;
+    }
+
+    /* Clean the component to make the component back to READY state. */
+    status = psa_fwu_clean(test_component);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Write should not fail with block_offset 0 after abort");
+        TEST_FAIL("psa_fwu_clean should succeed");
         return;
     }
 
     /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
+    status = psa_fwu_query(test_component, &info);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+        TEST_FAIL("Query should succeed");
         return;
     }
 
     /* Check the image state. */
-    if (info.state != PSA_IMAGE_CANDIDATE) {
-        TEST_FAIL("Image should be in CANDIDATE state after succesfull write");
+    if (info.state != PSA_FWU_READY) {
+        TEST_LOG("The component is expected to be in PSA_FWU_READY after psa_fwu_clean(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
         return;
     }
 
-    /* Abort the fwu process. */
-    status = psa_fwu_abort(test_image);
+    /* Trigger a FWU process again after the end of the former FWU process. */
+    status = psa_fwu_start(test_component, NULL, 0);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after write");
+        TEST_FAIL("psa_fwu_start fails.");
         return;
     }
 
+    /* Query the staging image. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* The component should be in PSA_FWU_WRITING after psa_fwu_start(). */
+    if (info.state != PSA_FWU_WRITING) {
+        TEST_LOG("The component is expected to be in PSA_FWU_WRITING after psa_fwu_start(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
+        return;
+    }
+
+    /* Test tear down. */
+    test_tear_down(test_suite_number, ret);
+    if (ret->val == TEST_FAILED) {
+        /* Test result has been set within test_tear_down() if it fails. */
+        return;
+    }
+
+    /* End of the test. The candidate is back to PSA_FWU_READY state now. */
     ret->val = TEST_PASSED;
 }
 
-#if defined TFM_FWU_TEST_WRITE_WITH_NULL
-/* The TF-M core will reboot the device if the parameter check fails
- * in partition request in libaray mode.
- */
+/* Write with NULL block. Query with NULL info. */
 void tfm_fwu_test_common_002(struct test_result_t *ret)
 {
     psa_status_t status;
+    uint8_t test_suite_number = 2;
 
-    /* Write the data block NULL. */
-    status = psa_fwu_write(test_image,
-                           0,
-                           NULL,
-                           sizeof(header_test_image_version_zero));
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Write should fail with data block NULL");
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
         return;
     }
 
-    ret->val = TEST_PASSED;
-}
+    /* Trigger a FWU process. Image manifest is bundled within the image. */
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start fails.");
+        return;
+    }
+
+#ifdef TFM_FWU_TEST_WRITE_WITH_NULL
+    /* Write the data block NULL. */
+    status = psa_fwu_write(test_component,
+                           0,
+                           NULL,
+                           sizeof(header_test_image_version_zero));
+    if (status == PSA_SUCCESS) {
+        TEST_FAIL("Write should fail with data block NULL");
+        return;
+    }
 #endif
 
-void tfm_fwu_test_common_003(struct test_result_t *ret)
-{
-    psa_status_t status;
-
     /* Write the data block with block_offset + len overflow. */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            (size_t)0xFFFFFFFF,
                            header_test_image_version_zero,
                            0x10);
@@ -335,284 +456,431 @@ void tfm_fwu_test_common_003(struct test_result_t *ret)
         return;
     }
 
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_004(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_version_t dependency_version;
-
-    /* The image header(from header magic to image version) is downloaded
-     * into the target device by this psa_fwu_write operation.
-     */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           sizeof(header_test_image_version_zero));
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Write should not fail with block_offset 0");
-        return;
-    }
-
-    /* Write the protected TLV + IMAGE_TLV_INFO_MAGIC + part of the SHA256.
-     * The image dependency information is downloaded into the target device
-     * by this psa_fwu_write operation.
-     */
-    status = psa_fwu_write(test_image,
-                           (size_t)PROTECTED_TLV_OFF_SECURE,
-                           tlv_dep_version_zero,
-                           sizeof(tlv_dep_version_zero));
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("psa_fwu_write should not fail when writing the protected TLV data.");
-        return;
-    }
-
-    status = psa_fwu_install(test_image, NULL, &dependency_version);
-
-    /* If PSA_ERROR_DEPENDENCY_NEEDED is returned, the dependency should be
-     * filled in the dependency argument.PSA_ERROR_INVALID_ARGUMENT
-     */
-    if (status == PSA_ERROR_DEPENDENCY_NEEDED) {
-        TEST_FAIL("Install should not return PSA_ERROR_DEPENDENCY_NEEDED with NULL dependency");
-        return;
-    }
-
-    /* Abort the fwu process. */
-    status = psa_fwu_abort(test_image);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_005(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_id_t dependency_uuid;
-
-    /* The image header(from header magic to image version) is downloaded
-     * into the target device by this psa_fwu_write operation.
-     */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           sizeof(header_test_image_version_zero));
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Write should not fail with block_offset 0");
-        return;
-    }
-
-    /* Write the protected TLV + IMAGE_TLV_INFO_MAGIC + part of the SHA256.
-     * The image dependency information is downloaded into the target device
-     * by this psa_fwu_write operation.
-     */
-    status = psa_fwu_write(test_image,
-                           (size_t)PROTECTED_TLV_OFF_SECURE,
-                           tlv_dep_version_zero,
-                           sizeof(tlv_dep_version_zero));
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("psa_fwu_write should not fail when writing the protected TLV data.");
-        return;
-    }
-
-    status = psa_fwu_install(test_image, &dependency_uuid, NULL);
-
-    /* If PSA_ERROR_DEPENDENCY_NEEDED is returned, the dependency should be
-     * filled in the dependency argument.
-     */
-    if (status == PSA_ERROR_DEPENDENCY_NEEDED) {
-        TEST_FAIL("Install should not return PSA_ERROR_DEPENDENCY_NEEDED with NULL dependency version");
-        return;
-    }
-
-    /* Abort the fwu process. */
-    status = psa_fwu_abort(test_image);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_006(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_id_t dependency_uuid;
-    psa_image_version_t dependency_version;
-
-    status = psa_fwu_install(test_image,
-                             &dependency_uuid,
-                             &dependency_version);
-
-    /* Install will always fail if write is not called before. */
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Install should not fail after write");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_007(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_id_t dependency_uuid;
-    psa_image_version_t dependency_version;
-
-    /* Write the data block with block_offset 0. */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           sizeof(header_test_image_version_zero));
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Write should not fail with block_offset 0");
-        return;
-    }
-
-    /* Abort the fwu process. */
-    status = psa_fwu_abort(test_image);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
-        return;
-    }
-
-    status = psa_fwu_install(test_image, &dependency_uuid, &dependency_version);
-
-    /* Install should fail as the fwu process has been aborted. */
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Install should fail after abort");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_008(struct test_result_t *ret)
-{
-    psa_status_t status;
-
-    status = psa_fwu_abort(test_image);
-
-    /* Install will always fail if write is not called before. */
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Install should fail with no write before");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-void tfm_fwu_test_common_009(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_info_t info = { 0 };
-    psa_image_id_t image_id = FWU_CALCULATE_IMAGE_ID(FWU_IMAGE_ID_SLOT_ACTIVE,
-                                                     image_type_test,
-                                                     0);
-
-    /* Query the running image. */
-    status = psa_fwu_query(image_id, &info);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
-        return;
-    }
-
-    if ((info.state != PSA_IMAGE_INSTALLED) &&
-       (info.state != PSA_IMAGE_PENDING_INSTALL)) {
-        TEST_FAIL("The active image should be in INSTALLED or PENDING_INSTALL state");
-        return;
-    }
-    ret->val = TEST_PASSED;
-}
-
-#if defined TFM_FWU_TEST_QUERY_WITH_NULL
-void tfm_fwu_test_common_010(struct test_result_t *ret)
-{
-    psa_status_t status;
-
-    /* Query the running image. */
-    status = psa_fwu_query(image_id, NULL);
+#ifdef TFM_FWU_TEST_QUERY_WITH_NULL
+    /* Query the component. */
+    status = psa_fwu_query(test_component, NULL);
     if (status == PSA_SUCCESS) {
         TEST_FAIL("Query should fail with NULL info");
         return;
     }
-
-    ret->val = TEST_PASSED;
-}
 #endif
 
-void tfm_fwu_test_common_011(struct test_result_t *ret)
-{
-    psa_status_t status;
-    psa_image_info_t info = { 0 };
-
-    psa_image_id_t image_id = FWU_CALCULATE_IMAGE_ID(3,
-                                                     image_type_test,
-                                                     0);
-
-    /* Query the running image. */
-    status = psa_fwu_query(image_id, &info);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Query should fail with NULL info");
+    /* Test tear down. */
+    test_tear_down(test_suite_number, ret);
+    if (ret->val == TEST_FAILED) {
+        /* Test result has been set within test_tear_down() if it fails. */
         return;
     }
 
+    /* End of the test. The candidate is back to PSA_FWU_READY state now. */
     ret->val = TEST_PASSED;
 }
 
-void tfm_fwu_test_common_012(struct test_result_t *ret)
+/* Start a FWU process with a nonexistent component.
+ * Write image data with a nonexistent component.
+ * Cancel a FWU process with a nonexistent component.
+ * Finish a FWU process with a nonexistent component.
+ * Clean a FWU process with a nonexistent component.
+ * Query a nonexistent component.
+ */
+void tfm_fwu_test_common_003(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_image_info_t info = { 0 };
-    psa_image_id_t running_image = \
-                (psa_image_id_t)FWU_CALCULATE_IMAGE_ID(FWU_IMAGE_ID_SLOT_ACTIVE,
-                                                       image_type_test,
-                                                       0);
+    uint8_t test_suite_number = 3;
+    psa_fwu_component_info_t info;
 
-    /* Accept the running image. */
-    status = psa_fwu_accept(running_image);
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
+        return;
+    }
+
+    /* Trigger a FWU process with nonexistent component. */
+    status = psa_fwu_start(FWU_COMPONENT_NUMBER, NULL, 0);
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("psa_fwu_start with nonexistent component should fail.");
+        return;
+    }
+
+    /* Trigger a FWU process. */
+    status = psa_fwu_start(test_component, NULL, 0);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Accept should not fail");
+        TEST_FAIL("psa_fwu_start with nonexistent component should fail.");
         return;
     }
 
-    /* Query the running image. */
-    status = psa_fwu_query(running_image, &info);
+    /* Write image data with a nonexistent component. */
+    status = psa_fwu_write(FWU_COMPONENT_NUMBER,
+                           (size_t)0x0,
+                           header_test_image_version_zero,
+                           sizeof(header_test_image_version_zero));
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("Write with nonexistent component should fail.");
+        return;
+    }
+
+    /* Cancel a FWU process with a nonexistent component. */
+    status = psa_fwu_cancel(FWU_COMPONENT_NUMBER);
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("Cancel with nonexistent component should fail.");
+        return;
+    }
+
+    /* Write image data preparing for finish. */
+    status = psa_fwu_write(test_component,
+                           (size_t)0x0,
+                           header_test_image_version_zero,
+                           sizeof(header_test_image_version_zero));
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+        TEST_FAIL("psa_fwu_write should not fail.");
         return;
     }
 
-    if (info.state != PSA_IMAGE_INSTALLED) {
-        TEST_FAIL("The active image should be in INSTALLED state");
+    /* Finish a FWU process with a nonexistent component. */
+    status = psa_fwu_finish(FWU_COMPONENT_NUMBER);
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("Finish with nonexistent component should fail.");
         return;
     }
 
+    /* Cancel the FWU process preparing for clean. */
+    status = psa_fwu_cancel(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_cancel should not fail.");
+        return;
+    }
+
+    /* Clean a FWU process with a nonexistent component. */
+    status = psa_fwu_clean(FWU_COMPONENT_NUMBER);
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("Clean with nonexistent component should fail.");
+        return;
+    }
+
+    /* Clean the component to make the component back to READY state. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_clean should succeed");
+        return;
+    }
+
+    /* Query a FWU process with a nonexistent component. */
+    status = psa_fwu_query(FWU_COMPONENT_NUMBER, &info);
+    if (status != PSA_ERROR_DOES_NOT_EXIST) {
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_READY) {
+        TEST_LOG("The component is expected to be in PSA_FWU_READY after psa_fwu_clean(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
+    }
+
+    /* End of the test. The candidate is already back to PSA_FWU_READY state now.
+     * No need to call test_tear_down().
+     */
     ret->val = TEST_PASSED;
 }
 
-#ifdef TFM_FWU_TEST_REQUEST_REBOOT
-void tfm_fwu_test_common_013(struct test_result_t *ret)
+/* Test start, cancel, write, finish, install, accept, clean and reject when the
+ * component is in bad state:
+ * Start after write, after finish and after install;
+ * Cancel before start, after start and after install;
+ * Write before start, after install, finish after install, install after install;
+ * Finish before start, after finish, after install;
+ * Install before start, before write, before finish;
+ * Accept before start, after start, after write, after finish and after install;
+ * Clean before start, after start, after write, after finish and after install;
+ * Reject before start, after start, after write, after finish.
+ */
+void tfm_fwu_test_common_004(struct test_result_t *ret)
 {
-    /* Request reboot. */
-    psa_fwu_request_reboot();
-    TEST_FAIL("Request reboot should not fail");
+    psa_status_t status;
+    uint8_t test_suite_number = 4;
 
-    ret->val = TEST_FAILED;
-}
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
+        return;
+    }
+
+    /* Write before start. */
+    status = psa_fwu_write(test_component,
+                           (size_t)0x0,
+                           header_test_image_version_zero,
+                           sizeof(header_test_image_version_zero));
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_write should fail before start.");
+        return;
+    }
+
+    /* Finish before start. */
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_finish should fail before start.");
+        return;
+    }
+
+    /* Cancel before start. */
+    status = psa_fwu_cancel(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_cancel should fail.");
+        return;
+    }
+
+    /* Install before start. */
+    status = psa_fwu_install();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_install should fail before start.");
+        return;
+    }
+
+#ifdef FWU_SUPPORT_TRIAL_STATE
+    /* Accept before start. The component is in READY state. */
+    status = psa_fwu_accept();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_accept should fail before start.");
+        return;
+    }
 #endif
+
+    /* Clean before start. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_clean should fail before start.");
+        return;
+    }
+
+    /* Reject before start. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_reject should fail before start.");
+        return;
+    }
+
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start should not fail.");
+        return;
+    }
+
+    /* Install after start. */
+    status = psa_fwu_install();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_install should fail after start.");
+        return;
+    }
+
+#ifdef FWU_SUPPORT_TRIAL_STATE
+    /* Accept after start. */
+    status = psa_fwu_accept();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_accept should fail after start.");
+        return;
+    }
+#endif
+    /* Clean after start. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_clean should fail after start.");
+        return;
+    }
+
+    /* Reject after start. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_reject should fail after start.");
+        return;
+    }
+
+    status = psa_fwu_write(test_component,
+                           (size_t)0x0,
+                           header_test_image_version_zero,
+                           sizeof(header_test_image_version_zero));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_write should not fail.");
+        return;
+    }
+
+    /* Start after write. */
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_start should fail after psa_fwu_write().");
+        return;
+    }
+
+    /* Install after write. */
+    status = psa_fwu_install();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_install should fail after write.");
+        return;
+    }
+
+#ifdef FWU_SUPPORT_TRIAL_STATE
+    /* Accept after write. */
+    status = psa_fwu_accept();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_accept should fail after write.");
+        return;
+    }
+#endif
+    /* Clean after write. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_clean should fail after write.");
+        return;
+    }
+
+    /* Reject after write. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_reject should fail after write.");
+        return;
+    }
+
+    /* Write the protected TLV + IMAGE_TLV_INFO_MAGIC + part of the SHA256.
+     * The image dependency information is downloaded into the target device
+     * by this psa_fwu_write operation.
+     */
+    status = psa_fwu_write(test_component,
+                           (size_t)PROTECTED_TLV_OFF_SECURE,
+                           tlv_dep_version_zero,
+                           sizeof(tlv_dep_version_zero));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_write should not fail when writing the protected TLV data.");
+        return;
+    }
+
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_finish should not fail.");
+        return;
+    }
+
+    /* Start after finish. */
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_start should fail after psa_fwu_finish().");
+        return;
+    }
+
+    /* Finish after finish. */
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_finish should fail after finish.");
+        return;
+    }
+
+#ifdef FWU_SUPPORT_TRIAL_STATE
+    /* Accept after finish. */
+    status = psa_fwu_accept();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_accept should fail after finish.");
+        return;
+    }
+#endif
+    /* Clean after finish. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_clean should fail after finish.");
+        return;
+    }
+
+    /* Reject after finish. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_reject should fail after finish.");
+        return;
+    }
+
+    status = psa_fwu_install();
+    if (status != PSA_SUCCESS_REBOOT) {
+        TEST_FAIL("psa_fwu_install should not fail.");
+        return;
+    }
+
+    /* Cancel after install. */
+    status = psa_fwu_cancel(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_cancel should fail after psa_fwu_install().");
+        return;
+    }
+
+    /* Start after install. */
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_start should fail after psa_fwu_install().");
+        return;
+    }
+
+    /* Write after install. */
+    status = psa_fwu_write(test_component,
+                           (size_t)0x0,
+                           header_test_image_version_zero,
+                           sizeof(header_test_image_version_zero));
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_write should fail after psa_fwu_install().");
+        return;
+    }
+
+    /* Finish after install. */
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_finish should fail after psa_fwu_install().");
+        return;
+    }
+
+    /* Install after install. */
+    status = psa_fwu_install();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_install should fail after psa_fwu_install().");
+        return;
+    }
+
+#ifdef FWU_SUPPORT_TRIAL_STATE
+    /* Accept after install(before reboot). */
+    status = psa_fwu_accept();
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_accept should fail after install.");
+        return;
+    }
+#endif
+    /* Clean after install(before reboot). */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_ERROR_BAD_STATE) {
+        TEST_FAIL("psa_fwu_clean should fail after install.");
+        return;
+    }
+
+    /* Reject after install. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_reject failed after install.");
+        return;
+    }
+
+    /* Clean after install(before reboot). */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_clean should not fail after reject.");
+        return;
+    }
+
+    /* End of the test. The candidate is back to PSA_FWU_READY state now. */
+    ret->val = TEST_PASSED;
+}
 
 #if (MCUBOOT_IMAGE_NUMBER > 1)
-void tfm_fwu_test_common_014(struct test_result_t *ret)
+void tfm_fwu_test_common_005(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_image_id_t dependency_uuid;
-    psa_image_version_t dependency_version;
-    psa_image_info_t info;
+    uint8_t test_suite_number = 5;
     const uint8_t header_test_image_version_not_zero[28] = \
                         { 0x3d, 0xb8, 0xf3, 0x96, /* IMAGE_MAGIC */ \
                           0x00, 0x00, 0x00, 0x00,  /* LoadAddr */  \
@@ -667,10 +935,20 @@ void tfm_fwu_test_common_014(struct test_result_t *ret)
                           0x50, 0x01, 0x10 /* Part of the SHA256 */  \
                         };
 
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
+        return;
+    }
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start should not fail.");
+        return;
+    }
+
     /* The image header(from header magic to image version) is downloaded
      * into the target device by this psa_fwu_write operation.
      */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            0,
                            header_test_image_version_not_zero,
                            sizeof(header_test_image_version_not_zero));
@@ -679,25 +957,12 @@ void tfm_fwu_test_common_014(struct test_result_t *ret)
         return;
     }
 
-    /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
-        return;
-    }
-
-    /* Check the image state. */
-    if (info.state != PSA_IMAGE_CANDIDATE) {
-        TEST_FAIL("Image should be in CANDIDATE state after succesfull write");
-        return;
-    }
-
     /* Write the protected TLV + IMAGE_TLV_INFO_MAGIC + part of the SHA256.
      * The image dependency information is downloaded into the target device
      * by this psa_fwu_write operation.
      */
     /* The required min_version of dependency is 0.0.0. */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            (size_t)PROTECTED_TLV_OFF_SECURE,
                            tlv_data_secure_image,
                            sizeof(tlv_data_secure_image));
@@ -706,9 +971,12 @@ void tfm_fwu_test_common_014(struct test_result_t *ret)
         return;
     }
 
-    status = psa_fwu_install(test_image,
-                             &dependency_uuid,
-                             &dependency_version);
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_finish should not fail.");
+        return;
+    }
+    status = psa_fwu_install();
 
     /* Dependency check in multiple images:
      * dependency image ID: nonsecure image.
@@ -722,25 +990,31 @@ void tfm_fwu_test_common_014(struct test_result_t *ret)
         return;
     }
 
-    /* Test clean up: abort the fwu process of the test image. */
-    status = psa_fwu_abort(test_image);
+    /* Reject after install. */
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
+        TEST_FAIL("psa_fwu_reject failed after install.");
         return;
     }
+
+    /* Clean after reject. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_clean should not fail after reject.");
+        return;
+    }
+
+    /* End of the test. The candidate is back to PSA_FWU_READY state now. */
     ret->val = TEST_PASSED;
 }
 
-void tfm_fwu_test_common_015(struct test_result_t *ret)
+#if (FWU_CONCURRENTLY_UPDATE_COMPONENTS > 1)
+void tfm_fwu_test_common_006(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_image_id_t dependency_uuid;
-    psa_image_version_t dependency_version;
-    psa_image_info_t info;
-    psa_image_id_t dependency_uuid_temp;
-    psa_image_version_t dependency_version_temp;
-    psa_image_id_t active_dependency_image;
-    psa_image_version_t dep_version_in_tlv = {0, 0, 0, 0};
+    psa_fwu_image_version_t dep_version_in_tlv = {0, 0, 0, 0};
+    uint8_t test_suite_number = 6;
+    psa_fwu_component_info_t info;
     const uint8_t header_test_image_version_not_zero[28] = \
                         { 0x3d, 0xb8, 0xf3, 0x96, /* IMAGE_MAGIC */ \
                           0x00, 0x00, 0x00, 0x00,  /* LoadAddr */  \
@@ -817,28 +1091,25 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
                           0x50, 0x01  /* Part of the SHA256 */  \
                         };
 
+    if (test_setup(test_suite_number, ret) != 0) {
+        /* Test result(ret) is set within test_setup(). */
+        return;
+    }
+    status = psa_fwu_start(test_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start should not fail.");
+        return;
+    }
+
     /* The image header(from header magic to image version) is downloaded
      * into the target device by this psa_fwu_write operation.
      */
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            0,
                            header_test_image_version_not_zero,
                            sizeof(header_test_image_version_not_zero));
     if (status != PSA_SUCCESS) {
         TEST_FAIL("psa_fwu_write should not fail when writing the image header data.");
-        return;
-    }
-
-    /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
-        return;
-    }
-
-    /* Check the image state. */
-    if (info.state != PSA_IMAGE_CANDIDATE) {
-        TEST_FAIL("Image should be in CANDIDATE state after succesfull write");
         return;
     }
 
@@ -881,23 +1152,19 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
                         };
 
     /* Query the active dependency image. */
-    active_dependency_image = FWU_CALCULATE_IMAGE_ID(
-                                        FWU_IMAGE_ID_SLOT_ACTIVE,
-                                        image_type_dependency,
-                                        0);
-    if (psa_fwu_query(active_dependency_image, &info) != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+    if (psa_fwu_query(dependency_component, &info) != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
         return;
     }
 
     /* The required image version is greater than the running. */
-    dep_version_in_tlv.iv_major = info.version.iv_major + 1;
+    dep_version_in_tlv.major = info.version.major + 1;
 
     /* Update the version bytes of the TLV data. */
     memcpy(tlv_data_secure_image + TLV_DEPENDENCY_VERSION_OFF_SECURE,
            &dep_version_in_tlv,
            sizeof(dep_version_in_tlv));
-    status = psa_fwu_write(test_image,
+    status = psa_fwu_write(test_component,
                            (size_t)PROTECTED_TLV_OFF_SECURE,
                            tlv_data_secure_image,
                            sizeof(tlv_data_secure_image));
@@ -905,10 +1172,13 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
         TEST_FAIL("psa_fwu_write should not fail when writing the protected TLV data.");
         return;
     }
-    status = psa_fwu_install(test_image,
-                             &dependency_uuid,
-                             &dependency_version);
+    status = psa_fwu_finish(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_finish should not fail.");
+        return;
+    }
 
+    status = psa_fwu_install();
     /* Dependency check in multiple images:
      * dependency image ID: nonsecure image.
      * Currently running nonsecure image version: info.version <
@@ -921,22 +1191,15 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
         return;
     }
 
-    /* Check the returned dependency information. */
-    if ((version_compare(&dependency_version, &dep_version_in_tlv) != 0) ||
-        (dependency_uuid != dependency_image)) {
-        TEST_FAIL("psa_fwu_install returned the wrong dependency information.");
-        return;
-    }
-
-    /* Query the staging image. */
-    status = psa_fwu_query(test_image, &info);
+    /* Query the CANDIDATE image. */
+    status = psa_fwu_query(test_component, &info);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Query should success");
+        TEST_FAIL("Query should succeed");
         return;
     }
 
-    /* Check the image state. */
-    if (info.state != PSA_IMAGE_CANDIDATE) {
+    /* Check the component state: the component states in CANDIDATE state. */
+    if (info.state != PSA_FWU_CANDIDATE) {
         TEST_FAIL("Image should be in CANDIDATE state after install returns PSA_ERROR_DEPENDENCY_NEEDED.");
         return;
     }
@@ -950,10 +1213,16 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
            &dep_version_in_tlv,
            sizeof(dep_version_in_tlv));
 
+    status = psa_fwu_start(dependency_component, NULL, 0);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_start should not fail.");
+        return;
+    }
+
     /* The image header(from header magic to image version) is downloaded
      * into the target device by this psa_fwu_write operation.
      */
-    status = psa_fwu_write(dependency_uuid,
+    status = psa_fwu_write(dependency_component,
                            0,
                            header_dep_image_version_not_zero,
                            sizeof(header_dep_image_version_not_zero));
@@ -962,22 +1231,14 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
         return;
     }
 
-    /* Install the test image again after writing the image header of the
-     * dependency image. At this point, the dependency image has not been
-     * installed. When checking the dependency, the dependency
-     * image in the secondary slot cannot to used. So
+    /* Install again after writing the image header of the dependency image. At
+     * this point, the dependency image has not been installed. When checking
+     * the dependency, the dependency image in the stage slot cannot to used. So
      * PSA_ERROR_DEPENDENCY_NEEDED should still be returned by the install.
      */
-    status = psa_fwu_install(test_image, &dependency_uuid, &dependency_version);
+    status = psa_fwu_install();
     if (status != PSA_ERROR_DEPENDENCY_NEEDED) {
         TEST_FAIL("Install should fail when the boot magic of the dependency image is not good.");
-        return;
-    }
-
-    /* Check the returned dependency information. */
-    if ((version_compare(&dependency_version, &dep_version_in_tlv) != 0) ||
-        (dependency_uuid != dependency_image)) {
-        TEST_FAIL("psa_fwu_install returned the wrong dependency information.");
         return;
     }
 
@@ -987,12 +1248,17 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
      */
     /* The required image version(0,0,0) is less than or equal to the running.
      */
-    status = psa_fwu_write(dependency_uuid,
+    status = psa_fwu_write(dependency_component,
                            (size_t)PROTECTED_TLV_OFF_NONSECURE,
                            tlv_data_nonsecure_image,
                            sizeof(tlv_data_nonsecure_image));
     if (status != PSA_SUCCESS) {
         TEST_FAIL("psa_fwu_write should not fail when writing the protected TLV data.");
+        return;
+    }
+    status = psa_fwu_finish(dependency_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_finish should not fail.");
         return;
     }
 
@@ -1009,78 +1275,105 @@ void tfm_fwu_test_common_015(struct test_result_t *ret)
      * In the current implementation, image verification is deferred to
      * reboot, so PSA_SUCCESS_REBOOT is returned when success.
      */
-    status = psa_fwu_install(dependency_uuid,
-                             &dependency_uuid_temp,
-                             &dependency_version_temp);
+    status = psa_fwu_install();
     if (status != PSA_SUCCESS_REBOOT) {
         TEST_FAIL("Install should fail after the dependency image successfully being installed.");
         return;
     }
 
-    /* *********************************************************************
-     * The dependency image(nonsecure image) has been successfully installed
-     * *********************************************************************
-     */
-    /* Install the test image again.
-     *
-     * Dependency check:
-     * dependency image ID: nonsecure image which has been successfully
-     *                      installed.
-     * dependency image version: running nonsecure image version.major + 1.
-     *                           0.
-     *                           0.
-     * which equals to image version of the nonsecure image in the secondary
-     * slot.
-     * So the dependency check should pass.
-     * In the current implementation, image verification is deferred to
-     * reboot, so PSA_SUCCESS_REBOOT is returned when success.
-     */
-    status = psa_fwu_install(test_image,
-                             &dependency_uuid,
-                             &dependency_version);
-    if (status != PSA_SUCCESS_REBOOT) {
-        TEST_FAIL("Install should fail after the dependency image successfully being installed.");
+    /* Query the test component. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
         return;
     }
 
-    /* Test clean up: abort the fwu process of the dependency image. */
-    status = psa_fwu_abort(dependency_image);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
+    /* Check the image state. */
+    if (info.state != PSA_FWU_STAGED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_STAGED after \
+                  psa_fwu_install(), actual state is %d",
+                 info.state);
+        TEST_FAIL("Bad state is returned.");
         return;
     }
 
-    /* Test clean up: abort the fwu process of the test image. */
-    status = psa_fwu_abort(test_image);
+    /* Query the dependency component. */
+    status = psa_fwu_query(dependency_component, &info);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Abort should not fail after install");
+        TEST_FAIL("Query should succeed");
         return;
     }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_STAGED) {
+        TEST_LOG("The dependency component is expected to be in PSA_FWU_STAGED \
+                  after psa_fwu_install(), actual state is %d",
+                 info.state);
+        TEST_FAIL("Bad state is returned.");
+        return;
+    }
+
+    status = psa_fwu_reject(PSA_ERROR_NOT_PERMITTED);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_reject should succeed");
+        return;
+    }
+
+    /* Query the test component. */
+    status = psa_fwu_query(test_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_FAILED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_FAILED after \
+                  psa_fwu_install(), actual state is %d",
+                 info.state);
+        TEST_FAIL("Bad state is returned.");
+        return;
+    }
+
+    status = psa_fwu_query(dependency_component, &info);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Query should succeed");
+        return;
+    }
+
+    /* Check the image state. */
+    if (info.state != PSA_FWU_FAILED) {
+        TEST_LOG("The component is expected to be in PSA_FWU_FAILED after psa_fwu_cancel(), actual state is %d",
+                  info.state);
+        TEST_FAIL("Wrong component state is returned.");
+    }
+
+
+    /* Clean the component to make the component back to READY state. */
+    status = psa_fwu_clean(test_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_clean should succeed");
+        return;
+    }
+    status = psa_fwu_clean(dependency_component);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("psa_fwu_clean should succeed");
+        return;
+    }
+
+    /* End of the test. The candidate is back to PSA_FWU_READY state now. */
     ret->val = TEST_PASSED;
+}
+#endif /* FWU_CONCURRENTLY_UPDATE_COMPONENTS > 1 */
+#endif /* MCUBOOT_IMAGE_NUMBER > 1 */
+
+#ifdef TFM_FWU_TEST_REQUEST_REBOOT
+void tfm_fwu_test_common_007(struct test_result_t *ret)
+{
+    /* Request reboot. */
+    psa_fwu_request_reboot();
+    TEST_FAIL("Request reboot should not fail");
+
+    ret->val = TEST_FAILED;
 }
 #endif
-
-void tfm_fwu_test_common_016(struct test_result_t *ret)
-{
-    psa_status_t status;
-
-    /* `block size` boundary test. */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           PSA_FWU_MAX_BLOCK_SIZE + 1);
-    if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("psa_fwu_write boundary test failed.");
-        return;
-    }
-    /* `block size` boundary test. */
-    status = psa_fwu_write(test_image,
-                           0,
-                           header_test_image_version_zero,
-                           0);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("psa_fwu_write boundary test failed.");
-        return;
-    }
-    ret->val = TEST_PASSED;
-}
