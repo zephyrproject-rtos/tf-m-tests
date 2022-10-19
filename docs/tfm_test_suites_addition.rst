@@ -69,7 +69,7 @@ Creating test configurations
 ============================
 
 A test configuration controls whether one or multiple test suites are enabled.
-The doc `TF-M Build Instructionsn <https://tf-m-user-guide.trustedfirmware.org/technical_references/instructions/tfm_build_instruction.html>`_.
+The doc `TF-M Build Instructions <https://tf-m-user-guide.trustedfirmware.org/technical_references/instructions/tfm_build_instruction.html>`_.
 shows some test configurations which are already supported in current TF-M.
 An example usage of test configuration shows below.
 
@@ -139,8 +139,8 @@ the dependences are conflicting. In addition to the dependences quoted in
 ``tf-m-tests/config/set_config.cmake``, some other test configurations may be
 necessary.
 
-Applicating test configurations
-===============================
+Applying test configurations
+============================
 
 The mission of test configurations is to control the build. They are applied
 in ``test/secure_fw/suites/<test_name>/CMakeLists.txt`` like the example below.
@@ -217,7 +217,7 @@ registered if the macro is defined.
 .. Note::
     On most platforms non-secure tests and secure tests run on the same CPU
     core, but dual-core platform is an exception. So secure test library and
-    secure sevices shall be linked together in the file
+    secure services shall be linked together in the file
     ``tf-m-tests/test/secure_fw/secure_tests.cmake``. Thus they can be built on
     secure CPU core and non-secure tests library and RTOS are built on
     non-secure CPU core.
@@ -304,7 +304,7 @@ for developers to include the source code.
   source code folder(s). TF-M build system searches ``CMakeLists.txt`` of
   non-secure test suites in the source code folder(s).
   Use semicolons ``;`` to separate multiple out-of-tree non-secure test suites
-  directorires.
+  directories.
 
 - ``EXTRA_S_TEST_SUITES_PATHS``
 
