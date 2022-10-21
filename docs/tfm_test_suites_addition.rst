@@ -323,8 +323,7 @@ A single out-of-tree test suite folder can be organized as the figure below:
     extra_ns
     ├── CMakeLists.txt
     ├── ns_test.c
-    ├── ns_test_config.cmake
-    └── ns_test.h
+    └── ns_test_config.cmake
 
 In the example above, ``EXTRA_NS_TEST_SUITES_PATHS`` in the build command can be
 specified as listed below.
@@ -337,94 +336,86 @@ Coding instructions
 ===================
 
 This is a demo of source code so the structure has been simplified. Files like
-``ns_test.c`` and ``ns_test.h`` can be expanded to ``src`` and ``include``
-folders. The ``CMakeLists.txt`` is required in the root path and
+``.c`` and ``.h`` can be expanded to ``src`` and ``include`` folders
+respectively. The ``CMakeLists.txt`` is required in the root path and
 ``ns_test_config.cmake`` is optional.
 
 Header Files
 ------------
 
 The header file ``extra_ns_tests.h`` must be included by out-of-tree source
-code. This file contains the definition of ``struct extra_tests_t``,
-``int32_t register_extra_tests()`` and declaration of
-``int32_t extra_ns_tests_init()``.
+code. This file contains the declaration of
+``void register_testsuite_extra_ns_interface(struct test_suite_t *p_test_suite)``.
 
 Source code
 -----------
 
-To connect the out-of-tree source code and tf-m-tests framework, the high-level
-test function must be defined first. An example format is:
+To connect the out-of-tree source code and tf-m-tests framework, the test case
+function/functions must be defined first. An example format is:
 
 .. code-block:: c
 
-    int32_t ns_test(void)
+    void ns_test(struct test_result_t *ret)
     {
         /* Add platform specific non-secure test suites code here. */
 
-        return EXTRA_TEST_SUCCESS;
+        ret->val = TEST_PASSED;
     }
 
-This function is the main entry to test framework. All the out-of-tree's test
-cases can be added into it. The returned error code of this function is
-specified as ``int32_t``. This function shall return an expected value which is
-same as the part ``expected_ret`` set in ``plat_ns_t`` below, take the macro
-EXTRA_TEST_SUCCESS as an example.
+This function follows the standard TF-M test case function prototype.
+
+.. note::
+    Extra tests can have one or more test cases. This is simplified example so
+    only one test case is added.
 
 After ``ns_test()`` is defined, a structure variable need to be created like:
 
 .. code-block:: c
 
-    const struct extra_tests_t plat_ns_t = {
-        .test_entry = ns_test,
-        .expected_ret = EXTRA_TEST_SUCCESS
+    static struct test_t plat_ns_t[] = {
+        {&ns_test, "TFM_EXTRA_TEST_1001",
+         "Extra Non-Secure test"},
     };
 
-It will be used by function ``extra_ns_tests_init()`` to register the test by
-function ``register_extra_tests()``:
+It will be used by function ``register_testsuite_extra_ns_interface()`` to
+register the test by calling the ``set_testsuite()`` function:
 
 .. code-block:: c
 
-    int32_t extra_ns_tests_init(struct extra_tests_t *internal_test_t)
+    void register_testsuite_extra_ns_interface(struct test_suite_t *p_test_suite)
     {
-        /* Add platform init code here. */
+        uint32_t list_size;
 
-        return register_extra_tests(internal_test_t, &plat_ns_t);
+        list_size = (sizeof(plat_ns_t) /
+                     sizeof(plat_ns_t[0]));
+
+        set_testsuite("Extra Non-Secure interface tests"
+                      "(TFM_NS_EXTRA_TEST_1XXX)",
+                      plat_ns_t, list_size, p_test_suite);
     }
 
 The platform initialization code can be added in this function because it runs
 before ``ns_test()``.
 
 .. Note::
-    Function ``extra_ns_tests_init()`` is declared in tf-m-tests repository
-    without definition. It is supplied to out-of-tree source code and need to be
-    defined with no change of its format, like returns error code and parameter
-    name.
+    Function ``register_testsuite_extra_ns_interface()`` is declared in
+    tf-m-tests repository without definition. It is supplied to out-of-tree
+    source code and need to be defined with no change of its format, like
+    returns error code and parameter name.
 
 
 CMakeLists.txt
 --------------
 
-In addition to the implementation of CMAKE target like ``example_test_ns`` of
-out-of-tree source code, the configuration below needs to be appended:
+After extra test suite file were created they must be linked to
+``tfm_test_suite_extra_ns`` CMAKE target:
 
 .. code-block:: cmake
 
-    # Example test must link tfm_test_suite_extra_common to use related interface
-    target_link_libraries(example_test_ns
+    target_sources(tfm_test_suite_extra_ns
         PRIVATE
-            tfm_test_suite_extra_common
+            ${CMAKE_CURRENT_SOURCE_DIR}/ns_test.c
     )
-
-    # The example_test_ns library must be linked by tfm_test_suite_extra_common
-    target_link_libraries(tfm_test_suite_extra_ns
-        PRIVATE
-            example_test_ns
-    )
-
-To use the interfaces come from tf-m-tests repository, library
-``tfm_test_suite_extra_common`` must be linked by ``example_test_ns``.
-To add out-of-tree test into TF-M, library ``example_test_ns`` must be linked
-by ``tfm_test_suite_extra_ns``.
 
 ns_test_config.cmake
 --------------------
@@ -435,3 +426,5 @@ another configuration file, a new one can be ignored.
 --------------
 
 *Copyright (c) 2021-2022, Arm Limited. All rights reserved.*
+*Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+or an affiliate of Cypress Semiconductor Corporation. All rights reserved.*
