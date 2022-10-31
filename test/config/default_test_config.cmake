@@ -48,20 +48,21 @@ set(PS_TEST_NV_COUNTERS                 ON          CACHE BOOL      "Use the tes
 
 ################################## Default CRYPTO Tests ########################
 
-set(TFM_CRYPTO_TEST_ALG_CBC                 ON          CACHE BOOL      "Test CBC cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_CCM                 ON          CACHE BOOL      "Test CCM cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_CFB                 ON          CACHE BOOL      "Test CFB cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_ECB                 ON          CACHE BOOL      "Test ECB cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_CTR                 ON          CACHE BOOL      "Test CTR cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_OFB                 ON          CACHE BOOL      "Test OFB cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_GCM                 ON          CACHE BOOL      "Test GCM cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_SHA_384             ON          CACHE BOOL      "Test SHA-384 cryptography algorithm")
-set(TFM_CRYPTO_TEST_ALG_SHA_512             ON          CACHE BOOL      "Test SHA-512 cryptography algorithm")
-set(TFM_CRYPTO_TEST_HKDF                    ON          CACHE BOOL      "Test the HKDF key derivation algorithm")
-set(TFM_CRYPTO_TEST_ECDH                    ON          CACHE BOOL      "Test the ECDH key agreement algorithm")
-set(TFM_CRYPTO_TEST_CHACHA20                OFF         CACHE BOOL      "Test the ChaCha20 stream cipher")
-set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305   OFF         CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")
-set(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS       ON          CACHE BOOL      "Test single-part operations in hash, MAC, AEAD and symmetric ciphers")
+set(TFM_CRYPTO_TEST_ALG_CBC                     ON       CACHE BOOL      "Test CBC cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_CCM                     ON       CACHE BOOL      "Test CCM cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_CFB                     ON       CACHE BOOL      "Test CFB cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_ECB                     ON       CACHE BOOL      "Test ECB cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_CTR                     ON       CACHE BOOL      "Test CTR cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_OFB                     ON       CACHE BOOL      "Test OFB cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_GCM                     ON       CACHE BOOL      "Test GCM cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_SHA_384                 ON       CACHE BOOL      "Test SHA-384 cryptography algorithm")
+set(TFM_CRYPTO_TEST_ALG_SHA_512                 ON       CACHE BOOL      "Test SHA-512 cryptography algorithm")
+set(TFM_CRYPTO_TEST_HKDF                        ON       CACHE BOOL      "Test the HKDF key derivation algorithm")
+set(TFM_CRYPTO_TEST_ECDH                        ON       CACHE BOOL      "Test the ECDH key agreement algorithm")
+set(TFM_CRYPTO_TEST_CHACHA20                    OFF      CACHE BOOL      "Test the ChaCha20 stream cipher")
+set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305       OFF      CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")
+set(TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION ON       CACHE BOOL      "Test RSASSA-PSS signature verification algorithm")
+set(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS           ON       CACHE BOOL      "Test single-part operations in hash, MAC, AEAD and symmetric ciphers")
 
 ################################## FWU Tests ###################################
 

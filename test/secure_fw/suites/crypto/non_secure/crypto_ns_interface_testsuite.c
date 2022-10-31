@@ -86,6 +86,9 @@ static void tfm_crypto_test_1048(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
 static void tfm_crypto_test_1049(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+#ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
+static void tfm_crypto_test_1050(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -202,6 +205,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1049, "TFM_NS_CRYPTO_TEST_1049",
      "Non Secure AEAD (CHACHA20-POLY1305) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+#ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
+    {&tfm_crypto_test_1050, "TFM_NS_CRYPTO_TEST_1050",
+     "Non Secure RSASSA-PSS signature verification (RSASSA-PSS-SHA256)"},
+#endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -471,3 +478,10 @@ static void tfm_crypto_test_1049(struct test_result_t *ret)
                   test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
+
+#ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
+static void tfm_crypto_test_1050(struct test_result_t *ret)
+{
+    psa_verify_rsassa_pss_test(ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
