@@ -30,13 +30,13 @@ if (TEST_NS_ITS)
     target_compile_definitions(tfm_test_suite_its_ns
         PRIVATE
             DOMAIN_NS=1
-            ITS_MAX_ASSET_SIZE=${ITS_MAX_ASSET_SIZE}
         INTERFACE
             TEST_NS_ITS
     )
 
     target_link_libraries(tfm_test_suite_its_ns
         PRIVATE
+            tfm_config
             tfm_test_framework_ns
             CMSIS_5_tfm_ns
             platform_region_defs
@@ -64,8 +64,6 @@ if (TEST_S_ITS)
     )
 
     target_compile_definitions(tfm_test_suite_its_s
-        PRIVATE
-            ITS_MAX_ASSET_SIZE=${ITS_MAX_ASSET_SIZE}
         INTERFACE
             TEST_S_ITS
     )

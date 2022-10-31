@@ -5,6 +5,7 @@
  *
  */
 
+#include "config_its.h"
 #include "its_tests_common.h"
 #include "psa/internal_trusted_storage.h"
 #include <string.h>
