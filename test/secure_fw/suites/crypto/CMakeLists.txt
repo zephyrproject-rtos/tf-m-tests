@@ -29,6 +29,7 @@ if (TEST_NS_CRYPTO)
 
     target_link_libraries(tfm_test_suite_crypto_ns
         PRIVATE
+            tfm_config
             tfm_test_framework_ns
     )
 
@@ -51,7 +52,6 @@ if (TEST_NS_CRYPTO)
             $<$<AND:$<BOOL:${TFM_CRYPTO_TEST_ALG_SHA_512}>,$<BOOL:${CC312_LEGACY_DRIVER_API_ENABLED}>>:TFM_CRYPTO_TEST_ALG_SHA_512>
             $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
             $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
-            $<$<NOT:$<BOOL:${CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED}>>:TFM_CRYPTO_TEST_ASYM_ENCRYPT>
             $<$<BOOL:${TFM_CRYPTO_TEST_CHACHA20}>:TFM_CRYPTO_TEST_CHACHA20>
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION}>:TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION>
@@ -78,6 +78,7 @@ if (TEST_S_CRYPTO)
 
     target_link_libraries(tfm_test_suite_crypto_s
         PRIVATE
+            tfm_config
             tfm_test_framework_s
             tfm_app_rot_partition_secure_client_2
             platform_s
@@ -101,7 +102,6 @@ if (TEST_S_CRYPTO)
             $<$<AND:$<BOOL:${TFM_CRYPTO_TEST_ALG_SHA_512}>,$<BOOL:${CC312_LEGACY_DRIVER_API_ENABLED}>>:TFM_CRYPTO_TEST_ALG_SHA_512>
             $<$<BOOL:${TFM_CRYPTO_TEST_HKDF}>:TFM_CRYPTO_TEST_HKDF>
             $<$<BOOL:${TFM_CRYPTO_TEST_ECDH}>:TFM_CRYPTO_TEST_ECDH>
-            $<$<NOT:$<BOOL:${CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED}>>:TFM_CRYPTO_TEST_ASYM_ENCRYPT>
             $<$<BOOL:${TFM_CRYPTO_TEST_CHACHA20}>:TFM_CRYPTO_TEST_CHACHA20>
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
             $<$<BOOL:${TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION}>:TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION>
