@@ -2739,13 +2739,17 @@ void psa_verify_rsassa_pss_test(struct test_result_t *ret)
     psa_status_t status = PSA_SUCCESS;
     psa_key_id_t key_id = PSA_KEY_ID_NULL;
     psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const psa_algorithm_t alg = PSA_ALG_RSA_PSS(PSA_ALG_SHA_256);
+    uint8_t hash[32] = {0};
+    size_t hash_length = 0;
 
     const uint8_t message[] =
         "This is the message that I would like to sign";
 
     /* Set attributes and import key */
-    psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
-    psa_set_key_algorithm(&key_attr, PSA_ALG_RSA_PSS(PSA_ALG_SHA_256));
+    /* The verify_hash flag enables automatically verify_message as well */
+    psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&key_attr, alg);
     psa_set_key_type(&key_attr, PSA_KEY_TYPE_RSA_PUBLIC_KEY);
 
     status = psa_import_key(&key_attr,
@@ -2762,14 +2766,39 @@ void psa_verify_rsassa_pss_test(struct test_result_t *ret)
         goto destroy_key;
     }
 
-    status = psa_verify_message(key_id, PSA_ALG_RSA_PSS(PSA_ALG_SHA_256),
+    status = psa_verify_message(key_id, alg,
                                 message, sizeof(message) - 1,
                                 signature_pss_sha_256, sizeof(signature_pss_sha_256));
     if (status != PSA_SUCCESS) {
-        TEST_FAIL(("Signature verification failed!"));
+        TEST_FAIL("Signature verification failed in the verify_message!");
         goto destroy_key;
     }
 
+    /* Try the same verification, but this time split the hash calculation in a
+     * separate API call. This is useful for those protocols that require to
+     * treat the hashing in a special way (i.e. special seeding), or need to do
+     * hashing in multipart. For simplicity here we just use single-part hashing
+     */
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg),
+                              message, sizeof(message) - 1,
+                              hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hashing step failed!");
+        goto destroy_key;
+    }
+
+    if (hash_length != 32) {
+        TEST_FAIL("Unexpected hash length in the hashing step!");
+        goto destroy_key;
+    }
+
+    status = psa_verify_hash(key_id, alg,
+                             hash, hash_length,
+                             signature_pss_sha_256, sizeof(signature_pss_sha_256));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification failed in the verify_hash!");
+        goto destroy_key;
+    }
     ret->val = TEST_PASSED;
 
 destroy_key:
