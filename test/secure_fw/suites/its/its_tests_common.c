@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -17,36 +17,72 @@ static uint8_t read_asset_data[ITS_MAX_ASSET_SIZE] = {0};
 void tfm_its_test_common_001(struct test_result_t *ret)
 {
     psa_status_t status;
-    const psa_storage_uid_t uid = TEST_UID_1;
+    const psa_storage_uid_t uid_1 = TEST_UID_1;
+    const psa_storage_uid_t uid_2 = TEST_UID_2;
     const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
     const size_t data_len = 0;
     const uint8_t write_data[] = {0};
+    const uint8_t write_data_2[] = "TWO";
+    uint8_t read_data_2[sizeof(write_data_2) + 1];
+    size_t read_data_length;
+    int comp_result;
 
     /* Set with no data and no flags and a valid UID */
-    status = psa_its_set(uid, data_len, write_data, flags);
+    status = psa_its_set(uid_1, data_len, write_data, flags);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Set should not fail with valid UID");
         return;
     }
 
     /* Attempt to set a second time */
-    status = psa_its_set(uid, data_len, write_data, flags);
+    status = psa_its_set(uid_1, data_len, write_data, flags);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Set should not fail the second time with valid UID");
+        return;
+    }
+
+    /* Set with no data and no flags and a valid UID */
+    status = psa_its_set(uid_2, 0, NULL, PSA_STORAGE_FLAG_NONE);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Set should not fail with size 0");
+        return;
+    }
+
+    /* Set a second time with data and no flags and a valid UID */
+    status = psa_its_set(uid_2, sizeof(write_data_2), write_data_2, PSA_STORAGE_FLAG_NONE);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Set should not fail when setting the asset a second time.");
+        return;
+    }
+
+    /* Check the asset data. */
+    status = psa_its_get(uid_2, 0, sizeof(read_data_2), read_data_2, &read_data_length);
+    if (read_data_length != sizeof(write_data_2)) {
+        TEST_FAIL("Wrong asset size is returned.");
+        return;
+    }
+    comp_result = memcmp(read_data_2, write_data_2, read_data_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Wrong asset data is get.");
         return;
     }
 
     /* Set with an invalid UID */
     status = psa_its_set(INVALID_UID, data_len, write_data, flags);
     if (status != PSA_ERROR_INVALID_ARGUMENT) {
-        TEST_FAIL("Set should not succeed with an invalid UID");
+        TEST_FAIL("Set should not succeed with an invalid UID.");
         return;
     }
 
     /* Call remove to clean up storage for the next test */
-    status = psa_its_remove(uid);
+    status = psa_its_remove(uid_1);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Remove should not fail with valid UID");
+        TEST_FAIL("Remove should not fail with valid UID: uid_1.");
+        return;
+    }
+    status = psa_its_remove(uid_2);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Remove should not fail with valid UID: uid_2.");
         return;
     }
 
