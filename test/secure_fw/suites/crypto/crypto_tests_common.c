@@ -2271,12 +2271,32 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
 #define KEY_DERIV_RAW_MAX_PEER_LEN 100
 #define KEY_DERIV_RAW_OUTPUT_LEN   48
 
+/* Pair of ECC test keys that are generated using openssl with the following
+ * parameters:
+ *
+ * openssl ecparam -outform der -out test_prime256v1 -name prime256v1 -genkey
+ *
+ */
 /* An example of a 32 bytes / 256 bits ECDSA private key */
 static const uint8_t ecdsa_private_key[] = {
-    0x11, 0xb5, 0x73, 0x7c, 0xf9, 0xd9, 0x3f, 0x17,
-    0xc0, 0xcb, 0x1a, 0x84, 0x65, 0x5d, 0x39, 0x95,
-    0xa0, 0x28, 0x24, 0x09, 0x7e, 0xff, 0xa5, 0xed,
-    0xd8, 0xee, 0x26, 0x38, 0x1e, 0xb5, 0xd6, 0xc3};
+    0xED, 0x8F, 0xAA, 0x23, 0xE2, 0x8B, 0x1F, 0x51,
+    0x63, 0x4F, 0x8E, 0xC9, 0xDC, 0x24, 0x92, 0x0F,
+    0x3D, 0xA1, 0x7B, 0x47, 0x68, 0x38, 0xE3, 0x0D,
+    0x10, 0x4A, 0x6D, 0xA7, 0x2D, 0x48, 0xA4, 0x18
+};
+/* Corresponding public key in uncompressed form, i.e. 0x04 X Y */
+static const uint8_t ecdsa_public_key[] = {
+    0x04, 0x41, 0xC6, 0xFC, 0xC5, 0xA4, 0xBB, 0x70,
+    0x45, 0xA7, 0xB2, 0x5E, 0x50, 0xB3, 0x2E, 0xD0,
+    0x2A, 0x8D, 0xA8, 0x8E, 0x1B, 0x34, 0xC2, 0x71,
+    0x57, 0x38, 0x5C, 0x45, 0xAB, 0xF2, 0x51, 0x7B,
+    0x17, 0x5A, 0xC5, 0x05, 0xA9, 0x9E, 0x4B, 0x7D,
+    0xDD, 0xD7, 0xBF, 0xBB, 0x45, 0x51, 0x92, 0x7D,
+    0x33, 0x33, 0x8B, 0x1B, 0x70, 0x5A, 0xFD, 0x2B,
+    0xF2, 0x7A, 0xA4, 0xBD, 0x37, 0x50, 0xED, 0x34,
+    0x9F
+};
+
 /* Buffer to hold the peer key of the key agreement process */
 static uint8_t raw_agreement_peer_key[KEY_DERIV_RAW_MAX_PEER_LEN] = {0};
 
@@ -2609,7 +2629,7 @@ destroy_key:
 }
 
 #define SIGNATURE_BUFFER_SIZE \
-    (PSA_ECDSA_SIGNATURE_SIZE(PSA_VENDOR_ECC_MAX_CURVE_BITS))
+    (PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key))))
 
 void psa_sign_verify_message_test(psa_algorithm_t alg,
                                   struct test_result_t *ret)
@@ -2622,10 +2642,20 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
         "This is the message that I would like to sign";
     uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
     size_t signature_length = 0;
+    /* The expected format of the public key is uncompressed, i.e. 0x04 X Y */
+    uint8_t ecdsa_pub_key[
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))] = {0};
+    size_t pub_key_length = 0;
+    uint32_t comp_result = 0;
+    uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
+    size_t hash_length = 0;
+
+    /* Initialize to the passing value */
+    ret->val = TEST_PASSED;
 
     /* Set attributes and import key */
     psa_set_key_usage_flags(&input_key_attr,
-        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE);
+        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE | PSA_KEY_USAGE_EXPORT);
     psa_set_key_algorithm(&input_key_attr, alg);
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
@@ -2635,6 +2665,26 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the private key");
         return;
+    }
+
+    status = psa_export_public_key(key_id_local, ecdsa_pub_key,
+                                   sizeof(ecdsa_pub_key), &pub_key_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Public key export failed!");
+        goto destroy_key;
+    }
+
+    if (pub_key_length !=
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected length for the public key!");
+        goto destroy_key;
+    }
+
+    /* Check that exported key matches the reference key */
+    comp_result = memcmp(ecdsa_pub_key, ecdsa_public_key, pub_key_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Exported ECDSA public key does not match the reference!");
+        goto destroy_key;
     }
 
     status = psa_sign_message(key_id_local, alg,
@@ -2661,9 +2711,49 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
-    ret->val = TEST_PASSED;
-
 destroy_key:
+    psa_destroy_key(key_id_local);
+
+    if (ret->val == TEST_FAILED) {
+        return;
+    }
+
+    /* Continue with the dedicated verify hash flow */
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, ecdsa_public_key,
+                            sizeof(ecdsa_public_key), &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the public key");
+        return;
+    }
+
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg),
+                              message, sizeof(message) - 1,
+                              hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hashing step failed!");
+        goto destroy_public_key;
+    }
+
+    if (hash_length != 32) {
+        TEST_FAIL("Unexpected hash length in the hashing step!");
+        goto destroy_public_key;
+    }
+
+    status = psa_verify_hash(key_id_local, alg,
+                             hash, hash_length,
+                             signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification failed in the verify_hash!");
+        goto destroy_public_key;
+    }
+
+destroy_public_key:
     psa_destroy_key(key_id_local);
 
     return;
