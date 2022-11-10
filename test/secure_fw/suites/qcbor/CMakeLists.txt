@@ -1,12 +1,18 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
 cmake_policy(SET CMP0079 NEW)
 
-####################### qcbor ns ###############################################
+# Adding qcbor and qcbor_test libraries manually as logical target names
+# must be globally unique in CMake. The Secure image also relies on the qcbor
+# library (including its own CMake files), but a separate Non Secure library
+# target must be maintained (with a unique name) as they may be built
+# with different configurations - within the same CMake environment.
+
+####################### Non Secure qcbor library ###############################
 
 add_library(tfm_qcbor_ns STATIC EXCLUDE_FROM_ALL)
 
@@ -21,18 +27,6 @@ target_sources(tfm_qcbor_ns
 target_include_directories(tfm_qcbor_ns
     PUBLIC
         $<BUILD_INTERFACE:${QCBOR_PATH}/inc>
-    INTERFACE
-        $<BUILD_INTERFACE:${QCBOR_PATH}/inc/qcbor>
-)
-
-target_link_libraries(tfm_qcbor_ns
-    PRIVATE
-        tfm_t_cose_defs
-)
-
-target_compile_options(tfm_qcbor_ns
-    PUBLIC
-        ${COMPILER_CP_FLAG}
 )
 
 target_compile_definitions(tfm_qcbor_ns
@@ -42,7 +36,12 @@ target_compile_definitions(tfm_qcbor_ns
         QCBOR_DISABLE_PREFERRED_FLOAT
 )
 
-####################### qcbor test #############################################
+target_compile_options(tfm_qcbor_ns
+    PUBLIC
+        ${COMPILER_CP_FLAG}
+)
+
+####################### qcbor test library #####################################
 
 add_library(tfm_qcbor_test STATIC EXCLUDE_FROM_ALL)
 
@@ -66,6 +65,11 @@ target_link_libraries(tfm_qcbor_test
         tfm_qcbor_ns
 )
 
+# Note: All floating point support is disabled in tfm_qcbor_ns library
+#       to reduce code size. These compile options are public so the qcbor
+#       test library will also get them. It means that effectively
+#       the floating point test cases are also disabled.
+
 ####################### Non Secure test ########################################
 
 if (NOT TEST_NS_QCBOR)
@@ -82,7 +86,6 @@ target_sources(tfm_test_suite_qcbor_ns
 target_include_directories(tfm_test_suite_qcbor_ns
     PUBLIC
         non_secure
-        $<BUILD_INTERFACE:${QCBOR_PATH}/test>
 )
 
 target_compile_definitions(tfm_test_suite_qcbor_ns

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -98,7 +98,7 @@ if (TEST_S_ATTESTATION)
 
     target_link_libraries(tfm_test_suite_attestation_s
         PRIVATE
-            tfm_qcbor_s
+            qcbor
             tfm_t_cose_s
             tfm_test_framework_s
             tfm_attestation_defs
