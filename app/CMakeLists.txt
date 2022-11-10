@@ -115,6 +115,7 @@ endif()
 
 target_sources(tfm_api_ns PRIVATE
     $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c>
+    $<$<AND:$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>,$<BOOL:${CONFIG_TFM_CONNECTION_BASED_SERVICE_API}>>:${INTERFACE_SRC_DIR}/tfm_psa_ns_connection_api.c>
     # NS specific implementation of NS interface dispacther
     $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${CMAKE_CURRENT_SOURCE_DIR}/tfm_ns_interface.c>
 )
