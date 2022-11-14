@@ -9,13 +9,13 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT EXTRA_NS_TEST_SUITES_PATHS AND NOT EXTRA_S_TEST_SUITES_PATHS)
+if (NOT EXTRA_NS_TEST_SUITE_PATH AND NOT EXTRA_S_TEST_SUITE_PATH)
     return()
 endif()
 
 ####################### Non-Secure extra test library ##########################
 
-if (EXTRA_NS_TEST_SUITES_PATHS)
+if (EXTRA_NS_TEST_SUITE_PATH)
     add_library(tfm_test_suite_extra_ns STATIC EXCLUDE_FROM_ALL)
 
     target_include_directories(tfm_test_suite_extra_ns
@@ -41,7 +41,7 @@ endif()
 
 ####################### Secure extra test library ##############################
 
-if (EXTRA_S_TEST_SUITES_PATHS)
+if (EXTRA_S_TEST_SUITE_PATH)
     target_include_directories(tfm_test_suite_extra_s
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/secure

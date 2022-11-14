@@ -85,12 +85,12 @@ endforeach()
 
 ########################## Extra test suites ###################################
 
-if (EXTRA_NS_TEST_SUITES_PATHS)
-    set(TEST_FRAMEWORK_NS       ON        CACHE BOOL      "Whether to build NS regression tests framework")
+if (EXTRA_NS_TEST_SUITE_PATH)
+    set(TEST_FRAMEWORK_NS           ON        CACHE BOOL      "Whether to build NS regression tests framework")
 endif()
 
-if (EXTRA_S_TEST_SUITES_PATHS)
-    set(TEST_FRAMEWORK_S        ON        CACHE BOOL      "Whether to build S regression tests framework")
+if (EXTRA_S_TEST_SUITE_PATH)
+    set(TEST_FRAMEWORK_S            ON        CACHE BOOL      "Whether to build S regression tests framework")
 endif()
 
 ########################## Test profile ########################################

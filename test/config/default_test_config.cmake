@@ -76,8 +76,8 @@ set(TEST_S_FPU                          OFF         CACHE BOOL      "Whether to 
 
 ################################## Extra test suites ###########################
 
-set(EXTRA_NS_TEST_SUITES_PATHS          ""          CACHE PATH      "List of extra non-secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
-set(EXTRA_S_TEST_SUITES_PATHS           ""          CACHE PATH      "List of extra secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
+set(EXTRA_NS_TEST_SUITE_PATH            ""          CACHE PATH      "List of extra non-secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
+set(EXTRA_S_TEST_SUITE_PATH             ""          CACHE PATH      "List of extra secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
 
 ######################### Platform specific setting ############################
 

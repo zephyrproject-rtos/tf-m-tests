@@ -295,21 +295,19 @@ Out-of-tree regression test suites
 **********************************
 
 TF-M supports out-of-tree regression test suites build, whose source code
-folders are maintained outside tf-m-tests repo. There are two configurations
-for developers to include the source code.
+folder is outside tf-m-tests repo. There are two configurations for developers
+to include the source code.
 
-- ``EXTRA_NS_TEST_SUITES_PATHS``
+- ``EXTRA_NS_TEST_SUITE_PATH``
 
-  A list of the absolute directories of the out-of-tree non-secure test suites
-  source code folder(s). TF-M build system searches ``CMakeLists.txt`` of
-  non-secure test suites in the source code folder(s).
-  Use semicolons ``;`` to separate multiple out-of-tree non-secure test suites
-  directories.
+  An absolute directory of the out-of-tree non-secure test suite
+  source code folder. TF-M build system searches ``CMakeLists.txt`` of
+  non-secure test suite in the source code folder.
 
-- ``EXTRA_S_TEST_SUITES_PATHS``
+- ``EXTRA_S_TEST_SUITE_PATH``
 
-  A list of the absolute directories of the out-of-tree secure test suites
-  source code folder(s).
+  An absolute directory of the out-of-tree secure test suite
+  source code folder.
 
 Example usage
 =============
@@ -325,12 +323,12 @@ A single out-of-tree test suite folder can be organized as the figure below:
     ├── ns_test.c
     └── ns_test_config.cmake
 
-In the example above, ``EXTRA_NS_TEST_SUITES_PATHS`` in the build command can be
+In the example above, ``EXTRA_NS_TEST_SUITE_PATH`` in the build command can be
 specified as listed below.
 
 .. code-block:: bash
 
-  -DEXTRA_NS_TEST_SUITES_PATHS=<Absolute-path-extra-test-folder>
+  -DEXTRA_NS_TEST_SUITE_PATH=<Absolute-path-extra-test-folder>
 
 Coding instructions
 ===================
