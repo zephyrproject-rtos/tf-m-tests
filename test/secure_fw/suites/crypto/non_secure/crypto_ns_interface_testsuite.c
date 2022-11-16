@@ -71,11 +71,11 @@ static void tfm_crypto_test_1040(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_ECB
 static void tfm_crypto_test_1041(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
-#if (!CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED)
+#if CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED
 static void tfm_crypto_test_1042(struct test_result_t *ret);
 static void tfm_crypto_test_1043(struct test_result_t *ret);
 static void tfm_crypto_test_1044(struct test_result_t *ret);
-#endif /* !CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED */
+#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1045(struct test_result_t *ret);
 static void tfm_crypto_test_1046(struct test_result_t *ret);
@@ -182,14 +182,14 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1041, "TFM_NS_CRYPTO_TEST_1041",
      "Non Secure Symmetric encryption (AES-128-ECB) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
-#if (!CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED)
+#if CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED
     {&tfm_crypto_test_1042, "TFM_NS_CRYPTO_TEST_1042",
      "Non Secure Asymmetric encryption interface (RSA-OAEP)"},
     {&tfm_crypto_test_1043, "TFM_NS_CRYPTO_TEST_1043",
      "Non Secure Asymmetric encryption interface (RSA-PKCS1V15)"},
     {&tfm_crypto_test_1044, "TFM_NS_CRYPTO_TEST_1044",
      "Non Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)"},
-#endif /* !CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED */
+#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
     {&tfm_crypto_test_1045, "TFM_NS_CRYPTO_TEST_1045",
      "Non Secure Symmetric encryption (AES-128-CBC-PKCS7) interface"},
@@ -428,7 +428,7 @@ static void tfm_crypto_test_1041(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_ECB */
 
-#if (!CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED)
+#if CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED
 static void tfm_crypto_test_1042(struct test_result_t *ret)
 {
     psa_asymmetric_encryption_test(PSA_ALG_RSA_OAEP(PSA_ALG_SHA_256), ret);
@@ -444,7 +444,7 @@ static void tfm_crypto_test_1044(struct test_result_t *ret)
     psa_sign_verify_message_test(
         PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), ret);
 }
-#endif /* !CRYPTO_ASYM_ENCRYPT_MODULE_DISABLED */
+#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1045(struct test_result_t *ret)
