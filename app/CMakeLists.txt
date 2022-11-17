@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
 # Copyright (c) 2022-2023 Cypress Semiconductor Corporation (an Infineon company)
 # or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
@@ -250,16 +250,27 @@ endif()
 
 ############################# Test integration #################################
 
+if (CONFIG_TFM_ERPC_TEST_FRAMEWORK)
+    set(CONFIG_ENABLE_NS_UART_TX_RX_CONTROL      ON         CACHE BOOL      "Whether to enable UART TX RX")
+    set(ERPC_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../erpc)
+    add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/erpc/server)
+endif()
+
 add_library(tfm_test_app STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_test_app
     PRIVATE
-        test_app.c
+        $<$<NOT:$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>>:test_app.c>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_app.c>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_uart_cmsis.cpp>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports/erpc_uart_cmsis_transport.cpp>
 )
 
 target_include_directories(tfm_test_app
     PUBLIC
         .
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/server>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports>
 )
 
 target_link_libraries(tfm_test_app
@@ -268,6 +279,7 @@ target_link_libraries(tfm_test_app
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_server>
         tfm_api_ns
         tfm_log
 )
