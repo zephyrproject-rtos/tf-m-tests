@@ -14,7 +14,7 @@ if(EXTRA_NS_TEST_SUITE_PATH)
     # load subdirectories
     set(TEMP_BINARY_EXTRA_NS_TEST_SUITE
         "${CMAKE_CURRENT_BINARY_DIR}/${EXTRA_NS_TEST_SUITE_NAME}")
-    add_subdirectory(${EXTRA_NS_TEST_SUITE} ${TEMP_BINARY_EXTRA_NS_TEST_SUITE})
+    add_subdirectory(${EXTRA_NS_TEST_SUITE_PATH} ${TEMP_BINARY_EXTRA_NS_TEST_SUITE})
 endif()
 
 ########################## load extra S test suites source #####################
@@ -26,5 +26,5 @@ if(EXTRA_S_TEST_SUITE_PATH)
     # load subdirectories
     set(TEMP_BINARY_EXTRA_S_TEST_SUITE
         "${CMAKE_CURRENT_BINARY_DIR}/${EXTRA_S_TEST_SUITE_NAME}")
-    add_subdirectory(${EXTRA_S_TEST_SUITE} ${TEMP_BINARY_EXTRA_S_TEST_SUITE})
+    add_subdirectory(${EXTRA_S_TEST_SUITE_PATH} ${TEMP_BINARY_EXTRA_S_TEST_SUITE})
 endif()
