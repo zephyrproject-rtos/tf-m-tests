@@ -39,6 +39,7 @@ target_sources(erpc_main
         $<$<STREQUAL:${ERPC_TRANSPORT},UART>:${ERPC_REPO_PATH}/erpc_c/transports/erpc_serial_transport.cpp>
         $<$<STREQUAL:${ERPC_TRANSPORT},TCP>:${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_tcp.cpp>
         $<$<STREQUAL:${ERPC_TRANSPORT},TCP>:${ERPC_REPO_PATH}/erpc_c/transports/erpc_tcp_transport.cpp>
+        ${TFM_INSTALL_PATH}/interface/src/tfm_crypto_api.c
 )
 
 target_link_libraries(erpc_main
@@ -54,4 +55,5 @@ target_compile_definitions(erpc_main
         $<$<AND:$<STREQUAL:${ERPC_TRANSPORT},UART>,$<BOOL:${PORT_NAME}>>:PORT_NAME="${PORT_NAME}">
         $<$<AND:$<STREQUAL:${ERPC_TRANSPORT},TCP>,$<BOOL:${ERPC_HOST}>>:ERPC_HOST="${ERPC_HOST}">
         $<$<AND:$<STREQUAL:${ERPC_TRANSPORT},TCP>,$<BOOL:${ERPC_PORT}>>:ERPC_PORT=${ERPC_PORT}>
+        PLATFORM_DEFAULT_CRYPTO_KEYS
 )

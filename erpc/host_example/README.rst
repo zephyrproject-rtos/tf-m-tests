@@ -13,7 +13,7 @@ Build instructions on the target
 .. code-block:: bash
 
     cd <TF-M base folder>
-    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=musca_s1 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake -DCMAKE_BUILD_TYPE=Debug -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON ../
+    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=musca_s1 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake -DCMAKE_BUILD_TYPE=Debug -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON -DTFM_PARTITION_CRYPTO=ON -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON ../
     cmake --build cmake_build/ -- install -j32
 
 Build instructions on the host
@@ -42,7 +42,7 @@ Build instructions on the target
 .. code-block:: bash
 
     cd <TF-M base folder>
-    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=an521 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake -DCMAKE_BUILD_TYPE=Debug -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON ../
+    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=an521 -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake -DCMAKE_BUILD_TYPE=Debug -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON -DTFM_PARTITION_CRYPTO=ON -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON ../
     cmake --build cmake_build/ -- install -j32
 
 Build instructions on the host
