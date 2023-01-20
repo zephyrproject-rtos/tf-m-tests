@@ -5,12 +5,7 @@
  *
  */
 
-#if DOMAIN_NS == 1
 #include <string.h>
-#else
-#include "tfm_memory_utils.h"
-#endif
-
 #include <stdbool.h>
 #include "crypto_tests_common.h"
 
@@ -19,7 +14,7 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 {
     psa_status_t status = PSA_SUCCESS;
     uint32_t i = 0;
-    psa_key_handle_t key_handle = 0x0u;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t data[] = "THIS IS MY KEY1";
     uint8_t exported_data[sizeof(data)] = {0};
     size_t exported_data_size = 0;
@@ -31,13 +26,13 @@ void psa_key_interface_test(const psa_key_type_t key_type,
     psa_set_key_type(&key_attributes, key_type);
 
     status = psa_import_key(&key_attributes, data, sizeof(data),
-                            &key_handle);
+                            &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &retrieved_attributes);
+    status = psa_get_key_attributes(key_id_local, &retrieved_attributes);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error getting key metadata");
         return;
@@ -55,7 +50,7 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&retrieved_attributes);
 
-    status = psa_export_key(key_handle,
+    status = psa_export_key(key_id_local,
                             exported_data,
                             sizeof(data),
                             &exported_data_size);
@@ -78,15 +73,15 @@ void psa_key_interface_test(const psa_key_type_t key_type,
         }
     }
 
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying the key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &retrieved_attributes);
+    status = psa_get_key_attributes(key_id_local, &retrieved_attributes);
     if (status != PSA_ERROR_INVALID_HANDLE) {
-        TEST_FAIL("Key handle should be invalid now");
+        TEST_FAIL("Key ID should be invalid now");
         return;
     }
 
@@ -94,20 +89,6 @@ void psa_key_interface_test(const psa_key_type_t key_type,
 
     ret->val = TEST_PASSED;
 }
-
-static inline int compare_buffers(const uint8_t *p1,
-                                  const uint8_t *p2,
-                                  size_t comp_size)
-{
-#if DOMAIN_NS == 1U
-    /* Check that the decrypted data is the same as the original data */
-    return memcmp(p1, p2, comp_size);
-#else
-    return tfm_memcmp(p1, p2, comp_size);
-#endif
-}
-
-#define CIPHER_TEST_KEY_ID (0x1)
 
 void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
                                   const psa_algorithm_t alg,
@@ -117,7 +98,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t data[] = "THIS IS MY KEY1";
     const size_t iv_length = PSA_BLOCK_CIPHER_BLOCK_LENGTH(key_type);
     const uint8_t iv[] = "012345678901234";
@@ -150,16 +131,15 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
-    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
 
     /* Import a key */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &key_attributes);
+    status = psa_get_key_attributes(key_id_local, &key_attributes);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error getting key metadata");
         goto destroy_key;
@@ -176,7 +156,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     }
 
     /* Setup the encryption object */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         if (status == PSA_ERROR_NOT_SUPPORTED) {
             TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
@@ -271,7 +251,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     }
 
     /* Setup the decryption object */
-    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
+    status = psa_cipher_decrypt_setup(&handle_dec, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up cipher operation object");
         goto destroy_key;
@@ -377,7 +357,7 @@ void psa_cipher_padded_modes_test(const psa_key_type_t key_type,
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(plain_text, decrypted_data, len);
+    comp_result = memcmp(plain_text, decrypted_data, len);
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key;
@@ -395,7 +375,7 @@ abort:
     }
 destroy_key:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
@@ -494,24 +474,13 @@ static const uint8_t chacha20poly1305_testTag_expected[] = {
 };
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
-#define LOG_INF(...) printf(__VA_ARGS__)
-#define LOG_HEXDUMP_INF(a,b,c)      \
-    do {                            \
-       LOG_INF(c);            \
-       for (int i=0; i<b; i++) {    \
-           LOG_INF("0x%x, ", a[i]); \
-       }                            \
-       printf("\r\n");              \
-    }                               \
-    while (0)
-
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 void psa_cipher_rfc7539_test(struct test_result_t *ret)
 {
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     const psa_key_type_t key_type = PSA_KEY_TYPE_CHACHA20;
@@ -530,9 +499,9 @@ void psa_cipher_rfc7539_test(struct test_result_t *ret)
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
-    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
+
     status = psa_import_key(&key_attributes, chacha20_testKey,
-                            sizeof(chacha20_testKey), &key_handle);
+                            sizeof(chacha20_testKey), &key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
@@ -540,7 +509,7 @@ void psa_cipher_rfc7539_test(struct test_result_t *ret)
     }
 
     /* Setup the encryption object */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Encryption setup shouldn't fail");
         goto destroy_key;
@@ -601,16 +570,16 @@ void psa_cipher_rfc7539_test(struct test_result_t *ret)
     total_output_length += output_length;
 
     /* Compare encrypted data produced with single-shot and multipart APIs */
-    comp_result = compare_buffers(chacha20_testCiphertext_expected,
-                                  chacha20_testCiphertext,
-                                  total_output_length);
+    comp_result = memcmp(chacha20_testCiphertext_expected,
+                         chacha20_testCiphertext,
+                         total_output_length);
     if (comp_result != 0) {
         TEST_FAIL("Single-shot crypt doesn't match with multipart crypt");
         goto destroy_key;
     }
 
     /* Setup the decryption object */
-    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
+    status = psa_cipher_decrypt_setup(&handle_dec, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up cipher operation object");
         goto destroy_key;
@@ -680,9 +649,9 @@ void psa_cipher_rfc7539_test(struct test_result_t *ret)
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(chacha20_testPlaintext,
-                                  chacha20_testDecryptedtext,
-                                  sizeof(chacha20_testPlaintext));
+    comp_result = memcmp(chacha20_testPlaintext,
+                         chacha20_testDecryptedtext,
+                         sizeof(chacha20_testPlaintext));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
@@ -699,7 +668,7 @@ abort:
     }
 destroy_key:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
@@ -714,7 +683,7 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     psa_aead_operation_t handle = psa_aead_operation_init();
     psa_aead_operation_t handle_dec = psa_aead_operation_init();
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     const psa_key_type_t key_type = PSA_KEY_TYPE_CHACHA20;
@@ -736,7 +705,7 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
     status = psa_import_key(&key_attributes, chacha20poly1305_testKey,
-                            sizeof(chacha20poly1305_testKey), &key_handle);
+                            sizeof(chacha20poly1305_testKey), &key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
@@ -744,7 +713,7 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     }
 
     /* Setup the encryption object */
-    status = psa_aead_encrypt_setup(&handle, key_handle, alg);
+    status = psa_aead_encrypt_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Encryption setup shouldn't fail");
         goto destroy_key;
@@ -832,23 +801,22 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     total_output_length += output_length;
 
     /* Compare encrypted data produced with single-shot and multipart APIs */
-    comp_result = compare_buffers(chacha20poly1305_testCiphertext_expected,
-                                  chacha20_testCiphertext,
-                                  total_output_length);
+    comp_result = memcmp(chacha20poly1305_testCiphertext_expected,
+                         chacha20_testCiphertext,
+                         total_output_length);
     if (comp_result != 0) {
         TEST_FAIL("Encrypted data does not match reference data");
         goto destroy_key;
     }
 
-    comp_result = compare_buffers(chacha20poly1305_testTag_expected,
-                                  tag, tag_length);
+    comp_result = memcmp(chacha20poly1305_testTag_expected, tag, tag_length);
     if (comp_result != 0) {
         TEST_FAIL("Computed tag does not match reference data");
         goto destroy_key;
     }
 
     /* Setup the decryption object */
-    status = psa_aead_decrypt_setup(&handle_dec, key_handle, alg);
+    status = psa_aead_decrypt_setup(&handle_dec, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up aead operation object");
         goto destroy_key;
@@ -939,9 +907,9 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(chacha20_testPlaintext,
-                                  chacha20_testDecryptedtext,
-                                  sizeof(chacha20_testPlaintext));
+    comp_result = memcmp(chacha20_testPlaintext,
+                         chacha20_testDecryptedtext,
+                         sizeof(chacha20_testPlaintext));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
@@ -958,7 +926,7 @@ abort:
     }
 destroy_key:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
@@ -976,12 +944,11 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_cipher_operation_t handle_dec = psa_cipher_operation_init();
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     size_t iv_length = PSA_CIPHER_IV_LENGTH(key_type, alg);
     uint8_t iv[16] = {0};
     const uint8_t plain_text[PLAIN_DATA_SIZE] =
         "This is my plaintext to encrypt, 48 bytes long!";
-    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE];
     uint8_t decrypted_data[ENC_DEC_BUFFER_SIZE] = {0};
     size_t output_length = 0, total_output_length = 0;
     union {
@@ -992,6 +959,9 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     bool bAbortDecryption = false;
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE];
+#endif
 
     if (iv_length > 16) {
         TEST_FAIL("Unexpected IV length greater than 16 for this alg/key type");
@@ -1004,18 +974,17 @@ void psa_cipher_test(const psa_key_type_t key_type,
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
-    psa_set_key_id(&key_attributes, CIPHER_TEST_KEY_ID);
 
     /* Import a key */
     status = psa_import_key(&key_attributes, key, PSA_BITS_TO_BYTES(key_bits),
-                            &key_handle);
+                            &key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &key_attributes);
+    status = psa_get_key_attributes(key_id_local, &key_attributes);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error getting key metadata");
         goto destroy_key;
@@ -1033,8 +1002,9 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&key_attributes);
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Encrypt single part functions */
-    status = psa_cipher_encrypt(CIPHER_TEST_KEY_ID, alg, plain_text,
+    status = psa_cipher_encrypt(key_id_local, alg, plain_text,
                                 sizeof(plain_text),
                                 input.encrypted_data_pad,
                                 sizeof(input.encrypted_data_pad),
@@ -1048,20 +1018,15 @@ void psa_cipher_test(const psa_key_type_t key_type,
     /* Store a copy of the encrypted data for later checking it against
      * multipart results
      */
-#if DOMAIN_NS == 1U
     memcpy(encrypted_data_single_shot, &input.encrypted_data_pad[iv_length],
            output_length-iv_length);
-#else
-    tfm_memcpy(encrypted_data_single_shot, &input.encrypted_data_pad[iv_length],
-               output_length-iv_length);
-#endif
 
     /* Make sure to use the randomly generated IV for the multipart flow */
     for (int i=0; i<iv_length; i++) {
         iv[i] = input.encrypted_data_pad[i];
     }
 
-    status = psa_cipher_decrypt(CIPHER_TEST_KEY_ID, alg,
+    status = psa_cipher_decrypt(key_id_local, alg,
                                 input.encrypted_data_pad,
                                 output_length,
                                 decrypted_data, ENC_DEC_BUFFER_SIZE,
@@ -1077,26 +1042,23 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(plain_text, decrypted_data,
-                                  sizeof(plain_text));
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key;
     }
 
     /* Clear inputs/outputs before moving to multipart tests */
-#if DOMAIN_NS == 1U
+
     /* Clear intermediate buffers for additional single-shot API tests */
     memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
     memset(decrypted_data, 0, sizeof(decrypted_data));
-#else
-    tfm_memset(input.encrypted_data_pad, 0, sizeof(input.encrypted_data_pad));
-    tfm_memset(decrypted_data, 0, sizeof(decrypted_data));
-#endif
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+
     /* Replicate the same test as above, but now using the multipart APIs */
 
     /* Setup the encryption object */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         if (status == PSA_ERROR_NOT_SUPPORTED) {
             TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
@@ -1167,17 +1129,19 @@ void psa_cipher_test(const psa_key_type_t key_type,
     /* Add the last output produced, it might be encrypted padding */
     total_output_length += output_length;
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Compare encrypted data produced with single-shot and multipart APIs */
-    comp_result = compare_buffers(encrypted_data_single_shot,
-                                  input.encrypted_data,
-                                  total_output_length);
+    comp_result = memcmp(encrypted_data_single_shot,
+                         input.encrypted_data,
+                         total_output_length);
     if (comp_result != 0) {
         TEST_FAIL("Single-shot crypt doesn't match with multipart crypt");
         goto destroy_key;
     }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the decryption object */
-    status = psa_cipher_decrypt_setup(&handle_dec, key_handle, alg);
+    status = psa_cipher_decrypt_setup(&handle_dec, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up cipher operation object");
         goto destroy_key;
@@ -1249,8 +1213,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(plain_text, decrypted_data,
-                                  sizeof(plain_text));
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
@@ -1267,7 +1230,7 @@ abort:
     }
 destroy_key:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
@@ -1280,7 +1243,7 @@ void psa_invalid_cipher_test(const psa_key_type_t key_type,
 {
     psa_status_t status;
     psa_cipher_operation_t handle = psa_cipher_operation_init();
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     uint8_t data[TEST_MAX_KEY_LENGTH];
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
@@ -1290,30 +1253,26 @@ void psa_invalid_cipher_test(const psa_key_type_t key_type,
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
 
-#if DOMAIN_NS == 1U
     /* Fill the key data */
     (void)memset(data, 'A', key_size);
-#else
-    (void)tfm_memset(data, 'A', key_size);
-#endif
 
     /* Import a key */
-    status = psa_import_key(&key_attributes, data, key_size, &key_handle);
+    status = psa_import_key(&key_attributes, data, key_size, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
     /* Setup the encryption object */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, alg);
     if (status == PSA_SUCCESS) {
         TEST_FAIL("Should not successfully setup an invalid cipher");
-        (void)psa_destroy_key(key_handle);
+        (void)psa_destroy_key(key_id_local);
         return;
     }
 
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
         return;
@@ -1424,6 +1383,7 @@ void psa_hash_test(const psa_algorithm_t alg,
         return;
     }
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Do the same as above with the single shot APIs */
     status = psa_hash_compare(alg,
                               (const uint8_t *)msg, strlen(msg),
@@ -1432,6 +1392,7 @@ void psa_hash_test(const psa_algorithm_t alg,
         TEST_FAIL("Error using the single shot API");
         return;
     }
+#endif
 
     ret->val = TEST_PASSED;
 }
@@ -1441,7 +1402,7 @@ void psa_unsupported_mac_test(const psa_key_type_t key_type,
                               struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_mac_operation_t handle = PSA_MAC_OPERATION_INIT;
     psa_key_attributes_t key_attributes = PSA_KEY_ATTRIBUTES_INIT;
     const uint8_t data[] = "THIS IS MY KEY1";
@@ -1454,21 +1415,21 @@ void psa_unsupported_mac_test(const psa_key_type_t key_type,
     psa_set_key_type(&key_attributes, key_type);
 
     /* Import key */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
     /* Setup the mac object for the unsupported mac algorithm */
-    status = psa_mac_verify_setup(&handle, key_handle, alg);
+    status = psa_mac_verify_setup(&handle, key_id_local, alg);
     if (status != PSA_ERROR_NOT_SUPPORTED) {
         TEST_FAIL("Should not successfully setup an unsupported MAC alg");
         /* Do not return, to ensure key is destroyed */
     }
 
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying the key");
     }
@@ -1506,8 +1467,6 @@ static const uint8_t long_key_hmac_val[PSA_HASH_LENGTH(PSA_ALG_SHA_224)] = {
     0x3d, 0x07, 0x6f, 0x31
 };
 
-#define MAC_TEST_KEY_ID (0x1)
-
 void psa_mac_test(const psa_algorithm_t alg,
                   const uint8_t *key,
                   size_t key_bits,
@@ -1521,7 +1480,7 @@ void psa_mac_test(const psa_algorithm_t alg,
     uint32_t idx, start_idx = 0;
     uint8_t *hmac_res;
 
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_key_type_t key_type = PSA_KEY_TYPE_HMAC;
     psa_status_t status;
     psa_mac_operation_t handle = psa_mac_operation_init();
@@ -1535,18 +1494,17 @@ void psa_mac_test(const psa_algorithm_t alg,
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, key_type);
-    psa_set_key_id(&key_attributes, MAC_TEST_KEY_ID);
 
     /* Import key */
     status = psa_import_key(&key_attributes, key, PSA_BITS_TO_BYTES(key_bits),
-                            &key_handle);
+                            &key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &retrieved_attributes);
+    status = psa_get_key_attributes(key_id_local, &retrieved_attributes);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error getting key metadata");
         goto destroy_key_mac;
@@ -1565,7 +1523,7 @@ void psa_mac_test(const psa_algorithm_t alg,
     psa_reset_key_attributes(&retrieved_attributes);
 
     /* Setup the mac object for hmac */
-    status = psa_mac_verify_setup(&handle, key_handle, alg);
+    status = psa_mac_verify_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting up mac operation object");
         goto destroy_key_mac;
@@ -1600,36 +1558,24 @@ void psa_mac_test(const psa_algorithm_t alg,
         goto destroy_key_mac;
     }
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Do the same as above with the single shot APIs */
-    status = psa_mac_verify(MAC_TEST_KEY_ID, alg,
+    status = psa_mac_verify(key_id_local, alg,
                             (const uint8_t *)msg, strlen(msg),
                             hmac_res,
                             PSA_HASH_LENGTH(PSA_ALG_HMAC_GET_HASH(alg)));
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error using the single shot API");
     }
+#endif
 
 destroy_key_mac:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying the key");
     }
 }
-
-static const uint8_t chacha20_poly1305_ref_encrypted[] = {
-0xae, 0x42, 0xf0, 0xd7, 0x3f, 0x7b, 0xe4, 0xaa,
-0xb7, 0x50, 0xe0, 0xd6, 0x66, 0x12, 0xe8, 0x5f,
-0x27, 0x51, 0x7d, 0xcb, 0x4f, 0x09, 0xd6, 0x98,
-0x83, 0x08, 0xda, 0x16, 0xb7, 0xf4, 0xb7, 0xb0,
-0xda, 0x88, 0xa9, 0xe8, 0xc0, 0x02, 0x62, 0xea,
-0xa6, 0xcd, 0xc2, 0x10, 0x05, 0x17, 0x56, 0x77,
-0xd7, 0xd7, 0x4e, 0xca, 0x7d, 0x96, 0xc1, 0xd1,
-0xd9, 0x46, 0xd8, 0xcd, 0x95, 0xf3, 0x47, 0xd1,
-0x55, 0xb7, 0xbf, 0x7e, 0x5d, 0xfe, 0x52, 0x57,
-0x4a, 0x1a, 0xe1, 0xf5, 0xc8, 0x2a, 0x5b, 0xf8,
-0xdd, 0xc6, 0x71, 0x70
-};
 
 void psa_aead_test(const psa_key_type_t key_type,
                    const psa_algorithm_t alg,
@@ -1640,7 +1586,7 @@ void psa_aead_test(const psa_key_type_t key_type,
     psa_aead_operation_t encop = psa_aead_operation_init();
     psa_aead_operation_t decop = psa_aead_operation_init();
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const size_t nonce_length = 12;
     const uint8_t nonce[] = "01234567890";
     const uint8_t plain_text[MAX_PLAIN_DATA_SIZE_AEAD] =
@@ -1655,6 +1601,9 @@ void psa_aead_test(const psa_key_type_t key_type,
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_attributes_t retrieved_attributes = psa_key_attributes_init();
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[ENC_DEC_BUFFER_SIZE_AEAD] = {0};
+#endif
 
     /* Variables required for multipart operations */
     uint8_t *tag = &encrypted_data[MAX_PLAIN_DATA_SIZE_AEAD];
@@ -1672,14 +1621,14 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     /* Import a key */
     status = psa_import_key(&key_attributes, key, PSA_BITS_TO_BYTES(key_bits),
-                            &key_handle);
+                            &key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_get_key_attributes(key_handle, &retrieved_attributes);
+    status = psa_get_key_attributes(key_id_local, &retrieved_attributes);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error getting key metadata");
         goto destroy_key_aead;
@@ -1697,8 +1646,9 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     psa_reset_key_attributes(&retrieved_attributes);
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
     /* Perform AEAD encryption */
-    status = psa_aead_encrypt(key_handle, alg, nonce, nonce_length,
+    status = psa_aead_encrypt(key_id_local, alg, nonce, nonce_length,
                               associated_data,
                               sizeof(associated_data),
                               plain_text,
@@ -1723,19 +1673,17 @@ void psa_aead_test(const psa_key_type_t key_type,
         goto destroy_key_aead;
     }
 
-    if (key_type == PSA_KEY_TYPE_CHACHA20) {
-        /* Check that the decrypted data is the same as the original data */
-        comp_result = compare_buffers(encrypted_data,
-                                      chacha20_poly1305_ref_encrypted,
-                                      sizeof(encrypted_data));
-        if (comp_result != 0) {
-            TEST_FAIL("Encrypted data does not match reference data");
-            goto destroy_key_aead;
-        }
+    /* Store a copy of the encrypted data for later checking it against
+     * multipart results
+     */
+    if (encrypted_data_length > ENC_DEC_BUFFER_SIZE_AEAD) {
+        TEST_FAIL("Encrypted data length is above the maximum expected value");
+        goto destroy_key_aead;
     }
+    memcpy(encrypted_data_single_shot, encrypted_data, encrypted_data_length);
 
     /* Perform AEAD decryption */
-    status = psa_aead_decrypt(key_handle, alg, nonce, nonce_length,
+    status = psa_aead_decrypt(key_id_local, alg, nonce, nonce_length,
                               associated_data,
                               sizeof(associated_data),
                               encrypted_data,
@@ -1760,15 +1708,15 @@ void psa_aead_test(const psa_key_type_t key_type,
     }
 
     /* Check that the decrypted data is the same as the original data */
-    comp_result = compare_buffers(plain_text, decrypted_data,
-                                  sizeof(plain_text));
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key_aead;
     }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the encryption object */
-    status = psa_aead_encrypt_setup(&encop, key_handle, alg);
+    status = psa_aead_encrypt_setup(&encop, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         /* Implementations using the PSA Crypto Driver APIs, that don't
          * support multipart API flows, will return PSA_ERROR_NOT_SUPPORTED
@@ -1796,7 +1744,7 @@ void psa_aead_test(const psa_key_type_t key_type,
          */
         if (PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(alg) == PSA_ALG_CCM
             && status == PSA_ERROR_NOT_SUPPORTED) {
-            TEST_LOG("psa_aead_set_lengths(): Algorithm NOT SUPPORTED by the"\
+            TEST_LOG("psa_aead_set_lengths(): Algorithm NOT SUPPORTED by the "\
                      "implementation - skip multipart API flow\r\n");
         } else {
             TEST_FAIL("Error setting lengths");
@@ -1887,8 +1835,28 @@ void psa_aead_test(const psa_key_type_t key_type,
     }
     total_encrypted_length += encrypted_data_length;
 
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    /* Compare tag between single part and multipart case */
+    comp_result = memcmp(
+                      &encrypted_data_single_shot[total_encrypted_length],
+                      tag, tag_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot tag does not match with multipart");
+        goto destroy_key_aead;
+    }
+
+    /* Compare encrypted data between single part and multipart case */
+    comp_result = memcmp(
+                      encrypted_data_single_shot,
+                      encrypted_data, total_encrypted_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot encrypted data does not match with multipart");
+        goto destroy_key_aead;
+    }
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+
     /* Setup up the decryption object */
-    status = psa_aead_decrypt_setup(&decop, key_handle, alg);
+    status = psa_aead_decrypt_setup(&decop, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error setting uup AEAD object");
         goto destroy_key_aead;
@@ -1984,15 +1952,14 @@ void psa_aead_test(const psa_key_type_t key_type,
     }
 
     /* Check that the decrypted data is the same as the original data */
-    comp_result = compare_buffers(plain_text, decrypted_data,
-                                  sizeof(plain_text));
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
     }
 
 destroy_key_aead:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
@@ -2036,7 +2003,7 @@ void psa_invalid_key_length_test(struct test_result_t *ret)
 {
     psa_status_t status;
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t data[19] = {0};
 
     if (NR_TEST_AES_MODE < 1) {
@@ -2050,7 +2017,7 @@ void psa_invalid_key_length_test(struct test_result_t *ret)
     psa_set_key_type(&key_attributes, PSA_KEY_TYPE_AES);
 
     /* AES does not support 152-bit keys */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_id_local);
     if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("Should not successfully import with an invalid key length");
         return;
@@ -2105,7 +2072,7 @@ void psa_policy_key_interface_test(struct test_result_t *ret)
         return;
     }
 
-    /* Check the key handle has the correct key lifetime */
+    /* Check the key has the correct key lifetime */
     lifetime_out = psa_get_key_lifetime(&key_attributes);
 
     if (lifetime_out != lifetime) {
@@ -2122,7 +2089,7 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
     psa_algorithm_t alg, not_permit_alg;
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_key_usage_t usage = (PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
     size_t data_len;
     const uint8_t data[] = "THIS IS MY KEY1";
@@ -2164,15 +2131,15 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
     psa_set_key_algorithm(&key_attributes, alg);
     psa_set_key_type(&key_attributes, PSA_KEY_TYPE_AES);
 
-    /* Import a key to the key handle for which policy has been set */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    /* Import the key after having set the policy */
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to import a key");
         return;
     }
 
     /* Setup a cipher permitted by the key policy */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to setup cipher operation");
         goto destroy_key;
@@ -2185,21 +2152,22 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
     }
 
     /* Attempt to setup a cipher with an alg not permitted by the policy */
-    status = psa_cipher_encrypt_setup(&handle, key_handle, not_permit_alg);
+    status = psa_cipher_encrypt_setup(&handle, key_id_local, not_permit_alg);
     if (status != PSA_ERROR_NOT_PERMITTED) {
         TEST_FAIL("Was able to setup cipher operation with wrong alg");
         goto destroy_key;
     }
 
     /* Attempt to export the key, which is forbidden by the key policy */
-    status = psa_export_key(key_handle, data_out, sizeof(data_out), &data_len);
+    status = psa_export_key(key_id_local, data_out,
+                            sizeof(data_out), &data_len);
     if (status != PSA_ERROR_NOT_PERMITTED) {
         TEST_FAIL("Should not be able to export key without correct usage");
         goto destroy_key;
     }
 
 destroy_key:
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to destroy key");
     }
@@ -2209,7 +2177,7 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
 {
     psa_status_t status;
     int comp_result;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_algorithm_t alg = test_aes_mode_array[0];
     psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT;
     psa_key_attributes_t key_attributes = PSA_KEY_ATTRIBUTES_INIT;
@@ -2229,28 +2197,45 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     psa_set_key_type(&key_attributes, PSA_KEY_TYPE_AES);
 
     /* Import key data to create the persistent key */
-    status = psa_import_key(&key_attributes, data, sizeof(data), &key_handle);
+    status = psa_import_key(&key_attributes, data, sizeof(data), &key_id_local);
+#ifdef TFM_PARTITION_INTERNAL_TRUSTED_STORAGE
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to import a key");
         return;
     }
+#else
+    if (status != PSA_ERROR_NOT_SUPPORTED) {
+        TEST_FAIL("When ITS partition is not enabled, \
+                   import should return NOT_SUPPORTED");
+        return;
+    }
+    TEST_LOG("psa_import_key(): ITS partition is not enabled - skip\r\n");
+    ret->val = TEST_PASSED;
+    return;
+#endif /* TFM_PARTITION_INTERNAL_TRUSTED_STORAGE */
 
-    /* Close the persistent key handle */
-    status = psa_close_key(key_handle);
+    if (key_id_local != key_id) {
+        TEST_FAIL("After importing key_id_local and key_id must match");
+        return;
+    }
+
+    /* Close the persistent key through the key ID */
+    status = psa_close_key(key_id_local);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Failed to close a persistent key handle");
+        TEST_FAIL("Failed to close a persistent key");
         return;
     }
 
     /* Open the previsously-created persistent key */
-    status = psa_open_key(key_id, &key_handle);
+    status = psa_open_key(key_id, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to open a persistent key");
         return;
     }
 
     /* Export the persistent key */
-    status = psa_export_key(key_handle, data_out, sizeof(data_out), &data_len);
+    status = psa_export_key(key_id_local, data_out,
+                            sizeof(data_out), &data_len);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to export a persistent key");
         return;
@@ -2262,14 +2247,14 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     }
 
     /* Check that the exported key is the same as the imported one */
-    comp_result = compare_buffers(data_out, data, sizeof(data));
+    comp_result = memcmp(data_out, data, sizeof(data));
     if (comp_result != 0) {
         TEST_FAIL("Exported key does not match the imported key");
         return;
     }
 
     /* Destroy the persistent key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to destroy a persistent key");
         return;
@@ -2286,12 +2271,32 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
 #define KEY_DERIV_RAW_MAX_PEER_LEN 100
 #define KEY_DERIV_RAW_OUTPUT_LEN   48
 
+/* Pair of ECC test keys that are generated using openssl with the following
+ * parameters:
+ *
+ * openssl ecparam -outform der -out test_prime256v1 -name prime256v1 -genkey
+ *
+ */
 /* An example of a 32 bytes / 256 bits ECDSA private key */
 static const uint8_t ecdsa_private_key[] = {
-    0x11, 0xb5, 0x73, 0x7c, 0xf9, 0xd9, 0x3f, 0x17,
-    0xc0, 0xcb, 0x1a, 0x84, 0x65, 0x5d, 0x39, 0x95,
-    0xa0, 0x28, 0x24, 0x09, 0x7e, 0xff, 0xa5, 0xed,
-    0xd8, 0xee, 0x26, 0x38, 0x1e, 0xb5, 0xd6, 0xc3};
+    0xED, 0x8F, 0xAA, 0x23, 0xE2, 0x8B, 0x1F, 0x51,
+    0x63, 0x4F, 0x8E, 0xC9, 0xDC, 0x24, 0x92, 0x0F,
+    0x3D, 0xA1, 0x7B, 0x47, 0x68, 0x38, 0xE3, 0x0D,
+    0x10, 0x4A, 0x6D, 0xA7, 0x2D, 0x48, 0xA4, 0x18
+};
+/* Corresponding public key in uncompressed form, i.e. 0x04 X Y */
+static const uint8_t ecdsa_public_key[] = {
+    0x04, 0x41, 0xC6, 0xFC, 0xC5, 0xA4, 0xBB, 0x70,
+    0x45, 0xA7, 0xB2, 0x5E, 0x50, 0xB3, 0x2E, 0xD0,
+    0x2A, 0x8D, 0xA8, 0x8E, 0x1B, 0x34, 0xC2, 0x71,
+    0x57, 0x38, 0x5C, 0x45, 0xAB, 0xF2, 0x51, 0x7B,
+    0x17, 0x5A, 0xC5, 0x05, 0xA9, 0x9E, 0x4B, 0x7D,
+    0xDD, 0xD7, 0xBF, 0xBB, 0x45, 0x51, 0x92, 0x7D,
+    0x33, 0x33, 0x8B, 0x1B, 0x70, 0x5A, 0xFD, 0x2B,
+    0xF2, 0x7A, 0xA4, 0xBD, 0x37, 0x50, 0xED, 0x34,
+    0x9F
+};
+
 /* Buffer to hold the peer key of the key agreement process */
 static uint8_t raw_agreement_peer_key[KEY_DERIV_RAW_MAX_PEER_LEN] = {0};
 
@@ -2299,14 +2304,12 @@ static uint8_t key_deriv_secret[KEY_DERIV_SECRET_LEN];
 static uint8_t key_deriv_label_info[KEY_DERIV_LABEL_INFO_LEN];
 static uint8_t key_deriv_seed_salt[KEY_DERIV_SEED_SALT_LEN];
 
-#define RAW_AGREEMENT_TEST_KEY_ID (0x1)
-
 void psa_key_agreement_test(psa_algorithm_t deriv_alg,
                             struct test_result_t *ret)
 {
     psa_status_t status;
     psa_key_type_t key_type;
-    psa_key_handle_t input_handle = 0;
+    psa_key_id_t input_key_id_local = PSA_KEY_ID_NULL;
     psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
     uint8_t raw_agreement_output_buffer[KEY_DERIV_RAW_OUTPUT_LEN] = {0};
     size_t raw_agreement_output_size = 0;
@@ -2321,16 +2324,16 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
     psa_set_key_algorithm(&input_key_attr, deriv_alg);
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
-    psa_set_key_id(&input_key_attr, RAW_AGREEMENT_TEST_KEY_ID);
+
     status = psa_import_key(&input_key_attr, ecdsa_private_key,
-                            sizeof(ecdsa_private_key), &input_handle);
+                            sizeof(ecdsa_private_key), &input_key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the private key");
         return;
     }
 
     /* For simplicity, as the peer key use the public part of private key */
-    status = psa_export_public_key(RAW_AGREEMENT_TEST_KEY_ID,
+    status = psa_export_public_key(input_key_id_local,
                                    raw_agreement_peer_key,
                                    KEY_DERIV_RAW_MAX_PEER_LEN,
                                    &public_key_length);
@@ -2340,7 +2343,7 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
     }
 
     status = psa_raw_key_agreement(deriv_alg,
-                                   RAW_AGREEMENT_TEST_KEY_ID,
+                                   input_key_id_local,
                                    raw_agreement_peer_key,
                                    public_key_length,
                                    raw_agreement_output_buffer,
@@ -2359,7 +2362,7 @@ void psa_key_agreement_test(psa_algorithm_t deriv_alg,
     ret->val = TEST_PASSED;
 
 destroy_key:
-    psa_destroy_key(input_handle);
+    psa_destroy_key(input_key_id_local);
 
     return;
 }
@@ -2367,7 +2370,8 @@ destroy_key:
 void psa_key_derivation_test(psa_algorithm_t deriv_alg,
                              struct test_result_t *ret)
 {
-    psa_key_handle_t input_handle = 0, output_handle = 0;
+    psa_key_id_t input_key_id_local = PSA_KEY_ID_NULL,
+                 output_key_id_local = PSA_KEY_ID_NULL;
     psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_attributes_t output_key_attr = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_derivation_operation_t deriv_ops;
@@ -2376,15 +2380,9 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
     psa_key_type_t key_type;
 
     /* Prepare the parameters */
-#if DOMAIN_NS == 1U
     memset(key_deriv_secret, counter, KEY_DERIV_SECRET_LEN);
     memset(key_deriv_label_info, counter++, KEY_DERIV_LABEL_INFO_LEN);
     memset(key_deriv_seed_salt, counter++, KEY_DERIV_SEED_SALT_LEN);
-#else
-    tfm_memset(key_deriv_secret, counter, KEY_DERIV_SECRET_LEN);
-    tfm_memset(key_deriv_label_info, counter++, KEY_DERIV_LABEL_INFO_LEN);
-    tfm_memset(key_deriv_seed_salt, counter++, KEY_DERIV_SEED_SALT_LEN);
-#endif
 
     deriv_ops = psa_key_derivation_operation_init();
 
@@ -2393,7 +2391,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
     key_type = PSA_KEY_TYPE_DERIVE;
     psa_set_key_type(&input_key_attr, key_type);
     status = psa_import_key(&input_key_attr, key_deriv_secret,
-                            KEY_DERIV_SECRET_LEN, &input_handle);
+                            KEY_DERIV_SECRET_LEN, &input_key_id_local);
 
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to import secret");
@@ -2419,7 +2417,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
 
         status = psa_key_derivation_input_key(&deriv_ops,
                                               PSA_KEY_DERIVATION_INPUT_SECRET,
-                                              input_handle);
+                                              input_key_id_local);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Failed to input key");
             goto deriv_abort;
@@ -2445,7 +2443,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
 
         status = psa_key_derivation_input_key(&deriv_ops,
                                               PSA_KEY_DERIVATION_INPUT_SECRET,
-                                              input_handle);
+                                              input_key_id_local);
         if (status != PSA_SUCCESS) {
             TEST_FAIL("Failed to input key");
             goto deriv_abort;
@@ -2476,7 +2474,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
                      PSA_BYTES_TO_BITS(KEY_DERIV_OUTPUT_LEN));
 
     status = psa_key_derivation_output_key(&output_key_attr, &deriv_ops,
-                                           &output_handle);
+                                           &output_key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failed to output key");
         goto deriv_abort;
@@ -2487,9 +2485,9 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
 deriv_abort:
     psa_key_derivation_abort(&deriv_ops);
 destroy_key:
-    psa_destroy_key(input_handle);
-    if (output_handle) {
-        psa_destroy_key(output_handle);
+    psa_destroy_key(input_key_id_local);
+    if (output_key_id_local) {
+        psa_destroy_key(output_key_id_local);
     }
 
     return;
@@ -2553,7 +2551,7 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
                                     struct test_result_t *ret)
 {
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle = 0x0u;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t plain_text[] = "This is a test.";
     uint8_t encrypted_data[PSA_ASYMMETRIC_ENCRYPT_OUTPUT_MAX_SIZE] = {0};
     size_t encrypted_size;
@@ -2582,13 +2580,13 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
         return;
     }
 
-    status = psa_import_key(&key_attributes, key_pair, key_size, &key_handle);
+    status = psa_import_key(&key_attributes, key_pair, key_size, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing a key");
         return;
     }
 
-    status = psa_asymmetric_encrypt(key_handle, alg, plain_text,
+    status = psa_asymmetric_encrypt(key_id_local, alg, plain_text,
                                     sizeof(plain_text), NULL, 0, encrypted_data,
                                     encrypted_size, &encrypted_length);
     if (status != PSA_SUCCESS) {
@@ -2601,7 +2599,7 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
-    status = psa_asymmetric_decrypt(key_handle, alg, encrypted_data,
+    status = psa_asymmetric_decrypt(key_id_local, alg, encrypted_data,
                                     encrypted_size, NULL, 0, decrypted_data,
                                     decrypted_size, &decrypted_length);
     if (status != PSA_SUCCESS) {
@@ -2615,8 +2613,7 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
     }
 
     /* Check that the plain text matches the decrypted data */
-    comp_result = compare_buffers(plain_text, decrypted_data,
-                                  sizeof(plain_text));
+    comp_result = memcmp(plain_text, decrypted_data, sizeof(plain_text));
     if (comp_result != 0) {
         TEST_FAIL("Decrypted data doesn't match with plain text");
         goto destroy_key;
@@ -2625,43 +2622,72 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
     ret->val = TEST_PASSED;
 destroy_key:
     /* Destroy the key */
-    status = psa_destroy_key(key_handle);
+    status = psa_destroy_key(key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error destroying a key");
     }
 }
 
 #define SIGNATURE_BUFFER_SIZE \
-    (PSA_ECDSA_SIGNATURE_SIZE(PSA_VENDOR_ECC_MAX_CURVE_BITS))
-#define SIGNING_TEST_KEY_ID (0x1)
+    (PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key))))
 
 void psa_sign_verify_message_test(psa_algorithm_t alg,
                                   struct test_result_t *ret)
 {
     psa_status_t status = PSA_SUCCESS;
-    psa_key_handle_t key_handle = 0;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     psa_key_type_t key_type;
     psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
     const uint8_t message[] =
         "This is the message that I would like to sign";
     uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
     size_t signature_length = 0;
+    /* The expected format of the public key is uncompressed, i.e. 0x04 X Y */
+    uint8_t ecdsa_pub_key[
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))] = {0};
+    size_t pub_key_length = 0;
+    uint32_t comp_result = 0;
+    uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
+    size_t hash_length = 0;
+
+    /* Initialize to the passing value */
+    ret->val = TEST_PASSED;
 
     /* Set attributes and import key */
     psa_set_key_usage_flags(&input_key_attr,
-        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE);
+        PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE | PSA_KEY_USAGE_EXPORT);
     psa_set_key_algorithm(&input_key_attr, alg);
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
-    psa_set_key_id(&input_key_attr, SIGNING_TEST_KEY_ID);
+
     status = psa_import_key(&input_key_attr, ecdsa_private_key,
-                            sizeof(ecdsa_private_key), &key_handle);
+                            sizeof(ecdsa_private_key), &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the private key");
         return;
     }
 
-    status = psa_sign_message(SIGNING_TEST_KEY_ID, alg,
+    status = psa_export_public_key(key_id_local, ecdsa_pub_key,
+                                   sizeof(ecdsa_pub_key), &pub_key_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Public key export failed!");
+        goto destroy_key;
+    }
+
+    if (pub_key_length !=
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected length for the public key!");
+        goto destroy_key;
+    }
+
+    /* Check that exported key matches the reference key */
+    comp_result = memcmp(ecdsa_pub_key, ecdsa_public_key, pub_key_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Exported ECDSA public key does not match the reference!");
+        goto destroy_key;
+    }
+
+    status = psa_sign_message(key_id_local, alg,
                               message, sizeof(message) - 1,
                               signature, SIGNATURE_BUFFER_SIZE,
                               &signature_length);
@@ -2677,7 +2703,7 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
-    status = psa_verify_message(SIGNING_TEST_KEY_ID, alg,
+    status = psa_verify_message(key_id_local, alg,
                                 message, sizeof(message) - 1,
                                 signature, signature_length);
     if (status != PSA_SUCCESS) {
@@ -2685,10 +2711,189 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
-    ret->val = TEST_PASSED;
-
 destroy_key:
-    psa_destroy_key(key_handle);
+    psa_destroy_key(key_id_local);
+
+    if (ret->val == TEST_FAILED) {
+        return;
+    }
+
+    /* Continue with the dedicated verify hash flow */
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, ecdsa_public_key,
+                            sizeof(ecdsa_public_key), &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the public key");
+        return;
+    }
+
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg),
+                              message, sizeof(message) - 1,
+                              hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hashing step failed!");
+        goto destroy_public_key;
+    }
+
+    if (hash_length != 32) {
+        TEST_FAIL("Unexpected hash length in the hashing step!");
+        goto destroy_public_key;
+    }
+
+    status = psa_verify_hash(key_id_local, alg,
+                             hash, hash_length,
+                             signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification failed in the verify_hash!");
+        goto destroy_public_key;
+    }
+
+destroy_public_key:
+    psa_destroy_key(key_id_local);
 
     return;
 }
+
+#if defined(TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION)
+/* A random RSA key of length 2048 bits. PSA key format is implementation dependent
+ * and our underlying key management interface based on mbed TLS supports only DER
+ * format as described by relevant RFC3447. As we test only the verification path,
+ * the key below is only the (N,E) public part in DER format
+ * */
+static const uint8_t rsa_key_2048[] = {
+0x30, 0x82, 0x01, 0x22, 0x30, 0x0D, 0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01,
+0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0F, 0x00, 0x30, 0x82, 0x01, 0x0A, 0x02, 0x82, 0x01, 0x01,
+0x00, 0xDA, 0x4E, 0x01, 0x18, 0x21, 0x6C, 0xA2, 0xCF, 0xEE, 0xD2, 0xD1, 0x8A, 0x55, 0xE5, 0x2B,
+0x43, 0x02, 0x0F, 0x89, 0xEC, 0xCA, 0xE9, 0x1A, 0x2F, 0x80, 0xCE, 0x7B, 0x42, 0xDD, 0xF9, 0xD2,
+0xF9, 0x7B, 0xA2, 0x17, 0x97, 0x76, 0x3F, 0xE2, 0x97, 0x95, 0x0B, 0xA7, 0x77, 0x21, 0x9D, 0x18,
+0x16, 0x1F, 0xC1, 0x1E, 0x1D, 0xF8, 0xDE, 0xDA, 0x18, 0x98, 0xE2, 0xF5, 0xB0, 0x3D, 0x71, 0xBB,
+0x63, 0x54, 0x36, 0x16, 0xCB, 0x03, 0x72, 0x27, 0xAF, 0x24, 0x66, 0xE9, 0x44, 0x1E, 0xDC, 0x17,
+0x56, 0x2E, 0x97, 0xA4, 0xA0, 0x52, 0xB0, 0x61, 0xEF, 0x9C, 0x10, 0x01, 0x2D, 0x5D, 0x12, 0x60,
+0xA8, 0xA3, 0xEE, 0xEF, 0x22, 0x49, 0xDE, 0xBA, 0xC1, 0x83, 0x6F, 0x0E, 0x38, 0x10, 0x0E, 0x56,
+0x63, 0x6D, 0x6C, 0x44, 0xD7, 0xB1, 0xA5, 0x15, 0xB6, 0x94, 0x1D, 0xAF, 0x5A, 0xE5, 0x1C, 0x10,
+0x8D, 0x05, 0x67, 0x3A, 0x60, 0xBD, 0xE7, 0xCB, 0x60, 0xE0, 0x6A, 0x84, 0x96, 0x3C, 0xDB, 0xA4,
+0x71, 0x93, 0x7C, 0xF4, 0x25, 0x15, 0x32, 0x41, 0x1F, 0x16, 0x72, 0xB3, 0x15, 0xFB, 0x76, 0xA2,
+0x9E, 0x77, 0x69, 0xA3, 0x34, 0x7D, 0x8A, 0x39, 0x38, 0xA8, 0xBA, 0x44, 0xAD, 0x0C, 0x3C, 0x61,
+0x5C, 0x7D, 0xC7, 0xDF, 0x25, 0xEC, 0x0F, 0xC4, 0x4E, 0x81, 0x73, 0xB6, 0xC1, 0x08, 0xE6, 0xB7,
+0xE7, 0xD6, 0xC8, 0x14, 0xCB, 0x6E, 0x4E, 0xA4, 0x1F, 0xD7, 0x29, 0x0D, 0x08, 0x46, 0xC7, 0x2C,
+0xC0, 0x8E, 0x42, 0x0F, 0x49, 0xA5, 0xA6, 0xB0, 0x0E, 0x5D, 0xEC, 0x7A, 0x4A, 0x4E, 0xAE, 0xFA,
+0x1B, 0x5F, 0x77, 0x9F, 0x4A, 0x86, 0x66, 0x47, 0x20, 0xBC, 0x69, 0xF3, 0xD9, 0x63, 0xC1, 0xF8,
+0x84, 0x99, 0x12, 0x67, 0x65, 0xE1, 0x40, 0xAC, 0x42, 0x93, 0x11, 0x97, 0xF3, 0xBB, 0x93, 0xB0,
+0x1B, 0x02, 0x03, 0x01, 0x00, 0x01,
+};
+
+#define SIGNATURE_OUTPUT_SIZE_RSA_2048 \
+    PSA_SIGN_OUTPUT_SIZE(PSA_KEY_TYPE_RSA_KEY_PAIR, 2048, PSA_ALG_RSA_PSS(PSA_ALG_SHA_256))
+
+/*
+ * Signature for the following message:
+ *     const uint8_t message[] = "This is the message that I would like to sign";
+ *
+ * This can be obtained by running psa_sign_message() as follows:
+ *     psa_sign_message(key_id, PSA_ALG_RSA_PSS(PSA_ALG_SHA256),
+ *                      message, sizeof(message) - 1,
+ *                      signature_pss_sha_256,  SIGNATURE_OUTPUT_SIZE_RSA_2048,
+ *                      &signature_length);
+ *
+ * where signature_pss_sha_256 contains the produced signature. The key_id refers here to
+ * the full RSA_KEY_PAIR, while for the verification path we only need to keep the public part.
+ *
+ */
+const uint8_t signature_pss_sha_256[] = {
+0x47, 0xB5, 0x85, 0x1D, 0xE2, 0xD8, 0xFC, 0xC2, 0x69, 0x22, 0x33, 0x9C, 0xB2, 0xBA, 0x69, 0x87,
+0xD1, 0x9C, 0x67, 0xEE, 0xE6, 0x48, 0x27, 0xD2, 0x07, 0xA3, 0x19, 0x2E, 0x43, 0xFD, 0xCE, 0xCA,
+0xE7, 0x63, 0xB4, 0xC0, 0x02, 0x4D, 0x61, 0x69, 0xAA, 0x4A, 0xF7, 0xB9, 0x80, 0xC3, 0x53, 0x78,
+0x5D, 0xC3, 0xA4, 0x0C, 0xC3, 0x67, 0x2F, 0xB7, 0xBD, 0x73, 0xF4, 0x58, 0x95, 0x16, 0x97, 0x45,
+0xA1, 0x4F, 0x3F, 0xB1, 0x44, 0x08, 0x57, 0x0A, 0x87, 0xDE, 0x3F, 0xF1, 0x3A, 0xC9, 0x24, 0xE6,
+0xA6, 0xEB, 0x22, 0xE9, 0xC9, 0x8F, 0x7E, 0x65, 0x30, 0x36, 0x35, 0x62, 0x06, 0xDF, 0xBE, 0x1D,
+0xA4, 0x1C, 0x42, 0x3D, 0xAB, 0x22, 0x01, 0xDD, 0x86, 0x3D, 0x81, 0x12, 0xF5, 0x5B, 0x16, 0xFD,
+0xF2, 0xFE, 0x7D, 0x90, 0x60, 0x3A, 0x70, 0xCB, 0xAB, 0xE5, 0x3F, 0xA5, 0x83, 0x42, 0xD5, 0x42,
+0x18, 0x00, 0x5E, 0xC1, 0x4F, 0x7E, 0x3A, 0xCD, 0x42, 0xA2, 0x16, 0x40, 0xCD, 0xE6, 0xC6, 0xBC,
+0xDD, 0xBA, 0x11, 0xA5, 0xA9, 0x31, 0xE1, 0x3F, 0xCB, 0x92, 0x3B, 0x5D, 0xE4, 0xB1, 0xD1, 0x3A,
+0x5F, 0xE4, 0xCB, 0x3B, 0x61, 0xD7, 0x83, 0xCB, 0x9A, 0x7B, 0xA7, 0x71, 0x60, 0x90, 0x13, 0xC0,
+0x27, 0x2D, 0xD4, 0xF4, 0x32, 0xC5, 0x80, 0xEA, 0x7E, 0xA7, 0xE8, 0x74, 0x97, 0x14, 0xC3, 0xCE,
+0x15, 0x84, 0x5E, 0x09, 0x63, 0x08, 0xDA, 0x19, 0xB5, 0x27, 0x9F, 0xEE, 0xE4, 0xCE, 0x08, 0x5B,
+0x9E, 0x95, 0xCA, 0xC8, 0xC1, 0x54, 0xEE, 0x69, 0xB8, 0x25, 0xB9, 0xE6, 0xCD, 0x1C, 0x4B, 0x4E,
+0xA2, 0x69, 0xC2, 0xE7, 0x91, 0xA7, 0xA6, 0x5C, 0x55, 0x6A, 0xAA, 0xE9, 0x91, 0x4F, 0x0D, 0x05,
+0x7E, 0x49, 0x19, 0xF4, 0xE9, 0xE5, 0xB4, 0x3E, 0x5C, 0x5E, 0xFB, 0x28, 0x23, 0xE7, 0x27, 0xAE,
+};
+
+/* A test case dedicated to RSASSA-PSA VERIFY operation */
+void psa_verify_rsassa_pss_test(struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_id_t key_id = PSA_KEY_ID_NULL;
+    psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const psa_algorithm_t alg = PSA_ALG_RSA_PSS(PSA_ALG_SHA_256);
+    uint8_t hash[32] = {0};
+    size_t hash_length = 0;
+
+    const uint8_t message[] =
+        "This is the message that I would like to sign";
+
+    /* Set attributes and import key */
+    /* The verify_hash flag enables automatically verify_message as well */
+    psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&key_attr, alg);
+    psa_set_key_type(&key_attr, PSA_KEY_TYPE_RSA_PUBLIC_KEY);
+
+    status = psa_import_key(&key_attr,
+                            (const uint8_t *)rsa_key_2048,
+                            sizeof(rsa_key_2048),
+                            &key_id);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    if (sizeof(signature_pss_sha_256) != SIGNATURE_OUTPUT_SIZE_RSA_2048) {
+        TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    status = psa_verify_message(key_id, alg,
+                                message, sizeof(message) - 1,
+                                signature_pss_sha_256, sizeof(signature_pss_sha_256));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification failed in the verify_message!");
+        goto destroy_key;
+    }
+
+    /* Try the same verification, but this time split the hash calculation in a
+     * separate API call. This is useful for those protocols that require to
+     * treat the hashing in a special way (i.e. special seeding), or need to do
+     * hashing in multipart. For simplicity here we just use single-part hashing
+     */
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg),
+                              message, sizeof(message) - 1,
+                              hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hashing step failed!");
+        goto destroy_key;
+    }
+
+    if (hash_length != 32) {
+        TEST_FAIL("Unexpected hash length in the hashing step!");
+        goto destroy_key;
+    }
+
+    status = psa_verify_hash(key_id, alg,
+                             hash, hash_length,
+                             signature_pss_sha_256, sizeof(signature_pss_sha_256));
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification failed in the verify_hash!");
+        goto destroy_key;
+    }
+    ret->val = TEST_PASSED;
+
+destroy_key:
+    psa_destroy_key(key_id);
+
+    return;
+}
+#endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */

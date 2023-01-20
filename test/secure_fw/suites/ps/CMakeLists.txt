@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,7 +30,6 @@ if (TEST_NS_PS)
     target_compile_definitions(tfm_test_suite_ps_ns
         PRIVATE
             DOMAIN_NS=1
-            PS_MAX_ASSET_SIZE=${PS_MAX_ASSET_SIZE}
 
         INTERFACE
             TEST_NS_PS
@@ -38,6 +37,7 @@ if (TEST_NS_PS)
 
     target_link_libraries(tfm_test_suite_ps_ns
         PRIVATE
+            tfm_config
             tfm_test_framework_ns
             platform_region_defs
             tfm_test_suite_its_ns
@@ -59,12 +59,10 @@ if (TEST_S_PS)
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
     )
 
-if (NOT FORWARD_PROT_MSG)
     target_sources(tfm_app_rot_partition_ps
         PRIVATE
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/nv_counters/test_ps_nv_counters.c>
     )
-endif()
 
     target_include_directories(tfm_test_suite_ps_s
         PUBLIC
@@ -74,8 +72,6 @@ endif()
     )
 
     target_compile_definitions(tfm_test_suite_ps_s
-        PRIVATE
-            PS_MAX_ASSET_SIZE=${PS_MAX_ASSET_SIZE}
         INTERFACE
             TEST_S_PS
     )
@@ -85,7 +81,7 @@ endif()
             tfm_test_framework_s
             platform_region_defs
             tfm_app_rot_partition_ps
-            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_ps_test>
+            tfm_psa_rot_partition_ps_test
             tfm_spm
             platform_s
     )

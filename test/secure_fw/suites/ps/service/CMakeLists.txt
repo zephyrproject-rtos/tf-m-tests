@@ -20,14 +20,12 @@ target_sources(tfm_psa_rot_partition_ps_test
 # The generated sources
 target_sources(tfm_psa_rot_partition_ps_test
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ps_test_service/auto_generated/intermedia_tfm_ps_test_service.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ps_test_service/auto_generated/intermedia_tfm_ps_test_service.c
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ps_test_service/auto_generated/load_info_tfm_ps_test_service.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ps_test_service/auto_generated/load_info_tfm_ps_test_service.c
 )
 
 # Set include directory
@@ -45,8 +43,7 @@ target_include_directories(tfm_partitions
 
 target_link_libraries(tfm_psa_rot_partition_ps_test
     PRIVATE
-        tfm_secure_api
-        psa_interface
+        tfm_sprt
         platform_s
         tfm_app_rot_partition_ps
 )
