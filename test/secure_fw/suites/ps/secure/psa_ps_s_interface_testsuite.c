@@ -270,7 +270,7 @@ static void tfm_ps_test_1004(struct test_result_t *ret)
 
     /* Set with data length longer than the maximum supported */
     status = psa_ps_set(uid, data_len, write_data, flags);
-    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("Set should not succeed with invalid data length");
         return;
     }
@@ -614,12 +614,12 @@ static void tfm_ps_test_1009(struct test_result_t *ret)
      * maximum permitted, it is treated as a secure violation.
      * TF-M framework rejects the request with a proper error code.
      * The PS secure PSA PS implementation returns
-     * PSA_ERROR_PROGRAMMER_ERROR in that case.
+     * PSA_ERROR_INVALID_ARGUMENT in that case.
      */
 
     status = psa_ps_get(uid, offset, read_len, read_data + HALF_PADDING_SIZE,
                         &read_data_len);
-    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("Get should not succeed with invalid arguments");
         return;
     }
@@ -832,13 +832,13 @@ static void tfm_ps_test_1014(struct test_result_t *ret)
     /* A parameter with a null pointer is treated as a secure violation.
      * TF-M framework rejects the request with a proper error code.
      * The PS secure PSA PS implementation returns
-     * PSA_ERROR_PROGRAMMER_ERROR in that case.
+     * PSA_ERROR_GENERIC_ERROR in that case.
      */
 
     /* Get info with NULL info pointer */
 #ifndef TFM_PSA_API
     status = psa_ps_get_info(uid, NULL);
-    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("Get info should not succeed with NULL info pointer");
         return;
     }
