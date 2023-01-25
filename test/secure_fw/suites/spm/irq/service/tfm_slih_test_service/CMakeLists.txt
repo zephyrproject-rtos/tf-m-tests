@@ -18,11 +18,9 @@ target_sources(tfm_app_rot_partition_slih_test
 # The generated sources
 target_sources(tfm_app_rot_partition_slih_test
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_slih_test_service/auto_generated/intermedia_tfm_slih_test_service.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_slih_test_service/auto_generated/intermedia_tfm_slih_test_service.c
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_slih_test_service/auto_generated/load_info_tfm_slih_test_service.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_slih_test_service/auto_generated/load_info_tfm_slih_test_service.c
 )
 
 target_include_directories(tfm_app_rot_partition_slih_test
@@ -33,11 +31,9 @@ target_include_directories(tfm_app_rot_partition_slih_test
 
 target_link_libraries(tfm_app_rot_partition_slih_test
     PRIVATE
-        psa_interface
         tfm_sprt
         spm_test_service_common
         platform_s
-        tfm_secure_api
 )
 
 target_link_libraries(tfm_spm

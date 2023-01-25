@@ -15,7 +15,7 @@
 /* Define test suite for attestation service tests */
 /* List of tests */
 static void tfm_attest_test_2001(struct test_result_t *ret);
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
+#ifdef INCLUDE_TEST_CODE
 static void tfm_attest_test_2002(struct test_result_t *ret);
 static void tfm_attest_test_2003(struct test_result_t *ret);
 static void tfm_attest_test_2004(struct test_result_t *ret);
@@ -25,7 +25,7 @@ static void tfm_attest_test_2005(struct test_result_t *ret);
 static struct test_t attestation_interface_tests[] = {
     {&tfm_attest_test_2001, "TFM_S_ATTEST_TEST_2001",
      "Symmetric key algorithm based Initial Attestation test"},
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
+#ifdef INCLUDE_TEST_CODE
     {&tfm_attest_test_2002, "TFM_S_ATTEST_TEST_2002",
      "Minimal token test of attest token"},
     {&tfm_attest_test_2003, "TFM_S_ATTEST_TEST_2003",
@@ -67,7 +67,7 @@ static void tfm_attest_test_2001(struct test_result_t *ret)
     ret->val = TEST_PASSED;
 }
 
-#ifdef INCLUDE_TEST_CODE /* Remove them from release build */
+#ifdef INCLUDE_TEST_CODE
 /*!
  * \brief Get minimal token, only include a hard coded challenge, but omit the
  *        rest of the claims

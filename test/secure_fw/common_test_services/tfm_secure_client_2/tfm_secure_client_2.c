@@ -9,12 +9,8 @@
 #include "psa/internal_trusted_storage.h"
 #include "psa/crypto.h"
 
-#ifdef TFM_PSA_API
 #include "psa/service.h"
 #include "psa_manifest/tfm_secure_client_2.h"
-#else
-#include "psa/client.h"
-#endif
 
 #ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
 /* Define the global variable for the TFM_SECURE_CLIENT_2_SID service. */
@@ -22,7 +18,7 @@ uint8_t secure_client_2_data;
 uint8_t *secure_client_2_data_p = &secure_client_2_data;
 #endif
 
-#if defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG)
+#if defined(TFM_PARTITION_CRYPTO)
 /**
  * \brief Tests calling psa_destroy_key() with the supplied key handle.
  *
@@ -45,9 +41,9 @@ static psa_status_t secure_client_2_test_crypto_access_ctrl(const void *arg,
     /* Attempt to destroy the key handle */
     return psa_destroy_key(key_handle);
 }
-#endif /* defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG) */
+#endif /* defined(TFM_PARTITION_CRYPTO) */
 
-#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG)
+#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE)
 /**
  * \brief Tests calling psa_its_get() with the supplied uid.
  *
@@ -72,7 +68,7 @@ static psa_status_t secure_client_2_test_its_access_ctrl(const void *arg,
     /* Attempt to get one byte from the UID and return the resulting status */
     return psa_its_get(uid, 0, sizeof(data), data, &p_data_length);
 }
-#endif /* defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG) */
+#endif /* defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) */
 
 #ifdef TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM
 /**
@@ -107,11 +103,11 @@ static psa_status_t secure_client_2_dispatch(int32_t id, const void *arg,
                                              size_t arg_len)
 {
     switch (id) {
-#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE) || defined(FORWARD_PROT_MSG)
+#if defined(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE)
     case TFM_SECURE_CLIENT_2_ID_ITS_ACCESS_CTRL:
         return secure_client_2_test_its_access_ctrl(arg, arg_len);
 #endif
-#if defined(TFM_PARTITION_CRYPTO) || defined(FORWARD_PROT_MSG)
+#if defined(TFM_PARTITION_CRYPTO)
     case TFM_SECURE_CLIENT_2_ID_CRYPTO_ACCESS_CTRL:
         return secure_client_2_test_crypto_access_ctrl(arg, arg_len);
 #endif
@@ -120,7 +116,6 @@ static psa_status_t secure_client_2_dispatch(int32_t id, const void *arg,
     }
 }
 
-#ifdef TFM_PSA_API
 #define SECURE_CLIENT_2_MAX_ARG_LEN 8U
 
 static psa_status_t tfm_secure_client_2_handle_msg(const psa_msg_t *msg)
@@ -170,26 +165,3 @@ psa_status_t tfm_secure_client_2_sfn(const psa_msg_t* msg)
 }
 
 #endif /* TFM_SP_SECURE_CLIENT_2_MODEL_IPC == 1 */
-
-#else /* TFM_PSA_API */
-psa_status_t tfm_secure_client_2_init(void)
-{
-    return PSA_SUCCESS;
-}
-
-psa_status_t tfm_secure_client_2_call(psa_invec *in_vec, size_t in_len,
-                                      psa_outvec *out_vec, size_t out_len)
-{
-    int32_t id;
-
-    (void)out_vec;
-
-    if (in_len != 2 || out_len != 0 || in_vec[0].len != sizeof(id)) {
-        return PSA_ERROR_PROGRAMMER_ERROR;
-    }
-
-    id = *((int32_t *)in_vec[0].base);
-
-    return secure_client_2_dispatch(id, in_vec[1].base, in_vec[1].len);
-}
-#endif /* TFM_PSA_API */

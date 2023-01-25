@@ -17,14 +17,12 @@ target_sources(tfm_app_rot_partition_ipc_client
 # The generated sources
 target_sources(tfm_app_rot_partition_ipc_client
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_client/auto_generated/intermedia_tfm_ipc_client_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_client/auto_generated/intermedia_tfm_ipc_client_test.c
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_client/auto_generated/load_info_tfm_ipc_client_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_client/auto_generated/load_info_tfm_ipc_client_test.c
 )
 
 # Set include directory
@@ -43,8 +41,7 @@ target_include_directories(tfm_partitions
 
 target_link_libraries(tfm_app_rot_partition_ipc_client
     PRIVATE
-        tfm_secure_api
-        psa_interface
+        tfm_sprt
         platform_s
 )
 
@@ -69,5 +66,4 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_partition_defs
     INTERFACE
         TFM_PARTITION_TEST_CORE_IPC
-        $<$<AND:$<BOOL:${TEST_S_IPC}>,$<VERSION_EQUAL:${TFM_ISOLATION_LEVEL},3>>:TFM_IPC_ISOLATION_3_RETRIEVE_APP_MEM>
 )

@@ -1,5 +1,7 @@
 #-------------------------------------------------------------------------------
 # Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+# or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -7,7 +9,7 @@
 
 # Since the main test directory is a NS dir, this subdir is specifically made a
 # secure directory as it build the secure side tests and services
-if (TFM_MULTI_CORE_TOPOLOGY)
+if (EXISTS ${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
     include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload.cmake)
     tfm_toolchain_reload_compiler()
 endif()
@@ -19,20 +21,19 @@ set(TEST_SERVICE_INC_INSTALL_DIR ${TFM_INSTALL_PATH}/interface/include/test_serv
 
 # Test services are also required by some NS regression tests.
 # Include test services at first no matter whether secure tests are enabled.
-add_subdirectory(suites/core/service)
-add_subdirectory(suites/spm/ipc/service)
-add_subdirectory(suites/spm/sfn/service)
-add_subdirectory(suites/spm/irq/service)
-add_subdirectory(suites/ps/service)
-add_subdirectory(suites/fpu/service)
+add_subdirectory(suites/spm/ipc/service ${CMAKE_BINARY_DIR}/tf-m-tests/ipc_srv)
+add_subdirectory(suites/spm/sfn/service ${CMAKE_BINARY_DIR}/tf-m-tests/sfn_srv)
+add_subdirectory(suites/spm/irq/service ${CMAKE_BINARY_DIR}/tf-m-tests/irq_srv)
+add_subdirectory(suites/ps/service ${CMAKE_BINARY_DIR}/tf-m-tests/ps_srv)
+add_subdirectory(suites/fpu/service ${CMAKE_BINARY_DIR}/tf-m-tests/fpu_srv)
 
 if (NOT TEST_FRAMEWORK_S)
     return()
 endif()
 
 # secure test services are required if any secure test is opened
-add_subdirectory(common_test_services/tfm_secure_client_service)
-add_subdirectory(common_test_services/tfm_secure_client_2)
+add_subdirectory(common_test_services/tfm_secure_client_service ${CMAKE_BINARY_DIR}/tf-m-tests/secure_client_srv)
+add_subdirectory(common_test_services/tfm_secure_client_2 ${CMAKE_BINARY_DIR}/tf-m-tests/secure_client_2_srv)
 
 add_library(tfm_test_framework_s INTERFACE)
 add_library(tfm_s_tests INTERFACE)
@@ -41,7 +42,7 @@ target_link_libraries(tfm_test_framework_s
     INTERFACE
         psa_interface
         tfm_test_framework_common
-        tfm_sp_log_raw
+        tfm_sprt
 )
 
 target_compile_definitions(tfm_test_framework_s
@@ -81,9 +82,6 @@ endif()
 if (TEST_S_PS)
     add_library(tfm_test_suite_ps_s STATIC EXCLUDE_FROM_ALL)
 endif()
-if (TEST_S_AUDIT)
-    add_library(tfm_test_suite_audit_s STATIC EXCLUDE_FROM_ALL)
-endif()
 if (TEST_S_PLATFORM)
     add_library(tfm_test_suite_platform_s STATIC EXCLUDE_FROM_ALL)
 endif()
@@ -96,6 +94,6 @@ endif()
 if (TEST_S_FPU)
     add_library(tfm_test_suite_fpu_s STATIC EXCLUDE_FROM_ALL)
 endif()
-if (EXTRA_S_TEST_SUITES_PATHS)
+if (EXTRA_S_TEST_SUITE_PATH)
     add_library(tfm_test_suite_extra_s STATIC EXCLUDE_FROM_ALL)
 endif()

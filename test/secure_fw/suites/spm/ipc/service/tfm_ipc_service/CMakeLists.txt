@@ -18,16 +18,14 @@ target_sources(tfm_psa_rot_partition_ipc_service
 # The generated sources
 target_sources(tfm_psa_rot_partition_ipc_service
     PRIVATE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/intermedia_tfm_ipc_service_test.c
         $<$<BOOL:${PSA_FRAMEWORK_HAS_MM_IOVEC}>:
             ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_mmiovec_test_service.c>
 )
 
 target_sources(tfm_partitions
     INTERFACE
-        $<$<BOOL:${TFM_PSA_API}>:
-            ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/load_info_tfm_ipc_service_test.c>
+        ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service/auto_generated/load_info_tfm_ipc_service_test.c
 )
 
 # Set include directory
@@ -45,8 +43,6 @@ target_include_directories(tfm_partitions
 
 target_link_libraries(tfm_psa_rot_partition_ipc_service
     PRIVATE
-        tfm_secure_api
-        psa_interface
         platform_s
         tfm_sprt
         spm_test_service_common
@@ -73,5 +69,4 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_partition_defs
     INTERFACE
         TFM_PARTITION_TEST_CORE_IPC
-        $<$<VERSION_GREATER:${TFM_ISOLATION_LEVEL},1>:TFM_IPC_ISOLATION_2_TEST_READ_ONLY_MEM>
 )

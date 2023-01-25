@@ -42,8 +42,6 @@ target_include_directories(tfm_app_rot_partition_sfn_backend_test
 
 target_link_libraries(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
-        tfm_secure_api
-        psa_interface
         platform_s
         tfm_sprt
         spm_test_service_common

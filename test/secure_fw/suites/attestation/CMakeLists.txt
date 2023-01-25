@@ -18,7 +18,6 @@ if (TEST_NS_ATTESTATION)
 
     target_sources(tfm_test_suite_attestation_ns
         PRIVATE
-            attest_public_key.c
             attest_token_test.c
             attest_token_decode_common.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
@@ -39,7 +38,7 @@ if (TEST_NS_ATTESTATION)
     target_compile_definitions(tfm_test_suite_attestation_ns
         PRIVATE
             DOMAIN_NS=1
-            $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
+            $<$<BOOL:${ATTEST_INCLUDE_TEST_CODE}>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
         INTERFACE
             TEST_NS_ATTESTATION
@@ -67,7 +66,6 @@ endif()
 if (TEST_S_ATTESTATION)
     target_sources(tfm_test_suite_attestation_s
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/attest_public_key.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
             ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
             ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
@@ -87,7 +85,7 @@ if (TEST_S_ATTESTATION)
 
     target_compile_definitions(tfm_test_suite_attestation_s
         PRIVATE
-            $<$<CONFIG:Debug>:INCLUDE_TEST_CODE>
+            $<$<BOOL:${ATTEST_INCLUDE_TEST_CODE}>:INCLUDE_TEST_CODE>
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
         INTERFACE
             TEST_S_ATTESTATION
@@ -105,7 +103,7 @@ if (TEST_S_ATTESTATION)
             tfm_test_framework_s
             tfm_attestation_defs
             tfm_boot_status
-            $<$<NOT:$<BOOL:${FORWARD_PROT_MSG}>>:tfm_psa_rot_partition_crypto>
+            tfm_psa_rot_partition_crypto
             platform_s
     )
 

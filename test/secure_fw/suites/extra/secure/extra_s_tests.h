@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+ * or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,15 +14,7 @@
 extern "C" {
 #endif
 
-#include "extra_tests_common.h"
 #include "test_framework.h"
-
-/**
- * \brief Entry function used for extra secure test.
- *
- * \param[out] ret Returns error code as specified in \ref test_result_t.
- */
-void extra_s_tests_entry(struct test_result_t *ret);
 
 /**
  * \brief Register testsuite for the extra secure test.
