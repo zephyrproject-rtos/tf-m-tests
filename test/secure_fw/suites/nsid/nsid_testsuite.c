@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -204,12 +204,8 @@ static void tfm_nsid_test_case_5(struct test_result_t *ret)
     token_a = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id);
     token_b = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id + 1);
 
-    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX) || \
-        token_b != MAKE_NS_CLIENT_TOKEN(thread_id + 1, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX)) {
+    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, VALID_GROUP_ID, VALID_INDEX) ||
+        token_b != MAKE_NS_CLIENT_TOKEN((thread_id + 1), VALID_GROUP_ID, VALID_INDEX)) {
         TEST_FAIL("ACQUIRE shall return a valid token\r\n");
         nsid_test_case_finish(ret);
         return;
@@ -267,12 +263,8 @@ static void tfm_nsid_test_case_6(struct test_result_t *ret)
     token_a = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id);
     token_b = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id + 1);
 
-    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, \
-                                        VALID_GROUP_ID,
-                                        VALID_INDEX) || \
-        token_b != MAKE_NS_CLIENT_TOKEN(thread_id + 1, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX)) {
+    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, VALID_GROUP_ID, VALID_INDEX) ||
+        token_b != MAKE_NS_CLIENT_TOKEN((thread_id + 1), VALID_GROUP_ID, VALID_INDEX)) {
         TEST_FAIL("ACQUIRE shall return a valid token\r\n");
         nsid_test_case_finish(ret);
         return;
@@ -466,12 +458,8 @@ static void tfm_nsid_test_case_11(struct test_result_t *ret)
     token_a = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id);
     token_b = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id + 1);
 
-    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX) || \
-        token_b != MAKE_NS_CLIENT_TOKEN(thread_id + 1, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX)) {
+    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, VALID_GROUP_ID, VALID_INDEX) ||
+        token_b != MAKE_NS_CLIENT_TOKEN((thread_id + 1), VALID_GROUP_ID, VALID_INDEX)) {
         TEST_FAIL("ACQUIRE shall return a valid token\r\n");
         nsid_test_case_finish(ret);
         return;
@@ -894,12 +882,8 @@ static void tfm_nsid_test_case_20(struct test_result_t *ret)
     token_a = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id);
     token_b = nsid_acquire_ctx_svc(VALID_GROUP_ID, thread_id + 1);
 
-    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX) || \
-        token_b != MAKE_NS_CLIENT_TOKEN(thread_id + 1, \
-                                        VALID_GROUP_ID, \
-                                        VALID_INDEX)) {
+    if (token_a != MAKE_NS_CLIENT_TOKEN(thread_id, VALID_GROUP_ID, VALID_INDEX) ||
+        token_b != MAKE_NS_CLIENT_TOKEN((thread_id + 1), VALID_GROUP_ID, VALID_INDEX)) {
         TEST_FAIL("ACQUIRE shall return a valid token\r\n");
         nsid_test_case_finish(ret);
         return;
