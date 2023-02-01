@@ -12,7 +12,7 @@
 #ifndef __ATTEST_TOKEN_TEST_VALUES_H__
 #define __ATTEST_TOKEN_TEST_VALUES_H__
 
-#include "config_attest.h"
+#include "config_tfm.h"
 
 /**
  * \file attest_token_test_values.h

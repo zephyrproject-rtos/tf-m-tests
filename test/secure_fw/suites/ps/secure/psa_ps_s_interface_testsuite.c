@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "config_ps.h"
+#include "config_tfm.h"
 #include "s_test_helpers.h"
 #include "psa/protected_storage.h"
 #include "test_framework_helpers.h"
