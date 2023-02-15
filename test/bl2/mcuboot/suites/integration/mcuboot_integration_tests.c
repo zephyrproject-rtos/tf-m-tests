@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -239,13 +239,13 @@ static void tfm_mcuboot_integration_test_0001(struct test_result_t *ret)
         return;
     }
 
+    test_image_idx = (original_image_idx + 1) % 2;
+
     rc = read_image_header(original_image_idx, &hdr);
     if (rc) {
         TEST_FAIL("Failed to read image header");
         goto out;
     }
-
-    test_image_idx = (original_image_idx + 1) % 2;
 
     /* Increasing the version both causes the image to boot preferentially and
      * also invalidates the signature
@@ -258,7 +258,7 @@ static void tfm_mcuboot_integration_test_0001(struct test_result_t *ret)
         goto out;
     }
 
-    rc = fih_int_decode(boot_go(&rsp));
+    (void)boot_go(&rsp);
     if (memcmp(rsp.br_hdr, &hdr, sizeof(struct image_header)) == 0) {
         TEST_FAIL("Invalid image boot succeeded");
         goto out;
