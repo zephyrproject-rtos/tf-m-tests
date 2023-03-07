@@ -38,7 +38,7 @@ target_sources(erpc_server
         ${ERPC_REPO_PATH}/erpc_c/setup/erpc_server_setup.cpp
         # Generated files
         ${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_client_api_server.cpp
-        $<$<BOOL:${CONFIG_TFM_CONNECTION_BASED_SERVICE_API}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_connection_api_server.cpp>
+        ${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_connection_api_server.cpp
 )
 
 target_include_directories(erpc_server
@@ -56,9 +56,4 @@ target_link_libraries(erpc_server
     PUBLIC
         tfm_api_ns
         platform_ns # UART driver header and target config
-)
-
-target_compile_definitions(erpc_server
-    PUBLIC
-        $<$<BOOL:${CONFIG_TFM_CONNECTION_BASED_SERVICE_API}>:CONFIG_TFM_CONNECTION_BASED_SERVICE_API=1>
 )

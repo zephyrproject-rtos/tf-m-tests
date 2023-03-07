@@ -52,7 +52,7 @@ target_sources(erpc_client
         ${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_mbf_dynamic.cpp
         # Generated files
         ${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_client_api_client.cpp
-        $<$<BOOL:${CONFIG_TFM_CONNECTION_BASED_SERVICE_API}>:${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_connection_api_client.cpp>
+        ${CMAKE_CURRENT_SOURCE_DIR}/../generated_files/tfm_erpc_psa_connection_api_client.cpp
 )
 
 target_include_directories(erpc_client
