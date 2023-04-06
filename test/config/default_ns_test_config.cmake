@@ -5,10 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-########################## NS test framework ###################################
-
-set(TEST_FRAMEWORK_NS       ON        CACHE BOOL      "Whether to build NS regression tests framework")
-
 ########################## NS test suites ######################################
 
 set(TEST_NS_ATTESTATION     ON        CACHE BOOL      "Whether to build NS regression Attestation tests")

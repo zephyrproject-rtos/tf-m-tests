@@ -5,10 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-########################## NS test framework ###################################
-
-set(TEST_FRAMEWORK_NS       OFF        CACHE BOOL      "Whether to build NS regression tests framework")
-
 ########################## NS test suites ######################################
 
 set(TEST_NS_ATTESTATION     OFF        CACHE BOOL      "Whether to build NS regression Attestation tests")
@@ -26,10 +22,6 @@ set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regr
 set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
 set(TEST_NS_SFN_BACKEND     OFF        CACHE BOOL      "Whether to build NS regression SFN backend tests")
 set(TEST_NS_FPU             OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
-
-########################## S test framework ####################################
-
-set(TEST_FRAMEWORK_S        OFF        CACHE BOOL      "Whether to build S regression tests framework")
 
 ########################## S test suites #######################################
 

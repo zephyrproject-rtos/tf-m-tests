@@ -18,7 +18,7 @@ if (EXISTS ${TARGET_PLATFORM_PATH}/preload_ns.cmake)
     tfm_toolchain_reload_compiler()
 endif()
 
-if (TEST_FRAMEWORK_NS)
+if(TFM_NS_REG_TEST AND NS)
     add_library(tfm_ns_tests INTERFACE)
     add_library(tfm_test_framework_ns INTERFACE)
 
@@ -52,7 +52,7 @@ if (TEST_FRAMEWORK_NS)
             $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
     )
 else()
-    # Skip building NS regresstion test suites if TEST_FRAMEWORK_NS is OFF.
+    # Skip building NS regresstion test suites if NS is OFF.
     # NS test flags are kept to select corresponding test services. They are
     # unset here to skip building NS regression test suites.
     get_cmake_property(CACHE_VARS CACHE_VARIABLES)
@@ -81,7 +81,7 @@ add_subdirectory(nsid)
 add_subdirectory(fpu)
 add_subdirectory(spm)
 
-if (TFM_FUZZER_TOOL_TESTS AND TEST_FRAMEWORK_NS)
+if(TFM_FUZZER_TOOL_TESTS AND TFM_NS_REG_TEST AND NS)
     if (NOT DEFINED TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH)
         # The location of the file needs to be defined either from command line
         # or from config cmake file.

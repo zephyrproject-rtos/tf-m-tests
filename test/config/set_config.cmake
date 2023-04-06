@@ -59,40 +59,6 @@ if (CONFIG_TFM_FLOAT_ABI STREQUAL "soft")
     set(TEST_NS_FPU                      OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
 endif()
 
-########################## Test framework sync #################################
-
-get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-
-if (NS)
-    # Force TEST_FRAMEWORK_NS ON if single NS test ON
-    foreach(CACHE_VAR ${CACHE_VARS})
-        string(REGEX MATCH "^TEST_NS_.*" _NS_TEST_FOUND "${CACHE_VAR}")
-        if (_NS_TEST_FOUND AND "${${CACHE_VAR}}")
-            set(TEST_FRAMEWORK_NS       ON        CACHE BOOL      "Whether to build NS regression tests framework")
-            break()
-        endif()
-    endforeach()
-endif()
-
-# Force TEST_FRAMEWORK_S ON if single S test ON
-foreach(CACHE_VAR ${CACHE_VARS})
-    string(REGEX MATCH "^TEST_S_.*" _S_TEST_FOUND "${CACHE_VAR}")
-    if (_S_TEST_FOUND AND "${${CACHE_VAR}}")
-        set(TEST_FRAMEWORK_S        ON        CACHE BOOL      "Whether to build S regression tests framework")
-        break()
-    endif()
-endforeach()
-
-########################## Extra test suites ###################################
-
-if (EXTRA_NS_TEST_SUITE_PATH)
-    set(TEST_FRAMEWORK_NS           ON        CACHE BOOL      "Whether to build NS regression tests framework")
-endif()
-
-if (EXTRA_S_TEST_SUITE_PATH)
-    set(TEST_FRAMEWORK_S            ON        CACHE BOOL      "Whether to build S regression tests framework")
-endif()
-
 ########################## Test profile ########################################
 
 if (TFM_PROFILE)
@@ -137,13 +103,6 @@ if (TEST_S)
     include(${TFM_TEST_PATH}/config/default_s_test_config.cmake)
 endif()
 if (TEST_NS)
-    if (NOT NS)
-        # In this case, TEST_NS is used to configure corresponding test secure
-        # services during SPE build alone.
-        # Disable TEST_FRAMEWORK_NS if NS is OFF as NS test framework shall
-        # run inside NS environment
-        set(TEST_FRAMEWORK_NS       OFF        CACHE BOOL      "Whether to build NS regression tests framework")
-    endif()
     include(${TFM_TEST_PATH}/config/default_ns_test_config.cmake)
 endif()
 

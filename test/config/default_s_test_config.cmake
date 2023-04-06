@@ -5,10 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-########################## S test framework ####################################
-
-set(TEST_FRAMEWORK_S        ON        CACHE BOOL      "Whether to build S regression tests framework")
-
 ########################## S test suites #######################################
 
 set(TEST_S_ATTESTATION      ON        CACHE BOOL      "Whether to build S regression Attestation tests")

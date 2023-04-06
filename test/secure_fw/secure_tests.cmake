@@ -27,7 +27,7 @@ add_subdirectory(suites/spm/irq/service ${CMAKE_BINARY_DIR}/tf-m-tests/irq_srv)
 add_subdirectory(suites/ps/service ${CMAKE_BINARY_DIR}/tf-m-tests/ps_srv)
 add_subdirectory(suites/fpu/service ${CMAKE_BINARY_DIR}/tf-m-tests/fpu_srv)
 
-if (NOT TEST_FRAMEWORK_S)
+if (NOT TFM_S_REG_TEST)
     return()
 endif()
 

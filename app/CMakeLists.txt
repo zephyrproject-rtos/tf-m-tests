@@ -275,7 +275,7 @@ target_include_directories(tfm_test_app
 
 target_link_libraries(tfm_test_app
     PRIVATE
-        $<$<BOOL:${TEST_FRAMEWORK_NS}>:tfm_ns_tests>
+        $<$<BOOL:${TFM_NS_REG_TEST}>:tfm_ns_tests>
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
@@ -286,8 +286,7 @@ target_link_libraries(tfm_test_app
 
 target_compile_definitions(tfm_test_app
     PRIVATE
-        $<$<BOOL:${TEST_FRAMEWORK_NS}>:TEST_FRAMEWORK_NS>
-        $<$<BOOL:${TEST_FRAMEWORK_S}>:TEST_FRAMEWORK_S>
+        $<$<BOOL:${TFM_NS_REG_TEST}>:TFM_NS_REG_TEST>
         $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
 

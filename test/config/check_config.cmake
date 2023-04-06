@@ -22,9 +22,6 @@ tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)
 
-# So far all NS regression tests are triggered from NS app
-tfm_invalid_config(NOT NS AND TEST_FRAMEWORK_NS)
-
 ########################## Check suites dependence #############################
 
 tfm_invalid_config(TEST_NS_PS AND NOT TEST_NS_ITS)
