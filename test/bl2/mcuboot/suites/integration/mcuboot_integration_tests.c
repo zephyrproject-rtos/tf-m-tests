@@ -156,9 +156,11 @@ static int test_setup(int *original_image_idx)
         } else {
             return 0;
         }
-    } else if (hdr_1.ih_magic == IMAGE_MAGIC) {
+    } else if ((hdr_1.ih_magic == IMAGE_MAGIC) &&
+               !(hdr_1.ih_flags & (IMAGE_F_ENCRYPTED_AES128 | IMAGE_F_ENCRYPTED_AES256))) {
         /* Else copy slot 1 to slot 0. We assume that one of the slots has a
-         * valid image.
+         * valid image, but if image is valid but encrypted , it cannot be
+         * recopied in primary slot.
          */
         *original_image_idx = 1;
         rc = copy_image_to_slot(1, 0);
@@ -168,7 +170,7 @@ static int test_setup(int *original_image_idx)
             return 0;
         }
     } else {
-        /* No valid images are loaded, error */
+        /* No valid unencrypted images are loaded, error */
         return 1;
     }
 }
