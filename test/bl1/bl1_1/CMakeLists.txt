@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,7 +28,7 @@ target_include_directories(bl1_1_tests
 target_link_libraries(bl1_1_tests
     PRIVATE
         tfm_test_framework_common
-        platform_bl1
+        platform_bl1_1
         bl1_1_shared_lib
         tfm_log
         bl1_1_test_suite_crypto

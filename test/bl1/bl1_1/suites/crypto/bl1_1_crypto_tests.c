@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -170,7 +170,7 @@ static void tfm_bl1_crypto_test_2003(struct test_result_t *ret)
 }
 
 struct aes256_ctr_test_vector_t {
-    enum tfm_bl1_key_id_t key_id;
+    uint8_t *key;
     uint8_t iv[CTR_IV_LEN];
     char*   plaintext;
     size_t  len;
@@ -197,8 +197,8 @@ static void aes_256_vector_test(struct test_result_t *ret,
 
         memcpy(counter, vec->iv, CTR_IV_LEN);
 
-        rc = bl1_aes_256_ctr_decrypt(vec->key_id, counter,
-                                     (const uint8_t *)vec->ciphertext,
+        rc = bl1_aes_256_ctr_decrypt(TFM_BL1_KEY_USER, vec->key,
+                                     counter, (const uint8_t *)vec->ciphertext,
                                      vec->len, plaintext_out);
         if (rc) {
             free(plaintext_out);
@@ -229,7 +229,7 @@ static void aes_256_vector_test(struct test_result_t *ret,
 
 static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0x83, 0xc2, 0xee, 0x4b, 0x86, 0x5d, 0x67, 0x7, 0xc8, 0xeb, 0x21, 0xca,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -259,7 +259,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0xd4, 0xa7, 0x1e, 0xde, 0x56, 0x62, 0x4, 0x7e, }),
     },
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0x8, 0xf8, 0x74, 0xab, 0x1, 0xd1, 0x13, 0x87, 0x9, 0x61, 0x51, 0xc6,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -289,7 +289,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0xe4, 0xd3, 0x36, 0xe1, 0xf1, 0xd3, 0x79, 0x61, }),
     },
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0xf9, 0xa4, 0x7d, 0xa6, 0x4, 0x90, 0x17, 0xf1, 0x43, 0x2e, 0xd8, 0xdc,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -321,7 +321,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0x68, 0x3d, 0xa8, 0x91, 0xc5, 0x86, 0xf8, 0x3b, }),
     },
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0xa5, 0x8c, 0xfa, 0xa, 0x42, 0xe0, 0x5d, 0xc4, 0x9d, 0xcc, 0xda, 0xa,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -351,7 +351,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0x86, 0x9c, 0xbc, 0x1, 0x45, 0xdd, 0x2, 0xa, }),
     },
     {
-        TFM_BL1_KEY_TEST_2,
+        tfm_bl1_key_test_2_buf,
         {0x50, 0xf1, 0x3f, 0x47, 0xe3, 0x14, 0x8b, 0x55, 0xa, 0x1a, 0xd7, 0x6,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -381,7 +381,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0x8b, 0xc, 0x4c, 0xe8, 0xed, 0x33, 0xf2, 0xf7, }),
     },
     {
-        TFM_BL1_KEY_TEST_2,
+        tfm_bl1_key_test_2_buf,
         {0x42, 0xc0, 0x5e, 0xa1, 0x79, 0xd4, 0x98, 0xa0, 0xfe, 0xdb, 0xb8, 0x80,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -411,7 +411,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0xa0, 0x3c, 0xe, 0x62, 0xf4, 0xd6, 0xba, 0x5, }),
     },
     {
-        TFM_BL1_KEY_TEST_2,
+        tfm_bl1_key_test_2_buf,
         {0x68, 0x3a, 0x92, 0xf7, 0xfc, 0xdb, 0x82, 0xb4, 0xcb, 0x8f, 0x3b, 0x88,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -441,7 +441,7 @@ static const struct aes256_ctr_test_vector_t test_2011_vectors[] = {
          0xac, 0xbf, 0x3d, 0x1e, 0x3e, 0xb9, 0x7e, 0x38, }),
     },
     {
-        TFM_BL1_KEY_TEST_2,
+        tfm_bl1_key_test_2_buf,
         {0x0, 0xd2, 0x52, 0xd0, 0x1b, 0x44, 0x6f, 0x69, 0x3a, 0x1c, 0x18, 0x7,
          0x0, 0x0, 0x0, 0x0, },
         (char *)((uint8_t[])
@@ -494,7 +494,7 @@ static void tfm_bl1_crypto_test_2012(struct test_result_t *ret)
 
     memcpy(counter, vec->iv, CTR_IV_LEN);
 
-    rc = bl1_aes_256_ctr_decrypt(vec->key_id, counter,
+    rc = bl1_aes_256_ctr_decrypt(TFM_BL1_KEY_USER, vec->key, counter,
                                  NULL,
                                  vec->len, plaintext_out);
     if (rc == 0) {
@@ -503,7 +503,7 @@ static void tfm_bl1_crypto_test_2012(struct test_result_t *ret)
         return;
     }
 
-    rc = bl1_aes_256_ctr_decrypt(vec->key_id, NULL,
+    rc = bl1_aes_256_ctr_decrypt(TFM_BL1_KEY_USER, vec->key, NULL,
                                  (const uint8_t *)vec->ciphertext,
                                  vec->len, plaintext_out);
     if (rc == 0) {
@@ -527,7 +527,7 @@ static void tfm_bl1_crypto_test_2013(struct test_result_t *ret)
 
     memcpy(counter, vec->iv, CTR_IV_LEN);
 
-    rc = bl1_aes_256_ctr_decrypt(vec->key_id, counter,
+    rc = bl1_aes_256_ctr_decrypt(TFM_BL1_KEY_USER, vec->key, counter,
                                  (const uint8_t *)vec->ciphertext,
                                  vec->len, NULL);
     if (rc == 0) {
@@ -541,7 +541,7 @@ static void tfm_bl1_crypto_test_2013(struct test_result_t *ret)
 
 static const struct aes256_ctr_test_vector_t test_2014_vectors[] = {
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
          0xff, 0xff, 0xff, 0xff, },
         (char *)((uint8_t[])
@@ -594,7 +594,7 @@ static void tfm_bl1_crypto_test_2015(struct test_result_t *ret)
 
     memcpy(counter, vec->iv, CTR_IV_LEN);
 
-    rc = bl1_aes_256_ctr_decrypt(-1, counter,
+    rc = bl1_aes_256_ctr_decrypt(-1, NULL, counter,
                                  (const uint8_t *)vec->ciphertext,
                                  vec->len, plaintext_out);
     if (rc == 0) {
@@ -603,7 +603,7 @@ static void tfm_bl1_crypto_test_2015(struct test_result_t *ret)
         return;
     }
 
-    rc = bl1_aes_256_ctr_decrypt(tfm_bl1_key_max, counter,
+    rc = bl1_aes_256_ctr_decrypt(TFM_BL1_KEY_USER + 1, NULL, counter,
                                  (const uint8_t *)vec->ciphertext,
                                  vec->len, plaintext_out);
     if (rc == 0) {
@@ -620,7 +620,7 @@ static void tfm_bl1_crypto_test_2015(struct test_result_t *ret)
 
 static const struct aes256_ctr_test_vector_t test_2016_vectors[] = {
     {
-        TFM_BL1_KEY_TEST_1,
+        tfm_bl1_key_test_1_buf,
         {0x68, 0x3a, 0x92, 0xf7, 0xfc, 0xdb, 0x82, 0xb4, 0xcb, 0x8f, 0x3b, 0x88,
          0x0, 0x0, 0x0, 0x0, },
         NULL,
