@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -62,7 +62,9 @@ static void tfm_crypto_test_1031(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_GCM */
 static void tfm_crypto_test_1032(struct test_result_t *ret);
 static void tfm_crypto_test_1033(struct test_result_t *ret);
+#ifdef TFM_INTERNAL_TRUSTED_STORAGE_SERVICE
 static void tfm_crypto_test_1034(struct test_result_t *ret);
+#endif /* TFM_INTERNAL_TRUSTED_STORAGE_SERVICE */
 static void tfm_crypto_test_1035(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1036(struct test_result_t *ret);
@@ -176,8 +178,10 @@ static struct test_t crypto_tests[] = {
      "Secure key policy interface"},
     {&tfm_crypto_test_1033, "TFM_S_CRYPTO_TEST_1033",
      "Secure key policy check permissions"},
+#ifdef TFM_INTERNAL_TRUSTED_STORAGE_SERVICE
     {&tfm_crypto_test_1034, "TFM_S_CRYPTO_TEST_1034",
      "Secure persistent key interface"},
+#endif /* TFM_INTERNAL_TRUSTED_STORAGE_SERVICE */
     {&tfm_crypto_test_1035, "TFM_S_CRYPTO_TEST_1035",
      "Key access control"},
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
@@ -410,10 +414,12 @@ static void tfm_crypto_test_1033(struct test_result_t *ret)
     psa_policy_invalid_policy_usage_test(ret);
 }
 
+#ifdef TFM_INTERNAL_TRUSTED_STORAGE_SERVICE
 static void tfm_crypto_test_1034(struct test_result_t *ret)
 {
     psa_persistent_key_test(1, ret);
 }
+#endif /* TFM_INTERNAL_TRUSTED_STORAGE_SERVICE */
 
 /**
  * \brief Tests key access control based on partition ID
