@@ -2086,7 +2086,7 @@ void psa_policy_key_interface_test(struct test_result_t *ret)
 void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_algorithm_t alg, not_permit_alg;
+    psa_algorithm_t alg = PSA_ALG_NONE, not_permit_alg = PSA_ALG_NONE;
     psa_cipher_operation_t handle = psa_cipher_operation_init();
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
     psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
@@ -2121,7 +2121,7 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
         }
     }
 
-    if (j == NR_TEST_AES_MODE) {
+    if (alg == PSA_ALG_NONE || not_permit_alg == PSA_ALG_NONE) {
         TEST_LOG("Unable to find two Cipher algs. Skip this test case.\r\n");
         return;
     }
