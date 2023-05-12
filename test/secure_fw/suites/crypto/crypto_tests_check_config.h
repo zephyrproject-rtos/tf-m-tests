@@ -70,6 +70,11 @@
 #error "TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION enabled, but RSA-PSS algorithm is not defined!"
 #endif
 
+#if defined(PSA_WANT_ALG_SHA_1)
+#undef TFM_CRYPTO_TEST_UNSUPPORTED_ALG
+#warning "SHA_1 algorithm is defined, disable TFM_CRYPTO_TEST_UNSUPPORTED_ALG!"
+#endif
+
 #endif /* MBEDTLS_PSA_CRYPTO_CONFIG_FILE */
 
 #endif /* __CRYPTO_TESTS_CHECK_CONFIG_H__ */

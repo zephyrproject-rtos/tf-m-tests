@@ -55,6 +55,7 @@ set(TFM_CRYPTO_TEST_CHACHA20                    OFF      CACHE BOOL      "Test t
 set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305       OFF      CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")
 set(TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION ON       CACHE BOOL      "Test RSASSA-PSS signature verification algorithm")
 set(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS           ON       CACHE BOOL      "Test single-part operations in hash, MAC, AEAD and symmetric ciphers")
+set(TFM_CRYPTO_TEST_UNSUPPORTED_ALG             ON       CACHE BOOL      "Test unsupported algorithm in hash, MAC")
 
 ################################## FWU Tests ###################################
 
