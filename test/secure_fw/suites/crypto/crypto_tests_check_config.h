@@ -40,6 +40,10 @@
 #error "TFM_CRYPTO_TEST_ALG_GCM enabled, but GCM mode is not defined!"
 #endif
 
+#if defined(TFM_CRYPTO_TEST_ALG_SHA_224) && !defined(PSA_WANT_ALG_SHA_224)
+#error "TFM_CRYPTO_TEST_ALG_SHA_224 enabled, but SHA-224 algorithm is not defined!"
+#endif
+
 #if defined(TFM_CRYPTO_TEST_ALG_SHA_384) && !defined(PSA_WANT_ALG_SHA_384)
 #error "TFM_CRYPTO_TEST_ALG_SHA_384 enabled, but SHA-384 algorithm is not defined!"
 #endif

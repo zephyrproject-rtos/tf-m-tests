@@ -31,7 +31,9 @@ static void tfm_crypto_test_1009(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_UNSUPPORTED_ALG
 static void tfm_crypto_test_1010(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_UNSUPPORTED_ALG */
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
 static void tfm_crypto_test_1011(struct test_result_t *ret);
+#endif
 static void tfm_crypto_test_1012(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_SHA_384
 static void tfm_crypto_test_1013(struct test_result_t *ret);
@@ -49,7 +51,9 @@ static void tfm_crypto_test_1021(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_SHA_512
 static void tfm_crypto_test_1022(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_SHA_512 */
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
 static void tfm_crypto_test_1024(struct test_result_t *ret);
+#endif
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1030(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CCM */
@@ -128,8 +132,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1010, "TFM_S_CRYPTO_TEST_1010",
      "Secure Unsupported Hash (SHA-1) interface"},
 #endif /* TFM_CRYPTO_TEST_UNSUPPORTED_ALG */
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
     {&tfm_crypto_test_1011, "TFM_S_CRYPTO_TEST_1011",
      "Secure Hash (SHA-224) interface"},
+#endif
     {&tfm_crypto_test_1012, "TFM_S_CRYPTO_TEST_1012",
      "Secure Hash (SHA-256) interface"},
 #ifdef TFM_CRYPTO_TEST_ALG_SHA_384
@@ -154,8 +160,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1022, "TFM_S_CRYPTO_TEST_1022",
      "Secure HMAC (SHA-512) interface"},
 #endif /* TFM_CRYPTO_TEST_ALG_SHA_512 */
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
     {&tfm_crypto_test_1024, "TFM_S_CRYPTO_TEST_1024",
      "Secure HMAC with long key (SHA-224) interface"},
+#endif
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
     {&tfm_crypto_test_1030, "TFM_S_CRYPTO_TEST_1030",
      "Secure AEAD (AES-128-CCM) interface"},
@@ -312,10 +320,12 @@ static void tfm_crypto_test_1010(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_UNSUPPORTED_ALG */
 
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
 static void tfm_crypto_test_1011(struct test_result_t *ret)
 {
     psa_hash_test(PSA_ALG_SHA_224, ret);
 }
+#endif
 
 static void tfm_crypto_test_1012(struct test_result_t *ret)
 {
@@ -366,11 +376,13 @@ static void tfm_crypto_test_1022(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_SHA_512 */
 
+#ifdef TFM_CRYPTO_TEST_ALG_SHA_224
 static void tfm_crypto_test_1024(struct test_result_t *ret)
 {
     psa_mac_test(PSA_ALG_HMAC(PSA_ALG_SHA_224),
                  test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
 }
+#endif
 
 #ifdef TFM_CRYPTO_TEST_ALG_CCM
 static void tfm_crypto_test_1030(struct test_result_t *ret)

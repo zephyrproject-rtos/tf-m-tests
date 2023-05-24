@@ -47,6 +47,7 @@ set(TFM_CRYPTO_TEST_ALG_ECB                     ON       CACHE BOOL      "Test E
 set(TFM_CRYPTO_TEST_ALG_CTR                     ON       CACHE BOOL      "Test CTR cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_OFB                     ON       CACHE BOOL      "Test OFB cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_GCM                     ON       CACHE BOOL      "Test GCM cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_SHA_224                 ON       CACHE BOOL      "Test SHA-224 cryptography algorithm")
 set(TFM_CRYPTO_TEST_ALG_SHA_384                 ON       CACHE BOOL      "Test SHA-384 cryptography algorithm")
 set(TFM_CRYPTO_TEST_ALG_SHA_512                 ON       CACHE BOOL      "Test SHA-512 cryptography algorithm")
 set(TFM_CRYPTO_TEST_HKDF                        ON       CACHE BOOL      "Test the HKDF key derivation algorithm")
