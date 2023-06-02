@@ -13,7 +13,7 @@ static struct test_t psa_its_ns_tests[] = {
     {&tfm_its_test_common_001, "TFM_NS_ITS_TEST_1001",
      "Set interface"},
     {&tfm_its_test_common_002, "TFM_NS_ITS_TEST_1002",
-     "Set interface with create flags"},
+     "Set interface with create flags and get latest set flag"},
     {&tfm_its_test_common_003, "TFM_NS_ITS_TEST_1003",
      "Set interface with NULL data pointer"},
     {&tfm_its_test_common_004, "TFM_NS_ITS_TEST_1004",
@@ -48,6 +48,8 @@ static struct test_t psa_its_ns_tests[] = {
      "Multiple sets to same UID from same thread"},
     {&tfm_its_test_common_019, "TFM_NS_ITS_TEST_1019",
      "Set, get and remove interface with different asset sizes"},
+    {&tfm_its_test_common_020, "TFM_NS_ITS_TEST_1020",
+     "Set with asset size that exceeds the maximum"},
 };
 
 void register_testsuite_ns_psa_its_interface(struct test_suite_t *p_test_suite)

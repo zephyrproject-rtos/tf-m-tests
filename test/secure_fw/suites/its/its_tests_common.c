@@ -97,6 +97,7 @@ void tfm_its_test_common_002(struct test_result_t *ret)
     const psa_storage_create_flags_t flags = PSA_STORAGE_FLAG_NONE;
     const size_t data_len = WRITE_DATA_SIZE;
     const uint8_t write_data[] = WRITE_DATA;
+    struct psa_storage_info_t info = {0};
 
     /* Set with no flags */
     status = psa_its_set(WRITE_ONCE_UID, data_len, write_data, flags);
@@ -112,6 +113,19 @@ void tfm_its_test_common_002(struct test_result_t *ret)
             TEST_FAIL("Set should not fail with valid flags (existing UID)");
             return;
         }
+
+        status = psa_its_get_info(WRITE_ONCE_UID, &info);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Failed to get info.");
+            return;
+        }
+
+        /* Ensure that the latest set flag is returned */
+        if (info.flags != PSA_STORAGE_FLAG_WRITE_ONCE) {
+            TEST_FAIL("Failed to return most recent flag set.");
+            return;
+        }
+
     } else if (status == PSA_ERROR_NOT_PERMITTED) {
         /* The UID has already been created with the PSA_STORAGE_FLAG_WRITE_ONCE
          * flag in a previous test run, so skip creating it again and emit a
@@ -1000,6 +1014,20 @@ void tfm_its_test_common_019(struct test_result_t *ret)
             TEST_FAIL("Remove should not fail with valid UID");
             return;
         }
+    }
+
+    ret->val = TEST_PASSED;
+}
+
+void tfm_its_test_common_020(struct test_result_t *ret)
+{
+    psa_status_t status;
+    const uint8_t write_data[ITS_MAX_ASSET_SIZE + 1] = {0};
+
+    status = psa_its_set(TEST_UID_1, ITS_MAX_ASSET_SIZE + 1, write_data, PSA_STORAGE_FLAG_NONE);
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+        TEST_FAIL("Setting UID with size exceeding maximum did not return error");
+        return;
     }
 
     ret->val = TEST_PASSED;

@@ -21,7 +21,7 @@ static struct test_t psa_its_s_tests[] = {
     {&tfm_its_test_common_001, "TFM_S_ITS_TEST_1001",
      "Set interface"},
     {&tfm_its_test_common_002, "TFM_S_ITS_TEST_1002",
-     "Set interface with create flags"},
+     "Set interface with create flags and get latest set flag"},
     {&tfm_its_test_common_003, "TFM_S_ITS_TEST_1003",
      "Set interface with NULL data pointer"},
     {&tfm_its_test_common_004, "TFM_S_ITS_TEST_1004",
@@ -56,6 +56,8 @@ static struct test_t psa_its_s_tests[] = {
      "Multiple sets to same UID from same thread"},
     {&tfm_its_test_common_019, "TFM_S_ITS_TEST_1019",
      "Set, get and remove interface with different asset sizes"},
+    {&tfm_its_test_common_020, "TFM_S_ITS_TEST_1020",
+     "Set with asset size that exceeds the maximum"},
     {&tfm_its_test_1020, "TFM_S_ITS_TEST_1023",
      "Attempt to get a UID set by a different partition"},
 };
