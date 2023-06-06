@@ -1525,6 +1525,11 @@ void psa_mac_test(const psa_algorithm_t alg,
     /* Setup the mac object for hmac */
     status = psa_mac_verify_setup(&handle, key_id_local, alg);
     if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+            goto destroy_key_mac;
+        }
+
         TEST_FAIL("Error setting up mac operation object");
         goto destroy_key_mac;
     }
@@ -1858,7 +1863,7 @@ void psa_aead_test(const psa_key_type_t key_type,
     /* Setup up the decryption object */
     status = psa_aead_decrypt_setup(&decop, key_id_local, alg);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error setting uup AEAD object");
+        TEST_FAIL("Error setting up AEAD object");
         goto destroy_key_aead;
     }
 
@@ -2973,6 +2978,11 @@ void psa_verify_rsassa_pss_test(struct test_result_t *ret)
                                 message, sizeof(message) - 1,
                                 signature_pss_sha_256, sizeof(signature_pss_sha_256));
     if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+            goto destroy_key;
+        }
+
         TEST_FAIL("Signature verification failed in the verify_message!");
         goto destroy_key;
     }
