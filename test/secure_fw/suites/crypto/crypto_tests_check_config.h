@@ -12,7 +12,7 @@
 #include MBEDTLS_PSA_CRYPTO_CONFIG_FILE
 
 #if defined(TFM_CRYPTO_TEST_ALG_CBC) && \
-    (!defined(PSA_WANT_ALG_CBC_NO_PADDING) || !defined(PSA_WANT_ALG_CBC_PKCS7))
+    (!defined(PSA_WANT_ALG_CBC_NO_PADDING) && !defined(PSA_WANT_ALG_CBC_PKCS7))
 #error "TFM_CRYPTO_TEST_ALG_CBC enabled, but CBC mode is not defined!"
 #endif
 
