@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -232,12 +232,21 @@ void tfm_its_test_common_018(struct test_result_t *ret);
 void tfm_its_test_common_019(struct test_result_t *ret);
 
 /**
-* \brief Tests set function with:
-*        - Invalid set length exceeds ITS_MAX_ASSET_SIZE
-*
-* \param[out] ret  Test result
-*/
+ * \brief Tests set function with:
+ *       - Invalid set length exceeds ITS_MAX_ASSET_SIZE
+ *
+ * \param[out] ret  Test result
+ */
 void tfm_its_test_common_020(struct test_result_t *ret);
+
+/**
+ * \brief Tests get function:
+ *        - Null data length pointer
+ *        - data size greater than 0
+ *
+ * \param[out] ret  Test result
+ */
+void tfm_its_test_common_021(struct test_result_t *ret);
 
 #ifdef __cplusplus
 }

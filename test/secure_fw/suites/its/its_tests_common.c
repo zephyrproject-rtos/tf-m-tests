@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -1027,6 +1027,35 @@ void tfm_its_test_common_020(struct test_result_t *ret)
     status = psa_its_set(TEST_UID_1, ITS_MAX_ASSET_SIZE + 1, write_data, PSA_STORAGE_FLAG_NONE);
     if (status != PSA_ERROR_INVALID_ARGUMENT) {
         TEST_FAIL("Setting UID with size exceeding maximum did not return error");
+        return;
+    }
+
+    ret->val = TEST_PASSED;
+}
+
+void tfm_its_test_common_021(struct test_result_t *ret)
+{
+    const psa_storage_uid_t uid = TEST_UID_2;
+    const size_t data_len = WRITE_DATA_SIZE;
+    const uint8_t write_data[] = WRITE_DATA;
+    uint8_t read_data[] = READ_DATA;
+
+    psa_status_t status = psa_its_set(uid, data_len, write_data, PSA_STORAGE_FLAG_NONE);
+     if (status != PSA_SUCCESS) {
+        TEST_FAIL("Failed to set UID");
+        return;
+    }
+
+    status = psa_its_get(uid, 0, 1, read_data + HALF_PADDING_SIZE, NULL);
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+        TEST_FAIL("Get with null pointer and size greater than 0 "
+                  "Should return error PSA_ERROR_INVALID_ARGUMENT");
+        return;
+    }
+
+    status = psa_its_remove(uid);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Remove should not fail with valid UID");
         return;
     }
 
