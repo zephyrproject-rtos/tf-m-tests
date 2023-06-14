@@ -1011,7 +1011,11 @@ void psa_cipher_test(const psa_key_type_t key_type,
                                 &output_length);
 
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error encrypting with the single-shot API");
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error encrypting with the single-shot API");
+        }
         goto destroy_key;
     }
 
