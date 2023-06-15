@@ -35,6 +35,7 @@ target_link_libraries(tfm_test_suite_nsid
     PRIVATE
         tfm_test_framework_ns
         platform_ns
+        tfm_test_broker
 )
 
 target_link_libraries(tfm_ns_tests

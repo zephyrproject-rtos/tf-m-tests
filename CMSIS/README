@@ -1,5 +1,6 @@
 The source codes under this folder are copied from:
 https://github.com/ARM-software/CMSIS_5.git, tag 5.5.0, without modifications.
+Only CMakeLists.txt file is added for TF-M test build purpose.
 
 The prebuilt libraries have two versions:
  - v5.5.0 for ARMCLANG and GCC compilers

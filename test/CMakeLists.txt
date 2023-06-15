@@ -7,22 +7,22 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-add_library(tfm_test_framework_common INTERFACE)
+add_library(tfm_test_framework_common STATIC)
 
 target_sources(tfm_test_framework_common
-    INTERFACE
+    PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework.c
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_helpers.c
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_integ_test_helper.c
 )
 
 target_include_directories(tfm_test_framework_common
-    INTERFACE
+    PUBLIC
         framework
 )
 
 target_link_libraries(tfm_test_framework_common
-    INTERFACE
+    PUBLIC
         tfm_log_interface
 )
 
