@@ -69,7 +69,7 @@ target_link_libraries(tfm_partitions
         tfm_app_rot_partition_secure_client_2
 )
 
-target_compile_definitions(tfm_partition_defs
+target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_TEST_SECURE_SERVICES
 )

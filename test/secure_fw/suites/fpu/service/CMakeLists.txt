@@ -61,7 +61,7 @@ target_link_libraries(tfm_partitions
         tfm_app_rot_partition_fpu_service
 )
 
-target_compile_definitions(tfm_partition_defs
+target_compile_definitions(tfm_config
     INTERFACE
         TEST_PARTITION_FPU_TEST
 )

@@ -56,7 +56,7 @@ target_link_libraries(tfm_partitions
         tfm_app_rot_partition_flih_test
 )
 
-target_compile_definitions(tfm_partition_defs
+target_compile_definitions(tfm_config
     INTERFACE
         $<$<BOOL:${TEST_NS_FLIH_IRQ}>:TEST_NS_FLIH_IRQ>
 )

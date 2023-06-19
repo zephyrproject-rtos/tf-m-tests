@@ -43,7 +43,7 @@ if(TFM_NS_REG_TEST AND NS)
     target_link_libraries(tfm_ns_tests
         INTERFACE
             tfm_test_framework_ns
-            tfm_partition_defs
+            tfm_config
     )
 
     target_compile_definitions(tfm_ns_tests

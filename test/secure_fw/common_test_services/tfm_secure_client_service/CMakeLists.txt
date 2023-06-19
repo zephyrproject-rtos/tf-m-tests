@@ -58,7 +58,7 @@ target_link_libraries(tfm_partitions
         tfm_psa_rot_partition_secure_client_service
 )
 
-target_compile_definitions(tfm_partition_defs
+target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_TEST_SECURE_SERVICES
 )

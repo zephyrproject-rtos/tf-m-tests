@@ -63,7 +63,7 @@ target_link_libraries(tfm_partitions
         tfm_app_rot_partition_ipc_client
 )
 
-target_compile_definitions(tfm_partition_defs
+target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_TEST_CORE_IPC
 )

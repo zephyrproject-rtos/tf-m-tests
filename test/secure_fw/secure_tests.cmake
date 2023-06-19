@@ -58,7 +58,7 @@ target_sources(tfm_s_tests
 target_link_libraries(tfm_s_tests
     INTERFACE
         tfm_test_framework_s
-        tfm_partition_defs
+        tfm_config
         tfm_spm
 )
 
