@@ -40,7 +40,7 @@ target_link_libraries(tfm_ns_tests
         tfm_test_suite_multi_core_ns
 )
 
-target_compile_definitions(tfm_ns_interface
-    INTERFACE
+target_compile_definitions(tfm_api_ns
+    PUBLIC
         TFM_MULTI_CORE_TEST
 )

@@ -31,7 +31,6 @@ if(TFM_NS_REG_TEST AND NS)
         INTERFACE
             tfm_test_framework_common
             tfm_api_ns
-            tfm_ns_interface
             tfm_log
     )
 

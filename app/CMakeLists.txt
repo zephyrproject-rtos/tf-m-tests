@@ -37,34 +37,33 @@ set(NS_INTERFACE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../ns_interface)
 # nsid_manager
 set(NSID_MGR_DIR         ${NS_INTERFACE_DIR}/ns_client_ext)
 
-#################### TF-M NS interface (header only) ###########################
-
-add_library(tfm_ns_interface INTERFACE)
+############################# TF-M NS interface #####################################
+add_library(tfm_api_ns STATIC)
 
 # Include interface headers exported by TF-M
-target_include_directories(tfm_ns_interface
-    INTERFACE
+target_include_directories(tfm_api_ns
+    PUBLIC
         ${INTERFACE_INC_DIR}
         ${CMAKE_BINARY_DIR}/generated/interface/include
         $<$<BOOL:${TFM_PARTITION_NS_AGENT_MAILBOX}>:${INTERFACE_INC_DIR}/multi_core>
 )
 
 # Include NS local interface headers
-target_include_directories(tfm_ns_interface
-    INTERFACE
+target_include_directories(tfm_api_ns
+    PUBLIC
         ${NS_INTERFACE_DIR}
         ${NSID_MGR_DIR}
 )
 
 # Include selection of Secure Partitions from TF-M build.
 # It can be replaced by NS side configurations later.
-target_link_libraries(tfm_ns_interface
-    INTERFACE
+target_link_libraries(tfm_api_ns
+    PUBLIC
         tfm_config
 )
 
-target_compile_definitions(tfm_ns_interface
-    INTERFACE
+target_compile_definitions(tfm_api_ns
+    PUBLIC
         $<$<STREQUAL:${TEST_PSA_API},IPC>:PSA_API_TEST_IPC>
         $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
         $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
@@ -75,14 +74,10 @@ target_compile_definitions(tfm_ns_interface
         $<$<AND:$<BOOL:${TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD}>,$<BOOL:${TFM_MULTI_CORE_NS_OS}>>:TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD>
 )
 
-target_compile_options(tfm_ns_interface
-    INTERFACE
+target_compile_options(tfm_api_ns
+    PUBLIC
         ${COMPILER_CP_FLAG}
 )
-
-###################### TF-M NS interface api (NS lib) ##########################
-
-add_library(tfm_api_ns STATIC)
 
 target_sources(tfm_api_ns
     PRIVATE
@@ -120,8 +115,6 @@ target_sources(tfm_api_ns PRIVATE
 )
 
 target_link_libraries(tfm_api_ns
-    PUBLIC
-        tfm_ns_interface
     PRIVATE
         $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:tfm_s_veneers>
         platform_ns
