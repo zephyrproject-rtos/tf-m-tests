@@ -6,21 +6,19 @@
 #-------------------------------------------------------------------------------
 
 ############################# Ns Log ###########################################
-add_library(tfm_log INTERFACE)
-add_library(tfm_log_interface INTERFACE)
+add_library(tfm_log STATIC)
 
 target_sources(tfm_log
-    INTERFACE
+    PRIVATE
         tfm_log_raw.c
 )
 
-target_include_directories(tfm_log_interface
-    INTERFACE
+target_include_directories(tfm_log
+    PUBLIC
         .
 )
 
 target_link_libraries(tfm_log
-    INTERFACE
-        tfm_log_interface
+    PRIVATE
         platform_common_interface
 )

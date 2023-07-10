@@ -23,7 +23,7 @@ target_include_directories(tfm_test_framework_common
 
 target_link_libraries(tfm_test_framework_common
     INTERFACE
-        tfm_log_interface
+        tfm_log
 )
 
 if(TFM_S_REG_TEST OR TFM_NS_REG_TEST)
