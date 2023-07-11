@@ -35,6 +35,10 @@ Build instructions on the host
     -DERPC_TRANSPORT=UART -DPORT_NAME="/dev/ttyACM0"
     cmake --build  build/
 
+.. Note::
+    The ``ERPC_TRANSPORT`` and ``PORT_NAME`` can be omitted and setting the transportation info
+    in command line is also supported. Follow `Run instructions`_ on how to use the command line.
+
 Run instructions
 ----------------
 
@@ -45,6 +49,11 @@ Run instructions
 
       cd <TF-M tests base folder>/erpc/host_example
       ./build/erpc_main
+
+  .. Note::
+      If ``ERPC_TRANSPORT`` and ``PORT_NAME`` are not set, then they should be set as arguments of
+      ``erpc_main``. Execute the following command to run eRPC program:
+      ./build/erpc_main --UART /dev/ttyACM0
 
 Example: TCP Transportation on AN521 FVP
 ========================================
@@ -68,6 +77,11 @@ Build instructions on the host
     cmake -S . -B build -G "Unix Makefiles" -DTFM_INSTALL_PATH=<TF-M install folder> -DERPC_REPO_PATH=<eRPC base folder> \
     -DERPC_TRANSPORT=TCP -DERPC_HOST="0.0.0.0" -DERPC_PORT=5001
     cmake --build  build/
+
+.. Note::
+    The ``ERPC_TRANSPORT``, ``ERPC_HOST`` and ``ERPC_PORT`` can be omitted and setting the
+    transportation info in command line is also supported. Follow `Run instructions`_ on
+    how to use the command line.
 
 Run instructions
 ----------------
@@ -103,6 +117,11 @@ Start the host example
 
     cd <TF-M tests base folder>/erpc/host_example
     ./build/erpc_main
+
+.. Note::
+      If ``ERPC_TRANSPORT``, ``ERPC_HOST`` and ``ERPC_PORT`` are not set, then they should be set as
+      arguments of ``erpc_main``. Execute the following command to run eRPC program:
+      ./build/erpc_main --TCP 0.0.0.0 5001
 
 --------------
 
