@@ -13,7 +13,7 @@
 #include "attest.h"
 #include "q_useful_buf.h"
 #include "qcbor_util.h"
-#include "config_attest.h"
+#include "config_tfm.h"
 
 /**
  * \file attest_token_decode_common.c

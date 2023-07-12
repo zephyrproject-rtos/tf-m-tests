@@ -12,8 +12,8 @@ if(NOT BL1)
 endif()
 
 # Reload the compiler options for the secure core, if the NS core differs
-if (EXISTS ${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
-    include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload.cmake)
+if (EXISTS ${TARGET_PLATFORM_PATH}/preload_ns.cmake)
+    include(${TARGET_PLATFORM_PATH}/preload.cmake)
     tfm_toolchain_reload_compiler()
 endif()
 

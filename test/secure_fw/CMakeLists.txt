@@ -17,8 +17,8 @@ include(utils)
         TEST_NS_ATTESTATION;
         TEST_NS_CRYPTO;
         TEST_NS_ITS;
-        TEST_NS_QCBOR;
         TEST_NS_PS;
+        TEST_NS_QCBOR;
         TEST_NS_T_COSE;
         TEST_NS_PLATFORM;
         TEST_NS_FWU;
