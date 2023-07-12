@@ -8,7 +8,7 @@
 #include "test_app.h"
 #include "tfm_log.h"
 #include "erpc_server_start.h"
-#include "target_cfg.h"
+#include "config_erpc_target.h"
 
 #include "Driver_USART.h"
 #ifdef ERPC_UART
