@@ -296,10 +296,10 @@ target_sources(tfm_ns
 
 target_link_libraries(tfm_ns
     PRIVATE
-        platform_ns
         CMSIS_5_tfm_ns
         tfm_test_app
         tfm_log
+        platform_ns
 )
 
 set_target_properties(tfm_ns PROPERTIES
