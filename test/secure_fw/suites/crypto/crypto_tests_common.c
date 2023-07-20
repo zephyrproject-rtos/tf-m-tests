@@ -2284,17 +2284,51 @@ static const uint8_t ecdsa_private_key[] = {
     0x3D, 0xA1, 0x7B, 0x47, 0x68, 0x38, 0xE3, 0x0D,
     0x10, 0x4A, 0x6D, 0xA7, 0x2D, 0x48, 0xA4, 0x18
 };
-/* Corresponding public key in uncompressed form, i.e. 0x04 X Y */
+/* Corresponding public key in uncompressed form, i.e. 0x04 X Y, and
+ * encoded as per RFC 5480. This is obtained by running the following
+ * command:
+ *
+ *   openssl ec -in private_key.der -inform der -pubout -out public_key.der -outform der
+ *
+ * where the private_key.der contains the DER encoding of the private key contained in
+ * ecdsa_private_key above
+ */
 static const uint8_t ecdsa_public_key[] = {
-    0x04, 0x41, 0xC6, 0xFC, 0xC5, 0xA4, 0xBB, 0x70,
-    0x45, 0xA7, 0xB2, 0x5E, 0x50, 0xB3, 0x2E, 0xD0,
-    0x2A, 0x8D, 0xA8, 0x8E, 0x1B, 0x34, 0xC2, 0x71,
-    0x57, 0x38, 0x5C, 0x45, 0xAB, 0xF2, 0x51, 0x7B,
-    0x17, 0x5A, 0xC5, 0x05, 0xA9, 0x9E, 0x4B, 0x7D,
-    0xDD, 0xD7, 0xBF, 0xBB, 0x45, 0x51, 0x92, 0x7D,
-    0x33, 0x33, 0x8B, 0x1B, 0x70, 0x5A, 0xFD, 0x2B,
-    0xF2, 0x7A, 0xA4, 0xBD, 0x37, 0x50, 0xED, 0x34,
-    0x9F
+    0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86,
+    0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
+    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03,
+    0x42, 0x00, 0x04, 0x41, 0xC6, 0xFC, 0xC5, 0xA4,
+    0xBB, 0x70, 0x45, 0xA7, 0xB2, 0x5E, 0x50, 0xB3,
+    0x2E, 0xD0, 0x2A, 0x8D, 0xA8, 0x8E, 0x1B, 0x34,
+    0xC2, 0x71, 0x57, 0x38, 0x5C, 0x45, 0xAB, 0xF2,
+    0x51, 0x7B, 0x17, 0x5A, 0xC5, 0x05, 0xA9, 0x9E,
+    0x4B, 0x7D, 0xDD, 0xD7, 0xBF, 0xBB, 0x45, 0x51,
+    0x92, 0x7D, 0x33, 0x33, 0x8B, 0x1B, 0x70, 0x5A,
+    0xFD, 0x2B, 0xF2, 0x7A, 0xA4, 0xBD, 0x37, 0x50,
+    0xED, 0x34, 0x9F
+};
+
+/* Associated encoded signature using the private key above on the reference
+ * input message, as described in RFC 5480:
+ *
+ *   message = "This is the message that I would like to sign"
+ *
+ * using PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), i.e.
+ *
+ *   Ecdsa-Sig-Value  ::=  SEQUENCE  {
+ *        r     INTEGER,
+ *        s     INTEGER  }
+ */
+static const uint8_t reference_encoded_r_s[] = {
+    0x30, 0x45, 0x02, 0x20, 0x6b, 0xdc, 0xc6, 0xd5,
+    0xf5, 0xdc, 0xab, 0xc2, 0x52, 0xb6, 0xa0, 0xcd,
+    0x12, 0x9e, 0xfc, 0x3e, 0x86, 0x24, 0x7d, 0xf1,
+    0xbd, 0x7b, 0xe9, 0x76, 0xbd, 0xb5, 0x99, 0x82,
+    0x44, 0xd4, 0xa5, 0x0c, 0x02, 0x21, 0x00, 0xa6,
+    0x25, 0x7b, 0x3b, 0x2a, 0x2d, 0xea, 0xaa, 0x43,
+    0xbc, 0x3a, 0xc7, 0x89, 0xdc, 0x1b, 0x52, 0xe0,
+    0xd2, 0xb6, 0xbd, 0x8c, 0x5d, 0x5e, 0xf3, 0x32,
+    0xe7, 0x32, 0x65, 0xbd, 0x7b, 0xcb, 0x06,
 };
 
 /* Buffer to hold the peer key of the key agreement process */
@@ -2631,6 +2665,64 @@ destroy_key:
 #define SIGNATURE_BUFFER_SIZE \
     (PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key))))
 
+/* This helper function parses a signature as specified in RFC 5480 into a pair
+ * (r,s) of contiguous bytes
+ *
+ * \param[in]  sig      Pointer to a buffer containing the encoded signature
+ * \param[in]  slen     Size in bytes of the encoded signature structure
+ * \param[out] r_s_pair Buffer containing the (r,s) pair extracted. It's caller
+ *                      responsibility to ensure the buffer is big enough to
+ *                      hold the parsed (r,s) pair.
+ *
+ * \return The size in bytes of the parsed signature, i.e. (r,s) pair
+ */
+static inline size_t parse_signature_from_rfc5480_encoding(const uint8_t *sig,
+                                                           size_t slen,
+                                                           uint8_t *r_s_pair)
+{
+    const uint8_t *sig_ptr = NULL;
+    /* Move r in place */
+    size_t r_len = sig[3];
+    if (r_len % 2) {
+        sig_ptr = &sig[5];
+        r_len--;
+    } else {
+        sig_ptr = &sig[4];
+    }
+    memcpy(&r_s_pair[0], sig_ptr, r_len);
+    /* Move s in place */
+    size_t s_len = sig_ptr[r_len + 1];
+    if (s_len % 2) {
+        sig_ptr = &sig_ptr[3+r_len];
+        s_len--;
+    } else {
+        sig_ptr = &sig_ptr[2+r_len];
+    }
+    memcpy(&r_s_pair[r_len], sig_ptr, s_len);
+    slen = s_len + r_len; /* Update the length of the signature we're passing */
+    return slen;
+}
+
+#define LEN_OFF (3) /* Offset for the Length field of the second SEQUENCE */
+#define VAL_OFF (3) /* Offset for the value field of the BIT STRING */
+
+/* This helper function gets a pointer to the bitstring associated to the publicKey
+ * as encoded per RFC 5280. This function assumes that the public key encoding is not
+ * bigger than 127 bytes (i.e. usually up until 384 bit curves)
+ *
+ * \param[in,out] p    Double pointer to a buffer containing the RFC 5280 of the ECDSA public key.
+ *                     On output, the pointer is updated to point to the start of the public key
+ *                     in BIT STRING form.
+ * \param[in]     size Pointer to a buffer containing the size of the public key extracted
+ *
+ */
+static inline void get_public_key_from_rfc5280_encoding(uint8_t **p, size_t *size)
+{
+    uint8_t *key_start = (*p) + (LEN_OFF + 1 + (*p)[LEN_OFF] + VAL_OFF);
+    *p = key_start;
+    *size = key_start[-2]-1; /* -2 from VAL_OFF to get the length, -1 to remove the ASN.1 padding byte count */
+}
+
 void psa_sign_verify_message_test(psa_algorithm_t alg,
                                   struct test_result_t *ret)
 {
@@ -2649,6 +2741,15 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
     uint32_t comp_result = 0;
     uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
     size_t hash_length = 0;
+    uint8_t *p_key = (uint8_t *) ecdsa_public_key;
+    uint8_t reformatted_signature[64] = {0};
+    size_t public_key_size;
+    size_t parsed_signature_size = parse_signature_from_rfc5480_encoding(
+                                                                 reference_encoded_r_s,
+                                                                 sizeof(reference_encoded_r_s),
+                                                                 reformatted_signature);
+    /* Get the BIT STRING for the public key */
+    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
 
     /* Initialize to the passing value */
     ret->val = TEST_PASSED;
@@ -2681,7 +2782,7 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
     }
 
     /* Check that exported key matches the reference key */
-    comp_result = memcmp(ecdsa_pub_key, ecdsa_public_key, pub_key_length);
+    comp_result = memcmp(ecdsa_pub_key, p_key, pub_key_length);
     if (comp_result != 0) {
         TEST_FAIL("Exported ECDSA public key does not match the reference!");
         goto destroy_key;
@@ -2700,6 +2801,18 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                                 PSA_BYTES_TO_BITS(
                                     sizeof(ecdsa_private_key)))) {
         TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    if (signature_length != parsed_signature_size) {
+        TEST_FAIL("Produced signature length does not match the reference!");
+        goto destroy_key;
+    }
+
+    /* Check that signature matches the reference provided */
+    comp_result = memcmp(signature, reformatted_signature, signature_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Signature does not match the reference!");
         goto destroy_key;
     }
 
@@ -2725,8 +2838,8 @@ destroy_key:
     key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
 
-    status = psa_import_key(&input_key_attr, ecdsa_public_key,
-                            sizeof(ecdsa_public_key), &key_id_local);
+    status = psa_import_key(&input_key_attr, p_key,
+                            public_key_size, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the public key");
         return;

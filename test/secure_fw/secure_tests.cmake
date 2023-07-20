@@ -9,8 +9,8 @@
 
 # Since the main test directory is a NS dir, this subdir is specifically made a
 # secure directory as it build the secure side tests and services
-if (EXISTS ${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
-    include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload.cmake)
+if (EXISTS ${TARGET_PLATFORM_PATH}/preload_ns.cmake)
+    include(${TARGET_PLATFORM_PATH}/preload.cmake)
     tfm_toolchain_reload_compiler()
 endif()
 

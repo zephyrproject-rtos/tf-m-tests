@@ -38,8 +38,6 @@ if (TEST_NS_ITS)
         PRIVATE
             tfm_config
             tfm_test_framework_ns
-            CMSIS_5_tfm_ns
-            platform_region_defs
     )
 
     target_link_libraries(tfm_ns_tests

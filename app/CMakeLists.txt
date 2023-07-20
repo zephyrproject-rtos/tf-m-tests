@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
-# Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
+# Copyright (c) 2020-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2022-2023 Cypress Semiconductor Corporation (an Infineon company)
 # or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -14,8 +14,8 @@ project(tfm_ns LANGUAGES ASM C)
 # Secure code. To facilitate this, we once again reload the compiler to load the
 # setting for the NS CPU. Cmake settings are directory scoped so this affects
 # anything loaded from or declared in this dir.
-if (EXISTS ${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
-    include(${CMAKE_SOURCE_DIR}/platform/ext/target/${TFM_PLATFORM}/preload_ns.cmake)
+if (EXISTS ${TARGET_PLATFORM_PATH}/preload_ns.cmake)
+    include(${TARGET_PLATFORM_PATH}/preload_ns.cmake)
     tfm_toolchain_reload_compiler()
 endif()
 
@@ -115,9 +115,8 @@ endif()
 
 target_sources(tfm_api_ns PRIVATE
     $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c>
-    $<$<AND:$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>,$<BOOL:${CONFIG_TFM_CONNECTION_BASED_SERVICE_API}>>:${INTERFACE_SRC_DIR}/tfm_psa_ns_connection_api.c>
-    # NS specific implementation of NS interface dispacther
-    $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${CMAKE_CURRENT_SOURCE_DIR}/tfm_ns_interface.c>
+    # NS specific implementation of NS interface dispatcher
+    $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/os_wrapper/tfm_ns_interface_rtos.c>
 )
 
 target_link_libraries(tfm_api_ns
@@ -135,7 +134,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
         set(SUITE ${TEST_PSA_API})
     endif()
 
-    if (NOT DEFINED PSA_API_TEST_TARGET)
+    if (NOT DEFINED PSA_API_TEST_TARGET OR PSA_API_TEST_TARGET STREQUAL "")
         string(REGEX REPLACE ".*/" "" PSA_API_TEST_TARGET ${TFM_PLATFORM})
     endif()
 
@@ -251,16 +250,27 @@ endif()
 
 ############################# Test integration #################################
 
+if (CONFIG_TFM_ERPC_TEST_FRAMEWORK)
+    set(CONFIG_ENABLE_NS_UART_TX_RX_CONTROL      ON         CACHE BOOL      "Whether to enable UART TX RX")
+    set(ERPC_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../erpc)
+    add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/erpc/server)
+endif()
+
 add_library(tfm_test_app STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_test_app
     PRIVATE
-        test_app.c
+        $<$<NOT:$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>>:test_app.c>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_app.c>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_uart_cmsis.cpp>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports/erpc_uart_cmsis_transport.cpp>
 )
 
 target_include_directories(tfm_test_app
     PUBLIC
         .
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/server>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports>
 )
 
 target_link_libraries(tfm_test_app
@@ -269,6 +279,7 @@ target_link_libraries(tfm_test_app
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_server>
         tfm_api_ns
         tfm_log
 )
