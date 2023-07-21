@@ -10,7 +10,7 @@
 #include <string.h>
 #include "erpc_port.h"
 #include "erpc_client_start.h"
-#include "tfm_erpc_psa_client_api.h"
+#include "tfm_erpc.h"
 #include "tfm_crypto_defs.h"
 #include "psa/client.h"
 #include "psa/crypto.h"
