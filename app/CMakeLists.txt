@@ -266,6 +266,7 @@ target_include_directories(tfm_test_app
         .
         $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/server>
         $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/platform/${TFM_PLATFORM}>
 )
 
 target_link_libraries(tfm_test_app
