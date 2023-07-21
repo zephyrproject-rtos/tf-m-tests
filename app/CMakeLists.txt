@@ -244,11 +244,8 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
 endif()
 
 ############################# Test integration #################################
-
-if (CONFIG_TFM_ERPC_TEST_FRAMEWORK)
-    set(CONFIG_ENABLE_NS_UART_TX_RX_CONTROL      ON         CACHE BOOL      "Whether to enable UART TX RX")
-    set(ERPC_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/../erpc)
-    add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/erpc/server)
+if(CONFIG_TFM_ERPC_TEST_FRAMEWORK)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../erpc/server/app ${CMAKE_CURRENT_BINARY_DIR}/erpc)
 endif()
 
 add_library(tfm_test_app STATIC EXCLUDE_FROM_ALL)
@@ -256,17 +253,11 @@ add_library(tfm_test_app STATIC EXCLUDE_FROM_ALL)
 target_sources(tfm_test_app
     PRIVATE
         $<$<NOT:$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>>:test_app.c>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_app.c>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_uart_cmsis.cpp>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports/erpc_uart_cmsis_transport.cpp>
 )
 
 target_include_directories(tfm_test_app
     PUBLIC
         .
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/server>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_REPO_PATH}/erpc_c/transports>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:${ERPC_DIR}/platform/${TFM_PLATFORM}>
 )
 
 target_link_libraries(tfm_test_app
@@ -275,7 +266,7 @@ target_link_libraries(tfm_test_app
         $<$<BOOL:${TEST_PSA_API}>:val_nspe>
         $<$<BOOL:${TEST_PSA_API}>:pal_nspe>
         $<$<BOOL:${TEST_PSA_API}>:test_combine>
-        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_server>
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:erpc_app>
         tfm_api_ns
         tfm_log
 )

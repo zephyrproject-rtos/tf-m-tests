@@ -5,7 +5,6 @@
  *
  */
 
-#include "test_app.h"
 #include "tfm_log.h"
 #include "erpc_server_start.h"
 #include "config_erpc_target.h"
@@ -20,7 +19,7 @@ extern ARM_DRIVER_USART ERPC_UART;
 __attribute__((noreturn))
 void test_app(void *argument)
 {
-    UNUSED_VARIABLE(argument);
+    (void)(argument);
 
     erpc_transport_t transport;
 
