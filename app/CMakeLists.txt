@@ -194,7 +194,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
         target_compile_definitions(tfm_psa_rot_partition_driver_partition
             PRIVATE
                 CONFIG_TFM_BUILDING_SPE=1
-                TFM_LVL=${TFM_ISOLATION_LEVEL}
+                TFM_ISOLATION_LEVEL=${TFM_ISOLATION_LEVEL}
         )
 
         target_sources(tfm_app_rot_partition_client_partition
@@ -209,7 +209,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
         target_compile_definitions(tfm_app_rot_partition_client_partition
             PRIVATE
                 CONFIG_TFM_BUILDING_SPE=1
-                TFM_LVL=${TFM_ISOLATION_LEVEL}
+                TFM_ISOLATION_LEVEL=${TFM_ISOLATION_LEVEL}
         )
 
         target_sources(tfm_app_rot_partition_server_partition
@@ -224,7 +224,7 @@ if(TEST_PSA_API AND NOT PSA_ARCH_TESTS_BINARY_PATH)
         target_compile_definitions(tfm_app_rot_partition_server_partition
             PRIVATE
                 CONFIG_TFM_BUILDING_SPE=1
-                TFM_LVL=${TFM_ISOLATION_LEVEL}
+                TFM_ISOLATION_LEVEL=${TFM_ISOLATION_LEVEL}
         )
 
         target_sources(tfm_partitions
