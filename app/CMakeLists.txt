@@ -274,10 +274,17 @@ target_link_libraries(tfm_test_app
 )
 
 target_compile_definitions(tfm_test_app
-    PRIVATE
+    PUBLIC
         $<$<BOOL:${TFM_NS_REG_TEST}>:TFM_NS_REG_TEST>
         $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
 )
+
+############################# Profiling integration ############################
+
+if(CONFIG_TFM_ENALBE_PROFILING)
+    add_subdirectory(${TFM_PROFILING_PATH}/profiling_cases/tfm_ns_profiling
+                     ${CMAKE_CURRENT_BINARY_DIR}/profiling_cases)
+endif()
 
 ############################# TFM NS app #######################################
 
@@ -294,6 +301,7 @@ target_link_libraries(tfm_ns
         tfm_test_app
         tfm_log
         platform_ns
+        $<$<BOOL:${CONFIG_TFM_ENALBE_PROFILING}>:tfm_ns_profiling>
 )
 
 set_target_properties(tfm_ns PROPERTIES
