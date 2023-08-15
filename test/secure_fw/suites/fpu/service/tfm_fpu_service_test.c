@@ -8,7 +8,6 @@
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_fpu_service_test.h"
-#include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_sp_log.h"
 #include "tfm_plat_test.h"

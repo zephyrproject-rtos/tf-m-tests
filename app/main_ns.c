@@ -7,7 +7,6 @@
  *
  */
 
-#include "tfm_api.h"
 #include "cmsis_os2.h"
 #include "cmsis_compiler.h"
 #include "tfm_ns_interface.h"

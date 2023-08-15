@@ -11,7 +11,6 @@
 #include "psa/service.h"
 #include "psa_manifest/tfm_ipc_service_test.h"
 #include "spm_test_defs.h"
-#include "tfm_api.h"
 #include "tfm_hal_isolation.h"
 #include "tfm_sp_log.h"
 #include "client_api_test_defs.h"
