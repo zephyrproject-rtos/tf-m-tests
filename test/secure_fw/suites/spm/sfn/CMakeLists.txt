@@ -48,6 +48,8 @@ endif()
 ########################### Secure #############################################
 
 if (TEST_S_SFN_BACKEND)
+    add_library(tfm_test_suite_sfn_s STATIC EXCLUDE_FROM_ALL)
+
     target_sources(tfm_test_suite_sfn_s
         PRIVATE
             secure/sfn_backend_s_testsuite.c

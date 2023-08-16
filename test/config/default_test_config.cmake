@@ -5,35 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-########################## NS test suites ######################################
-
-set(TEST_NS_ATTESTATION     OFF        CACHE BOOL      "Whether to build NS regression Attestation tests")
-set(TEST_NS_T_COSE          OFF        CACHE BOOL      "Whether to build NS regression t_cose tests")
-set(TEST_NS_QCBOR           OFF        CACHE BOOL      "Whether to build NS regression QCBOR tests")
-set(TEST_NS_CRYPTO          OFF        CACHE BOOL      "Whether to build NS regression Crypto tests")
-set(TEST_NS_ITS             OFF        CACHE BOOL      "Whether to build NS regression ITS tests")
-set(TEST_NS_PS              OFF        CACHE BOOL      "Whether to build NS regression PS tests")
-set(TEST_NS_PLATFORM        OFF        CACHE BOOL      "Whether to build NS regression Platform tests")
-set(TEST_NS_FWU             OFF        CACHE BOOL      "Whether to build NS regression FWU tests")
-set(TEST_NS_IPC             OFF        CACHE BOOL      "Whether to build NS regression IPC tests")
-set(TEST_NS_SLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression Second-Level Interrupt Handling tests")
-set(TEST_NS_FLIH_IRQ        OFF        CACHE BOOL      "Whether to build NS regression First-Level Interrupt Handling tests")
-set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
-set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
-set(TEST_NS_SFN_BACKEND     OFF        CACHE BOOL      "Whether to build NS regression SFN backend tests")
-set(TEST_NS_FPU             OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
-
-########################## S test suites #######################################
-
-set(TEST_S_ATTESTATION      OFF        CACHE BOOL      "Whether to build S regression Attestation tests")
-set(TEST_S_CRYPTO           OFF        CACHE BOOL      "Whether to build S regression Crypto tests")
-set(TEST_S_ITS              OFF        CACHE BOOL      "Whether to build S regression ITS tests")
-set(TEST_S_PS               OFF        CACHE BOOL      "Whether to build S regression PS tests")
-set(TEST_S_PLATFORM         OFF        CACHE BOOL      "Whether to build S regression Platform tests")
-set(TEST_S_FWU              OFF        CACHE BOOL      "Whether to build S regression FWU tests")
-set(TEST_S_IPC              OFF        CACHE BOOL      "Whether to build S regression IPC tests")
-set(TEST_S_SFN_BACKEND      OFF        CACHE BOOL      "Whether to build S regression SFN tests")
-
 ################################## PS Tests ####################################
 
 set(PS_TEST_NV_COUNTERS                 ON          CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")
@@ -68,10 +39,6 @@ set(TFM_CRYPTO_TEST_UNSUPPORTED_ALG             ON       CACHE BOOL      "Test u
 set(TFM_FWU_TEST_REQUEST_REBOOT         OFF         CACHE BOOL      "Test psa_fwu_request_reboot")
 set(TFM_FWU_TEST_WRITE_WITH_NULL        OFF         CACHE BOOL      "Test psa_fwu_write with data block NULL")
 set(TFM_FWU_TEST_QUERY_WITH_NULL        OFF         CACHE BOOL      "Test psa_fwu_query with info NULL")
-
-############################################ FPU Tests #########################
-
-set(TEST_S_FPU                          OFF         CACHE BOOL      "Whether to build S regression FPU tests")
 
 ################################## Extra test suites ###########################
 

@@ -7,10 +7,6 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_ITS AND NOT TEST_S_ITS)
-    return()
-endif()
-
 ####################### Non Secure #############################################
 
 if (TEST_NS_ITS)
@@ -49,11 +45,10 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_ITS)
-    target_sources(tfm_test_suite_its_s
-        PRIVATE
-           ${CMAKE_CURRENT_SOURCE_DIR}/its_tests_common.c
-           ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_interface_testsuite.c
-           ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_reliability_testsuite.c
+    add_library(tfm_test_suite_its_s STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/its_tests_common.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_interface_testsuite.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_reliability_testsuite.c
     )
 
     target_include_directories(tfm_test_suite_its_s
@@ -76,7 +71,7 @@ if (TEST_S_ITS)
     )
 
     target_link_libraries(tfm_s_tests
-        INTERFACE
+        PRIVATE
             tfm_test_suite_its_s
     )
 endif()

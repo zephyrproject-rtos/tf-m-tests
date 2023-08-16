@@ -7,10 +7,6 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_CRYPTO AND NOT TEST_S_CRYPTO)
-    return()
-endif()
-
 ####################### Non Secure #############################################
 
 if (TEST_NS_CRYPTO)
@@ -67,10 +63,10 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_CRYPTO)
-    target_sources(tfm_test_suite_crypto_s
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/crypto_tests_common.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/secure/crypto_sec_interface_testsuite.c
+
+    add_library(tfm_test_suite_crypto_s STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/crypto_tests_common.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/crypto_sec_interface_testsuite.c
     )
 
     target_include_directories(tfm_test_suite_crypto_s
@@ -87,7 +83,7 @@ if (TEST_S_CRYPTO)
     )
 
     target_link_libraries(tfm_s_tests
-        INTERFACE
+        PRIVATE
             tfm_test_suite_crypto_s
     )
 

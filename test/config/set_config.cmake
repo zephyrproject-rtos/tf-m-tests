@@ -59,12 +59,6 @@ if (CONFIG_TFM_FLOAT_ABI STREQUAL "soft")
     set(TEST_NS_FPU                      OFF        CACHE BOOL      "Whether to build NS regression FPU tests")
 endif()
 
-########################## Test profile ########################################
-
-if (TFM_PROFILE)
-    include(${TFM_TEST_PATH}/config/profile/${TFM_PROFILE}_test.cmake)
-endif()
-
 ########################## SLIH/FLIH IRQ Test ##################################
 
 # Make FLIH IRQ test as the default IRQ test
@@ -100,10 +94,10 @@ endif()
 ########################## Load default config #################################
 
 if (TEST_S)
-    include(${TFM_TEST_PATH}/config/default_s_test_config.cmake)
+    include(${TFM_TEST_REPO_PATH}/test/config/default_s_test_config.cmake)
 endif()
 if (TEST_NS)
-    include(${TFM_TEST_PATH}/config/default_ns_test_config.cmake)
+include(${TFM_TEST_REPO_PATH}/test/config/default_ns_test_config.cmake)
 endif()
 
 ###################### Test Partition configurations ###########################
@@ -125,5 +119,3 @@ if (TEST_S_FPU OR TEST_NS_FPU)
 else()
     set(TEST_PARTITION_FPU_TEST        OFF)
 endif()
-
-include(${TFM_TEST_PATH}/config/default_test_config.cmake)

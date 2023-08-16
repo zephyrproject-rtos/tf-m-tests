@@ -41,7 +41,47 @@ include(utils)
     "
     )
 
-include(secure_tests.cmake)
+if (TFM_S_REG_TEST)
+
+    # secure test services are required if any secure test is opened
+    add_subdirectory(common_test_services/tfm_secure_client_service)
+    add_subdirectory(common_test_services/tfm_secure_client_2)
+
+    add_library(tfm_test_framework_s INTERFACE)
+
+    target_link_libraries(tfm_test_framework_s
+        INTERFACE
+            psa_interface
+            tfm_test_framework_common
+            tfm_sprt
+            tfm_config
+    )
+
+    target_compile_definitions(tfm_test_framework_s
+        INTERFACE
+            USE_SP_LOG
+            $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
+    )
+
+    target_link_libraries(tfm_test_framework_common
+        PUBLIC
+            tfm_test_framework_s
+    )
+
+    add_library(tfm_s_tests STATIC)
+
+    target_sources(tfm_s_tests
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure_suites.c
+    )
+
+    target_link_libraries(tfm_s_tests
+        PUBLIC
+            tfm_test_framework_s
+            tfm_spm
+    )
+
+endif()
 
 # Include test suites at last after other targets are setup.
 add_subdirectory(suites)

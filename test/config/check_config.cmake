@@ -5,6 +5,20 @@
 #
 #-------------------------------------------------------------------------------
 
+function(tfm_invalid_config)
+    if (${ARGV})
+        string (REPLACE ";" " " ARGV_STRING "${ARGV}")
+        string (REPLACE "STREQUAL"     "=" ARGV_STRING "${ARGV_STRING}")
+        string (REPLACE "GREATER"      ">" ARGV_STRING "${ARGV_STRING}")
+        string (REPLACE "LESS"         "<" ARGV_STRING "${ARGV_STRING}")
+        string (REPLACE "VERSION_LESS" "<" ARGV_STRING "${ARGV_STRING}")
+        string (REPLACE "EQUAL"        "=" ARGV_STRING "${ARGV_STRING}")
+        string (REPLACE "IN_LIST"      "in" ARGV_STRING "${ARGV_STRING}")
+
+        message(FATAL_ERROR "INVALID CONFIG: ${ARGV_STRING}")
+    endif()
+endfunction()
+
 ########################## Check Flags Input ###################################
 
 tfm_invalid_config((NOT TFM_PARTITION_PROTECTED_STORAGE) AND (TEST_NS_PS OR TEST_S_PS))

@@ -9,16 +9,19 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-# For multi-core projects, the NS app can be run on a different CPU to the
-# Secure code. To facilitate this, we once again reload the compiler to load the
-# setting for the NS CPU. Cmake settings are directory scoped so this affects
-# anything loaded from or declared in this dir.
-if (EXISTS ${TARGET_PLATFORM_PATH}/preload_ns.cmake)
-    include(${TARGET_PLATFORM_PATH}/preload_ns.cmake)
-    tfm_toolchain_reload_compiler()
-endif()
+add_subdirectory(spm/ipc/service)
+add_subdirectory(spm/sfn/service)
+add_subdirectory(spm/irq/service)
+add_subdirectory(ps/service)
+add_subdirectory(fpu/service)
 
 if(TFM_NS_REG_TEST AND NS)
+
+    target_link_libraries(tfm_test_framework_common
+        PUBLIC
+            tfm_log
+    )
+
     add_library(tfm_ns_tests INTERFACE)
     add_library(tfm_test_framework_ns INTERFACE)
 
@@ -50,18 +53,6 @@ if(TFM_NS_REG_TEST AND NS)
             $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
             $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
     )
-else()
-    # Skip building NS regresstion test suites if NS is OFF.
-    # NS test flags are kept to select corresponding test services. They are
-    # unset here to skip building NS regression test suites.
-    get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-
-    foreach(CACHE_VAR ${CACHE_VARS})
-        string(REGEX MATCH "^TEST_NS_.*" _NS_TEST_FOUND "${CACHE_VAR}")
-        if (_NS_TEST_FOUND AND "${${CACHE_VAR}}")
-            unset(${CACHE_VAR} CACHE)
-        endif()
-    endforeach()
 endif()
 
 # Add test suites.
@@ -70,8 +61,9 @@ add_subdirectory(attestation)
 add_subdirectory(crypto)
 add_subdirectory(extra)
 add_subdirectory(its)
-# add_subdirectory(qcbor)
 add_subdirectory(ps)
+# Do we need to test these external components?
+# add_subdirectory(qcbor)
 # add_subdirectory(t_cose)
 add_subdirectory(platform)
 add_subdirectory(fwu)
@@ -79,13 +71,3 @@ add_subdirectory(multi_core/non_secure)
 add_subdirectory(nsid)
 add_subdirectory(fpu)
 add_subdirectory(spm)
-
-if(TFM_FUZZER_TOOL_TESTS AND TFM_NS_REG_TEST AND NS)
-    if (NOT DEFINED TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH)
-        # The location of the file needs to be defined either from command line
-        # or from config cmake file.
-        message(FATAL_ERROR "Incomplete build configuration: TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH is undefined.")
-    else()
-        add_subdirectory(${TFM_FUZZER_TOOL_TESTS_CMAKE_INC_PATH} ${CMAKE_BINARY_DIR}/suites/tfm_fuzz)
-    endif()
-endif()

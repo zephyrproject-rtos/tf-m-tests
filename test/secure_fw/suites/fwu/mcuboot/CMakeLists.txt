@@ -51,6 +51,8 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_FWU)
+    add_library(tfm_test_suite_fwu_s STATIC)
+
     target_sources(tfm_test_suite_fwu_s
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/fwu_tests_common.c

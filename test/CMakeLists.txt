@@ -21,14 +21,8 @@ target_include_directories(tfm_test_framework_common
         framework
 )
 
-target_link_libraries(tfm_test_framework_common
-    PUBLIC
-        tfm_log_interface
-)
 
-if(TFM_S_REG_TEST OR TFM_NS_REG_TEST)
-    add_subdirectory(secure_fw)
-endif()
+add_subdirectory(secure_fw)
 
 if(TEST_BL2)
     add_subdirectory(bl2)
@@ -37,3 +31,5 @@ endif()
 if(TEST_BL1_1 OR TEST_BL1_2)
     add_subdirectory(bl1)
 endif()
+
+include(config/check_config.cmake)

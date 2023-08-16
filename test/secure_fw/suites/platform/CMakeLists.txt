@@ -7,10 +7,6 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_PLATFORM AND NOT TEST_S_PLATFORM)
-    return()
-endif()
-
 ####################### Non Secure #############################################
 
 if (TEST_NS_PLATFORM)
@@ -48,10 +44,9 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_PLATFORM)
-    target_sources(tfm_test_suite_platform_s
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/platform_tests_common.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/secure/platform_s_interface_testsuite.c
+    add_library(tfm_test_suite_platform_s STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform_tests_common.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/platform_s_interface_testsuite.c
     )
 
     target_include_directories(tfm_test_suite_platform_s
@@ -73,7 +68,7 @@ if (TEST_S_PLATFORM)
     )
 
     target_link_libraries(tfm_s_tests
-        INTERFACE
+        PRIVATE
             tfm_test_suite_platform_s
     )
 endif()

@@ -7,10 +7,6 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_PS AND NOT TEST_S_PS)
-    return()
-endif()
-
 ####################### Non Secure #############################################
 
 if (TEST_NS_PS)
@@ -52,11 +48,10 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_PS)
-    target_sources(tfm_test_suite_ps_s
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_interface_testsuite.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_reliability_testsuite.c
-            $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
+    add_library(tfm_test_suite_ps_s STATIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_interface_testsuite.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_reliability_testsuite.c
+        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
     )
 
     target_sources(tfm_app_rot_partition_ps
@@ -87,7 +82,7 @@ if (TEST_S_PS)
     )
 
     target_link_libraries(tfm_s_tests
-        INTERFACE
+        PRIVATE
             tfm_test_suite_ps_s
     )
 endif()
