@@ -16,7 +16,7 @@
  *
  * \param[in] msg  Pointer to the PSA message body
  *
- * \return Returns \ref TFM_SUCCESS on success.
+ * \return Returns \ref PSA_SUCCESS on success.
  */
 psa_status_t test_service_mmiovec_invec(const psa_msg_t *msg);
 
@@ -25,7 +25,7 @@ psa_status_t test_service_mmiovec_invec(const psa_msg_t *msg);
  *
  * \param[in] msg  Pointer to the PSA message body
  *
- * \return Returns \ref TFM_SUCCESS on success.
+ * \return Returns \ref PSA_SUCCESS on success.
  */
 psa_status_t test_service_mmiovec_outvec(const psa_msg_t *msg);
 
@@ -34,7 +34,7 @@ psa_status_t test_service_mmiovec_outvec(const psa_msg_t *msg);
  *
  * \param[in] msg  Pointer to the PSA message body
  *
- * \return Returns \ref TFM_SUCCESS on success.
+ * \return Returns \ref PSA_SUCCESS on success.
  */
 psa_status_t test_service_outvec_not_unmap(const psa_msg_t *msg);
 
