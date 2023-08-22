@@ -9,6 +9,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_sfn_backend_test STATIC)
 
+add_dependencies(tfm_app_rot_partition_sfn_backend_test manifest_tool)
+
 target_sources(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         sfn_backend_test_partition.c
@@ -27,6 +29,7 @@ target_sources(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition/auto_generated/intermedia_sfn_backend_test_partition.c
 )
+
 target_sources(tfm_partitions
     INTERFACE
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition/auto_generated/load_info_sfn_backend_test_partition.c

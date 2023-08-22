@@ -9,6 +9,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_ipc_client STATIC)
 
+add_dependencies(tfm_app_rot_partition_ipc_client manifest_tool)
+
 target_sources(tfm_app_rot_partition_ipc_client
     PRIVATE
         ./tfm_ipc_client_test.c

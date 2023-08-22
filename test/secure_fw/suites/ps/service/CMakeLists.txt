@@ -12,6 +12,8 @@ endif()
 
 add_library(tfm_psa_rot_partition_ps_test STATIC)
 
+add_dependencies(tfm_psa_rot_partition_ps_test manifest_tool)
+
 target_sources(tfm_psa_rot_partition_ps_test
     PRIVATE
         ./tfm_ps_test_service.c

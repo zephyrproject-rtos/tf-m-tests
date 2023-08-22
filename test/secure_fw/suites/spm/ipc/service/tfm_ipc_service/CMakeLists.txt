@@ -9,6 +9,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_psa_rot_partition_ipc_service STATIC)
 
+add_dependencies(tfm_psa_rot_partition_ipc_service manifest_tool)
+
 target_sources(tfm_psa_rot_partition_ipc_service
     PRIVATE
         ../../../common/service/client_api_test_service.c

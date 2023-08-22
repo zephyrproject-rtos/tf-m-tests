@@ -13,6 +13,8 @@ endif()
 
 add_library(tfm_app_rot_partition_fpu_service STATIC)
 
+add_dependencies(tfm_app_rot_partition_fpu_service manifest_tool)
+
 target_sources(tfm_app_rot_partition_fpu_service
     PRIVATE
         tfm_fpu_service_test.c

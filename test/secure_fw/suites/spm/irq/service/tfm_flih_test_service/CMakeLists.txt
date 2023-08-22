@@ -8,6 +8,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_flih_test STATIC)
 
+add_dependencies(tfm_app_rot_partition_flih_test manifest_tool)
+
 target_sources(tfm_app_rot_partition_flih_test
     PRIVATE
         ./tfm_flih_test_service.c

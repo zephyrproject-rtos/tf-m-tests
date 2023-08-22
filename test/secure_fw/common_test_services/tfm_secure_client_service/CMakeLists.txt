@@ -9,6 +9,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_psa_rot_partition_secure_client_service STATIC)
 
+add_dependencies(tfm_psa_rot_partition_secure_client_service manifest_tool)
+
 target_sources(tfm_psa_rot_partition_secure_client_service
     PRIVATE
         ./tfm_secure_client_service.c

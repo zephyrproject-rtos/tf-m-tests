@@ -8,6 +8,8 @@ cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_secure_client_2 STATIC)
 
+add_dependencies(tfm_app_rot_partition_secure_client_2 manifest_tool)
+
 target_sources(tfm_app_rot_partition_secure_client_2
     PRIVATE
         ./tfm_secure_client_2.c
