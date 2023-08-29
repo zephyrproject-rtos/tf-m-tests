@@ -7,8 +7,8 @@
 
 #include "ns_test_helpers.h"
 
-#include "os_wrapper/thread.h"
-#include "os_wrapper/semaphore.h"
+#include "thread.h"
+#include "semaphore.h"
 
 #define PS_TEST_TASK_STACK_SIZE (768)
 

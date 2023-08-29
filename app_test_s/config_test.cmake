@@ -29,6 +29,6 @@ set(TEST_S_FPU              OFF      CACHE BOOL      "Whether to build S regress
 # Use local repositories and avoid fetching them on evey clean build.
 # A tempoarl settings to be remove later.
 #-------------------------------------------------------------------------------
-if(EXISTS ${CMAKE_SOURCE_DIR}/localrepos.cmake)
-    include(${CMAKE_SOURCE_DIR}/localrepos.cmake)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/localrepos.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/localrepos.cmake)
 endif()

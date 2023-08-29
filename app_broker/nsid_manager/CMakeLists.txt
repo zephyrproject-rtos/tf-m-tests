@@ -4,16 +4,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-#
-# This CMake script used in a split build only. In the legacy 'sinlge' build
-# this file is ignoed. Please don't be confused.
-#
+
 cmake_minimum_required(VERSION 3.15)
 
-if (TFM_NS_MANAGE_NSID)
-    add_library(tfm_nsid_manager STATIC
+add_library(tfm_nsid_manager STATIC)
+
+target_include_directories(tfm_nsid_manager PUBLIC .)
+
+target_link_libraries(tfm_nsid_manager PRIVATE RTX_OS)
+
+if(TFM_NS_MANAGE_NSID)
+    target_sources(tfm_nsid_manager
+        PUBLIC
             tfm_nsid_manager.c
-            ../../app/tfm_nsid_map_table.c
+            tfm_nsid_map_table.c
+            tz_shim_layer.c
     )
 
     target_compile_definitions(tfm_nsid_manager
@@ -22,5 +27,8 @@ if (TFM_NS_MANAGE_NSID)
             $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
     )
 else()
-    add_library(tfm_nsid_manager INTERFACE)
+    target_sources(tfm_nsid_manager
+        PUBLIC
+            tz_stub.c
+    )
 endif()

@@ -59,6 +59,7 @@ target_link_libraries(RTX_OS
     PRIVATE
         CMSIS_5_RTX_V8MMN
         tfm_test_broker
+    PUBLIC
         platform_ns         # for cmsis_compiler.h
         psa_interface       # for os_wrapper/common.h
 )

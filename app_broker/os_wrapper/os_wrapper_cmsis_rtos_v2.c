@@ -5,10 +5,10 @@
  *
  */
 
-#include "os_wrapper/thread.h"
+#include "thread.h"
 #include "os_wrapper/mutex.h"
-#include "os_wrapper/semaphore.h"
-#include "os_wrapper/delay.h"
+#include "semaphore.h"
+#include "delay.h"
 
 #include "cmsis_os2.h"
 

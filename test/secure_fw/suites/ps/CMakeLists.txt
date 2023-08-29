@@ -37,6 +37,7 @@ if (TEST_NS_PS)
             tfm_test_framework_ns
             platform_region_defs
             tfm_test_suite_its_ns
+            os_wrapper
     )
 
     target_link_libraries(tfm_ns_tests

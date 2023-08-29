@@ -19,8 +19,6 @@ target_include_directories(tfm_log
 )
 
 target_link_libraries(tfm_log
-    INTERFACE
-        platform_common_interface
     PUBLIC
         platform_ns
 )

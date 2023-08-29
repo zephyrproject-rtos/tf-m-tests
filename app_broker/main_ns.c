@@ -13,7 +13,7 @@
 #include "tfm_nsid_manager.h"
 #include "test_app.h"
 #include "tfm_plat_ns.h"
-#include "driver/Driver_USART.h"
+#include "Driver_USART.h"
 #include "device_cfg.h"
 #ifdef TFM_PARTITION_NS_AGENT_MAILBOX
 #include "tfm_multi_core_api.h"
