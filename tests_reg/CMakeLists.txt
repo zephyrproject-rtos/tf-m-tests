@@ -15,26 +15,16 @@ if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
 endif()
 
-#--- Test configuration --------------------------------------------------------
-# include(../test/config/default_ns_test_config.cmake)
-# Temporary hardcoded. Need better mechnism of NS tests selectoin
+# Platform abilities for example IRQ test support status
+include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
 set(TFM_NS_REG_TEST       ON)
 set(NS                    ON)
-set(TEST_NS               ON)
 
-set(TEST_NS_ATTESTATION     OFF        CACHE BOOL      "Whether to build NS regression Attestation tests")
-set(TEST_NS_T_COSE          OFF        CACHE BOOL      "Whether to build NS regression t_cose tests")
-set(TEST_NS_CRYPTO          ON        CACHE BOOL      "Whether to build NS regression Crypto tests")
-set(TEST_NS_ITS             ON        CACHE BOOL      "Whether to build NS regression ITS tests")
-set(TEST_NS_PS              ON        CACHE BOOL      "Whether to build NS regression PS tests")
-set(TEST_NS_PLATFORM        ON        CACHE BOOL      "Whether to build NS regression Platform tests")
-set(TEST_NS_FWU             OFF        CACHE BOOL      "Whether to build NS regression FWU tests")
-set(TEST_NS_MULTI_CORE      OFF        CACHE BOOL      "Whether to build NS regression multi-core tests")
-set(TEST_NS_MANAGE_NSID     OFF        CACHE BOOL      "Whether to build NS regression NSID management tests")
-#------------------------------------------------------------------------------
+# Test suite configurations - set up by SPE build
+include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
 
-# Include default test configurations (this not about which test suites to enable or disable)
+# Test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)

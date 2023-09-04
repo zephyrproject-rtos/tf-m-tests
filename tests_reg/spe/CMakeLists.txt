@@ -6,6 +6,9 @@
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.15)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
+include(utils)
+
 # Force cross compilation and avoid compiler search and test
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_COMPILER_FORCED TRUE)
@@ -23,12 +26,7 @@ if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_TFM_SOURCE_PATH}/toolchain_GNUARM.cmake)
 endif()
 
-if (NOT DEFINED CONFIG_TFM_REG_TESTS OR NOT EXISTS ${CONFIG_TFM_REG_TESTS})
-    message(WARNING "The default refgression test set is used. Use CONFIG_TFM_REG_TESTS argument to specify alternative configuration")
-    set(CONFIG_TFM_REG_TESTS ${CMAKE_SOURCE_DIR}/config_test.cmake)
-  endif()
-
-#------------------------------------------------------------------------------
+include(${CMAKE_CURRENT_LIST_DIR}/config/set_config.cmake)
 
 # tfm_s_test is IMPORTED to inform CMake that it has no source files.
 add_executable(tfm_s_test IMPORTED)
@@ -38,7 +36,11 @@ ExternalProject_Add(TF-M
   SOURCE_DIR        ${CONFIG_TFM_SOURCE_PATH}
   BINARY_DIR        build-spe
   INSTALL_DIR       api_ns
-  CMAKE_ARGS        -DTFM_PLATFORM=${TFM_PLATFORM} -DCONFIG_TFM_TEST_DIR=${CMAKE_SOURCE_DIR}/.. -DTFM_EXTRA_CONFIG_PATH=${CONFIG_TFM_REG_TESTS} -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+  CMAKE_ARGS        -DTFM_PLATFORM=${TFM_PLATFORM}
+  CMAKE_ARGS        -DCONFIG_TFM_TEST_DIR=${CMAKE_CURRENT_LIST_DIR}/../test
+  CMAKE_ARGS        -DTFM_EXTRA_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/config_spe.cmake
+  CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+  CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   PREFIX             "temp"
 )
 

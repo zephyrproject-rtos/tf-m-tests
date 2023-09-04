@@ -35,6 +35,7 @@ tfm_invalid_config(CONFIG_TFM_FLOAT_ABI STREQUAL "soft" AND (TEST_S_FPU OR TEST_
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
 tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)
+tfm_invalid_config(TFM_PXN_ENABLE AND PS_TEST_NV_COUNTERS)
 
 ########################## Check suites dependence #############################
 

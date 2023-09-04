@@ -31,5 +31,3 @@ endif()
 if(TEST_BL1_1 OR TEST_BL1_2)
     add_subdirectory(bl1)
 endif()
-
-include(config/check_config.cmake)

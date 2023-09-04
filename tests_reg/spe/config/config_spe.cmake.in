@@ -1,0 +1,40 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2023, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+# This is configuration file for building TF-M SPE image for S + NS tests.
+# This file to be included in to TF-M build via TFM_EXTRA_CONFIG_PATH command option.
+#-------------------------------------------------------------------------------
+
+# Command-line options
+@COMMAND_LINE_OPTIONS@
+
+set(TEST_S          @TEST_S@ CACHE BOOL "Enable Secure Tests")
+set(TEST_NS         @TEST_NS@ CACHE BOOL "Enable NS Tests")
+set(TFM_S_REG_TEST  ON CACHE BOOL "Enable S regression test")
+
+# The following NS test configs are required for SPE build to include test codes
+set(TEST_NS_ATTESTATION  @TEST_NS_ATTESTATION@ CACHE BOOL   "Enable NS Attestation Tests")
+
+# Secure Partitions
+@SP_CONFIG_OPTIONS@
+# Secure test suites
+@S_TEST_CONFIG_OPTIONS@
+# Test configurations
+include(@PROFILE_TEST_CONFIG_FILE@)
+include(${CONFIG_TFM_TEST_DIR}/config/default_test_config.cmake)
+
+# Test Secure Partition building using out-of-tree build
+list(APPEND TFM_EXTRA_MANIFEST_LIST_FILES ${CONFIG_TFM_TEST_DIR}/secure_fw/tfm_test_manifest_list.yaml)
+list(APPEND TFM_EXTRA_PARTITION_PATHS
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/common_test_services/tfm_secure_client_service
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/common_test_services/tfm_secure_client_2
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/spm/ipc/service
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/spm/sfn/service
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/spm/irq/service
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/ps/service
+            ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/fpu/service
+)

@@ -6,8 +6,12 @@
 #-------------------------------------------------------------------------------
 
 ################################## PS Tests ####################################
-
-set(PS_TEST_NV_COUNTERS                 ON          CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")
+if (TFM_PXN_ENABLE)
+    # The PS test NV counters do not work with PXN enabled
+    set(PS_TEST_NV_COUNTERS     OFF        CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")
+else()
+    set(PS_TEST_NV_COUNTERS     ON         CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")
+endif()
 
 ################################## Default CRYPTO Tests ########################
 
