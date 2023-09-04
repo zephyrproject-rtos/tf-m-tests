@@ -21,7 +21,6 @@ target_include_directories(tfm_test_framework_common
         framework
 )
 
-
 add_subdirectory(secure_fw)
 
 if(TEST_BL2)

@@ -9,12 +9,6 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-add_subdirectory(spm/ipc/service)
-add_subdirectory(spm/sfn/service)
-add_subdirectory(spm/irq/service)
-add_subdirectory(ps/service)
-add_subdirectory(fpu/service)
-
 if(TFM_NS_REG_TEST AND NS)
 
     target_link_libraries(tfm_test_framework_common

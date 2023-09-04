@@ -42,11 +42,6 @@ include(utils)
     )
 
 if (TFM_S_REG_TEST)
-
-    # secure test services are required if any secure test is opened
-    add_subdirectory(common_test_services/tfm_secure_client_service)
-    add_subdirectory(common_test_services/tfm_secure_client_2)
-
     add_library(tfm_test_framework_s INTERFACE)
 
     target_link_libraries(tfm_test_framework_s
