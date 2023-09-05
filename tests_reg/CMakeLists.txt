@@ -45,7 +45,7 @@ project(tfm_ns LANGUAGES C)
 add_executable(tfm_ns)
 
 add_subdirectory(../app_broker ${CMAKE_BINARY_DIR}/app_broker)
-add_subdirectory(../test       ${CMAKE_BINARY_DIR}/test)
+add_subdirectory(test)
 
 ############################# TFM NS main app ##################################
 
