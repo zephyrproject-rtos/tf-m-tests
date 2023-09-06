@@ -36,7 +36,7 @@ target_include_directories(tfm_app_rot_partition_fpu_service
         .
     PRIVATE
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_fpu_service
-        ${TFM_TEST_REPO_PATH}/test/secure_fw/suites/fpu
+        ${CONFIG_TFM_TEST_DIR}/secure_fw/suites/fpu
 )
 
 target_include_directories(tfm_partitions
