@@ -11,7 +11,7 @@
 #include "tfm_plat_test.h"
 #include "psa/service.h"
 
-#ifdef TEST_NS_FLIH_IRQ
+#ifdef TFM_PARTITION_FLIH_TEST
 /* The execution flow ensures there are no race conditions for test_type */
 static int32_t test_type = TFM_FLIH_TEST_CASE_INVALID;
 /*
@@ -86,9 +86,9 @@ void flih_test_case_2(const psa_msg_t *msg, psa_signal_t timer_irq_signal)
     psa_reset_signal(timer_irq_signal);
     psa_irq_disable(timer_irq_signal);
 }
-#endif /* TEST_NS_FLIH_IRQ */
+#endif /* TFM_PARTITION_FLIH_TEST */
 
-#ifdef TEST_NS_SLIH_IRQ
+#ifdef TFM_PARTITION_SLIH_TEST
 static void slih_test_timer_handler(psa_signal_t timer_irq_signal)
 {
     tfm_plat_test_secure_timer_stop();
@@ -108,4 +108,4 @@ void slih_test_case_1(const psa_msg_t *msg, psa_signal_t timer_irq_signal)
     slih_test_timer_handler(timer_irq_signal);
 }
 
-#endif /* TEST_NS_SLIH_IRQ */
+#endif /* TFM_PARTITION_SLIH_TEST */

@@ -13,8 +13,7 @@ add_dependencies(tfm_app_rot_partition_slih_test manifest_tool)
 target_sources(tfm_app_rot_partition_slih_test
     PRIVATE
         ./tfm_slih_test_service.c
-        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c>
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c
 )
 
 # The generated sources
@@ -43,14 +42,6 @@ target_link_libraries(tfm_spm
         tfm_app_rot_partition_slih_test
 )
 
-# Interfaces for other targets
-add_library(tfm_slih_test_service_interface INTERFACE)
-
-target_include_directories(tfm_slih_test_service_interface
-    INTERFACE
-        ./
-)
-
 ############################ Partition Defs ####################################
 
 target_link_libraries(tfm_partitions
@@ -60,5 +51,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_config
     INTERFACE
-        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:TEST_NS_SLIH_IRQ>
+        TFM_PARTITION_SLIH_TEST
 )

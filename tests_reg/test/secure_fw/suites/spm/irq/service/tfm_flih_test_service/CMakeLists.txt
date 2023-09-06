@@ -13,8 +13,7 @@ add_dependencies(tfm_app_rot_partition_flih_test manifest_tool)
 target_sources(tfm_app_rot_partition_flih_test
     PRIVATE
         ./tfm_flih_test_service.c
-        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c>
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c
 )
 
 # The generated sources
@@ -60,5 +59,5 @@ target_link_libraries(tfm_partitions
 
 target_compile_definitions(tfm_config
     INTERFACE
-        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:TEST_NS_FLIH_IRQ>
+        TFM_PARTITION_FLIH_TEST
 )

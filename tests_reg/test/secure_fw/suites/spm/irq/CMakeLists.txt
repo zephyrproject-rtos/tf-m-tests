@@ -25,6 +25,9 @@ target_sources(tfm_test_suite_irq
 target_include_directories(tfm_test_suite_irq
     PUBLIC
         ./
+    PRIVATE
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/service/tfm_slih_test_service>
+        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/service/tfm_flih_test_service>
 )
 
 target_compile_definitions(tfm_test_suite_irq
@@ -36,8 +39,6 @@ target_compile_definitions(tfm_test_suite_irq
 target_link_libraries(tfm_test_suite_irq
     PRIVATE
         tfm_test_framework_ns
-        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:tfm_flih_test_service_interface>
-        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:tfm_slih_test_service_interface>
         platform_ns
         spm_test_common
 )

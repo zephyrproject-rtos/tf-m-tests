@@ -27,14 +27,17 @@
 #endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */
 
 /* IRQ test service types [0x200, 0x2FF] */
-#ifdef TEST_NS_FLIH_IRQ
+
+/* Different config options used by NS and S build respectively */
+#if (defined TEST_NS_FLIH_IRQ) || (defined TFM_PARTITION_FLIH_TEST)
 #define TFM_FLIH_TEST_CASE_INVALID          (0x200)
 #define TFM_FLIH_TEST_CASE_1                (0x201)
 #define TFM_FLIH_TEST_CASE_2                (0x202)
-#endif /* TEST_NS_FLIH_IRQ */
+#endif /* (defined TEST_NS_FLIH_IRQ) || (defined TFM_PARTITION_FLIH_TEST) */
 
-#ifdef TEST_NS_SLIH_IRQ
+/* Different config options used by NS and S build respectively */
+#if (defined TEST_NS_SLIH_IRQ) || (defined TFM_PARTITION_SLIH_TEST)
 #define TFM_SLIH_TEST_CASE_1                (0x203)
-#endif /* TEST_NS_SLIH_IRQ */
+#endif /* (defined TEST_NS_SLIH_IRQ) || (defined TFM_PARTITION_SLIH_TEST) */
 
 #endif /* __TFM_SPM_COMMON_TEST_DEFS_H__ */

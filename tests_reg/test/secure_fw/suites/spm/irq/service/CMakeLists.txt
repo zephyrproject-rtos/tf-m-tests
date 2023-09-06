@@ -5,10 +5,10 @@
 #
 #-------------------------------------------------------------------------------
 
-if (TEST_NS_SLIH_IRQ)
+if (TFM_PARTITION_SLIH_TEST)
     add_subdirectory(tfm_slih_test_service)
 endif()
 
-if (TEST_NS_FLIH_IRQ)
+if (TFM_PARTITION_FLIH_TEST)
     add_subdirectory(tfm_flih_test_service)
 endif()
