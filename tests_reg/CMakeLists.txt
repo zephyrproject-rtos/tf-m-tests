@@ -39,6 +39,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
+include(remote_library)
+
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 
 project(tfm_ns LANGUAGES C)
 
