@@ -7,17 +7,20 @@
 
 cmake_policy(SET CMP0079 NEW)
 
+if(TEST_NS_ATTESTATION AND TFM_NS_REG_TEST) # Need TFM_NS_REG_TEST to exclude when building SPE
+    include(${CONFIG_SPE_PATH}/t_cose/tfm_t_cose.cmake)
+
 ############################ t_cose non secure #################################
+    add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
 
-add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
-
-target_link_libraries(tfm_t_cose_ns
-    PUBLIC
-        tfm_t_cose_common
-        tfm_t_cose_defs
-        tfm_qcbor_ns
-        tfm_api_ns
-)
+    target_link_libraries(tfm_t_cose_ns
+        PRIVATE
+            tfm_t_cose_common
+            tfm_t_cose_defs
+            tfm_qcbor_ns
+            tfm_api_ns
+    )
+endif()
 
 if (NOT TEST_NS_T_COSE)
     return()

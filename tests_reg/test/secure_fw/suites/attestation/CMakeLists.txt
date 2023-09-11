@@ -9,7 +9,7 @@ cmake_policy(SET CMP0079 NEW)
 
 ####################### Non Secure #############################################
 
-if (TEST_NS_ATTESTATION)
+if (TEST_NS_ATTESTATION AND TFM_NS_REG_TEST) # Need TFM_NS_REG_TEST to exclude when building SPE
     add_library(tfm_test_suite_attestation_ns STATIC EXCLUDE_FROM_ALL)
 
     target_sources(tfm_test_suite_attestation_ns
@@ -29,6 +29,8 @@ if (TEST_NS_ATTESTATION)
             ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util
         PRIVATE
             .
+            ${CONFIG_SPE_PATH}/initial_attestation
+            ${CONFIG_SPE_PATH}/t_cose/inc
     )
 
     target_compile_definitions(tfm_test_suite_attestation_ns
@@ -45,9 +47,6 @@ if (TEST_NS_ATTESTATION)
             tfm_qcbor_ns
             tfm_t_cose_ns
             tfm_test_framework_ns
-            #TODO I'm not sure this should _really_ be linked here
-            tfm_attestation_defs
-            tfm_boot_status
             platform_ns
     )
 

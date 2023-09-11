@@ -45,3 +45,16 @@ ExternalProject_Add(TF-M
 add_dependencies(tfm_s_test TF-M)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/build-spe/bin DESTINATION ${CMAKE_BINARY_DIR})
+
+install(DIRECTORY   ${CONFIG_TFM_SOURCE_PATH}/secure_fw/partitions/initial_attestation
+        DESTINATION ${CMAKE_BINARY_DIR}/api_ns
+        FILES_MATCHING PATTERN "*.h")
+
+install(FILES       ${CONFIG_TFM_SOURCE_PATH}/secure_fw/spm/include/boot/tfm_boot_status.h
+        DESTINATION ${CMAKE_BINARY_DIR}/api_ns/initial_attestation)
+
+install(DIRECTORY   ${CONFIG_TFM_SOURCE_PATH}/lib/ext/t_cose
+        DESTINATION ${CMAKE_BINARY_DIR}/api_ns)
+
+install(FILES       ${CONFIG_TFM_SOURCE_PATH}/lib/ext/qcbor/q_useful_buf.h
+        DESTINATION ${CMAKE_BINARY_DIR}/api_ns/qcbor/inc)
