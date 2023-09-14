@@ -5,6 +5,33 @@
 #
 #-------------------------------------------------------------------------------
 
+# MCUBoot does not have its own log system, use the NS log one.
+# However the tfm_log library can not be used directly as it's intended for NS tests.
+# It links platform_ns which is not built by SPE build.
+# So a dedicated library is duplicated here, and it links the platform_s instead of platform_ns.
+
+# TO-DO: find a better approach to reference the directory
+set(LOG_SOURCE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../../app_broker/log)
+
+add_library(mcuboot_test_log INTERFACE)
+add_library(mcuboot_test_log_interface INTERFACE)
+
+target_sources(mcuboot_test_log
+    INTERFACE
+        ${LOG_SOURCE_ROOT}/tfm_log_raw.c
+)
+
+target_include_directories(mcuboot_test_log_interface
+    INTERFACE
+        ${LOG_SOURCE_ROOT}
+)
+
+target_link_libraries(mcuboot_test_log
+    INTERFACE
+        mcuboot_test_log_interface
+        platform_common_interface
+)
+
 add_subdirectory(suites/integration)
 
 add_library(mcuboot_tests STATIC)
@@ -25,4 +52,5 @@ target_link_libraries(mcuboot_tests
     PRIVATE
         platform_bl2
         mcuboot_test_suite_integration
+        mcuboot_test_log
 )

@@ -24,6 +24,5 @@ target_link_libraries(mcuboot_test_suite_integration
     PUBLIC
         tfm_test_framework_common
         bootutil
-        tfm_log
         platform_bl2
 )
