@@ -58,11 +58,6 @@ if (TFM_S_REG_TEST)
             $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
     )
 
-    target_link_libraries(tfm_test_framework_common
-        PUBLIC
-            tfm_test_framework_s
-    )
-
     add_library(tfm_s_tests STATIC)
 
     target_sources(tfm_s_tests

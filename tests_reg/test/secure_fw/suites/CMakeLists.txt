@@ -10,12 +10,6 @@
 cmake_minimum_required(VERSION 3.13)
 
 if(TFM_NS_REG_TEST AND NS)
-
-    target_link_libraries(tfm_test_framework_common
-        PUBLIC
-            tfm_log
-    )
-
     add_library(tfm_ns_tests INTERFACE)
     add_library(tfm_test_framework_ns INTERFACE)
 

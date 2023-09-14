@@ -7,18 +7,19 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-add_library(tfm_test_framework_common STATIC)
+add_library(tfm_test_framework_common INTERFACE)
 
 target_sources(tfm_test_framework_common
-    PRIVATE
+    INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework.c
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_helpers.c
         ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_integ_test_helper.c
 )
 
 target_include_directories(tfm_test_framework_common
-    PUBLIC
+    INTERFACE
         framework
+        ${CMAKE_CURRENT_LIST_DIR}/../../app_broker/log
 )
 
 add_subdirectory(secure_fw)
