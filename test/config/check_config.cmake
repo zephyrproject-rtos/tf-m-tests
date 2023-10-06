@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,6 +13,8 @@ tfm_invalid_config((NOT TFM_PARTITION_CRYPTO) AND (TEST_NS_CRYPTO OR TEST_S_CRYP
 tfm_invalid_config((NOT TFM_PARTITION_INITIAL_ATTESTATION) AND (TEST_NS_ATTESTATION OR TEST_S_ATTESTATION OR TEST_NS_QCBOR OR TEST_NS_T_COSE))
 tfm_invalid_config((NOT TFM_PARTITION_PLATFORM) AND (TEST_NS_PLATFORM OR TEST_S_PLATFORM))
 tfm_invalid_config(NOT TFM_PARTITION_FIRMWARE_UPDATE AND (TEST_NS_FWU OR TEST_S_FWU))
+
+tfm_invalid_config(TFM_PXN_ENABLE AND PS_TEST_NV_COUNTERS)
 
 tfm_invalid_config((TEST_NS_IPC OR TEST_S_IPC) AND CONFIG_TFM_SPM_BACKEND_SFN)
 tfm_invalid_config(TEST_S_SFN_BACKEND AND CONFIG_TFM_SPM_BACKEND_IPC)

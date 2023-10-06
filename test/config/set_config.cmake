@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,6 +10,11 @@
 if ((NOT TFM_PARTITION_PROTECTED_STORAGE))
     set(TEST_NS_PS              OFF        CACHE BOOL      "Whether to build NS regression PS tests")
     set(TEST_S_PS               OFF        CACHE BOOL      "Whether to build S regression PS tests")
+endif()
+
+if (TFM_PXN_ENABLE)
+    # The PS test NV counters do not work with PXN enabled
+    set(PS_TEST_NV_COUNTERS     OFF        CACHE BOOL      "Use the test NV counters to test Protected Storage rollback scenarios")
 endif()
 
 if (NOT TFM_PARTITION_INTERNAL_TRUSTED_STORAGE)
