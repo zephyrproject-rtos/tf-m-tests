@@ -27,20 +27,7 @@ if (NOT DEFINED CONFIG_TFM_SOURCE_PATH OR NOT EXISTS ${CONFIG_TFM_SOURCE_PATH})
 endif()
 
 if (NOT DEFINED PSA_ARCH_TESTS_PATH OR NOT EXISTS ${PSA_ARCH_TESTS_PATH})
-    set(PSA_ARCH_TESTS_PATH     "DOWNLOAD"  CACHE PATH      "Path to PSA arch test repository used for SPE build")
-    set(PSA_ARCH_TESTS_VERSION  "5c57920"   CACHE STRING    "The version of PSA arch tests to use")
-    fetch_remote_library(
-        LIB_NAME                psa_arch_tests
-        LIB_SOURCE_PATH_VAR     PSA_ARCH_TESTS_PATH
-        LIB_PATCH_DIR           ${CMAKE_CURRENT_SOURCE_DIR}
-        LIB_FORCE_PATCH         PSA_ARCH_TESTS_FORCE_PATCH
-        FETCH_CONTENT_ARGS
-            GIT_REPOSITORY      https://github.com/ARM-software/psa-arch-tests.git
-            GIT_TAG             ${PSA_ARCH_TESTS_VERSION}
-            GIT_SHALLOW         FALSE
-            GIT_PROGRESS        TRUE
-            GIT_SUBMODULES      ""
-    )
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../fetch_repo ${CMAKE_BINARY_DIR}/fetch_repo)
 endif()
 
 if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
