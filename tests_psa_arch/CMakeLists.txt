@@ -104,6 +104,7 @@ add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_BINARY_DIR}/api-tests)
 target_sources(tfm_ns
     PRIVATE
         test_app.c
+        $<$<BOOL:${CONFIG_GNU_SYSCALL_STUB_ENABLED}>:../app_broker/syscalls_stub.c>
 )
 
 target_link_libraries(tfm_ns
