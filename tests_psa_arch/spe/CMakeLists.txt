@@ -6,6 +6,9 @@
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.15)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
+include(utils)
+
 # Force cross compilation and avoid compiler search and test
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_COMPILER_FORCED TRUE)
@@ -30,14 +33,15 @@ if (NOT DEFINED PSA_ARCH_TESTS_PATH OR NOT EXISTS ${PSA_ARCH_TESTS_PATH})
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../fetch_repo ${CMAKE_BINARY_DIR}/fetch_repo)
 endif()
 
-if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CROSS_COMPILE         arm-none-eabi CACHE STRING "Cross-compiler prefix")
-    set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_TFM_SOURCE_PATH}/toolchain_GNUARM.cmake)
-endif()
+collect_build_cmd_args(TFM_CMDLINE_CONFIGS)
 
-configure_file(${CMAKE_SOURCE_DIR}/tfm_psa_ff_test_manifest_list.yaml
-               ${CMAKE_BINARY_DIR}/tfm_psa_ff_test_manifest_list.yaml)
-list(APPEND TFM_EXTRA_MANIFEST_LIST_FILES ${CMAKE_BINARY_DIR}/tfm_psa_ff_test_manifest_list.yaml)
+if ("${TEST_PSA_API}" STREQUAL "IPC")
+    # Workaround: amend IPC backend config to command-line options so that users (including CI)
+    # do not need to set backend for FF tests.
+    # This should be done in the config_test_psa_api.cmake but it is included by TF-M too late.
+    # So setting backend in it does not take effect.
+    set(TFM_CMDLINE_CONFIGS "${TFM_CMDLINE_CONFIGS};-DCONFIG_TFM_SPM_BACKEND:UNINITIALIZED=IPC")
+endif()
 
 #------------------------------------------------------------------------------
 
@@ -49,14 +53,11 @@ ExternalProject_Add(TF-M
     SOURCE_DIR        ${CONFIG_TFM_SOURCE_PATH}
     BINARY_DIR        build-spe
     INSTALL_DIR       api_ns
-    CMAKE_ARGS        -DTFM_PLATFORM=${TFM_PLATFORM}
-    CMAKE_ARGS        -DTEST_PSA_API=${TEST_PSA_API}
-    CMAKE_ARGS        -DTFM_EXTRA_CONFIG_PATH=${CMAKE_SOURCE_DIR}/config_spe.cmake
-    CMAKE_ARGS        -DPROJECT_CONFIG_HEADER_FILE=${CMAKE_SOURCE_DIR}/config_test_psa_api.h
     CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-    CMAKE_ARGS        -DTFM_EXTRA_MANIFEST_LIST_FILES=${TFM_EXTRA_MANIFEST_LIST_FILES}
     CMAKE_ARGS        -DPSA_ARCH_TESTS_PATH=${PSA_ARCH_TESTS_PATH}
     CMAKE_ARGS        -DCONFIG_TFM_TEST_DIR=${CMAKE_SOURCE_DIR}/partitions
+    CMAKE_ARGS        -DCONFIG_TFM_TEST_CONFIG_FILE=${CMAKE_CURRENT_LIST_DIR}/config/config_test_psa_api.cmake
+    CMAKE_CACHE_DEFAULT_ARGS ${TFM_CMDLINE_CONFIGS}
     PREFIX             "temp"
 )
 

@@ -29,16 +29,36 @@ include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 include(spe_config)
 include(${CONFIG_SPE_PATH}/platform/config.cmake)
 
-set(CPU_ARCH ${PSA_API_TEST_CPU_ARCH})
+#--- NSPE side project ---------------------------------------------------------
+
+# Setup required configs: SUITE, CPU_ARCH and TARGET
 set(SUITE    ${TEST_PSA_API})
 
-if (NOT "${TEST_PSA_API}" STREQUAL "IPC")
-    set(TARGET tgt_dev_apis_tfm_${PSA_API_TEST_TARGET})
-else()
-    set(TARGET tgt_ff_tfm_${PSA_API_TEST_TARGET})
+if (NOT DEFINED CPU_ARCH)
+    if (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.main)
+        set(CPU_ARCH armv8m_ml)
+    elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8-m.base)
+        set(CPU_ARCH armv8m_bl)
+    elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv8.1-m.main)
+        set(CPU_ARCH armv81m_ml)
+    elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
+        set(CPU_ARCH armv7m)
+    endif()
 endif()
 
-#--- NSPE side project ---------------------------------------------------------
+if (NOT DEFINED PSA_API_TEST_TARGET)
+    string(REGEX REPLACE ".*/" "" PSA_API_TEST_TARGET ${TFM_PLATFORM})
+endif()
+
+if(NOT SP_HEAP_MEM_SUPP)
+    set(SP_HEAP_MEM_SUPP 0)
+endif()
+
+if ("${TEST_PSA_API}" STREQUAL "IPC")
+    set(TARGET tgt_ff_tfm_${PSA_API_TEST_TARGET})
+else()
+    set(TARGET tgt_dev_apis_tfm_${PSA_API_TEST_TARGET})
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 include(toolchain_selection)
@@ -49,6 +69,7 @@ tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)
 
+add_subdirectory(../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 add_subdirectory(../app_broker ${CMAKE_BINARY_DIR}/app_broker)
 
 list(APPEND PSA_INCLUDE_PATHS ${CONFIG_SPE_PATH}/interface/include)
