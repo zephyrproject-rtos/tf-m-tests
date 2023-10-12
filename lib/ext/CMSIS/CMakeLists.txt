@@ -39,6 +39,35 @@ else()
     message(FATAL_ERROR "${CMAKE_C_COMPILER_ID} does not have CMSIS RTX static libraries set up")
 endif()
 
+# Select RTX library according to cpu/arch type
+if(TFM_SYSTEM_ARCHITECTURE STREQUAL "armv6-m")
+    set(CMSIS_5_RTX_LIB         "CMSIS_5_RTX_CM3")
+elseif(TFM_SYSTEM_ARCHITECTURE STREQUAL "armv8-m.base")
+    set(CMSIS_5_RTX_LIB         "CMSIS_5_RTX_V8MBN")
+elseif(TFM_SYSTEM_ARCHITECTURE STREQUAL "armv8-m.main")
+    if(CONFIG_TFM_ENABLE_FP OR CONFIG_TFM_ENABLE_MVE_FP)
+        set(CMSIS_5_RTX_LIB     "CMSIS_5_RTX_V8MMFN")
+    else()
+        set(CMSIS_5_RTX_LIB     "CMSIS_5_RTX_V8MMN")
+    endif()
+elseif(TFM_SYSTEM_ARCHITECTURE STREQUAL "armv8.1-m.main")
+    if("${CMAKE_C_COMPILER_ID}" STREQUAL "IAR")
+        set(CMSIS_5_RTX_LIB     "CMSIS_5_RTX_V81MMN")
+    elseif(CONFIG_TFM_ENABLE_FP OR CONFIG_TFM_ENABLE_MVE_FP)
+        set(CMSIS_5_RTX_LIB     "CMSIS_5_RTX_V8MMFN")
+    else()
+        set(CMSIS_5_RTX_LIB     "CMSIS_5_RTX_V8MMN")
+    endif()
+elseif(TFM_SYSTEM_PROCESSOR STREQUAL "cortex-m4")
+    set(CMSIS_5_RTX_LIB         "CMSIS_5_RTX_CM3")
+endif()
+
+if(NOT DEFINED CMSIS_5_RTX_LIB)
+    message(FATAL_ERROR
+            "Unable to select CMSIS RTX library."
+            "Unsupported processor ${TFM_SYSTEM_PROCESSOR} or architecture ${TFM_SYSTEM_ARCHITECTURE}")
+endif()
+
 add_library(RTX_OS INTERFACE)
 
 target_sources(RTX_OS
@@ -57,6 +86,6 @@ target_include_directories(RTX_OS
 
 target_link_libraries(RTX_OS
     INTERFACE
-        CMSIS_5_RTX_V8MMN
+        ${CMSIS_5_RTX_LIB}
         platform_ns         # for cmsis_compiler.h
 )
