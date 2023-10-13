@@ -13,6 +13,10 @@ if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
+
+# A platform sprecific MCPU and architecture flags for NS side
+include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
+
 include(spe_config)
 include(${CONFIG_SPE_PATH}/platform/config.cmake)
 

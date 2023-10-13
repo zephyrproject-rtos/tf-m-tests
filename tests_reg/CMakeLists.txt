@@ -15,6 +15,8 @@ if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
 endif()
 
+# A platform sprecific MCPU and architecture flags for NS side
+include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
