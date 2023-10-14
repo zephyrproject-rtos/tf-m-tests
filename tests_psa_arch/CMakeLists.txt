@@ -40,11 +40,8 @@ endif()
 
 #--- NSPE side project ---------------------------------------------------------
 
-if (NOT DEFINED TFM_TOOLCHAIN_FILE)
-    set(TFM_TOOLCHAIN_FILE    ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
-endif()
-
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
+include(toolchain_selection)
 
 include(${TFM_TOOLCHAIN_FILE})
 project("TF-M PSA Arch tests" LANGUAGES C)

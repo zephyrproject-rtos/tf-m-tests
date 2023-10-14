@@ -19,9 +19,10 @@ if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
     message(FATAL_ERROR "CONFIG_SPE_PATH = ${CONFIG_SPE_PATH} is not defined or incorrect. Please provide full path to TF-M build artifacts using -DCONFIG_SPE_PATH=")
 endif()
 
-if (NOT DEFINED TFM_TOOLCHAIN_FILE)
-    set(TFM_TOOLCHAIN_FILE    ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
-endif()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
+list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
+include(remote_library)
+include(toolchain_selection)
 
 # A platform sprecific MCPU and architecture flags for NS side
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
@@ -36,10 +37,6 @@ include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
 
 # Test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
-list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
-include(remote_library)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 
