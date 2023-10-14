@@ -21,9 +21,8 @@ if (NOT DEFINED CONFIG_TFM_SOURCE_PATH OR NOT EXISTS ${CONFIG_TFM_SOURCE_PATH})
     message(FATAL_ERROR "CONFIG_TFM_SOURCE_PATH = ${CONFIG_TFM_SOURCE_PATH} is not defined or incorrect. Please provide full path to TF-M sources.")
 endif()
 
-if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CROSS_COMPILE         arm-none-eabi CACHE STRING "Cross-compiler prefix")
-    set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_TFM_SOURCE_PATH}/toolchain_GNUARM.cmake)
+if (NOT DEFINED TFM_TOOLCHAIN_FILE)
+    set(TFM_TOOLCHAIN_FILE    ${CONFIG_TFM_SOURCE_PATH}/toolchain_GNUARM.cmake)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/config/set_config.cmake)
@@ -41,6 +40,7 @@ ExternalProject_Add(TF-M
   CMAKE_ARGS        -DTFM_EXTRA_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/config_spe.cmake
   CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   CMAKE_ARGS        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+  CMAKE_ARGS        -DTFM_TOOLCHAIN_FILE=${TFM_TOOLCHAIN_FILE}
   PREFIX             "temp"
 )
 

@@ -10,9 +10,8 @@ if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
     message(FATAL_ERROR "CONFIG_SPE_PATH = ${CONFIG_SPE_PATH} is not defined or incorrect. Please provide full path to TF-M build artifacts using -DCONFIG_SPE_PATH=")
 endif()
 
-if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CROSS_COMPILE         arm-none-eabi)
-    set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
+if (NOT DEFINED TFM_TOOLCHAIN_FILE)
+    set(TFM_TOOLCHAIN_FILE    ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
 endif()
 
 # A platform sprecific MCPU and architecture flags for NS side
@@ -35,7 +34,9 @@ include(remote_library)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 
+include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C)
+tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)
 
@@ -67,3 +68,5 @@ target_link_options(tfm_ns
     PRIVATE
         $<$<C_COMPILER_ID:GNU>:-Wl,-Map=${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
 )
+
+add_convert_to_bin_target(tfm_ns)

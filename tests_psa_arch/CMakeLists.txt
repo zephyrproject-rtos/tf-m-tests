@@ -31,14 +31,15 @@ endif()
 
 #--- NSPE side project ---------------------------------------------------------
 
-if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CROSS_COMPILE         arm-none-eabi)
-    set(CMAKE_TOOLCHAIN_FILE  ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
+if (NOT DEFINED TFM_TOOLCHAIN_FILE)
+    set(TFM_TOOLCHAIN_FILE    ${CONFIG_SPE_PATH}/cmake/toolchain_ns_GNUARM.cmake)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 
+include(${TFM_TOOLCHAIN_FILE})
 project("TF-M PSA Arch tests" LANGUAGES C)
+tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)
 
@@ -83,3 +84,5 @@ target_link_options(tfm_ns
     PRIVATE
         $<$<C_COMPILER_ID:GNU>:-Wl,-Map=${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
 )
+
+add_convert_to_bin_target(tfm_ns)
