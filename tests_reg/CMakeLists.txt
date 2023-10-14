@@ -6,6 +6,15 @@
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.15)
 
+# CMake 3.21 and above requests projects to specify cpu/arch compile and link flags explicitly in
+# Armclang. Link: https://cmake.org/cmake/help/latest/policy/CMP0123.html
+# It is aligned with current Armclang toolchain implementation.
+# Explictly set this policy to NEW behavior to eliminate long warnings. It shall be set in root
+# CMakeLists.txt otherwise project() will throw out the warnings.
+if(POLICY CMP0123)
+    cmake_policy(SET CMP0123 NEW)
+endif()
+
 if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
     message(FATAL_ERROR "CONFIG_SPE_PATH = ${CONFIG_SPE_PATH} is not defined or incorrect. Please provide full path to TF-M build artifacts using -DCONFIG_SPE_PATH=")
 endif()
@@ -67,6 +76,7 @@ target_add_scatter_file(tfm_ns ${CONFIG_SPE_PATH}/platform/linker_scripts)
 target_link_options(tfm_ns
     PRIVATE
         $<$<C_COMPILER_ID:GNU>:-Wl,-Map=${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
+        $<$<C_COMPILER_ID:ARMClang>:--map>
 )
 
 add_convert_to_bin_target(tfm_ns)
