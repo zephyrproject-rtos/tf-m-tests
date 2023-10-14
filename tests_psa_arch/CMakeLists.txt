@@ -73,3 +73,9 @@ set_target_properties(tfm_ns PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+target_add_scatter_file(tfm_ns ${CONFIG_SPE_PATH}/platform/linker_scripts)
+
+target_link_options(tfm_ns
+    PRIVATE
+        $<$<C_COMPILER_ID:GNU>:-Wl,-Map=${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
+)
