@@ -41,7 +41,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 
 include(${TFM_TOOLCHAIN_FILE})
-project(tfm_ns LANGUAGES C)
+project(tfm_ns LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)

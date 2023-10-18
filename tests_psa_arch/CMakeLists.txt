@@ -44,7 +44,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 include(toolchain_selection)
 
 include(${TFM_TOOLCHAIN_FILE})
-project("TF-M PSA Arch tests" LANGUAGES C)
+project("TF-M PSA Arch tests" LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)
