@@ -30,5 +30,5 @@ target_include_directories(erpc_app
 target_link_libraries(erpc_app
     PRIVATE
         erpc_server
-        tfm_log
+        tfm_ns_log
 )

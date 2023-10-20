@@ -7,5 +7,3 @@
 
 # This file is consumed by NS test build to get test configurations
 @NS_TEST_CONFIG_OPTIONS@
-# Profile test configurations
-include(@PROFILE_TEST_CONFIG_FILE@)

@@ -64,9 +64,12 @@ endif()
 
 if (TEST_S_CRYPTO)
 
-    add_library(tfm_test_suite_crypto_s STATIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/crypto_tests_common.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/crypto_sec_interface_testsuite.c
+    add_library(tfm_test_suite_crypto_s STATIC EXCLUDE_FROM_ALL)
+
+    target_sources(tfm_test_suite_crypto_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/crypto_tests_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/crypto_sec_interface_testsuite.c
     )
 
     target_include_directories(tfm_test_suite_crypto_s

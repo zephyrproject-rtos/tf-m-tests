@@ -45,10 +45,14 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_ITS)
-    add_library(tfm_test_suite_its_s STATIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/its_tests_common.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_interface_testsuite.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_reliability_testsuite.c
+
+    add_library(tfm_test_suite_its_s STATIC EXCLUDE_FROM_ALL)
+
+    target_sources(tfm_test_suite_its_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/its_tests_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_interface_testsuite.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_its_s_reliability_testsuite.c
     )
 
     target_include_directories(tfm_test_suite_its_s

@@ -30,9 +30,6 @@ set(SPE_INSTALL_INTERFACE_INC    ${CONFIG_SPE_PATH}/interface/include)
 # lib parth
 set(APP_LIB_DIR                  ${CMAKE_CURRENT_LIST_DIR}/../lib)
 
-# TF-M logging
-add_subdirectory(${APP_LIB_DIR}/log    ${CMAKE_CURRENT_BINARY_DIR}/lib/log)
-
 # OS wrapper library consists of the wrapper layer of RTOSes, such as RTX
 add_library(os_wrapper STATIC)
 
@@ -113,6 +110,24 @@ if(TFM_PARTITION_NS_AGENT_MAILBOX)
     )
 endif()
 
+# TF-M ns logging
+add_library(tfm_ns_log STATIC EXCLUDE_FROM_ALL)
+
+target_sources(tfm_ns_log
+    PRIVATE
+        ${APP_LIB_DIR}/log/tfm_log_raw.c
+)
+
+target_include_directories(tfm_ns_log
+    PUBLIC
+        ${APP_LIB_DIR}/log/
+)
+
+target_link_libraries(tfm_ns_log
+    PRIVATE
+        platform_ns
+)
+
 ################## Update plaform_ns with NS settings #################
 
 target_include_directories(platform_ns
@@ -166,6 +181,11 @@ target_link_libraries(tfm_test_broker
     PUBLIC
         RTX_OS
         tfm_api_ns
-        tfm_log
+        tfm_ns_log
         $<$<BOOL:${TFM_PARTITION_NS_AGENT_MAILBOX}>:ns_multi_core>
+)
+
+target_compile_definitions(tfm_test_broker
+    PUBLIC
+        $<$<BOOL:${TFM_NS_REG_TEST}>:TFM_NS_REG_TEST>
 )

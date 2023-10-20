@@ -9,7 +9,7 @@ cmake_policy(SET CMP0079 NEW)
 
 ####################### Non Secure #############################################
 
-if (TEST_NS_ATTESTATION AND TFM_NS_REG_TEST) # Need TFM_NS_REG_TEST to exclude when building SPE
+if (TEST_NS_ATTESTATION)
     add_library(tfm_test_suite_attestation_ns STATIC EXCLUDE_FROM_ALL)
 
     target_sources(tfm_test_suite_attestation_ns
@@ -60,14 +60,17 @@ endif()
 
 if (TEST_S_ATTESTATION)
 
-    add_library(tfm_test_suite_attestation_s STATIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
-        $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_symmetric.c>
-        $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_symmetric_s_interface_testsuite.c>
-        $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_asymmetric.c>
-        $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_asymmetric_s_interface_testsuite.c>
+    add_library(tfm_test_suite_attestation_s STATIC EXCLUDE_FROM_ALL)
+
+    target_sources(tfm_test_suite_attestation_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_test.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_common.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/ext/qcbor_util/qcbor_util.c
+            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_symmetric.c>
+            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_symmetric_s_interface_testsuite.c>
+            $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/attest_token_decode_asymmetric.c>
+            $<$<NOT:$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>>:${CMAKE_CURRENT_SOURCE_DIR}/secure/attest_asymmetric_s_interface_testsuite.c>
     )
 
     target_include_directories(tfm_test_suite_attestation_s

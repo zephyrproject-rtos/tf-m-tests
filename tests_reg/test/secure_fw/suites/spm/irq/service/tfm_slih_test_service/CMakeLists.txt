@@ -37,6 +37,11 @@ target_link_libraries(tfm_app_rot_partition_slih_test
         platform_s
 )
 
+target_compile_definitions(tfm_app_rot_partition_slih_test
+    PUBLIC
+        TFM_PARTITION_SLIH_TEST
+)
+
 target_link_libraries(tfm_spm
     PRIVATE
         tfm_app_rot_partition_slih_test

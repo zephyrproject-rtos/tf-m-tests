@@ -47,9 +47,13 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_IPC)
-    add_library(tfm_test_suite_ipc_s STATIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/ipc_s_interface_testsuite.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/client_api_tests.c
+
+    add_library(tfm_test_suite_ipc_s STATIC EXCLUDE_FROM_ALL)
+
+    target_sources(tfm_test_suite_ipc_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/ipc_s_interface_testsuite.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/client_api_tests.c
     )
 
     target_include_directories(tfm_test_suite_ipc_s

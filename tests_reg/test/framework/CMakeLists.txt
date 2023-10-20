@@ -11,22 +11,12 @@ add_library(tfm_test_framework_common INTERFACE)
 
 target_sources(tfm_test_framework_common
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_helpers.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/framework/test_framework_integ_test_helper.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_framework.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_framework_helpers.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_framework_integ_test_helper.c
 )
 
 target_include_directories(tfm_test_framework_common
     INTERFACE
-        framework
+        ${CMAKE_CURRENT_LIST_DIR}
 )
-
-add_subdirectory(secure_fw)
-
-if(TEST_BL2)
-    add_subdirectory(bl2)
-endif()
-
-if(TEST_BL1_1 OR TEST_BL1_2)
-    add_subdirectory(bl1)
-endif()

@@ -7,20 +7,25 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if(TEST_NS_ATTESTATION AND TFM_NS_REG_TEST) # Need TFM_NS_REG_TEST to exclude when building SPE
-    include(${CONFIG_SPE_PATH}/t_cose/tfm_t_cose.cmake)
+if (NOT TEST_NS_ATTESTATION AND NOT TEST_NS_T_COSE)
+    return()
+endif()
+
+set(T_COSE_SRC_DIR ${CONFIG_SPE_PATH}/t_cose)
+
+include(${T_COSE_SRC_DIR}/tfm_t_cose.cmake)
 
 ############################ t_cose non secure #################################
-    add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
 
-    target_link_libraries(tfm_t_cose_ns
-        PRIVATE
-            tfm_t_cose_common
-            tfm_t_cose_defs
-            tfm_qcbor_ns
-            tfm_api_ns
-    )
-endif()
+add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
+
+target_link_libraries(tfm_t_cose_ns
+    PUBLIC
+        tfm_t_cose_common
+        tfm_t_cose_defs
+        tfm_qcbor_ns
+        tfm_api_ns
+)
 
 if (NOT TEST_NS_T_COSE)
     return()
@@ -29,8 +34,6 @@ endif()
 ############################ t_cose test #######################################
 
 add_library(tfm_t_cose_test STATIC EXCLUDE_FROM_ALL)
-
-set(T_COSE_SRC_DIR ${CMAKE_SOURCE_DIR}/lib/ext/t_cose)
 
 target_sources(tfm_t_cose_test
     PRIVATE
@@ -45,6 +48,11 @@ target_include_directories(tfm_t_cose_test
     PUBLIC
         $<BUILD_INTERFACE:${T_COSE_SRC_DIR}/inc>
         $<BUILD_INTERFACE:${T_COSE_SRC_DIR}/test>
+)
+
+target_link_libraries(tfm_t_cose_test
+    PUBLIC
+        tfm_t_cose_ns
 )
 
 ####################### Non Secure #############################################

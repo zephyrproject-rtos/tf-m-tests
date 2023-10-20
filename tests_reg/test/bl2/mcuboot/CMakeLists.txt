@@ -11,25 +11,28 @@
 # So a dedicated library is duplicated here, and it links the platform_s instead of platform_ns.
 
 # TO-DO: find a better approach to reference the directory
-set(LOG_SOURCE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../../lib/log)
+set(LOG_SOURCE_ROOT ${TFM_TESTS_ROOT_DIR}/lib/log)
 
 add_library(mcuboot_test_log INTERFACE)
-add_library(mcuboot_test_log_interface INTERFACE)
 
 target_sources(mcuboot_test_log
     INTERFACE
         ${LOG_SOURCE_ROOT}/tfm_log_raw.c
 )
 
-target_include_directories(mcuboot_test_log_interface
+target_include_directories(mcuboot_test_log
     INTERFACE
         ${LOG_SOURCE_ROOT}
 )
 
 target_link_libraries(mcuboot_test_log
     INTERFACE
-        mcuboot_test_log_interface
-        platform_common_interface
+        platform_bl2
+)
+
+target_link_libraries(tfm_test_framework_common
+    INTERFACE
+        mcuboot_test_log
 )
 
 add_subdirectory(suites/integration)
@@ -52,5 +55,4 @@ target_link_libraries(mcuboot_tests
     PRIVATE
         platform_bl2
         mcuboot_test_suite_integration
-        mcuboot_test_log
 )

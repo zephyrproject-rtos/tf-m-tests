@@ -9,40 +9,6 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-if(TFM_NS_REG_TEST AND NS)
-    add_library(tfm_ns_tests INTERFACE)
-    add_library(tfm_test_framework_ns INTERFACE)
-
-    target_compile_definitions(tfm_test_framework_ns
-        INTERFACE
-            DOMAIN_NS=1
-    )
-
-    target_link_libraries(tfm_test_framework_ns
-        INTERFACE
-            tfm_test_framework_common
-            tfm_api_ns
-            tfm_log
-    )
-
-    target_sources(tfm_ns_tests
-        INTERFACE
-            ../non_secure_suites.c
-    )
-
-    target_link_libraries(tfm_ns_tests
-        INTERFACE
-            tfm_test_framework_ns
-            tfm_config
-    )
-
-    target_compile_definitions(tfm_ns_tests
-        INTERFACE
-            $<$<BOOL:${SYMMETRIC_INITIAL_ATTESTATION}>:SYMMETRIC_INITIAL_ATTESTATION>
-            $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
-    )
-endif()
-
 # Add test suites.
 # Secure test suite library targets shall already be added in secure_tests.cmake
 add_subdirectory(attestation)

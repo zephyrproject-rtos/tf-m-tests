@@ -21,6 +21,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/utils)
 include(remote_library)
 include(toolchain_selection)
 
@@ -29,24 +30,28 @@ include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
-set(TFM_NS_REG_TEST       ON)
-set(NS                    ON)
+include(${TFM_TOOLCHAIN_FILE})
+project(tfm_ns LANGUAGES C ASM)
+tfm_toolchain_reload_compiler()
+
+# Include configs exported from TF-M
+include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 
 # Test suite configurations - set up by SPE build
 include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
 
-# Test configurations
+# Default test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
-
-include(${TFM_TOOLCHAIN_FILE})
-project(tfm_ns LANGUAGES C ASM)
-tfm_toolchain_reload_compiler()
+# Config check in case additional test configs passed in via command line.
+include(${CMAKE_CURRENT_LIST_DIR}/test/config/check_config.cmake)
 
 add_executable(tfm_ns)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 add_subdirectory(../app_broker ${CMAKE_BINARY_DIR}/app_broker)
-add_subdirectory(test)
+if(TFM_NS_REG_TEST)
+    add_subdirectory(test/ns_regression)
+endif()
 
 ############################# TFM NS main app ##################################
 
@@ -58,8 +63,12 @@ target_sources(tfm_ns
 target_link_libraries(tfm_ns
     PRIVATE
         tfm_test_broker
-        tfm_ns_tests
-        tfm_test_framework_common
+        $<$<BOOL:${TFM_NS_REG_TEST}>:tfm_ns_tests>
+)
+
+target_compile_definitions(tfm_ns
+    PUBLIC
+        $<$<BOOL:${TFM_NS_REG_TEST}>:TFM_NS_REG_TEST>
 )
 
 set_target_properties(tfm_ns PROPERTIES

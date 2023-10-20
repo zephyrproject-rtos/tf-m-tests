@@ -49,10 +49,14 @@ endif()
 ####################### Secure #################################################
 
 if (TEST_S_PS)
-    add_library(tfm_test_suite_ps_s STATIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_interface_testsuite.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_reliability_testsuite.c
-        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
+
+    add_library(tfm_test_suite_ps_s STATIC EXCLUDE_FROM_ALL)
+
+    target_sources(tfm_test_suite_ps_s
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_interface_testsuite.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/secure/psa_ps_s_reliability_testsuite.c
+            $<$<BOOL:${PS_TEST_NV_COUNTERS}>:${CMAKE_CURRENT_SOURCE_DIR}/secure/ps_rollback_protection_testsuite.c>
     )
 
     target_sources(tfm_app_rot_partition_ps
