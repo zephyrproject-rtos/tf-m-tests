@@ -89,11 +89,6 @@ if (TEST_S_ATTESTATION)
             TEST_S_ATTESTATION
     )
 
-    target_compile_options(tfm_test_suite_attestation_s
-        PUBLIC
-            ${COMPILER_CP_FLAG}
-    )
-
     target_link_libraries(tfm_test_suite_attestation_s
         PRIVATE
             qcbor

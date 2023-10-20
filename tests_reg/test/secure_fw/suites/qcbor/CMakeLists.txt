@@ -41,11 +41,6 @@ target_compile_definitions(tfm_qcbor_ns
         QCBOR_DISABLE_PREFERRED_FLOAT
 )
 
-target_compile_options(tfm_qcbor_ns
-    PUBLIC
-        ${COMPILER_CP_FLAG}
-)
-
 ####################### qcbor test library #####################################
 
 add_library(tfm_qcbor_test STATIC EXCLUDE_FROM_ALL)

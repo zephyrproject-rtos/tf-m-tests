@@ -24,26 +24,32 @@ list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/utils)
 include(remote_library)
 include(toolchain_selection)
+include(utils)
 
 # A platform sprecific MCPU and architecture flags for NS side
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
-include(${TFM_TOOLCHAIN_FILE})
-project(tfm_ns LANGUAGES C ASM)
-tfm_toolchain_reload_compiler()
-
 # Include configs exported from TF-M
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 
+# Include coprocessor configs
+include(${CONFIG_SPE_PATH}/config/cp_config_default.cmake)
+
 # Test suite configurations - set up by SPE build
 include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
+
+include(${TFM_TOOLCHAIN_FILE})
+project(tfm_ns LANGUAGES C ASM)
+tfm_toolchain_reload_compiler()
 
 # Default test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 # Config check in case additional test configs passed in via command line.
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/check_config.cmake)
+# Include coprocessor check to make sure NS toolchain is compatiable
+include(${CONFIG_SPE_PATH}/config/cp_check.cmake)
 
 add_executable(tfm_ns)
 

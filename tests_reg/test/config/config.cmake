@@ -129,9 +129,9 @@ endif()
 
 # Enable FPU test partition if S or NS FP test enabled
 if (TEST_S_FPU OR TEST_NS_FPU)
-    set(TEST_PARTITION_FPU_TEST        ON)
+    set(TFM_PARTITION_FPU_TEST          ON)
 else()
-    set(TEST_PARTITION_FPU_TEST        OFF)
+    set(TFM_PARTITION_FPU_TEST          OFF)
 endif()
 
 if(TEST_NS_FLIH_IRQ)

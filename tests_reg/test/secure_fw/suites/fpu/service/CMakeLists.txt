@@ -7,7 +7,7 @@
 
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_S_FPU)
+if (NOT TEST_S_FPU AND NOT TEST_NS_FPU)
     return()
 endif()
 
