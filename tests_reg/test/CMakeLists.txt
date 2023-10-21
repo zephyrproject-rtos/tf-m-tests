@@ -19,7 +19,6 @@ target_sources(tfm_test_framework_common
 target_include_directories(tfm_test_framework_common
     INTERFACE
         framework
-        ${CMAKE_CURRENT_LIST_DIR}/../../app_broker/log
 )
 
 add_subdirectory(secure_fw)

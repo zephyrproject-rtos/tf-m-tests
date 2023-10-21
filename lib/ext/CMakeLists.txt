@@ -13,3 +13,4 @@ if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR)
     add_subdirectory(qcbor)
 endif()
 
+add_subdirectory(CMSIS)

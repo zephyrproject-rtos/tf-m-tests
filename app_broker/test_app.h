@@ -8,6 +8,8 @@
 #ifndef __TFM_TEST_APP_H__
 #define __TFM_TEST_APP_H__
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

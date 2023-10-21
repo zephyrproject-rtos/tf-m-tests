@@ -38,14 +38,13 @@ include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
 # Test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
-
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
 
 add_executable(tfm_ns)
 
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../lib/ext ${CMAKE_BINARY_DIR}/lib/ext)
 add_subdirectory(../app_broker ${CMAKE_BINARY_DIR}/app_broker)
 add_subdirectory(test)
 

@@ -11,7 +11,7 @@
 # So a dedicated library is duplicated here, and it links the platform_s instead of platform_ns.
 
 # TO-DO: find a better approach to reference the directory
-set(LOG_SOURCE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../../app_broker/log)
+set(LOG_SOURCE_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../../lib/log)
 
 add_library(mcuboot_test_log INTERFACE)
 add_library(mcuboot_test_log_interface INTERFACE)

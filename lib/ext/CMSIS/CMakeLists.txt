@@ -16,7 +16,7 @@ add_library(CMSIS_5_RTX_V8MMFN STATIC IMPORTED GLOBAL)
 add_library(CMSIS_5_RTX_V8MBN STATIC IMPORTED GLOBAL)
 add_library(CMSIS_5_RTX_CM3 STATIC IMPORTED GLOBAL)
 
-set(CMSIS_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/RTOS2/RTX/Library)
+set(CMSIS_LIBS_DIR ${CMAKE_CURRENT_LIST_DIR}/RTOS2/RTX/Library)
 
 if ("${CMAKE_C_COMPILER_ID}" STREQUAL GNU)
     set_target_properties(CMSIS_5_RTX_V8MMN  PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/GCC/libRTX_V8MMN.a)
@@ -39,16 +39,16 @@ else()
     message(FATAL_ERROR "${CMAKE_C_COMPILER_ID} does not have CMSIS RTX static libraries set up")
 endif()
 
-add_library(RTX_OS STATIC)
+add_library(RTX_OS INTERFACE)
 
 target_sources(RTX_OS
-    PUBLIC
+    INTERFACE
         RTOS2/RTX/Config/RTX_Config.c
         RTOS2/RTX/Source/rtx_lib.c
 )
 
 target_include_directories(RTX_OS
-    PUBLIC
+    INTERFACE
         Core/Include
         RTOS2/Include
         RTOS2/RTX/Include
@@ -56,10 +56,7 @@ target_include_directories(RTX_OS
 )
 
 target_link_libraries(RTX_OS
-    PRIVATE
+    INTERFACE
         CMSIS_5_RTX_V8MMN
-        tfm_test_broker
-    PUBLIC
         platform_ns         # for cmsis_compiler.h
-        psa_interface       # for os_wrapper/common.h
 )
