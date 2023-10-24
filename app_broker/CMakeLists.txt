@@ -38,9 +38,3 @@ if (TFM_PARTITION_NS_AGENT_MAILBOX)
     add_subdirectory(multi_core)
     target_link_libraries(tfm_test_broker PUBLIC ns_multi_core)
 endif()
-
-# platform_region_defs needed by PS tests
-add_library(platform_region_defs INTERFACE)
-
-
-
