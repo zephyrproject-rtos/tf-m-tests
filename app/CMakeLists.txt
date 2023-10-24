@@ -109,7 +109,7 @@ if (TFM_PARTITION_NS_AGENT_MAILBOX)
 endif()
 
 target_sources(tfm_api_ns PRIVATE
-    $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/tfm_psa_ns_api.c>
+    $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/tfm_tz_psa_ns_api.c>
     # NS specific implementation of NS interface dispatcher
     $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${INTERFACE_SRC_DIR}/os_wrapper/tfm_ns_interface_rtos.c>
 )
