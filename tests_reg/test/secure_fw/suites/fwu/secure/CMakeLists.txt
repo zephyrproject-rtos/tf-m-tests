@@ -12,5 +12,5 @@ if (NOT TFM_PARTITION_FIRMWARE_UPDATE)
 endif()
 
 if("${TFM_FWU_BOOTLOADER_LIB}" STREQUAL "mcuboot")
-    add_subdirectory(mcuboot)
+    add_subdirectory(../mcuboot/secure)
 endif()

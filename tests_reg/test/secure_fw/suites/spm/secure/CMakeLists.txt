@@ -8,10 +8,9 @@
 cmake_policy(SET CMP0079 NEW)
 
 # Add test suites and test service common library
-add_subdirectory(common/suites)
-add_subdirectory(common/service)
+add_subdirectory(../common/suites   ${CMAKE_CURRENT_BINARY_DIR}/common/suites)
+add_subdirectory(../common/service  ${CMAKE_CURRENT_BINARY_DIR}/common/service)
 
-# Add ipc and sfn test suite.
-add_subdirectory(ipc)
-add_subdirectory(sfn)
-add_subdirectory(irq)
+# Add test suites.
+add_subdirectory(../ipc/secure      ${CMAKE_CURRENT_BINARY_DIR}/ipc)
+add_subdirectory(../sfn/secure      ${CMAKE_CURRENT_BINARY_DIR}/sfn)

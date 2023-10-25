@@ -61,12 +61,12 @@ add_library(tfm_test_suite_t_cose_ns STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_test_suite_t_cose_ns
     PRIVATE
-        non_secure/t_cose_ns_testsuite.c
+        t_cose_ns_testsuite.c
 )
 
 target_include_directories(tfm_test_suite_t_cose_ns
     PUBLIC
-        non_secure
+        .
 )
 
 target_compile_definitions(tfm_test_suite_t_cose_ns

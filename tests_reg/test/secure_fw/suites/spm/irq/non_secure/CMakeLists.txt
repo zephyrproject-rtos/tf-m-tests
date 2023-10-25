@@ -19,15 +19,15 @@ target_sources(tfm_test_suite_irq
     PRIVATE
         ./irq_testsuite.c
         $<$<OR:$<BOOL:${TEST_NS_SLIH_IRQ}>,$<BOOL:${TEST_NS_FLIH_IRQ}>>:
-            ${CMAKE_CURRENT_SOURCE_DIR}/../common/suites/irq_test.c>
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../common/suites/irq_test.c>
 )
 
 target_include_directories(tfm_test_suite_irq
     PUBLIC
         ./
     PRIVATE
-        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/service/tfm_slih_test_service>
-        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/service/tfm_flih_test_service>
+        $<$<BOOL:${TEST_NS_SLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/../service/tfm_slih_test_service>
+        $<$<BOOL:${TEST_NS_FLIH_IRQ}>:${CMAKE_CURRENT_LIST_DIR}/../service/tfm_flih_test_service>
 )
 
 target_compile_definitions(tfm_test_suite_irq

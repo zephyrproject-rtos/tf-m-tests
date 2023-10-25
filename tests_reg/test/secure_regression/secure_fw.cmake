@@ -72,15 +72,6 @@ target_compile_definitions(tfm_s_tests
         $<$<BOOL:${PS_TEST_NV_COUNTERS}>:PS_TEST_NV_COUNTERS>
 )
 
-include(test_suite_utils)
-
-# A temporary workaround:
-# Temporarily disable Non-secure regression test flags to build NS test suites.
-#
-# Alternatively, CMake files in test suites can be seperated into secure ones and non-secure ones.
-pre_secure_suite_build()
-add_subdirectory(${SECURE_FW_REG_DIR}/suites
-                 ${CMAKE_CURRENT_BINARY_DIR}/secure_fw/suites
+add_subdirectory(${SECURE_FW_REG_DIR}/secure
+                 ${CMAKE_CURRENT_BINARY_DIR}/secure_fw
 )
-# Recover Non-secure regression test filgs.
-post_secure_suite_build()

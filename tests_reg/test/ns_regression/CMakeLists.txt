@@ -65,19 +65,6 @@ target_compile_definitions(tfm_ns_tests
         $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
 )
 
-include(test_suite_utils)
-
-# A temporary workaround:
-# Temporarily disable Secure regression test flags to build NS test suites.
-#
-# Alternatively, CMake files in test suites can be seperated into secure ones and non-secure ones.
-pre_ns_suite_build()
-add_subdirectory(${CMAKE_SOURCE_DIR}/test/secure_fw/suites
+add_subdirectory(${CMAKE_SOURCE_DIR}/test/secure_fw/non_secure
                  ${CMAKE_CURRENT_BINARY_DIR}/secure_fw/suites
 )
-# Recover Secure regression test filgs.
-post_ns_suite_build()
-
-
-
-

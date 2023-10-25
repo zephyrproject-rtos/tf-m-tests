@@ -6,10 +6,6 @@
 #-------------------------------------------------------------------------------
 cmake_policy(SET CMP0079 NEW)
 
-if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION)
-    return()
-endif()
-
 # Adding qcbor and qcbor_test libraries manually as logical target names
 # must be globally unique in CMake. The Secure image also relies on the qcbor
 # library (including its own CMake files), but a separate Non Secure library
@@ -42,6 +38,9 @@ target_compile_definitions(tfm_qcbor_ns
 )
 
 ####################### qcbor test library #####################################
+if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION)
+    return()
+endif()
 
 add_library(tfm_qcbor_test STATIC EXCLUDE_FROM_ALL)
 
@@ -80,12 +79,12 @@ add_library(tfm_test_suite_qcbor_ns STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_test_suite_qcbor_ns
     PRIVATE
-        non_secure/qcbor_ns_testsuite.c
+        qcbor_ns_testsuite.c
 )
 
 target_include_directories(tfm_test_suite_qcbor_ns
     PUBLIC
-        non_secure
+        .
 )
 
 target_compile_definitions(tfm_test_suite_qcbor_ns
