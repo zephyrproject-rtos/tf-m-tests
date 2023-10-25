@@ -7,10 +7,28 @@
 
 #include "tfm_plat_test.h"
 #include "spm_test_defs.h"
-#include "tfm_irq_test_service.h"
 #include "tfm_sp_log.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_slih_test_service.h"
+
+static void slih_test_timer_handler(psa_signal_t timer_irq_signal)
+{
+    tfm_plat_test_secure_timer_stop();
+    psa_irq_disable(timer_irq_signal);
+    psa_eoi(timer_irq_signal);
+}
+
+static void slih_test_case_1(const psa_msg_t *msg, psa_signal_t timer_irq_signal)
+{
+    psa_irq_enable(timer_irq_signal);
+
+    tfm_plat_test_secure_timer_start();
+
+    if (psa_wait(timer_irq_signal, PSA_BLOCK) != timer_irq_signal) {
+        psa_panic();
+    }
+    slih_test_timer_handler(timer_irq_signal);
+}
 
 static psa_status_t slih_test_handle_msg(const psa_msg_t *msg)
 {

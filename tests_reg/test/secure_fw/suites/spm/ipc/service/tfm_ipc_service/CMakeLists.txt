@@ -35,6 +35,8 @@ target_include_directories(tfm_psa_rot_partition_ipc_service
     PUBLIC
         .
     PRIVATE
+        ../../../common
+        ../../../common/service
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_ipc_service
 )
 
@@ -47,7 +49,6 @@ target_link_libraries(tfm_psa_rot_partition_ipc_service
     PRIVATE
         platform_s
         tfm_sprt
-        spm_test_service_common
 )
 
 target_link_libraries(tfm_spm

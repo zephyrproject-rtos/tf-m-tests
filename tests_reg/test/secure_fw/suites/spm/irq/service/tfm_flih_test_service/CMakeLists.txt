@@ -13,7 +13,6 @@ add_dependencies(tfm_app_rot_partition_flih_test manifest_tool)
 target_sources(tfm_app_rot_partition_flih_test
     PRIVATE
         ./tfm_flih_test_service.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service/tfm_irq_test_service.c
 )
 
 # The generated sources
@@ -27,13 +26,13 @@ target_sources(tfm_app_rot_partition_flih_test
 target_include_directories(tfm_app_rot_partition_flih_test
     PUBLIC
         ./
+        ../../../common
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/tfm_flih_test_service
 )
 
 target_link_libraries(tfm_app_rot_partition_flih_test
     PRIVATE
         tfm_sprt
-        spm_test_service_common
         platform_s
 )
 

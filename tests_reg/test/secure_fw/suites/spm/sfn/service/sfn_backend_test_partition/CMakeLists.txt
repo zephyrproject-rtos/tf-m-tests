@@ -39,6 +39,7 @@ target_include_directories(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         ${CMAKE_BINARY_DIR}/generated/secure_fw/test_services/sfn_backend_test_partition
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../common
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../common/service
         ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
@@ -47,7 +48,6 @@ target_link_libraries(tfm_app_rot_partition_sfn_backend_test
     PRIVATE
         platform_s
         tfm_sprt
-        spm_test_service_common
 )
 
 ############################ Partition Defs ####################################
