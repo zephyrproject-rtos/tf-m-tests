@@ -15,6 +15,9 @@ if(POLICY CMP0123)
     cmake_policy(SET CMP0123 NEW)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
+include(toolchain_selection)
+
 #--- SPE artifacts -------------------------------------------------------------
 
 if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
@@ -25,11 +28,17 @@ list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
 
 # A platform sprecific MCPU and architecture flags for NS side
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
-
+# Configs exported by TF-M build
 include(spe_config)
-include(${CONFIG_SPE_PATH}/platform/config.cmake)
+include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
+# Include platform specific PSA Arch test preferences
+include(${CONFIG_SPE_PATH}/platform/tests/psa_arch_tests_config.cmake OPTIONAL)
 
 #--- NSPE side project ---------------------------------------------------------
+
+include(${TFM_TOOLCHAIN_FILE})
+project("TF-M PSA Arch tests" LANGUAGES C ASM)
+tfm_toolchain_reload_compiler()
 
 # Setup required configs: SUITE, CPU_ARCH and TARGET
 set(SUITE    ${TEST_PSA_API})
@@ -62,20 +71,15 @@ endif()
 
 # Toolchain
 if (NOT TOOLCHAIN)
-    if(TFM_TOOLCHAIN_FILE MATCHES ".*toolchain_ns_(.+).cmake")
-        set(TOOLCHAIN ${CMAKE_MATCH_1})
-    else()
-        # TFM_TOOLCHAIN_FILE might not set, use the default one.
+    if (${CMAKE_C_COMPILER_ID} STREQUAL GNU)
         set(TOOLCHAIN GNUARM)
+    elseif (${CMAKE_C_COMPILER_ID} STREQUAL ARMClang)
+        set(TOOLCHAIN ARMCLANG)
     endif()
 endif()
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
-include(toolchain_selection)
-
-include(${TFM_TOOLCHAIN_FILE})
-project("TF-M PSA Arch tests" LANGUAGES C ASM)
-tfm_toolchain_reload_compiler()
+# Check config in case additional configs are passed via command line
+include(${CMAKE_SOURCE_DIR}/spe/config/check_config.cmake)
 
 add_executable(tfm_ns)
 

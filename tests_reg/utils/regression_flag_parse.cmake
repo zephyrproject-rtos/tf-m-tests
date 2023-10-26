@@ -52,8 +52,10 @@ function(parse_regression_flag cmd_line)
         set(TFM_S_REG_TEST ON)
     endif()
 
-    set(ns_reg_cmd    "-DTFM_NS_REG_TEST:BOOL=${TFM_NS_REG_TEST}")
-    set(s_reg_cmd     "-DTFM_S_REG_TEST:BOOL=${TFM_S_REG_TEST}")
-    set(${cmd_line}   "${${cmd_line}};${ns_reg_cmd};${s_reg_cmd}" PARENT_SCOPE)
+    set(ns_reg_cmd      "-DTFM_NS_REG_TEST:BOOL=${TFM_NS_REG_TEST}")
+    set(s_reg_cmd       "-DTFM_S_REG_TEST:BOOL=${TFM_S_REG_TEST}")
+    set(${cmd_line}     "${${cmd_line}};${ns_reg_cmd};${s_reg_cmd}" PARENT_SCOPE)
+    set(TFM_S_REG_TEST  ${TFM_S_REG_TEST} PARENT_SCOPE)
+    set(TFM_NS_REG_TEST ${TFM_NS_REG_TEST} PARENT_SCOPE)
 
 endfunction()

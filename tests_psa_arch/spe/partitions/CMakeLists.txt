@@ -6,6 +6,12 @@
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.15)
 
+# Check configuration.
+# Config check shall be performed after all configurations complete.
+# Difficult to insert a hook to perform test config check inside configuration sequence.
+# Put the check here before test partition build starts or is skipped.
+include(${CMAKE_CURRENT_LIST_DIR}/../config/check_config.cmake)
+
 if (NOT "${TEST_PSA_API}" STREQUAL IPC)
     # The extra 3 TF-M partitions are necesary only for IPC tests
     return()
@@ -20,6 +26,15 @@ if (NOT DEFINED CPU_ARCH)
         set(CPU_ARCH armv81m_ml)
     elseif (${TFM_SYSTEM_ARCHITECTURE} STREQUAL armv7-m)
         set(CPU_ARCH armv7m)
+    endif()
+endif()
+
+# Toolchain
+if (NOT TOOLCHAIN)
+    if (${CMAKE_C_COMPILER_ID} STREQUAL GNU)
+        set(TOOLCHAIN GNUARM)
+    elseif (${CMAKE_C_COMPILER_ID} STREQUAL ARMClang)
+        set(TOOLCHAIN ARMCLANG)
     endif()
 endif()
 

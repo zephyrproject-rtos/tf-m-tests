@@ -26,6 +26,18 @@ if ("${TEST_PSA_API}" STREQUAL "CRYPTO")
     set(TFM_PARTITION_PLATFORM                 ON       CACHE BOOL      "Enable Platform partition")
 endif()
 
+if ("${TEST_PSA_API}" STREQUAL "INTERNAL_TRUSTED_STORAGE")
+    set(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE ON       CACHE BOOL      "Enable Internal Trusted Storage partition")
+    set(TFM_PARTITION_PLATFORM                 ON       CACHE BOOL      "Enable Platform partition")
+endif()
+
+if ("${TEST_PSA_API}" STREQUAL "PROTECTED_STORAGE")
+    set(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE ON       CACHE BOOL      "Enable Internal Trusted Storage partition")
+    set(TFM_PARTITION_PROTECTED_STORAGE        ON       CACHE BOOL      "Enable Protected Storage partition")
+    set(TFM_PARTITION_CRYPTO                   ON       CACHE BOOL      "Enable Crypto partition")
+    set(TFM_PARTITION_PLATFORM                 ON       CACHE BOOL      "Enable Platform partition")
+endif()
+
 if ("${TEST_PSA_API}" STREQUAL "STORAGE")
     set(TFM_PARTITION_INTERNAL_TRUSTED_STORAGE ON       CACHE BOOL      "Enable Internal Trusted Storage partition")
     set(TFM_PARTITION_PROTECTED_STORAGE        ON       CACHE BOOL      "Enable Protected Storage partition")
@@ -39,12 +51,3 @@ set(PROJECT_CONFIG_HEADER_FILE
 
 # Set default value for INCLUDE_PANIC_TESTS explicitly
 set(INCLUDE_PANIC_TESTS     0   CACHE BOOL      "Include panic tests")
-
-if (NOT TOOLCHAIN)
-    if(TFM_TOOLCHAIN_FILE MATCHES ".*toolchain_(.+).cmake")
-        set(TOOLCHAIN ${CMAKE_MATCH_1})
-    else()
-        # TFM_TOOLCHAIN_FILE might not set, use the default one.
-        set(TOOLCHAIN GNUARM)
-    endif()
-endif()

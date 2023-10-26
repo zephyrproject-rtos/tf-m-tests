@@ -25,14 +25,19 @@ parse_regression_flag(TFM_CMDLINE_CONFIGS)
 # tfm_s_test is IMPORTED to inform CMake that it has no source files.
 add_executable(tfm_s_test IMPORTED)
 
+if(TFM_NS_REG_TEST OR TFM_S_REG_TEST)
+    set(CONFIG_TFM_TEST_DIR         "${CMAKE_CURRENT_LIST_DIR}/../test/secure_regression")
+    set(CONFIG_TFM_TEST_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/../test/config/config.cmake")
+endif()
+
 include(ExternalProject)
 ExternalProject_Add(TF-M
   SOURCE_DIR        ${CONFIG_TFM_SOURCE_PATH}
   BINARY_DIR        build-spe
   INSTALL_DIR       api_ns
-  CMAKE_ARGS        -DCONFIG_TFM_TEST_DIR=${CMAKE_CURRENT_LIST_DIR}/../test/secure_regression
-  CMAKE_ARGS        -DCONFIG_TFM_TEST_CONFIG_FILE=${CMAKE_CURRENT_LIST_DIR}/../test/config/config.cmake
   CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+  CMAKE_ARGS        -DCONFIG_TFM_TEST_DIR=${CONFIG_TFM_TEST_DIR}
+  CMAKE_ARGS        -DCONFIG_TFM_TEST_CONFIG_FILE=${CONFIG_TFM_TEST_CONFIG_FILE}
   CMAKE_CACHE_DEFAULT_ARGS ${TFM_CMDLINE_CONFIGS}
   PREFIX             "temp"
 )

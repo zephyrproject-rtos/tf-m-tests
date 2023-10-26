@@ -28,30 +28,31 @@ include(utils)
 
 # A platform sprecific MCPU and architecture flags for NS side
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
+# Include common configs exported from TF-M
+include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
-
-# Include configs exported from TF-M
-include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
-
 # Include coprocessor configs
 include(${CONFIG_SPE_PATH}/config/cp_config_default.cmake)
-
-# Test suite configurations - set up by SPE build
-include(${CONFIG_SPE_PATH}/config_ns_test.cmake)
 
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
 
-if (TFM_PROFILE)
-    include(${CMAKE_CURRENT_LIST_DIR}/test/config/profile/${TFM_PROFILE}_test.cmake)
+# If config_ns_test.cmake is exported from TF-M build, it indicates regression tests are enabled.
+# Otherwise, skip test configuration
+include(${CONFIG_SPE_PATH}/config_ns_test.cmake OPTIONAL)
+if(TFM_NS_REG_TEST)
+    # Include platform specific regression tests config
+    include(${CONFIG_SPE_PATH}/platform/tests/tfm_tests_config.cmake OPTIONAL)
+    if (TFM_PROFILE)
+        include(${CMAKE_CURRENT_LIST_DIR}/test/config/profile/${TFM_PROFILE}_test.cmake)
+    endif()
+    # Default test configurations
+    include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
+    # Config check in case additional test configs passed in via command line.
+    include(${CMAKE_CURRENT_LIST_DIR}/test/config/check_config.cmake)
 endif()
-
-# Default test configurations
-include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
-# Config check in case additional test configs passed in via command line.
-include(${CMAKE_CURRENT_LIST_DIR}/test/config/check_config.cmake)
 # Include coprocessor check to make sure NS toolchain is compatiable
 include(${CONFIG_SPE_PATH}/config/cp_check.cmake)
 
