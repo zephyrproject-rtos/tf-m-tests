@@ -44,6 +44,10 @@ include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
 
+if (TFM_PROFILE)
+    include(${CMAKE_CURRENT_LIST_DIR}/test/config/profile/${TFM_PROFILE}_test.cmake)
+endif()
+
 # Default test configurations
 include(${CMAKE_CURRENT_LIST_DIR}/test/config/default_test_config.cmake)
 # Config check in case additional test configs passed in via command line.
