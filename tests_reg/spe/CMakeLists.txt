@@ -16,7 +16,6 @@ collect_build_cmd_args(TFM_CMDLINE_CONFIGS)
 project("TF-M SPE for tests" NONE)
 
 if (NOT DEFINED CONFIG_TFM_SOURCE_PATH OR NOT EXISTS ${CONFIG_TFM_SOURCE_PATH})
-#TODO: Fetch TF-M repositry if not exists
     message(FATAL_ERROR "CONFIG_TFM_SOURCE_PATH = ${CONFIG_TFM_SOURCE_PATH} is not defined or incorrect. Please provide full path to TF-M sources.")
 endif()
 

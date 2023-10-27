@@ -23,20 +23,7 @@ if (NOT DEFINED TEST_PSA_API)
 endif()
 
 if (NOT DEFINED CONFIG_TFM_SOURCE_PATH OR NOT EXISTS ${CONFIG_TFM_SOURCE_PATH})
-    set(CONFIG_TFM_SOURCE_PATH     "DOWNLOAD"   CACHE PATH      "Path to TF-M source")
-    set(CONFIG_TFM_SOURCE_VERSION  "TF-Mv1.8.0" CACHE STRING    "TF-M version for test")
-    fetch_remote_library(
-        LIB_NAME                tf-m_source
-        LIB_SOURCE_PATH_VAR     CONFIG_TFM_SOURCE_PATH
-        LIB_PATCH_DIR           ${CMAKE_CURRENT_SOURCE_DIR}
-        LIB_FORCE_PATCH         ""
-        FETCH_CONTENT_ARGS
-            GIT_REPOSITORY      https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
-            GIT_TAG             ${CONFIG_TFM_SOURCE_VERSION}
-            GIT_SHALLOW         FALSE
-            GIT_PROGRESS        TRUE
-            GIT_SUBMODULES      ""
-    )
+    message(FATAL_ERROR "CONFIG_TFM_SOURCE_PATH = ${CONFIG_TFM_SOURCE_PATH} is not defined or incorrect. Please provide full path to TF-M sources.")
 endif()
 
 if (NOT DEFINED PSA_ARCH_TESTS_PATH OR NOT EXISTS ${PSA_ARCH_TESTS_PATH})
