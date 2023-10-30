@@ -39,3 +39,12 @@ set(PROJECT_CONFIG_HEADER_FILE
 
 # Set default value for INCLUDE_PANIC_TESTS explicitly
 set(INCLUDE_PANIC_TESTS     0   CACHE BOOL      "Include panic tests")
+
+if (NOT TOOLCHAIN)
+    if(TFM_TOOLCHAIN_FILE MATCHES ".*toolchain_(.+).cmake")
+        set(TOOLCHAIN ${CMAKE_MATCH_1})
+    else()
+        # TFM_TOOLCHAIN_FILE might not set, use the default one.
+        set(TOOLCHAIN GNUARM)
+    endif()
+endif()

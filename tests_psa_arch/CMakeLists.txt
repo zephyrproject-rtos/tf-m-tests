@@ -60,6 +60,16 @@ else()
     set(TARGET tgt_dev_apis_tfm_${PSA_API_TEST_TARGET})
 endif()
 
+# Toolchain
+if (NOT TOOLCHAIN)
+    if(TFM_TOOLCHAIN_FILE MATCHES ".*toolchain_ns_(.+).cmake")
+        set(TOOLCHAIN ${CMAKE_MATCH_1})
+    else()
+        # TFM_TOOLCHAIN_FILE might not set, use the default one.
+        set(TOOLCHAIN GNUARM)
+    endif()
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 include(toolchain_selection)
 
