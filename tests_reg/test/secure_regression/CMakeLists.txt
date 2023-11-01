@@ -66,5 +66,5 @@ string(APPEND NS_TEST_CONFIG_OPTIONS
 
 # This file is for NS build
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../config/config_ns_test.cmake.in
-               ${CMAKE_INSTALL_PREFIX}/config_ns_test.cmake
+               ${CMAKE_INSTALL_PREFIX}/config/config_ns_test.cmake
                @ONLY)

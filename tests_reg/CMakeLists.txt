@@ -41,7 +41,7 @@ tfm_toolchain_reload_compiler()
 
 # If config_ns_test.cmake is exported from TF-M build, it indicates regression tests are enabled.
 # Otherwise, skip test configuration
-include(${CONFIG_SPE_PATH}/config_ns_test.cmake OPTIONAL)
+include(${CONFIG_SPE_PATH}/config/config_ns_test.cmake OPTIONAL)
 if(TFM_NS_REG_TEST)
     # Include platform specific regression tests config
     include(${CONFIG_SPE_PATH}/platform/tests/tfm_tests_config.cmake OPTIONAL)
