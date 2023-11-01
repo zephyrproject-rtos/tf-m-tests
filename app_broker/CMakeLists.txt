@@ -36,6 +36,7 @@ add_library(os_wrapper STATIC)
 target_sources(os_wrapper
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/os_wrapper_cmsis_rtos_v2.c
+        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_LIST_DIR}/tfm_nsid_map_table.c>
 )
 
 target_include_directories(os_wrapper
@@ -166,7 +167,6 @@ add_library(tfm_test_broker STATIC)
 target_sources(tfm_test_broker
     PRIVATE
         main_ns.c
-        $<$<BOOL:${TFM_NS_MANAGE_NSID}>:${CMAKE_CURRENT_LIST_DIR}/tfm_nsid_map_table.c>
 )
 
 target_include_directories(tfm_test_broker
