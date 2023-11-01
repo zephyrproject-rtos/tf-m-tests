@@ -12,5 +12,5 @@ if (NOT TFM_PARTITION_FIRMWARE_UPDATE)
 endif()
 
 if("${TFM_FWU_BOOTLOADER_LIB}" STREQUAL "mcuboot")
-    add_subdirectory(../mcuboot/non_secure)
+    add_subdirectory(../mcuboot/non_secure    ${CMAKE_CURRENT_BINARY_DIR}/mcuboot)
 endif()
