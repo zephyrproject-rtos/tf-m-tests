@@ -126,6 +126,7 @@ target_link_options(tfm_ns
     PRIVATE
         $<$<C_COMPILER_ID:GNU>:-Wl,-Map=${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
         $<$<C_COMPILER_ID:ARMClang>:--map>
+        $<$<C_COMPILER_ID:IAR>:--map\;${CMAKE_BINARY_DIR}/bin/tfm_ns.map>
 )
 
 add_convert_to_bin_target(tfm_ns)
