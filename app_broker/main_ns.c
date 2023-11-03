@@ -24,9 +24,6 @@
 #if (CONFIG_TFM_FLOAT_ABI >= 1)
 #include "cmsis.h"
 #endif
-#ifdef CONFIG_TFM_ENALBE_PROFILING
-#include "tfm_ns_profiling.h"
-#endif
 
 /**
  * \brief Modified table template for user defined SVC functions
@@ -48,20 +45,6 @@ __asm("  .global __ARM_use_no_argv\n");
 #endif
 #endif
 
-#ifdef CONFIG_TFM_ENALBE_PROFILING
-
-#if TFM_NS_REG_TEST || PSA_API_TEST_NS
-#error "TF-M NS profiling shall not run together with NS regression tests"
-#endif
-/**
- * \brief List of Profiling thread attributes
- */
-const osThreadAttr_t thread_attr = {
-    .name = "profiling_thread",
-    .stack_size = 4096U,
-};
-osThreadFunc_t thread_func = tfm_ns_profiling;
-#else
 /**
  * \brief List of RTOS thread attributes
  */
@@ -75,7 +58,6 @@ static const osThreadAttr_t thread_attr = {
  *        main thread
  */
 static osThreadFunc_t thread_func = test_app;
-#endif
 
 #ifdef TFM_MULTI_CORE_NS_OS_MAILBOX_THREAD
 static osThreadFunc_t mailbox_thread_func = tfm_ns_mailbox_thread_runner;
