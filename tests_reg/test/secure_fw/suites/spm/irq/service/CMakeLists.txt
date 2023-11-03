@@ -1,16 +1,14 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2022, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
 
-if(CONFIG_TFM_ERPC_TEST_FRAMEWORK)
-    add_subdirectory(erpc)
+if (TFM_PARTITION_SLIH_TEST)
+    add_subdirectory(tfm_slih_test_service)
 endif()
 
-if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR)
-    add_subdirectory(qcbor)
+if (TFM_PARTITION_FLIH_TEST)
+    add_subdirectory(tfm_flih_test_service)
 endif()
-
-add_subdirectory(CMSIS)
