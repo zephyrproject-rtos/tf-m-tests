@@ -14,6 +14,7 @@
 set(LOG_SOURCE_ROOT ${TFM_TESTS_ROOT_DIR}/lib/log)
 
 add_library(mcuboot_test_log INTERFACE)
+add_library(mcuboot_test_framework_common INTERFACE)
 
 target_sources(mcuboot_test_log
     INTERFACE
@@ -30,8 +31,9 @@ target_link_libraries(mcuboot_test_log
         platform_bl2
 )
 
-target_link_libraries(tfm_test_framework_common
+target_link_libraries(mcuboot_test_framework_common
     INTERFACE
+        tfm_test_framework_common
         mcuboot_test_log
 )
 
@@ -51,7 +53,7 @@ target_include_directories(mcuboot_tests
 
 target_link_libraries(mcuboot_tests
     PUBLIC
-        tfm_test_framework_common
+        mcuboot_test_framework_common
     PRIVATE
         platform_bl2
         mcuboot_test_suite_integration

@@ -22,7 +22,6 @@ target_include_directories(mcuboot_test_suite_integration
 
 target_link_libraries(mcuboot_test_suite_integration
     PUBLIC
-        tfm_test_framework_common
+        mcuboot_test_framework_common
         bootutil
-        platform_bl2
 )
