@@ -25,7 +25,7 @@ parse_regression_flag(TFM_CMDLINE_CONFIGS)
 # tfm_s_test is IMPORTED to inform CMake that it has no source files.
 add_executable(tfm_s_test IMPORTED)
 
-if(TFM_NS_REG_TEST OR TFM_S_REG_TEST)
+if(TFM_NS_REG_TEST OR TFM_S_REG_TEST OR TEST_BL2 OR TEST_BL1_1 OR TEST_BL1_2)
     set(CONFIG_TFM_TEST_DIR         "${CMAKE_CURRENT_LIST_DIR}/../test/secure_regression")
     set(CONFIG_TFM_TEST_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/../test/config/config.cmake")
 endif()
