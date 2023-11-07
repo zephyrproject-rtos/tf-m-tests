@@ -35,6 +35,9 @@ include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 # Include coprocessor configs
 include(${CONFIG_SPE_PATH}/config/cp_config_default.cmake)
 
+# Check current tf-m-tests is compatible to TF-M under verfication
+include(check_version)
+
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
 tfm_toolchain_reload_compiler()
