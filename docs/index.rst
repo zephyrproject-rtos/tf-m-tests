@@ -11,7 +11,7 @@ as the TF-M SPM and various Secure Partitions.
 
 .. toctree::
   :caption: Overview
-  :maxdepth: 1
+  :titlesonly:
   :hidden:
 
   Test Framework <tfm_erpc_test_framework>
@@ -24,6 +24,8 @@ as the TF-M SPM and various Secure Partitions.
   :hidden:
 
   Trusted Firmware-M <https://trustedfirmware-m.readthedocs.io/en/latest/>
+  TF-M Tools <https://trustedfirmware-m.readthedocs.io/projects/tf-m-tools/en/latest/>
+  TF-M Extras <https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/>
 
 .. _Trusted Firmware-M: https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git/
 --------------
