@@ -118,6 +118,10 @@ target_link_libraries(tfm_partitions
         tfm_app_rot_partition_server_partition
 )
 
+add_dependencies(tfm_psa_rot_partition_driver_partition manifest_tool)
+add_dependencies(tfm_app_rot_partition_client_partition manifest_tool)
+add_dependencies(tfm_app_rot_partition_server_partition manifest_tool)
+
 # Extra files required for IPC suit.
 
 install(FILES       ${CMAKE_BINARY_DIR}/generated/interface/include/psa_manifest/pid.h
