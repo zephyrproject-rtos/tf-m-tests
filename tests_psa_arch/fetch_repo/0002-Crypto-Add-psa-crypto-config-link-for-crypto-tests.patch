@@ -1,7 +1,7 @@
-From 0dc63dd95d958997bfa31f5ae8bde8b603523c9e Mon Sep 17 00:00:00 2001
+From 61611b8b3bb70ab30fb0830f3bd816b6ddccaca0 Mon Sep 17 00:00:00 2001
 From: Summer Qin <summer.qin@arm.com>
 Date: Sun, 8 Oct 2023 16:44:42 +0800
-Subject: [PATCH 2/2] Crypto: Add psa crypto config link for crypto tests
+Subject: [PATCH 2/3] Crypto: Add psa crypto config link for crypto tests
 
 Test 16 uses macro PSA_EXPORT_KEY_PAIR_MAX_SIZE which is
 related with PSA_WANT_KEY_TYPE_xxx_KEY_PAIR_BASIC defines
