@@ -2,7 +2,6 @@
 Trusted Firmware-M Tests
 ########################
 
-.. raw:: html
 
 The Trusted Firmware-M(TF-M) Tests repo is meant to hold various tests for the
 `Trusted Firmware-M`_.
@@ -28,6 +27,7 @@ as the TF-M SPM and various Secure Partitions.
   TF-M Extras <https://trustedfirmware-m.readthedocs.io/projects/tf-m-extras/en/latest/>
 
 .. _Trusted Firmware-M: https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git/
+
 --------------
 
 *Copyright (c) 2023, Arm Limited. All rights reserved.*
