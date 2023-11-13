@@ -31,6 +31,7 @@ if(TFM_NS_REG_TEST OR TFM_S_REG_TEST OR TEST_BL2 OR TEST_BL1_1 OR TEST_BL1_2)
 endif()
 
 include(ExternalProject)
+
 ExternalProject_Add(TF-M
   SOURCE_DIR        ${CONFIG_TFM_SOURCE_PATH}
   BINARY_DIR        build-spe
@@ -40,6 +41,7 @@ ExternalProject_Add(TF-M
   CMAKE_ARGS        -DCONFIG_TFM_TEST_CONFIG_FILE=${CONFIG_TFM_TEST_CONFIG_FILE}
   CMAKE_CACHE_DEFAULT_ARGS ${TFM_CMDLINE_CONFIGS}
   PREFIX             "temp"
+  BUILD_ALWAYS       ON
 )
 
 add_dependencies(tfm_s_test TF-M)

@@ -49,6 +49,7 @@ endif()
 add_executable(tfm_test_spe IMPORTED)
 
 include(ExternalProject)
+
 ExternalProject_Add(TF-M
     SOURCE_DIR        ${CONFIG_TFM_SOURCE_PATH}
     BINARY_DIR        build-spe
@@ -59,6 +60,7 @@ ExternalProject_Add(TF-M
     CMAKE_ARGS        -DCONFIG_PSA_ARCH_TESTS_CONFIG_FILE=${CMAKE_CURRENT_LIST_DIR}/config/config_test_psa_api.cmake
     CMAKE_CACHE_DEFAULT_ARGS ${TFM_CMDLINE_CONFIGS}
     PREFIX             "temp"
+    BUILD_ALWAYS       ON
 )
 
 add_dependencies(tfm_test_spe TF-M)
