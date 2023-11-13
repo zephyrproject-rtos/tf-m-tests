@@ -60,12 +60,13 @@
 #error "TFM_CRYPTO_TEST_ALG_ECDH enabled, but ECDH key agreement algorithm is not defined!"
 #endif
 
-#if defined(TFM_CRYPTO_TEST_CHACHA20) && !defined(PSA_WANT_KEY_TYPE_CHACHA20)
+#if defined(TFM_CRYPTO_TEST_CHACHA20) && \
+    (!defined(PSA_WANT_KEY_TYPE_CHACHA20) || !defined(PSA_WANT_ALG_STREAM_CIPHER))
 #error "TFM_CRYPTO_TEST_ALG_CHACHA20 enabled, but ChaCha20 stream cipher algorithm is not defined!"
 #endif
 
 #if defined(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305) && \
-    !defined(PSA_WANT_ALG_CHACHA20_POLY1305)
+    (!defined(PSA_WANT_ALG_CHACHA20_POLY1305) || !defined(PSA_WANT_KEY_TYPE_CHACHA20))
 #error "TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 enabled, but ChaCha20-Poly1305 AEAD algorithm is not defined!"
 #endif
 
