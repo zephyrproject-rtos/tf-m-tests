@@ -32,8 +32,6 @@ include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
-# Include coprocessor configs
-include(${CONFIG_SPE_PATH}/config/cp_config_default.cmake)
 
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
