@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,8 +8,6 @@
 cmake_minimum_required(VERSION 3.21)
 
 project("ERPC Host" LANGUAGES CXX C)
-set(CMAKE_CXX_FLAGS "-m32")
-set(CMAKE_C_FLAGS   "-m32")
 
 add_executable(erpc_main)
 
