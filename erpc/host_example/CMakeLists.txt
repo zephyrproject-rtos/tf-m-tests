@@ -35,7 +35,7 @@ target_sources(erpc_main
         ${ERPC_REPO_PATH}/erpc_c/transports/erpc_serial_transport.cpp
         ${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_tcp.cpp
         ${ERPC_REPO_PATH}/erpc_c/transports/erpc_tcp_transport.cpp
-        ${TFM_INSTALL_PATH}/interface/src/tfm_crypto_api.c
+        ${CONFIG_SPE_PATH}/interface/src/tfm_crypto_api.c
 )
 
 target_link_libraries(erpc_main

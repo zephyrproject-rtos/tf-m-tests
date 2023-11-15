@@ -7,11 +7,11 @@
 
 cmake_minimum_required(VERSION 3.15)
 
-if (NOT DEFINED TFM_INSTALL_PATH)
-    if (DEFINED ENV{TFM_INSTALL_PATH})
-        set(TFM_INSTALL_PATH $ENV{TFM_INSTALL_PATH})
+if (NOT DEFINED CONFIG_SPE_PATH)
+    if (DEFINED ENV{CONFIG_SPE_PATH})
+        set(CONFIG_SPE_PATH $ENV{CONFIG_SPE_PATH})
     else()
-        message(FATAL_ERROR "TFM_INSTALL_PATH not found. Please set TFM_INSTALL_PATH environment variable or pass -DTFM_INSTALL_PATH flag.")
+        message(FATAL_ERROR "CONFIG_SPE_PATH not found. Please set CONFIG_SPE_PATH environment variable or pass -DCONFIG_SPE_PATH flag.")
     endif()
 endif()
 
@@ -62,6 +62,6 @@ target_include_directories(erpc_client
         ${ERPC_REPO_PATH}/erpc_c/setup
         ${CMAKE_CURRENT_SOURCE_DIR}/
         ${CMAKE_CURRENT_SOURCE_DIR}/../generated_files
-        ${TFM_INSTALL_PATH}/interface/include
+        ${CONFIG_SPE_PATH}/interface/include
         ${ERPC_CONFIG_FILE_PATH}/
 )

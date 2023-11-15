@@ -12,15 +12,26 @@ Build instructions on the target
 
 .. code-block:: bash
 
-    cd <TF-M base folder>
+    # Build TF-M
 
-    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=musca_s1 \
-    -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON \
+    cmake -G"Unix Makefiles" -S <path_to_tf-m> -B build_spe -DTFM_PLATFORM=musca_s1 \
     -DTFM_PARTITION_CRYPTO=ON -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON \
     -DTFM_SPM_LOG_LEVEL=TFM_SPM_LOG_LEVEL_SILENCE -DTFM_PARTITION_LOG_LEVEL=TFM_PARTITION_LOG_LEVEL_SILENCE \
-    -DMCUBOOT_LOG_LEVEL=OFF ../
+    -DMCUBOOT_LOG_LEVEL=OFF
 
-    cmake --build cmake_build/ -- install -j32
+    cmake --build build_spe -- install -j
+
+    # Build NS eRPC server
+
+    cmake -G"Unix Makefiles" -S <path_to_tf-m-tests>/erpc/server/app -B build_nspe \
+    -DCONFIG_SPE_PATH=<absolute_path_to_build_spe>/api_ns
+
+    cmake --build build_nspe -j
+
+    # Create the final image
+
+    srec_cat build_spe/bin/bl2.bin -Binary -offset 0xA000000 build_nspe/tfm_s_ns_signed.bin \
+    -Binary -offset 0xA020000 -o build_nspe/tfm.hex -Intel
 
 .. Note::
     All the logs must be disabled to avoid interferences between logs and eRPC transportation as
@@ -36,7 +47,7 @@ Build instructions on the host
     cd <TF-M tests base folder>/erpc/host_example
 
     cmake -S . -B build -G "Unix Makefiles" \
-    -DTFM_INSTALL_PATH=<TFM_build_folder>/install \
+    -DCONFIG_SPE_PATH=<absolute_path_to_build_spe>/api_ns \
     -DERPC_REPO_PATH=<TFM_build_folder>/lib/ext/erpc-src \
     -DERPC_TRANSPORT=UART -DPORT_NAME="/dev/ttyACM0"
 
@@ -70,13 +81,19 @@ Build instructions on the target
 
 .. code-block:: bash
 
-    cd <TF-M base folder>
+    # Build TF-M
 
-    cmake -G"Unix Makefiles" -S . -B cmake_build -DTFM_PLATFORM=an521 \
-    -DCONFIG_TFM_ERPC_TEST_FRAMEWORK=ON \
-    -DTFM_PARTITION_CRYPTO=ON -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON ../
+    cmake -G"Unix Makefiles" -S <path_to_tf-m> -B build_spe -DTFM_PLATFORM=an521 \
+    -DTFM_PARTITION_CRYPTO=ON -DTFM_PARTITION_INTERNAL_TRUSTED_STORAGE=ON
 
-    cmake --build cmake_build/ -- install -j32
+    cmake --build build_spe -- install -j
+
+    # Build NS eRPC server
+
+    cmake -G"Unix Makefiles" -S <path_to_tf-m-tests>/erpc/server/app -B build_nspe \
+    -DCONFIG_SPE_PATH=<absolute_path_to_build_spe>/api_ns
+
+    cmake --build build_nspe -j
 
 Build instructions on the host
 ------------------------------
@@ -86,16 +103,16 @@ Build instructions on the host
     cd <TF-M tests base folder>/erpc/host_example
 
     cmake -S . -B build -G "Unix Makefiles" \
-    -DTFM_INSTALL_PATH=<TFM_build_folder>/install \
-    -DERPC_REPO_PATH=<TFM_build_folder>/lib/ext/erpc-src \
+    -DCONFIG_SPE_PATH=<absolute_path_to_build_spe>/api_ns \
+    -DERPC_REPO_PATH=<absolute_path_to_build_nspe>/lib/ext/erpc-src \
     -DERPC_TRANSPORT=TCP -DERPC_HOST="0.0.0.0" -DERPC_PORT=5001
 
     cmake --build  build/
 
 .. Note::
     The ``ERPC_TRANSPORT``, ``ERPC_HOST`` and ``ERPC_PORT`` can be omitted and setting the
-    transportation info in command line is also supported. Follow `Run instructions`_ on
-    how to use the command line.
+    transportation info in command line when running the app is also supported.
+    Follow `Run instructions`_ on how to use the command line.
 
 Run instructions
 ----------------
