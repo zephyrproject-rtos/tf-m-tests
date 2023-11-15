@@ -5,7 +5,6 @@
  *
  */
 
-#include <stdio.h>
 #include "ipc_ns_tests.h"
 #include "psa/client.h"
 #include "psa/framework_feature.h"

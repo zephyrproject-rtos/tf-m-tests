@@ -7,7 +7,6 @@
 
 #include "ps_ns_tests.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include "config_tfm.h"

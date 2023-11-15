@@ -5,7 +5,7 @@
  *
  */
 
-#include <stdio.h>
+#include <stddef.h>
 
 #include "test_framework.h"
 #include "test_framework_integ_test_helper.h"

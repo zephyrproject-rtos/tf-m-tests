@@ -10,7 +10,6 @@
 
 #include <stdarg.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #include "test_log.h"
 #include "test_framework_helpers.h"

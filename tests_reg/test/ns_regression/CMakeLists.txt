@@ -41,6 +41,7 @@ target_compile_definitions(tfm_test_framework_ns
     INTERFACE
         DOMAIN_NS=1
         $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:CONFIG_TFM_ERPC_TEST_FRAMEWORK=1>
+        $<$<BOOL:${USE_STDIO}>:USE_STDIO>
 )
 
 target_link_libraries(tfm_test_framework_ns

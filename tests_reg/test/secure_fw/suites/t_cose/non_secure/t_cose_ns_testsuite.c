@@ -5,8 +5,8 @@
  *
  */
 
+#include <stddef.h>
 #include "t_cose_ns_tests.h"
-#include <stdio.h>
 #include "run_tests.h"
 
 /*
