@@ -1008,7 +1008,7 @@ void tfm_fwu_test_common_005(struct test_result_t *ret)
     ret->val = TEST_PASSED;
 }
 
-#if (FWU_CONCURRENTLY_UPDATE_COMPONENTS > 1)
+#if (FWU_COMPONENT_NUMBER > 1)
 void tfm_fwu_test_common_006(struct test_result_t *ret)
 {
     psa_status_t status;
@@ -1364,7 +1364,7 @@ void tfm_fwu_test_common_006(struct test_result_t *ret)
     /* End of the test. The candidate is back to PSA_FWU_READY state now. */
     ret->val = TEST_PASSED;
 }
-#endif /* FWU_CONCURRENTLY_UPDATE_COMPONENTS > 1 */
+#endif /* FWU_COMPONENT_NUMBER > 1 */
 #endif /* MCUBOOT_IMAGE_NUMBER > 1 */
 
 #ifdef TFM_FWU_TEST_REQUEST_REBOOT
