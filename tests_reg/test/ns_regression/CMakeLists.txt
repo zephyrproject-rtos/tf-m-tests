@@ -32,7 +32,7 @@ include(utils)
     )
 
 # Common regression test framework
-add_subdirectory(${CMAKE_SOURCE_DIR}/test/framework ${CMAKE_CURRENT_BINARY_DIR}/framework)
+add_subdirectory(../framework ${CMAKE_CURRENT_BINARY_DIR}/framework)
 
 add_library(tfm_ns_tests INTERFACE)
 add_library(tfm_test_framework_ns INTERFACE)
@@ -65,6 +65,6 @@ target_compile_definitions(tfm_ns_tests
         $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
 )
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/test/secure_fw/non_secure
+add_subdirectory(../secure_fw/non_secure
                  ${CMAKE_CURRENT_BINARY_DIR}/secure_fw/suites
 )
