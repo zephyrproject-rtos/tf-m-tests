@@ -48,7 +48,6 @@ target_link_libraries(tfm_test_suite_attestation_ns
         tfm_qcbor_ns
         tfm_t_cose_ns
         tfm_test_framework_ns
-        platform_ns
 )
 
 target_link_libraries(tfm_ns_tests

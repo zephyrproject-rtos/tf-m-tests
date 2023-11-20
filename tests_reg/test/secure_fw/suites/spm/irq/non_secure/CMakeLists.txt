@@ -39,7 +39,6 @@ target_compile_definitions(tfm_test_suite_irq
 target_link_libraries(tfm_test_suite_irq
     PRIVATE
         tfm_test_framework_ns
-        platform_ns
         spm_test_common
 )
 
