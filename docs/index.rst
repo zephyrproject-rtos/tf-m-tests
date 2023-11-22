@@ -13,7 +13,7 @@ as the TF-M SPM and various Secure Partitions.
   :titlesonly:
   :hidden:
 
-  Test Framework <tfm_erpc_test_framework>
+  eRPC Test Framework <tfm_erpc_test_framework>
   Test Partitions <tfm_test_partitions_addition>
   Test Suites <tfm_test_suites_addition>
 
