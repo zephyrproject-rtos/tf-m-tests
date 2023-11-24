@@ -40,6 +40,7 @@ add_library(tfm_test_framework_ns INTERFACE)
 target_compile_definitions(tfm_test_framework_ns
     INTERFACE
         DOMAIN_NS=1
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:CONFIG_TFM_ERPC_TEST_FRAMEWORK=1>
 )
 
 target_link_libraries(tfm_test_framework_ns
