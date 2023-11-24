@@ -697,6 +697,10 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     size_t start_idx = 0;
     size_t output_length = 0; size_t total_output_length = 0;
     int comp_result;
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[sizeof(chacha20_testPlaintext) + 16] = {0};
+    size_t encrypted_data_length, decrypted_data_length;
+#endif
 
     ret->val = TEST_PASSED;
 
@@ -711,6 +715,90 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
         TEST_FAIL("Error importing a key");
         return;
     }
+
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    /* Perform AEAD encryption */
+    status = psa_aead_encrypt(key_id_local, alg,
+                              chacha20poly1305_testNonce,
+                              sizeof(chacha20poly1305_testNonce),
+                              chacha20poly1305_testAad,
+                              sizeof(chacha20poly1305_testAad),
+                              chacha20_testPlaintext,
+                              sizeof(chacha20_testPlaintext),
+                              encrypted_data_single_shot,
+                              sizeof(encrypted_data_single_shot),
+                              &encrypted_data_length);
+
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error performing single shot AEAD encryption");
+        }
+        goto destroy_key;
+    }
+
+    if (encrypted_data_length
+        != PSA_AEAD_ENCRYPT_OUTPUT_SIZE(key_type, alg, sizeof(chacha20_testPlaintext))) {
+        TEST_FAIL("Single shot encrypted data length is different than expected");
+        goto destroy_key;
+    }
+
+    /* Check that the encrypted data is the same as reference */
+    comp_result = memcmp(encrypted_data_single_shot,
+                         chacha20poly1305_testCiphertext_expected,
+                         sizeof(chacha20poly1305_testCiphertext_expected));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot encrypted data doesn't match with reference");
+        goto destroy_key;
+    }
+
+    /* Check that the tag matches the expected tag */
+    comp_result = memcmp(&encrypted_data_single_shot[encrypted_data_length - 16],
+                         chacha20poly1305_testTag_expected,
+                         sizeof(chacha20poly1305_testTag_expected));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot computed tag doesn't match with reference");
+        goto destroy_key;
+    }
+
+    /* Perform AEAD decryption */
+    status = psa_aead_decrypt(key_id_local, alg,
+                              chacha20poly1305_testNonce,
+                              sizeof(chacha20poly1305_testNonce),
+                              chacha20poly1305_testAad,
+                              sizeof(chacha20poly1305_testAad),
+                              encrypted_data_single_shot,
+                              encrypted_data_length,
+                              chacha20_testCiphertext,
+                              sizeof(chacha20_testCiphertext),
+                              &decrypted_data_length);
+
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error performing single shot AEAD decryption");
+        }
+        goto destroy_key;
+    }
+
+    if (sizeof(chacha20_testPlaintext) != decrypted_data_length) {
+        TEST_FAIL("Single shot decrypted data length is different from plain text");
+        goto destroy_key;
+    }
+
+    /* Check that the decrypted data is the same as the original data */
+    comp_result = memcmp(chacha20_testPlaintext,
+                         chacha20_testCiphertext,
+                         sizeof(chacha20_testPlaintext));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot decrypted data doesn't match with plain text");
+        goto destroy_key;
+    }
+
+    memset(chacha20_testCiphertext, 0, sizeof(chacha20_testCiphertext));
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the encryption object */
     status = psa_aead_encrypt_setup(&handle, key_id_local, alg);
@@ -1084,7 +1172,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     size_t data_left = sizeof(plain_text);
     while (data_left) {
         /* Encrypt one chunk of information */
-        status = psa_cipher_update(&handle, &plain_text[total_output_length],
+        status = psa_cipher_update(&handle, &plain_text[sizeof(plain_text) - data_left],
                                    BYTE_SIZE_CHUNK,
                                    &input.encrypted_data[total_output_length],
                                    ENC_DEC_BUFFER_SIZE - total_output_length,
@@ -1095,8 +1183,12 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
 
-        if (output_length != BYTE_SIZE_CHUNK) {
-            TEST_FAIL("Expected encrypted length is different from expected");
+        /* When CHACHA20 is tested, if the backend does not support working in
+         * stream cipher, it will output only when it has enough data to fill a
+         * CHACHA20 block, i.e. 64 bytes
+         */
+        if (output_length != BYTE_SIZE_CHUNK && alg != PSA_ALG_STREAM_CIPHER) {
+            TEST_FAIL("Encrypted length different from expected");
             goto abort;
         }
 
@@ -1124,7 +1216,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
     } else {
-        if (output_length != 0) {
+        if (output_length != 0 && alg != PSA_ALG_STREAM_CIPHER) {
             TEST_FAIL("Un-padded mode final output length unexpected");
             goto abort;
         }
@@ -1186,7 +1278,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
 
-        if (!bIsLagging && output_length != BYTE_SIZE_CHUNK) {
+        if (!bIsLagging && output_length != BYTE_SIZE_CHUNK && alg != PSA_ALG_STREAM_CIPHER) {
             TEST_FAIL("Expected encrypted length is different from expected");
             goto abort;
         }
@@ -1199,7 +1291,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     /* Finalise the cipher operation for decryption (destroys decrypted data) */
     status = psa_cipher_finish(&handle_dec, &decrypted_data[total_output_length],
-                               BYTE_SIZE_CHUNK,
+                               ENC_DEC_BUFFER_SIZE - total_output_length,
                                &output_length);
 
     if (status != PSA_SUCCESS) {

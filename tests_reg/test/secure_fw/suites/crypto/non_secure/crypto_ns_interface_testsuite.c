@@ -92,9 +92,11 @@ static void tfm_crypto_test_1047(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CBC */
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 static void tfm_crypto_test_1048(struct test_result_t *ret);
+static void tfm_crypto_test_1051(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
 static void tfm_crypto_test_1049(struct test_result_t *ret);
+static void tfm_crypto_test_1052(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 #ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
 static void tfm_crypto_test_1050(struct test_result_t *ret);
@@ -229,6 +231,14 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1050, "TFM_NS_CRYPTO_TEST_1050",
      "Non Secure RSASSA-PSS signature verification (RSASSA-PSS-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#ifdef TFM_CRYPTO_TEST_CHACHA20
+    {&tfm_crypto_test_1051, "TFM_NS_CRYPTO_TEST_1051",
+     "Non Secure RFC7539 verification on Chacha20"},
+#endif /* TFM_CRYPTO_TEST_CHACHA20 */
+#ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
+    {&tfm_crypto_test_1052, "TFM_NS_CRYPTO_TEST_1052",
+     "Non Secure RFC7539 verification on Chacha20-Poly1305"},
+#endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -499,6 +509,11 @@ static void tfm_crypto_test_1048(struct test_result_t *ret)
     psa_cipher_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_STREAM_CIPHER,
                     test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
 }
+
+static void tfm_crypto_test_1051(struct test_result_t *ret)
+{
+    psa_cipher_rfc7539_test(ret);
+}
 #endif /* TFM_CRYPTO_TEST_CHACHA20 */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305
@@ -506,6 +521,11 @@ static void tfm_crypto_test_1049(struct test_result_t *ret)
 {
     psa_aead_test(PSA_KEY_TYPE_CHACHA20, PSA_ALG_CHACHA20_POLY1305,
                   test_key_256, BIT_SIZE_TEST_LONG_KEY, ret);
+}
+
+static void tfm_crypto_test_1052(struct test_result_t *ret)
+{
+    psa_aead_rfc7539_test(ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 
