@@ -12,6 +12,11 @@ cmake_minimum_required(VERSION 3.15)
 # Put the check here before test partition build starts or is skipped.
 include(${CMAKE_CURRENT_LIST_DIR}/../config/check_config.cmake)
 
+# Install test related options
+configure_file(${CMAKE_CURRENT_LIST_DIR}/../config/config_ns_test_psa_api.cmake.in
+               ${CMAKE_INSTALL_PREFIX}/config/config_ns_test_psa_api.cmake
+               @ONLY)
+
 if (NOT "${TEST_PSA_API}" STREQUAL IPC)
     # The extra 3 TF-M partitions are necesary only for IPC tests
     return()

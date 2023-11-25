@@ -30,6 +30,9 @@ list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Configs exported by TF-M build
 include(spe_config)
+# Include tests related config exported by TF-M SPE
+include(${CONFIG_SPE_PATH}/config/config_ns_test_psa_api.cmake)
+# Platform specific config if exists
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 # Include platform specific PSA Arch test preferences
 include(${CONFIG_SPE_PATH}/platform/tests/psa_arch_tests_config.cmake OPTIONAL)

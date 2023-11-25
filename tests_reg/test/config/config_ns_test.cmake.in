@@ -7,3 +7,13 @@
 
 # This file is consumed by NS test build to get test configurations
 @NS_TEST_CONFIG_OPTIONS@
+
+# Testing related options exported by TF-M
+
+set(ATTEST_KEY_BITS                        @ATTEST_KEY_BITS@                  CACHE STRING "The size of the initial attestation key in bits")
+set(SYMMETRIC_INITIAL_ATTESTATION          @SYMMETRIC_INITIAL_ATTESTATION@    CACHE BOOL   "Use symmetric crypto for initial attestation")
+set(ATTEST_INCLUDE_TEST_CODE               @ATTEST_INCLUDE_TEST_CODE@         CACHE BOOL   "Include minimal development tests in the initial attestation regression test suite")
+
+set(CC312_LEGACY_DRIVER_API_ENABLED        @CC312_LEGACY_DRIVER_API_ENABLED@  CACHE BOOL   "This variable controls whether the legacy driver interface is used for CC-312")
+
+set(TFM_FWU_BOOTLOADER_LIB                 @TFM_FWU_BOOTLOADER_LIB@           CACHE STRING "Bootloader configure file for Firmware Update partition")
