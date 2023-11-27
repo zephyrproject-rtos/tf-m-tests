@@ -120,6 +120,7 @@ target_sources(tfm_ns
 
 target_link_libraries(tfm_ns
     PRIVATE
+        os_wrapper
         tfm_test_broker
         val_nspe
         pal_nspe

@@ -75,6 +75,7 @@ target_sources(tfm_ns
 
 target_link_libraries(tfm_ns
     PRIVATE
+        os_wrapper
         tfm_test_broker
         $<$<BOOL:${TFM_NS_REG_TEST}>:tfm_ns_tests>
 )

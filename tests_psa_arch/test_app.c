@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,6 +7,7 @@
 
 #include "test_app.h"
 #include "tfm_log.h"
+#include "os_wrapper/thread.h"
 
 /**
  * \brief This symbol is the entry point provided by the PSA API compliance
@@ -29,6 +30,5 @@ void test_app(void *argument)
     LOG_MSG("\x04");
 
     /* End of test */
-    for (;;) {
-    }
+    os_wrapper_thread_exit();
 }

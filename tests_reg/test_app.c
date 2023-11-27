@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2023, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,6 +10,7 @@
 #ifdef TFM_NS_REG_TEST
 #include "non_secure_suites.h"
 #endif
+#include "os_wrapper/thread.h"
 
 /**
  * \brief Services test thread
@@ -28,6 +29,5 @@ void test_app(void *argument)
     LOG_MSG("\x04");
 
     /* End of test */
-    for (;;) {
-    }
+    os_wrapper_thread_exit();
 }

@@ -56,7 +56,7 @@ uint32_t os_wrapper_thread_get_priority(void *handle, uint32_t *priority);
 /**
  * \brief Exits the calling thread
  */
-void os_wrapper_thread_exit(void);
+__attribute__((noreturn)) void os_wrapper_thread_exit(void);
 
 /**
  * \brief Set the event flags for synchronizing a thread specified by handle.

@@ -73,10 +73,12 @@ target_compile_definitions(tfm_nsid_manager
         $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
 )
 
-# Provide TZ context management stub to RTOS if protected by Trustzone
 target_sources(RTX_OS
     INTERFACE
+        # Provide TZ context management stub to RTOS if protected by Trustzone
         $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${APP_LIB_DIR}/nsid_manager/tz_shim_layer.c>
+        # Provide CMSIS-RTX config implementation
+        os_config_cmsis_rtx.c
 )
 
 target_link_libraries(RTX_OS
