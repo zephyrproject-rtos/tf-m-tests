@@ -56,6 +56,11 @@ target_sources(tfm_ns_tests
         non_secure_suites.c
 )
 
+target_include_directories(tfm_ns_tests
+    INTERFACE
+        .
+)
+
 target_link_libraries(tfm_ns_tests
     INTERFACE
         tfm_test_framework_ns

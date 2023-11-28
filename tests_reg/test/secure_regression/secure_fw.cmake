@@ -60,6 +60,11 @@ target_sources(tfm_s_tests
         ${CMAKE_CURRENT_LIST_DIR}/secure_suites.c
 )
 
+target_include_directories(tfm_s_tests
+    INTERFACE
+        .
+)
+
 target_link_libraries(tfm_s_tests
     PUBLIC
         tfm_test_framework_s

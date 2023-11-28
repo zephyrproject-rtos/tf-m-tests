@@ -8,7 +8,7 @@
 #include "test_app.h"
 #include "tfm_log.h"
 #ifdef TFM_NS_REG_TEST
-#include "test_framework_integ_test.h"
+#include "non_secure_suites.h"
 #endif
 
 /**
@@ -21,7 +21,7 @@ void test_app(void *argument)
     UNUSED_VARIABLE(argument);
 
 #ifdef TFM_NS_REG_TEST
-    tfm_non_secure_client_run_tests();
+    ns_reg_test_start();
 #endif
 
     /* Output EOT char for test environments like FVP. */

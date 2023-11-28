@@ -6,7 +6,9 @@
  */
 
 #include "tfm_secure_client_service.h"
-#include "test_framework_integ_test.h"
+
+#include "secure_suites.h"
+
 #include "psa/service.h"
 #include "psa_manifest/tfm_secure_client_service.h"
 /**
@@ -17,7 +19,7 @@
  */
 int32_t tfm_secure_client_service_init(void)
 {
-    tfm_secure_client_service_sfn_run_tests();
+    s_reg_test_start();
 
 #if TFM_SP_SECURE_TEST_PARTITION_MODEL_IPC == 1
     psa_signal_t signals;
@@ -38,9 +40,3 @@ psa_status_t tfm_secure_client_srv_dummy_sfn(const psa_msg_t *msg)
     return 0;
 }
 #endif /* TFM_SP_SECURE_TEST_PARTITION_MODEL_SFN == 1 */
-
-int32_t tfm_secure_client_service_sfn_run_tests(void)
-{
-    start_integ_test();
-    return 0;
-}

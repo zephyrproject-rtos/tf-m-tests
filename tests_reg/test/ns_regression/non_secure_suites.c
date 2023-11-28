@@ -7,7 +7,7 @@
  *
  */
 
-#include "test_framework_integ_test.h"
+#include "non_secure_suites.h"
 #include "test_framework.h"
 
 /* Service specific includes */
@@ -141,13 +141,7 @@ static struct test_suite_t test_suites[] = {
     {0, 0, 0, 0}
 };
 
-enum test_suite_err_t start_integ_test(void)
+enum test_suite_err_t ns_reg_test_start(void)
 {
     return run_test("Non-secure", test_suites);
-}
-
-/* Service stand-in for NS tests. To be called from a non-secure context */
-enum test_suite_err_t tfm_non_secure_client_run_tests(void)
-{
-    return start_integ_test();
 }
