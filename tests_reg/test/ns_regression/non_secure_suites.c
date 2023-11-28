@@ -8,7 +8,6 @@
  */
 
 #include "test_framework_integ_test.h"
-#include "test_framework_integ_test_helper.h"
 #include "test_framework.h"
 
 /* Service specific includes */
@@ -144,7 +143,7 @@ static struct test_suite_t test_suites[] = {
 
 enum test_suite_err_t start_integ_test(void)
 {
-    return integ_test("Non-secure", test_suites);
+    return run_test("Non-secure", test_suites);
 }
 
 /* Service stand-in for NS tests. To be called from a non-secure context */
