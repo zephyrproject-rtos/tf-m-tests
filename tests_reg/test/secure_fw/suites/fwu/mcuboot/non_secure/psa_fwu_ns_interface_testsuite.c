@@ -21,7 +21,7 @@ static struct test_t psa_fwu_ns_tests[] = {
 #if (MCUBOOT_IMAGE_NUMBER > 1)
     {&tfm_fwu_test_common_005, "TFM_NS_FWU_TEST_1005",
      "Dependency pass in multiple components case."},
-#if (FWU_CONCURRENTLY_UPDATE_COMPONENTS > 1)
+#if (FWU_COMPONENT_NUMBER > 1)
     {&tfm_fwu_test_common_006, "TFM_NS_FWU_TEST_1006",
      "Update two components which depends on each other."},
 #endif

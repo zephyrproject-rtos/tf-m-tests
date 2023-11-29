@@ -32,8 +32,6 @@ include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
-# Include coprocessor configs
-include(${CONFIG_SPE_PATH}/config/cp_config_default.cmake)
 
 # Check current tf-m-tests is compatible to TF-M under verfication
 include(check_version)

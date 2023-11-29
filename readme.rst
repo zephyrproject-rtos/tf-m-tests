@@ -12,14 +12,15 @@ implementation compliance of the Platform Security Architecture (PSA).
 ****************
 Folder Structure
 ****************
-- app - The application code that executes the testing, including both the TF-M
-  tests and the `psa-arch-tests`_.
+- app_broker - Common application code that executes the testing, included by the TF-M tests and
+  the `psa-arch-tests`_.
+- cmake - Common CMake utility scripts.
 - docs - The documents about test developments.
-- CMSIS - The libraries of RTX which is the Non-secure RTOS of the tests
-- test - The TF-M test codes including test framework, test suites and test
-  services
-- lib/ext - 3rd party projects. May contain either imported source codes or CMake files to fetch the
-  projects.
+- erpc - eRPC test framework.
+- lib - TF-M libraries and 3rd-party libraries. May contain either imported source codes or CMake
+  files to fetch the projects.
+- tests_psa_arch - PSA Arch tests integration with TF-M.
+- tests_reg - TF-M regression test codes including test framework, test suites and test services.
 
 #######
 License
