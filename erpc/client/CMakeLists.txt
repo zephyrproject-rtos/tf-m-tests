@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 if (NOT DEFINED CONFIG_SPE_PATH)
     if (DEFINED ENV{CONFIG_SPE_PATH})

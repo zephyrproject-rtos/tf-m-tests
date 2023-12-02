@@ -7,7 +7,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 
 if(NOT TEST_BL2 OR NOT BL2)
     return()

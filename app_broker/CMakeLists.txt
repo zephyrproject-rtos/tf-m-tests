@@ -8,7 +8,7 @@
 # This CMake script used in a split build only. In the legacy 'sinlge' build
 # this file is ignoed. Please don't be confused.
 #
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 # This is important to add this SPE subdirectory at first as it
 # brings configuration from TF-M build
