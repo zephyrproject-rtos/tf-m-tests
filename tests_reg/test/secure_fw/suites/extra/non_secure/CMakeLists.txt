@@ -7,8 +7,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if(NOT EXTRA_NS_TEST_SUITE_PATH)
     return()
 endif()

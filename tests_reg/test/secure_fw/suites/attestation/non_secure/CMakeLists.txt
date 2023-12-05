@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if(NOT TEST_NS_ATTESTATION)
     return()
 endif()

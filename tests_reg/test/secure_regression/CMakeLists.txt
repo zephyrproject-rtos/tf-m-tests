@@ -5,6 +5,8 @@
 #
 #-------------------------------------------------------------------------------
 
+cmake_minimum_required(VERSION 3.21)
+
 # Check configuration.
 # Config check shall be performed after all configurations complete.
 # Difficult to insert a hook to perform test config check inside configuration sequence.

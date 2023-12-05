@@ -6,7 +6,6 @@
 #-------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.21)
-cmake_policy(SET CMP0097 NEW)
 
 # Set eRPC config file. Need to provide config file with an absolute path.
 if (ERPC_CONFIG_FILE)

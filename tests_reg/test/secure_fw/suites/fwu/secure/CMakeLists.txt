@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if (NOT TFM_PARTITION_FIRMWARE_UPDATE)
     return()
 endif()

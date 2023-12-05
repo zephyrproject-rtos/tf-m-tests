@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if (NOT TEST_NS_SLIH_IRQ AND NOT TEST_NS_FLIH_IRQ)
     return()
 endif()

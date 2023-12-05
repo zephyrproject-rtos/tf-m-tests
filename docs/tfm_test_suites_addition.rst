@@ -146,8 +146,6 @@ in ``test/secure_fw/suites/<test_name>/CMakeLists.txt`` like the example below.
 
 .. code-block:: cmake
 
-    cmake_policy(SET CMP0079 NEW)
-
     if (NOT TEST_NS_<TEST_NAME> AND NOT TEST_S_<TEST_NAME>)
         return()
     endif()
