@@ -1,0 +1,45 @@
+From 25cdea2d26a604383d41feab2981f488ed08f7b6 Mon Sep 17 00:00:00 2001
+From: Kevin Peng <kevin.peng@arm.com>
+Date: Thu, 9 Nov 2023 14:40:48 +0800
+Subject: [PATCH 3/4] Build: Add manifest tool dependencies
+
+Signed-off-by: Kevin Peng <kevin.peng@arm.com>
+---
+ api-tests/CMakeLists.txt    | 3 +++
+ api-tests/val/val_spe.cmake | 6 ++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/api-tests/CMakeLists.txt b/api-tests/CMakeLists.txt
+index f5e45c1..176978e 100644
+--- a/api-tests/CMakeLists.txt
++++ b/api-tests/CMakeLists.txt
+@@ -673,6 +673,9 @@ add_dependencies(${PSA_TARGET_GENERATE_DATABASE_POST}	${PSA_TARGET_GENERATE_DATA
+ add_dependencies(${PSA_TARGET_PAL_NSPE_LIB} 		${PSA_TARGET_GENERATE_DATABASE_POST})
+ add_dependencies(${PSA_TARGET_VAL_NSPE_LIB}		${PSA_TARGET_PAL_NSPE_LIB})
+ add_dependencies(${PSA_TARGET_TEST_COMBINE_LIB}		${PSA_TARGET_VAL_NSPE_LIB})
++if(TARGET manifest_tool)
++	add_dependencies(${PSA_TARGET_TEST_COMBINE_LIB}		manifest_tool)
++endif()
+ if(${SUITE} STREQUAL "IPC")
+ add_dependencies(${PSA_TARGET_DRIVER_PARTITION_LIB}	${PSA_TARGET_TEST_COMBINE_LIB})
+ add_dependencies(${PSA_TARGET_CLIENT_PARTITION_LIB}	${PSA_TARGET_DRIVER_PARTITION_LIB})
+diff --git a/api-tests/val/val_spe.cmake b/api-tests/val/val_spe.cmake
+index 37b8888..81f8d6a 100644
+--- a/api-tests/val/val_spe.cmake
++++ b/api-tests/val/val_spe.cmake
+@@ -53,6 +53,12 @@ add_library(${PSA_TARGET_CLIENT_PARTITION_LIB} STATIC ${PARTITION_IPC_CLIENT_SRC
+ # Create Server partition library
+ add_library(${PSA_TARGET_SERVER_PARTITION_LIB} STATIC ${PARTITION_IPC_SERVER_SRC_C_SPE} ${SUITE_SERVER_CC_SRC_SPE})
+ 
++if(TARGET manifest_tool)
++	add_dependencies(${PSA_TARGET_DRIVER_PARTITION_LIB} manifest_tool)
++	add_dependencies(${PSA_TARGET_CLIENT_PARTITION_LIB} manifest_tool)
++	add_dependencies(${PSA_TARGET_SERVER_PARTITION_LIB} manifest_tool)
++endif()
++
+ target_include_directories(${PSA_TARGET_DRIVER_PARTITION_LIB} PRIVATE
+ 	${CMAKE_CURRENT_BINARY_DIR}
+ 	${PSA_ROOT_DIR}/val/common
+-- 
+2.25.1
+

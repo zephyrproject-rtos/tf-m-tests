@@ -24,7 +24,7 @@ Implementation
 
 Adding a test partition to provide test services is same as adding a secure
 partition, generally the process can be referenced from the document
-`Adding Secure Partition <https://tf-m-user-guide.trustedfirmware.org/integration_guide/services/tfm_secure_partition_addition.html>`_.
+:doc:`Adding Secure Partition <TF-M:integration_guide/services/tfm_secure_partition_addition>`.
 
 Test Partition Specific Manifest Attributes
 ===========================================

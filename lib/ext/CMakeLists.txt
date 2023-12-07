@@ -8,3 +8,9 @@
 if(CONFIG_TFM_ERPC_TEST_FRAMEWORK)
     add_subdirectory(erpc)
 endif()
+
+if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR)
+    add_subdirectory(qcbor)
+endif()
+
+add_subdirectory(CMSIS)

@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 #include "psa/client.h"
-#include "tfm_erpc_psa_client_api.h"
+#include "tfm_erpc.h"
 
 psa_status_t psa_call(psa_handle_t handle, int32_t type,
                       const psa_invec *in_vec, size_t in_len,

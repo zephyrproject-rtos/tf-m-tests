@@ -1,0 +1,9 @@
+#-------------------------------------------------------------------------------
+# Copyright (c) 2023, Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#-------------------------------------------------------------------------------
+
+# This file is consumed by NS test build to get test configurations
+@NS_TEST_CONFIG_OPTIONS@

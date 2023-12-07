@@ -1,0 +1,214 @@
+From da03a9320646374d911df2945fdbf2093e72944c Mon Sep 17 00:00:00 2001
+From: Summer Qin <summer.qin@arm.com>
+Date: Thu, 9 Nov 2023 14:28:04 +0800
+Subject: [PATCH 4/4] Attest: Use designated initializers.
+
+Armclang 6.21 reports missing-field-initializers warning for missing
+designated initializers. This will be fixed in armclang 6.22.
+Currently, use designated initializers as workaround.
+
+Signed-off-by: Summer Qin <summer.qin@arm.com>
+---
+ .../tgt_dev_apis_tfm_an521/nspe/pal_attestation_config.h     | 5 +++--
+ .../tgt_dev_apis_tfm_an524/nspe/pal_attestation_config.h     | 5 +++--
+ .../tgt_dev_apis_tfm_an539/nspe/pal_attestation_config.h     | 5 +++--
+ .../tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h     | 5 +++--
+ .../tgt_dev_apis_tfm_musca_a/nspe/pal_attestation_config.h   | 5 +++--
+ .../tgt_dev_apis_tfm_musca_b1/nspe/pal_attestation_config.h  | 5 +++--
+ .../tgt_dev_apis_tfm_musca_s1/nspe/pal_attestation_config.h  | 5 +++--
+ .../tgt_dev_apis_tfm_nrf5340/nspe/pal_attestation_config.h   | 5 +++--
+ .../tgt_dev_apis_tfm_nrf9160/nspe/pal_attestation_config.h   | 5 +++--
+ .../tgt_dev_apis_tfm_psoc64/nspe/pal_attestation_config.h    | 5 +++--
+ .../nspe/pal_attestation_config.h                            | 5 +++--
+ 11 files changed, 33 insertions(+), 22 deletions(-)
+
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_an521/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_an521/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_an521/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_an521/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_an524/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_an524/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_an524/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_an524/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_an539/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_an539/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_an539/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_an539/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h
+index 35a951b..84d8c6f 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_a/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_a/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_a/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_a/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_b1/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_b1/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_b1/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_b1/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_s1/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_s1/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_musca_s1/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_musca_s1/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_nrf5340/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_nrf5340/nspe/pal_attestation_config.h
+index bdef6c5..c096740 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_nrf5340/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_nrf5340/nspe/pal_attestation_config.h
+@@ -71,9 +71,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_nrf9160/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_nrf9160/nspe/pal_attestation_config.h
+index bdef6c5..c096740 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_nrf9160/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_nrf9160/nspe/pal_attestation_config.h
+@@ -71,9 +71,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_psoc64/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_psoc64/nspe/pal_attestation_config.h
+index 624a134..ed27b39 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_psoc64/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_psoc64/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_stm32l562e_dk/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_stm32l562e_dk/nspe/pal_attestation_config.h
+index 6817b5f..15d6ce4 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_stm32l562e_dk/nspe/pal_attestation_config.h
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_stm32l562e_dk/nspe/pal_attestation_config.h
+@@ -69,9 +69,10 @@ struct ecc_public_key_t {
+ 
+ static const struct ecc_public_key_t attest_public_key = {
+      /* Constant byte */
+-     0x04,
++     .a = 0x04,
+      /* X-coordinate */
+-     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++     .public_key = {
++      0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
+       0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
+       0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
+       0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
+-- 
+2.25.1
+

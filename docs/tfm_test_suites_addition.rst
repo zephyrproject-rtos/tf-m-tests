@@ -69,7 +69,7 @@ Creating test configurations
 ============================
 
 A test configuration controls whether one or multiple test suites are enabled.
-The doc `TF-M Build Instructions <https://tf-m-user-guide.trustedfirmware.org/technical_references/instructions/tfm_build_instruction.html>`_.
+The doc :doc:`TF-M Build Instructions <TF-M:building/tfm_build_instruction>`.
 shows some test configurations which are already supported in current TF-M.
 An example usage of test configuration shows below.
 
@@ -224,11 +224,9 @@ registered if the macro is defined.
 
 .. code-block:: cmake
 
-    if (TEST_FRAMEWORK_S)
-        # ...
-        if (TEST_S_<TEST_NAME>)
-            add_library(tfm_test_suite_<test_name>_s STATIC EXCLUDE_FROM_ALL)
-        endif()
+    # ...
+    if (TEST_S_<TEST_NAME>)
+        add_library(tfm_test_suite_<test_name>_s STATIC EXCLUDE_FROM_ALL)
     endif()
 
 ************************************
@@ -287,7 +285,7 @@ Adding test services
 Some test group may need specific test services. These test services may support
 one or more groups thus developers shall determine the proper test scope. Refer
 to
-`Adding partitions for regression tests <https://git.trustedfirmware.org/TF-M/tf-m-tests.git/tree/docs/tfm_test_services_addition.rst>`_
+:doc:`Adding partitions for regression tests <tfm_test_partitions_addition>`
 to get more information.
 
 **********************************
