@@ -67,15 +67,13 @@ endif()
 
 # Add test suites.
 # Secure test suite library targets shall already be added in secure_tests.cmake
-if(TEST_S_ATTESTATION)
-  add_subdirectory(attestation)
-  add_subdirectory(qcbor)
-  add_subdirectory(t_cose)
-endif()
+add_subdirectory(attestation)
 add_subdirectory(crypto)
 add_subdirectory(extra)
 add_subdirectory(its)
+add_subdirectory(qcbor)
 add_subdirectory(ps)
+add_subdirectory(t_cose)
 add_subdirectory(platform)
 add_subdirectory(fwu)
 add_subdirectory(multi_core/non_secure)
