@@ -140,12 +140,17 @@ the TX/RX control feature and it is disabled by default.
 When the eRPC test framework is enabled, the ``CONFIG_ENABLE_NS_UART_TX_RX_CONTROL`` will be enabled
 automatically.
 
-Secondly, platforms need to specify the UART port and driver for eRPC transportation config via
-``target_cfg.h``.
+Secondly, platforms need to create their folders under the ``erpc/platform`` and then create the
+``config_erpc_target.h`` to specify the UART port drivers for eRPC transportation.
 
 .. code-block::
 
   #define ERPC_UART           Driver_USART0
+
+.. note::
+
+  The folder structure in ``erpc/platform`` must be the same as the ``platform/ext/target`` of TF-M
+  repo.
 
 It's recommended to use a different UART to the stdio UART.
 If the same UART is used for both, then the TF-M logs (both SPM and Secure Partitions) must be

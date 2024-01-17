@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 #include "psa/client.h"
-#include "tfm_erpc_psa_client_api.h"
+#include "tfm_erpc.h"
 
 psa_status_t erpc_psa_call(psa_handle_t handle, int32_t t,
                            const list_binary_1_t *erpc_in_vec,
