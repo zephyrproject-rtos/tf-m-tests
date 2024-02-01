@@ -1715,6 +1715,11 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     ret->val = TEST_PASSED;
 
+    if (sizeof(encop) != sizeof(uint32_t)) {
+        TEST_FAIL("The test client is not picking up the client side definitions");
+        return;
+    }
+
     /* Setup the key policy */
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
