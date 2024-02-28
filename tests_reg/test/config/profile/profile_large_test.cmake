@@ -26,3 +26,5 @@ set(TFM_CRYPTO_TEST_CHACHA20                    OFF     CACHE BOOL      "Test th
 set(TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305       OFF     CACHE BOOL      "Test ChaCha20-Poly1305 AEAD algorithm")
 set(TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION OFF     CACHE BOOL      "Test RSASSA-PSS signature verification algorithm")
 set(TFM_CRYPTO_TEST_UNSUPPORTED_ALG             ON      CACHE BOOL      "Test unsupported algorithm in hash, MAC")
+set(TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA     ON      CACHE BOOL      "Test Deterministic ECDSA signing/verification algorithm")
+set(TFM_CRYPTO_TEST_ALG_ECDSA                   ON      CACHE BOOL      "Test ECDSA signing/verification algorithm")

@@ -282,6 +282,15 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
 void psa_sign_verify_message_test(psa_algorithm_t alg,
                                   struct test_result_t *ret);
 
+/**
+ * \brief Hash sign/verify test
+ *
+ *  \param[in] alg  Signing algorithm
+ *  \param[out] ret Test result
+ */
+void psa_sign_verify_hash_test(psa_algorithm_t alg,
+                               struct test_result_t *ret);
+
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 /**
  * \brief Verification of Chacha20 using RFC7539 test vectors

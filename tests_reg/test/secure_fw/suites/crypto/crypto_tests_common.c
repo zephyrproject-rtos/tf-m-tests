@@ -2976,7 +2976,7 @@ destroy_key:
         goto destroy_public_key;
     }
 
-    if (hash_length != 32) {
+    if (hash_length != PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg))) {
         TEST_FAIL("Unexpected hash length in the hashing step!");
         goto destroy_public_key;
     }
@@ -2986,10 +2986,133 @@ destroy_key:
                              signature, signature_length);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Signature verification failed in the verify_hash!");
-        goto destroy_public_key;
     }
 
 destroy_public_key:
+    psa_destroy_key(key_id_local);
+
+    return;
+}
+
+void psa_sign_verify_hash_test(psa_algorithm_t alg,
+                               struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
+    psa_key_type_t key_type;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const uint8_t message[] =
+        "This is the message that I would like to sign";
+    uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
+    size_t signature_length = 0;
+    /* The expected format of the public key is uncompressed, i.e. 0x04 X Y */
+    uint8_t ecdsa_pub_key[
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))] = {0};
+    size_t pub_key_length = 0;
+    uint32_t comp_result = 0;
+    uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
+    size_t hash_length = 0;
+    uint8_t *p_key = (uint8_t *) ecdsa_public_key;
+    size_t public_key_size;
+
+    /* Get the BIT STRING for the public key */
+    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
+
+    /* Initialize to the passing value */
+    ret->val = TEST_PASSED;
+
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr,
+        PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH | PSA_KEY_USAGE_EXPORT);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    status = psa_export_public_key(key_id_local, ecdsa_pub_key,
+                                   sizeof(ecdsa_pub_key), &pub_key_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Public key export failed!");
+        goto destroy_key;
+    }
+
+    if (pub_key_length !=
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected length for the public key!");
+        goto destroy_key;
+    }
+
+    /* Check that exported key matches the reference key */
+    comp_result = memcmp(ecdsa_pub_key, p_key, pub_key_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Exported ECDSA public key does not match the reference!");
+        goto destroy_key;
+    }
+
+    /* Compute the hash */
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg), message, sizeof(message), hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Failure hashing the message before signing the hash!");
+        goto destroy_key;
+    }
+
+    if (PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg)) != hash_length) {
+        TEST_FAIL("Unexpected hash length!");
+        goto destroy_key;
+    }
+
+    status = psa_sign_hash(key_id_local, alg, hash, hash_length, signature, sizeof(signature), &signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hash signing failed!");
+        goto destroy_key;
+    }
+
+    if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
+                                PSA_BYTES_TO_BITS(
+                                    sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    /* It is not possible to compare the signature against a reference because it might be non-deterministic */
+
+    status = psa_verify_hash(key_id_local, alg, hash, hash_length, signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification for the provided hash failed!");
+    }
+
+destroy_key:
+    psa_destroy_key(key_id_local);
+
+    if (ret->val == TEST_FAILED) {
+        return;
+    }
+
+    /* Continue with the dedicated verify hash flow */
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, p_key,
+                            public_key_size, &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the public key");
+        return;
+    }
+
+    status = psa_verify_hash(key_id_local, alg, hash, hash_length, signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification for the provided hash failed!");
+    }
+
     psa_destroy_key(key_id_local);
 
     return;
