@@ -11,7 +11,7 @@
 # target must be maintained (with a unique name) as they may be built
 # with different configurations - within the same CMake environment.
 
-if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION)
+if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION AND NOT TEST_NS_T_COSE)
     return()
 endif()
 
