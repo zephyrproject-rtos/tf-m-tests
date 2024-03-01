@@ -2915,8 +2915,14 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                               signature, SIGNATURE_BUFFER_SIZE,
                               &signature_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Message signing failed!");
-        goto destroy_key;
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("Algorithm NOT SUPPORTED by the implementation for signing, continue to verification...\r\n");
+            signature_length = PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)));
+            memcpy(signature, reformatted_signature, signature_length);
+        } else {
+            TEST_FAIL("Message signing failed!");
+            goto destroy_key;
+        }
     }
 
     if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
@@ -2942,7 +2948,11 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                                 message, sizeof(message) - 1,
                                 signature, signature_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL(("Signature verification failed!"));
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation for verification");
+        } else {
+            TEST_FAIL("Signature verification failed!");
+        }
         goto destroy_key;
     }
 
