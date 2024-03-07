@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -61,4 +61,5 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_TEST_SECURE_SERVICES
+        TFM_SP_SECURE_TEST_STACK_SIZE=${TFM_SP_SECURE_TEST_STACK_SIZE}
 )

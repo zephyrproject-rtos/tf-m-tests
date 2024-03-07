@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -175,3 +175,5 @@ if(TFM_S_REG_TEST)
          ${SECURE_FW_REG_DIR}/common_test_services/tfm_secure_client_2
 )
 endif()
+
+set(TFM_SP_SECURE_TEST_STACK_SIZE 0x0D00 CACHE STRING "Secure test service stack size")
