@@ -46,6 +46,9 @@ ExternalProject_Add(TF-M
 
 add_dependencies(tfm_s_test TF-M)
 
+# Skip "up-to-date" prints to avoid flooding the build output. Just print "installing"
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
 install(DIRECTORY ${CMAKE_BINARY_DIR}/build-spe/bin DESTINATION ${CMAKE_BINARY_DIR})
 
 install(DIRECTORY   ${CONFIG_TFM_SOURCE_PATH}/secure_fw/partitions/initial_attestation
