@@ -2746,7 +2746,12 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
                                     sizeof(plain_text), NULL, 0, encrypted_data,
                                     encrypted_size, &encrypted_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error encrypting the plaintext");
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("psa_asymmetric_encrypt(): Algorithm NOT SUPPORTED by"\
+                     " the implementation, skipping...\r\n");
+        } else {
+            TEST_FAIL("Error encrypting the plaintext");
+        }
         goto destroy_key;
     }
 
