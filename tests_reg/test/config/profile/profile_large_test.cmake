@@ -10,7 +10,7 @@
 set(TFM_CRYPTO_TEST_ALG_CBC                     ON      CACHE BOOL      "Test CBC cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_CFB                     OFF     CACHE BOOL      "Test CFB cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_ECB                     OFF     CACHE BOOL      "Test ECB cryptography mode")
-set(TFM_CRYPTO_TEST_ALG_CTR                     OFF     CACHE BOOL      "Test CTR cryptography mode")
+set(TFM_CRYPTO_TEST_ALG_CTR                     ON      CACHE BOOL      "Test CTR cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_OFB                     OFF     CACHE BOOL      "Test OFB cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_GCM                     ON      CACHE BOOL      "Test GCM cryptography mode")
 set(TFM_CRYPTO_TEST_ALG_SHA_224                 OFF     CACHE BOOL      "Test SHA-224 cryptography algorithm")
