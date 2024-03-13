@@ -2102,8 +2102,7 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 };
 
 /* Number of available AES cipher modes */
-#define NR_TEST_AES_MODE        (sizeof(test_aes_mode_array) / \
-                                 sizeof(test_aes_mode_array[0]) - 1)
+#define NR_TEST_AES_MODE(t) ((sizeof(t) / sizeof(t[0])) - 1)
 
 void psa_invalid_key_length_test(struct test_result_t *ret)
 {
@@ -2112,7 +2111,7 @@ void psa_invalid_key_length_test(struct test_result_t *ret)
     psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t data[19] = {0};
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2142,7 +2141,7 @@ void psa_policy_key_interface_test(struct test_result_t *ret)
     psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT;
     psa_key_usage_t usage_out;
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2204,8 +2203,8 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 
-    if (NR_TEST_AES_MODE < 2) {
-        TEST_LOG("Two cipher modes are required. Skip this test case\r\n");
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 2) {
+        TEST_LOG("Two cipher modes are required. Skipping...\r\n");
         return;
     }
 
@@ -2213,22 +2212,22 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
      * Search for two modes for test. Both modes should be Cipher algorithms.
      * Otherwise, cipher setup may fail before policy permission check.
      */
-    for (i = 0; i < NR_TEST_AES_MODE - 1; i++) {
+    for (i = 0; i < NR_TEST_AES_MODE(test_aes_mode_array); i++) {
         if (PSA_ALG_IS_CIPHER(test_aes_mode_array[i])) {
             alg = test_aes_mode_array[i];
             break;
         }
     }
 
-    for (j = i + 1; j < NR_TEST_AES_MODE; j++) {
-        if (PSA_ALG_IS_CIPHER(test_aes_mode_array[j])) {
+    for (j = 0; j < NR_TEST_AES_MODE(test_aes_mode_array); j++) {
+        if (PSA_ALG_IS_CIPHER(test_aes_mode_array[j]) && j != i) {
             not_permit_alg = test_aes_mode_array[j];
             break;
         }
     }
 
     if (alg == PSA_ALG_NONE || not_permit_alg == PSA_ALG_NONE) {
-        TEST_LOG("Unable to find two Cipher algs. Skip this test case.\r\n");
+        TEST_LOG("alg: %x, not_permit_alg: %x. Unable to find two Cipher algs. Skipping...\r\n", alg, not_permit_alg);
         return;
     }
 
@@ -2291,7 +2290,7 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     const uint8_t data[] = "THIS IS MY KEY1";
     uint8_t data_out[sizeof(data)] = {0};
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2619,7 +2618,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
         goto deriv_abort;
     }
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_LOG("No AES algorithm to verify. Output raw data instead\r\n");
         psa_set_key_type(&output_key_attr, PSA_KEY_TYPE_RAW_DATA);
     } else {
