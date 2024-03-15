@@ -72,6 +72,7 @@ target_link_libraries(tfm_psa_rot_partition_driver_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_psa_rot_partition_driver_partition
     PRIVATE
@@ -87,6 +88,7 @@ target_link_libraries(tfm_app_rot_partition_client_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_app_rot_partition_client_partition
     PRIVATE
@@ -102,6 +104,7 @@ target_link_libraries(tfm_app_rot_partition_server_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_app_rot_partition_server_partition
     PRIVATE
