@@ -317,6 +317,18 @@ void psa_aead_rfc7539_test(struct test_result_t *ret);
  */
 void psa_verify_rsassa_pss_test(struct test_result_t *ret);
 
+/**
+ * @brief Test for using an AEAD algorithm as authenticator only
+ *
+ * @note Currently supports only PSA_ALG_GCM as to mirror the usage
+ *       of it done by default by the Protected Storage service
+ *
+ * @param[in] alg The AEAD algorithm to be tested
+ *
+ * @return int 0 if no errors, 1 otherwise
+ */
+int psa_aead_as_authenticator_test(psa_algorithm_t alg);
+
 #ifdef __cplusplus
 }
 #endif

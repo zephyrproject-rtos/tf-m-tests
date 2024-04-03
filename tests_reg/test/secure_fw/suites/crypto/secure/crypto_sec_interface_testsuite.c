@@ -110,6 +110,9 @@ static void tfm_crypto_test_1052(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
 static void tfm_crypto_test_1053(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+static void tfm_crypto_test_1055(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_S_CRYPTO_TEST_1001",
@@ -258,6 +261,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1053, "TFM_S_CRYPTO_TEST_1053",
      "Secure RSASSA-PSS signature verification (RSASSA-PSS-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+    {&tfm_crypto_test_1055, "TFM_S_CRYPTO_TEST_1055",
+     "Secure GCM authenticator"},
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
 };
 
 void register_testsuite_s_crypto_interface(struct test_suite_t *p_test_suite)
@@ -603,3 +610,14 @@ static void tfm_crypto_test_1053(struct test_result_t *ret)
     psa_verify_rsassa_pss_test(ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+static void tfm_crypto_test_1055(struct test_result_t *ret)
+{
+    if (!psa_aead_as_authenticator_test(PSA_ALG_GCM)) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
+}
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
