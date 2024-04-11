@@ -258,7 +258,7 @@ static struct test_t crypto_tests[] = {
      "Non Secure RFC7539 verification on Chacha20-Poly1305"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
 #ifdef TFM_CRYPTO_TEST_ALG_GCM
-    {&tfm_crypto_test_1054, "TFM_S_CRYPTO_TEST_1054",
+    {&tfm_crypto_test_1054, "TFM_NS_CRYPTO_TEST_1054",
      "Non Secure GCM authenticator"},
 #endif /* TFM_CRYPTO_TEST_ALG_GCM */
 };
