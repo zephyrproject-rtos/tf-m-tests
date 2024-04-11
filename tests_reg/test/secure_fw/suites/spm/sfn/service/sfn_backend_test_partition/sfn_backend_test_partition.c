@@ -70,6 +70,6 @@ psa_status_t sfn_test_connection_based_sfn(const psa_msg_t* msg)
 
 psa_status_t sfn_test_partition_init(void)
 {
-    LOG_DBGFMT("[SFN Test partition] SFN Test Partition initialized.\r\n");
+    LOG_DBGFMT("[DBG][SFN Test] SFN Test Partition initialized\r\n");
     return PSA_SUCCESS;
 }
