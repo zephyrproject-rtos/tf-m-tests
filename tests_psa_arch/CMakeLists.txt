@@ -93,13 +93,14 @@ set(PLATFORM_PSA_ISOLATION_LEVEL ${TFM_ISOLATION_LEVEL})
 
 add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_BINARY_DIR}/api-tests)
 
-if ("${TEST_PSA_API}" STREQUAL "CRYPTO")
+if((${TEST_PSA_API} STREQUAL "CRYPTO") OR (${TEST_PSA_API} STREQUAL "INITIAL_ATTESTATION"))
     # psa_crypto_config needs to have visibility of the platform includes
     target_link_libraries(psa_crypto_config INTERFACE platform_ns)
-    # val_nspe/pal_nspe targets are calling PSA Crypto APIs so they need
+    # val_nspe/pal_nspe/test_combine targets are calling PSA Crypto APIs so they need
     # to include the psa_crypto_config which exports the config file defs
     target_link_libraries(val_nspe PUBLIC psa_crypto_config)
     target_link_libraries(pal_nspe PUBLIC psa_crypto_config)
+    target_link_libraries(test_combine PUBLIC psa_crypto_config)
 endif()
 
 ############################# TFM NS main app ##################################
