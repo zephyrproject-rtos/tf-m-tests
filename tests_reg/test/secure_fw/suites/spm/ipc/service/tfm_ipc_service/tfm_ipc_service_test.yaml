@@ -73,5 +73,13 @@
       "version": 1,
       "version_policy": "STRICT"
     },
+    {
+      "name": "IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE",
+      "sid": "0x0000F087",
+      "non_secure_clients": true,
+      "connection_based": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
   ]
 }

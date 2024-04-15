@@ -40,4 +40,6 @@
 #define TFM_SLIH_TEST_CASE_1                (0x203)
 #endif /* (defined TEST_NS_SLIH_IRQ) || (defined TFM_PARTITION_SLIH_TEST) */
 
+#define CLIENT_ID_TRANSLATE_TEST_TYPE_REQUEST_SRVC (0x2000)
+
 #endif /* __TFM_SPM_COMMON_TEST_DEFS_H__ */
