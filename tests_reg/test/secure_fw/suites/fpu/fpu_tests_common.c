@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -111,7 +111,7 @@ __attribute__((naked)) uint32_t fpu_interrupt_trigger(uint32_t IRQ_NUM){
         /* Software Trigger Interrupt Register address is 0xE000EF00. */
         "ldr     r7, =0xE000EF00           \n"
         "str     r0, [r7]                  \n"
-        "dsb     0xF                       \n"
+        "dsb     #0xF                      \n"
         "pop     {r7, pc}                  \n"
     );
 }
