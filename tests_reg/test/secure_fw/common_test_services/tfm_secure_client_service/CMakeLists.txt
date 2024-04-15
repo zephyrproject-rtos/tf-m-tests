@@ -61,5 +61,4 @@ target_link_libraries(tfm_partitions
 target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_TEST_SECURE_SERVICES
-        TFM_SP_SECURE_TEST_STACK_SIZE=${TFM_SP_SECURE_TEST_STACK_SIZE}
 )

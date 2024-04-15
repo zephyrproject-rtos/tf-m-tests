@@ -175,5 +175,3 @@ if(TFM_S_REG_TEST)
          ${SECURE_FW_REG_DIR}/common_test_services/tfm_secure_client_2
 )
 endif()
-
-set(TFM_SP_SECURE_TEST_STACK_SIZE 0x0D00 CACHE STRING "Secure test service stack size")
