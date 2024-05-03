@@ -45,8 +45,3 @@ set(TFM_CRYPTO_TEST_ALG_ECDSA                   ON       CACHE BOOL      "Test E
 set(TFM_FWU_TEST_REQUEST_REBOOT         OFF         CACHE BOOL      "Test psa_fwu_request_reboot")
 set(TFM_FWU_TEST_WRITE_WITH_NULL        OFF         CACHE BOOL      "Test psa_fwu_write with data block NULL")
 set(TFM_FWU_TEST_QUERY_WITH_NULL        OFF         CACHE BOOL      "Test psa_fwu_query with info NULL")
-
-################################## Extra test suites ###########################
-
-set(EXTRA_NS_TEST_SUITE_PATH            ""          CACHE PATH      "List of extra non-secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")
-set(EXTRA_S_TEST_SUITE_PATH             ""          CACHE PATH      "List of extra secure test suites directories. An extra test suite folder contains source code, CMakeLists.txt and cmake configuration file")

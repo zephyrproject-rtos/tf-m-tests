@@ -9,9 +9,10 @@ if(NOT TEST_BL1_2)
     return()
 endif()
 
-add_subdirectory(suites/integration)
-
 add_library(bl1_2_tests STATIC)
+
+add_subdirectory(suites/integration)
+add_subdirectory(suites/extra)
 
 target_sources(bl1_2_tests
     PRIVATE

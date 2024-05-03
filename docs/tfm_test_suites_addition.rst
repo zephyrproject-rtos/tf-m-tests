@@ -290,7 +290,7 @@ Out-of-tree regression test suites
 **********************************
 
 TF-M supports out-of-tree regression test suites build, whose source code
-folder is outside tf-m-tests repo. There are two configurations for developers
+folder is outside tf-m-tests repo. There are four configurations for developers
 to include the source code.
 
 - ``EXTRA_NS_TEST_SUITE_PATH``
@@ -302,6 +302,16 @@ to include the source code.
 - ``EXTRA_S_TEST_SUITE_PATH``
 
   An absolute directory of the out-of-tree secure test suite
+  source code folder.
+
+- ``EXTRA_BL1_1_TEST_SUITE_PATH``
+
+  An absolute directory of the out-of-tree BL1_1 test suite
+  source code folder.
+
+- ``EXTRA_BL1_2_TEST_SUITE_PATH``
+
+  An absolute directory of the out-of-tree BL1_2 test suite
   source code folder.
 
 Example usage

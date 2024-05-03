@@ -9,6 +9,8 @@ if(NOT TEST_BL1_1)
     return()
 endif()
 
+add_library(bl1_1_tests STATIC)
+
 set(LOG_SOURCE_ROOT ${TFM_TESTS_ROOT_DIR}/lib/log)
 
 add_library(bl1_1_log INTERFACE)
@@ -36,8 +38,7 @@ target_link_libraries(tfm_test_framework_common
 add_subdirectory(suites/crypto)
 add_subdirectory(suites/trng)
 add_subdirectory(suites/integration)
-
-add_library(bl1_1_tests STATIC)
+add_subdirectory(suites/extra)
 
 target_sources(bl1_1_tests
     PRIVATE
