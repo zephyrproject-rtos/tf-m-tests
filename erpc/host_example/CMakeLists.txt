@@ -15,6 +15,9 @@ add_executable(erpc_main)
 
 add_subdirectory(../client client)
 
+# Include exported targets as we need psa_crypto_config
+include(${CONFIG_SPE_PATH}/cmake/spe_export.cmake)
+
 if (ERPC_TRANSPORT STREQUAL "UART")
     if (NOT DEFINED PORT_NAME)
         message(FATAL_ERROR "Please provide PORT_NAME!")
@@ -42,6 +45,8 @@ target_link_libraries(erpc_main
     PRIVATE
         erpc_client
         pthread
+    PUBLIC
+        psa_crypto_config
 )
 
 target_compile_definitions(erpc_main

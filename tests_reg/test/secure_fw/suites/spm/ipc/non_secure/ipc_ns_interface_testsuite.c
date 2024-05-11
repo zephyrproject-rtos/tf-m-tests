@@ -304,7 +304,6 @@ static void tfm_ipc_test_1017(struct test_result_t *ret)
     psa_close(handle);
     psa_close(handle2);
 }
-
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 
 /**
