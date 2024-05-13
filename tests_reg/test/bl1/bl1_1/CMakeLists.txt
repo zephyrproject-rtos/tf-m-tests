@@ -27,7 +27,7 @@ target_include_directories(bl1_1_log
 
 target_link_libraries(bl1_1_log
     INTERFACE
-        platform_bl1_1
+        platform_bl1_1_interface
 )
 
 target_link_libraries(tfm_test_framework_common
@@ -53,8 +53,8 @@ target_include_directories(bl1_1_tests
 target_link_libraries(bl1_1_tests
     PRIVATE
         tfm_test_framework_common
-        platform_bl1_1
-        bl1_1_shared_lib
+        platform_bl1_1_interface
+        bl1_1_shared_lib_interface
         bl1_1_test_suite_crypto
         bl1_1_test_suite_trng
         bl1_1_test_suite_integration
