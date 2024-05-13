@@ -24,7 +24,7 @@ static void tfm_bl1_integration_test_5001(struct test_result_t *ret)
 
     memset(bad_image, 0, BL1_2_CODE_SIZE);
 
-    FIH_CALL(validate_image_at_addr, fih_rc, bad_image);
+    FIH_CALL(bl1_1_validate_image_at_addr, fih_rc, bad_image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
@@ -48,7 +48,7 @@ static void tfm_bl1_integration_test_5002(struct test_result_t *ret)
 
     bad_image[0] ^= 0xFF;
 
-    FIH_CALL(validate_image_at_addr, fih_rc, bad_image);
+    FIH_CALL(bl1_1_validate_image_at_addr, fih_rc, bad_image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
@@ -71,7 +71,7 @@ static void tfm_bl1_integration_test_5003(struct test_result_t *ret)
 
     bad_image[BL1_2_CODE_SIZE - 1] ^= 0xFF;
 
-    FIH_CALL(validate_image_at_addr, fih_rc, bad_image);
+    FIH_CALL(bl1_1_validate_image_at_addr, fih_rc, bad_image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
