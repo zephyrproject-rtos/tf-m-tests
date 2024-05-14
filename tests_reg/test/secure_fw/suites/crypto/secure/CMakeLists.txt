@@ -21,7 +21,7 @@ target_sources(tfm_test_suite_crypto_s
 
 target_include_directories(tfm_test_suite_crypto_s
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}
+        .
 )
 
 target_link_libraries(tfm_test_suite_crypto_s
@@ -30,7 +30,6 @@ target_link_libraries(tfm_test_suite_crypto_s
         tfm_test_framework_s
         tfm_app_rot_partition_secure_client_2
         platform_s
-        psa_crypto_config
 )
 
 target_link_libraries(tfm_s_tests
@@ -56,6 +55,7 @@ target_compile_definitions(tfm_test_suite_crypto_s
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION}>:TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION>
         $<$<BOOL:${TFM_CRYPTO_TEST_SINGLE_PART_FUNCS}>:TFM_CRYPTO_TEST_SINGLE_PART_FUNCS>
+        $<$<BOOL:${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}>:MBEDTLS_PSA_CRYPTO_CONFIG_FILE="${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}">
         $<$<BOOL:${TFM_CRYPTO_TEST_UNSUPPORTED_ALG}>:TFM_CRYPTO_TEST_UNSUPPORTED_ALG>
     INTERFACE
         TEST_S_CRYPTO

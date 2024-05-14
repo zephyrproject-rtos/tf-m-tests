@@ -97,16 +97,15 @@ endif()
 
 set(PLATFORM_PSA_ISOLATION_LEVEL ${TFM_ISOLATION_LEVEL})
 
-add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_BINARY_DIR}/api-tests)
+# A workaround to co-work with local patch "Crypto: Add psa crypto config link for crypto tests".
+# Specify the PSA crypto config file to make sure PSA_WANT_KEY_TYPE_xxx_KEY_PAIR_BASIC are defined.
+add_library(psa_crypto_config INTERFACE)
+target_compile_definitions(psa_crypto_config
+    INTERFACE
+        MBEDTLS_PSA_CRYPTO_CONFIG_FILE="${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}"
+)
 
-if ("${TEST_PSA_API}" STREQUAL "CRYPTO")
-    # psa_crypto_config needs to have visibility of the platform includes
-    target_link_libraries(psa_crypto_config INTERFACE platform_ns)
-    # val_nspe/pal_nspe targets are calling PSA Crypto APIs so they need
-    # to include the psa_crypto_config which exports the config file defs
-    target_link_libraries(val_nspe PUBLIC psa_crypto_config)
-    target_link_libraries(pal_nspe PUBLIC psa_crypto_config)
-endif()
+add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_BINARY_DIR}/api-tests)
 
 ############################# TFM NS main app ##################################
 
