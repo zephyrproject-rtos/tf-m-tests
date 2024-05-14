@@ -22,4 +22,5 @@ target_link_libraries(bl1_1_test_suite_integration
         tfm_test_framework_common
         bl1_1_shared_lib_interface
         platform_region_defs
+        ${BL1_1_PLATFORM_SPECIFIC_LINK_LIBRARIES}
 )

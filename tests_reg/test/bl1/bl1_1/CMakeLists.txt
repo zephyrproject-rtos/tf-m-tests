@@ -58,4 +58,5 @@ target_link_libraries(bl1_1_tests
         bl1_1_test_suite_crypto
         bl1_1_test_suite_trng
         bl1_1_test_suite_integration
+        ${BL1_1_PLATFORM_SPECIFIC_LINK_LIBRARIES}
 )

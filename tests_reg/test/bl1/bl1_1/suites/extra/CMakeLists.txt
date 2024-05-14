@@ -25,6 +25,7 @@ target_link_libraries(tfm_test_suite_extra_bl1_1
     PRIVATE
         tfm_test_framework_common
         platform_bl1_1_interface
+        ${BL1_1_PLATFORM_SPECIFIC_LINK_LIBRARIES}
 )
 
 target_link_libraries(bl1_1_tests

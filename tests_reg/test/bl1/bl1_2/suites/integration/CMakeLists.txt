@@ -24,4 +24,5 @@ target_link_libraries(bl1_2_test_suite_integration
         bl1_1_shared_lib_interface
         platform_region_defs
         platform_bl1_1_interface
+        ${BL1_2_PLATFORM_SPECIFIC_LINK_LIBRARIES}
 )
