@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -15,6 +15,11 @@
 #include "tfm_sp_log.h"
 #include "client_api_test_defs.h"
 #include "client_api_test_service.h"
+
+#include "tfm_hal_multi_core.h"
+#include "tfm_plat_defs.h"
+#include "internal_status_code.h"
+
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 #include "tfm_mmiovec_test_service.h"
 #endif
@@ -259,6 +264,36 @@ static void ipc_service_mmiovec_test_handle(void)
 
 #endif
 
+static void ipc_service_client_id_translate(void)
+{
+    psa_status_t status = PSA_ERROR_INVALID_ARGUMENT;
+    psa_msg_t msg;
+
+    status = psa_get(IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        psa_panic();
+    }
+
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+    case PSA_IPC_DISCONNECT:
+        status = PSA_SUCCESS;
+        break;
+
+    case CLIENT_ID_TRANSLATE_TEST_TYPE_REQUEST_SRVC:
+        if (msg.client_id == 0xC4000000) { /* client_id_limit - 1 */
+            status = PSA_SUCCESS;
+        }
+        break;
+
+    default:
+        tfm_abort();
+        break;
+    }
+
+    psa_reply(msg.handle, status);
+}
+
 /* Test thread */
 void ipc_service_test_main(void *param)
 {
@@ -288,6 +323,8 @@ void ipc_service_test_main(void *param)
         } else if (signals & IPC_SERVICE_TEST_MMIOVEC_SIGNAL) {
             ipc_service_mmiovec_test_handle();
 #endif
+        } else if (signals & IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_SIGNAL) {
+            ipc_service_client_id_translate();
         } else {
             /* Should not come here */
             tfm_abort();

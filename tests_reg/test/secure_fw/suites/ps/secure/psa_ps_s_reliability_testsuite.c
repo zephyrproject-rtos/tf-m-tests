@@ -7,7 +7,6 @@
 
 #include "ps_tests.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include "psa/protected_storage.h"

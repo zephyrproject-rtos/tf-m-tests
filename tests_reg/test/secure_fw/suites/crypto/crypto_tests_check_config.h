@@ -75,6 +75,16 @@
 #error "TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION enabled, but RSA-PSS algorithm is not defined!"
 #endif
 
+#if defined(TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA) && \
+    !defined(PSA_WANT_ALG_DETERMINISTIC_ECDSA)
+#error "TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA enabled, but DETERMINSTIC_ECDSA algorithm is not defined!"
+#endif
+
+#if defined(TFM_CRYPTO_TEST_ALG_ECDSA) && \
+    !defined(PSA_WANT_ALG_ECDSA)
+#error "TFM_CRYPTO_TEST_ALG_ECDSA enabled, but ECDSA algorithm is not defined!"
+#endif
+
 #if defined(PSA_WANT_ALG_SHA_1)
 #undef TFM_CRYPTO_TEST_UNSUPPORTED_ALG
 #warning "SHA_1 algorithm is defined, disable TFM_CRYPTO_TEST_UNSUPPORTED_ALG!"

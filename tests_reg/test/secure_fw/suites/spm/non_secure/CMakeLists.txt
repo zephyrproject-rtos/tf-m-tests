@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 # Add test suites and test service common library
 add_subdirectory(../common/suites   ${CMAKE_CURRENT_BINARY_DIR}/common/suites)
 

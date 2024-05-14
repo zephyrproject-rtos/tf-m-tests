@@ -7,8 +7,6 @@
 
 #include "test_framework_helpers.h"
 
-#include <stdio.h>
-
 void printf_set_color(enum serial_color_t color_id)
 {
     TEST_LOG("\33[%dm", color_id);

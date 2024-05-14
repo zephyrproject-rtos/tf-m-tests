@@ -5,8 +5,8 @@
  *
  */
 
+#include <stddef.h>
 #include "qcbor_ns_tests.h"
-#include <stdio.h>
 #include "run_tests.h"
 
 /*

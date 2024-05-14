@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 ####################### Non Secure #############################################
 
 if(NOT TEST_NS_CRYPTO)
@@ -23,13 +21,14 @@ target_sources(tfm_test_suite_crypto_ns
 
 target_include_directories(tfm_test_suite_crypto_ns
     PUBLIC
-        .
+        ${CMAKE_CURRENT_LIST_DIR}
 )
 
 target_link_libraries(tfm_test_suite_crypto_ns
     PRIVATE
         tfm_config
         tfm_test_framework_ns
+        psa_crypto_config
 )
 
 target_link_libraries(tfm_ns_tests
@@ -56,8 +55,9 @@ target_compile_definitions(tfm_test_suite_crypto_ns
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305}>:TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305>
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION}>:TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION>
         $<$<BOOL:${TFM_CRYPTO_TEST_SINGLE_PART_FUNCS}>:TFM_CRYPTO_TEST_SINGLE_PART_FUNCS>
-        $<$<BOOL:${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}>:MBEDTLS_PSA_CRYPTO_CONFIG_FILE="${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}">
         $<$<BOOL:${TFM_CRYPTO_TEST_UNSUPPORTED_ALG}>:TFM_CRYPTO_TEST_UNSUPPORTED_ALG>
+        $<$<BOOL:${TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA}>:TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA>
+        $<$<BOOL:${TFM_CRYPTO_TEST_ALG_ECDSA}>:TFM_CRYPTO_TEST_ALG_ECDSA>
     INTERFACE
         TEST_NS_CRYPTO
 )

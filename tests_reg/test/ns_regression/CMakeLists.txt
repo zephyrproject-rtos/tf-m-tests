@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 
 ########################## TEST Configuration ##################################
 
@@ -32,7 +32,7 @@ include(utils)
     )
 
 # Common regression test framework
-add_subdirectory(${CMAKE_SOURCE_DIR}/test/framework ${CMAKE_CURRENT_BINARY_DIR}/framework)
+add_subdirectory(../framework ${CMAKE_CURRENT_BINARY_DIR}/framework)
 
 add_library(tfm_ns_tests INTERFACE)
 add_library(tfm_test_framework_ns INTERFACE)
@@ -40,6 +40,8 @@ add_library(tfm_test_framework_ns INTERFACE)
 target_compile_definitions(tfm_test_framework_ns
     INTERFACE
         DOMAIN_NS=1
+        $<$<BOOL:${CONFIG_TFM_ERPC_TEST_FRAMEWORK}>:CONFIG_TFM_ERPC_TEST_FRAMEWORK=1>
+        $<$<BOOL:${USE_STDIO}>:USE_STDIO>
 )
 
 target_link_libraries(tfm_test_framework_ns
@@ -54,6 +56,11 @@ target_sources(tfm_ns_tests
         non_secure_suites.c
 )
 
+target_include_directories(tfm_ns_tests
+    INTERFACE
+        .
+)
+
 target_link_libraries(tfm_ns_tests
     INTERFACE
         tfm_test_framework_ns
@@ -65,6 +72,6 @@ target_compile_definitions(tfm_ns_tests
         $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
 )
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/test/secure_fw/non_secure
+add_subdirectory(../secure_fw/non_secure
                  ${CMAKE_CURRENT_BINARY_DIR}/secure_fw/suites
 )

@@ -4,16 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.15)
-
-# CMake 3.21 and above requests projects to specify cpu/arch compile and link flags explicitly in
-# Armclang. Link: https://cmake.org/cmake/help/latest/policy/CMP0123.html
-# It is aligned with current Armclang toolchain implementation.
-# Explictly set this policy to NEW behavior to eliminate long warnings. It shall be set in root
-# CMakeLists.txt otherwise project() will throw out the warnings.
-if(POLICY CMP0123)
-    cmake_policy(SET CMP0123 NEW)
-endif()
+cmake_minimum_required(VERSION 3.21)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../cmake)
 include(toolchain_selection)
@@ -30,6 +21,9 @@ list(APPEND CMAKE_MODULE_PATH ${CONFIG_SPE_PATH}/cmake)
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Configs exported by TF-M build
 include(spe_config)
+# Include tests related config exported by TF-M SPE
+include(${CONFIG_SPE_PATH}/config/config_ns_test_psa_api.cmake)
+# Platform specific config if exists
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 # Include platform specific PSA Arch test preferences
 include(${CONFIG_SPE_PATH}/platform/tests/psa_arch_tests_config.cmake OPTIONAL)
@@ -97,15 +91,17 @@ endif()
 
 set(PLATFORM_PSA_ISOLATION_LEVEL ${TFM_ISOLATION_LEVEL})
 
-# A workaround to co-work with local patch "Crypto: Add psa crypto config link for crypto tests".
-# Specify the PSA crypto config file to make sure PSA_WANT_KEY_TYPE_xxx_KEY_PAIR_BASIC are defined.
-add_library(psa_crypto_config INTERFACE)
-target_compile_definitions(psa_crypto_config
-    INTERFACE
-        MBEDTLS_PSA_CRYPTO_CONFIG_FILE="${TFM_MBEDCRYPTO_PSA_CRYPTO_CONFIG_PATH}"
-)
-
 add_subdirectory(${PSA_ARCH_TESTS_PATH}/api-tests ${CMAKE_BINARY_DIR}/api-tests)
+
+if((${TEST_PSA_API} STREQUAL "CRYPTO") OR (${TEST_PSA_API} STREQUAL "INITIAL_ATTESTATION"))
+    # psa_crypto_config needs to have visibility of the platform includes
+    target_link_libraries(psa_crypto_config INTERFACE platform_ns)
+    # val_nspe/pal_nspe/test_combine targets are calling PSA Crypto APIs so they need
+    # to include the psa_crypto_config which exports the config file defs
+    target_link_libraries(val_nspe PUBLIC psa_crypto_config)
+    target_link_libraries(pal_nspe PUBLIC psa_crypto_config)
+    target_link_libraries(test_combine PUBLIC psa_crypto_config)
+endif()
 
 ############################# TFM NS main app ##################################
 
@@ -117,6 +113,7 @@ target_sources(tfm_ns
 
 target_link_libraries(tfm_ns
     PRIVATE
+        os_wrapper
         tfm_test_broker
         val_nspe
         pal_nspe

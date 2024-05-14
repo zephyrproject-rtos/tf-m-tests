@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 
 add_library(tfm_test_framework_common INTERFACE)
 
@@ -13,7 +13,6 @@ target_sources(tfm_test_framework_common
     INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/test_framework.c
         ${CMAKE_CURRENT_SOURCE_DIR}/test_framework_helpers.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test_framework_integ_test_helper.c
 )
 
 target_include_directories(tfm_test_framework_common

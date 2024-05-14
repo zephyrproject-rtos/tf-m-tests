@@ -36,57 +36,6 @@ extern "C" {
 #define BUFFER_PLUS_PADDING_SIZE (BUFFER_SIZE + PADDING_SIZE)
 #define BUFFER_PLUS_HALF_PADDING_SIZE (BUFFER_SIZE + HALF_PADDING_SIZE)
 
-/**
- * \brief Expands to the prototype of a test function.
- *
- * \param[in] test_name  Name of the test function
- */
-#define TFM_PS_TEST_PROTO(test_name) \
-    static void test_name(struct test_result_t *ret)
-
-/**
- * \brief Expands to the standard name of a test function.
- *
- * \param[in] test_num  Identification number of the test
- */
-#define TFM_PS_TEST_NAME(test_num) CONCAT(tfm_ps_test_, test_num)
-
-/**
- * \brief Expands to the standard name of a task function.
- *
- * \param[in] test_num  Identification number of the task
- */
-#define TFM_PS_TASK_NAME(test_num) CONCAT(TFM_PS_TEST_NAME(test_num), _task)
-
-/**
- * \brief Expands to a test function declaration.
- *
- * \param[in] test_num  Identification number of the test
- */
-#define TFM_PS_TEST(test_num) TFM_PS_TEST_PROTO(TFM_PS_TEST_NAME(test_num))
-
-/**
- * \brief Expands to a task function declaration.
- *
- * \param[in] test_num  Identification number of the task
- */
-#define TFM_PS_TASK(test_num) TFM_PS_TEST_PROTO(TFM_PS_TASK_NAME(test_num))
-
-/**
- * \brief Defines a single-threaded PS NS test function and declares the
- *        corresponding task function.
- *
- * \param[in] test_num     Identification number of the test
- * \param[in] thread_name  Name of the thread in which to run the test
- */
-#define TFM_PS_NS_TEST(test_num, thread_name)                           \
-    TFM_PS_TASK(test_num);                                              \
-    TFM_PS_TEST(test_num)                                               \
-    {                                                                    \
-        tfm_ps_run_test(thread_name, ret, TFM_PS_TASK_NAME(test_num)); \
-    }                                                                    \
-    TFM_PS_TASK(test_num)
-
 /* The type of a test function */
 typedef void test_func_t(struct test_result_t *ret);
 

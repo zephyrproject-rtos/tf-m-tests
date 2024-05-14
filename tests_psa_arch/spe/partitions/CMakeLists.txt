@@ -4,13 +4,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 # Check configuration.
 # Config check shall be performed after all configurations complete.
 # Difficult to insert a hook to perform test config check inside configuration sequence.
 # Put the check here before test partition build starts or is skipped.
 include(${CMAKE_CURRENT_LIST_DIR}/../config/check_config.cmake)
+
+# Install test related options
+configure_file(${CMAKE_CURRENT_LIST_DIR}/../config/config_ns_test_psa_api.cmake.in
+               ${CMAKE_INSTALL_PREFIX}/config/config_ns_test_psa_api.cmake
+               @ONLY)
 
 if (NOT "${TEST_PSA_API}" STREQUAL IPC)
     # The extra 3 TF-M partitions are necesary only for IPC tests
@@ -67,6 +72,7 @@ target_link_libraries(tfm_psa_rot_partition_driver_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_psa_rot_partition_driver_partition
     PRIVATE
@@ -82,6 +88,7 @@ target_link_libraries(tfm_app_rot_partition_client_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_app_rot_partition_client_partition
     PRIVATE
@@ -97,6 +104,7 @@ target_link_libraries(tfm_app_rot_partition_server_partition
     PRIVATE
         psa_interface
         platform_s
+        tfm_sprt
 )
 target_compile_definitions(tfm_app_rot_partition_server_partition
     PRIVATE

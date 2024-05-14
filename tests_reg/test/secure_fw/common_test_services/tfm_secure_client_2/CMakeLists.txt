@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_secure_client_2 STATIC)
 
@@ -43,6 +42,7 @@ target_link_libraries(tfm_app_rot_partition_secure_client_2
     PRIVATE
         tfm_sprt
         platform_s
+        psa_crypto_config
 )
 
 target_link_libraries(tfm_spm

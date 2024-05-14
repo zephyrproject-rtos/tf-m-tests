@@ -42,13 +42,13 @@ Adding a new test suite
 ***********************
 
 This section introduces how to add a new test suite and control its compilation
-with a test configuration in ``tf-m-tests`` repository.
+with a test configuration in ``tests_reg/test`` repository.
 
 Source code
 ===========
 
 The test suite example subdirectory named ``<test_name>`` is located under the
-path ``tf-m-tests/test/secure_fw/suites``. If the new test suite includes both
+path ``tests_reg/test/secure_fw/suites``. If the new test suite includes both
 non-secure and secure parts, the source code shall be divided shared code and
 specific code. An example test suite folder can be organized as the figure
 below.
@@ -56,12 +56,13 @@ below.
 .. code-block:: bash
 
     .
-    ├── CMakeLists.txt
     ├── <test_name>_tests_common.c
     ├── non_secure
+    |   ├── CMakeLists.txt
     │   ├── <test_name>_ns_interface_testsuite.c
     │   └── <test_name>_ns_tests.h
     └── secure
+        ├── CMakeLists.txt
         ├── <test_name>_s_interface_testsuite.c
         └── <test_name>_s_tests.h
 
@@ -71,16 +72,6 @@ Creating test configurations
 A test configuration controls whether one or multiple test suites are enabled.
 The doc :doc:`TF-M Build Instructions <TF-M:building/tfm_build_instruction>`.
 shows some test configurations which are already supported in current TF-M.
-An example usage of test configuration shows below.
-
-.. code-block:: bash
-
-    cmake -S . -B cmake_build -DTFM_PLATFORM=arm/mps2/an521               \
-                              -DTFM_TOOLCHAIN_FILE=toolchain_GNUARM.cmake \
-                              -DCMAKE_BUILD_TYPE=Release                  \
-                              -DTEST_NS_ATTESTATION=ON
-
-With this command, only non-secure initial attestation test suite will be built.
 
 Developers shall assign corresponding test configurations to control the test
 suites.
@@ -94,34 +85,33 @@ in non-secure and ``TEST_S_<TEST_NAME>`` in secure.
 .. Note::
     The test configurations must be named with the prefixes ``TEST_S_`` and
     ``TEST_NS_``, for secure regression tests and non-secure regression tests
-    respectively. Otherwise, tf-m-tests build system may not recognize it.
+    respectively. Otherwise, tests_reg/test build system may not recognize it.
 
 Setting test configurations
 ---------------------------
 
-When the test configurations have dependences, the default value need to be set.
+When the test configurations have dependencies, the default value need to be set.
 The setting is performed in following four steps.
 
 #. Command line input: The configuration can be enabled or disabled by the
    command ``-DTEST_NS_<TEST_NAME>=ON/OFF -DTEST_S_<TEST_NAME>=ON/OFF``, and
    the value cannot be changed throughout the whole compilation of TF-M tests.
 
-#. ``tf-m-tests/config/set_config.cmake``: The test configurations shall be
-   OFF if its dependences are not supported. The dependences are probably
-   from:
+#. ``tests_reg/test/config/config.cmake``: The test configurations shall be
+   ``OFF`` if its dependencies are not supported. The dependencies are probably from:
 
     #. TF-M partitions configurations like ``TFM_PARTITION_CRYPTO``,
        ``TFM_PARTITION_INITIAL_ATTESTATION``, etc.
     #. TF-M build mode configuration like ``CONFIG_TFM_SPM_BACKEND``.
     #. TF-M other configurations like ``TFM_PARTITION_FIRMWARE_UPDATE``, etc.
 
-#. ``tf-m-tests/config/default_ns_test_config.cmake`` or
-   ``tf-m-tests/config/default_s_test_config.cmake``: It is required to give
+#. ``tests_reg/test/config/default_ns_test_config.cmake`` or
+   ``tests_reg/test/config/default_s_test_config.cmake``: It is required to give
    the default value of the new test configuration in these two files when
    ``TEST_NS`` or ``TEST_S`` is ON. The recommended value is ON unless the
    single test's code or data size is very large.
 
-#. ``tf-m-tests/config/default_test_config.cmake``: It is required to give the
+#. ``tests_reg/test/config/default_test_config.cmake``: It is required to give the
    default value of the new test configuration in the file when both
    ``TEST_NS`` and ``TEST_S`` are OFF. The default value must be OFF.
 
@@ -135,9 +125,18 @@ Checking test configurations
 
 The new test configurations must be checked by function ``tfm_invalid_config()``
 if they have any dependence. The value comes from command line may be wrong when
-the dependences are conflicting. In addition to the dependences quoted in
-``tf-m-tests/config/set_config.cmake``, some other test configurations may be
-necessary.
+the dependencies are conflicting.
+
+Implement necessary checks in ``tests_reg/test/config/check_config.cmake``.
+
+Export TF-M configurations
+==========================
+
+If the new test depends on some TF-M configurations, export their value via
+``tests_reg/test/config/config_ns_tests.cmake.in``.
+TF-M secure build will install ``config_ns_tests.cmake`` and export configuration values.
+tf-m-tests non-secure build will include ``config_ns_tests.cmake`` and receive TF-M configuration
+values.
 
 Applying test configurations
 ============================
@@ -146,8 +145,6 @@ The mission of test configurations is to control the build. They are applied
 in ``test/secure_fw/suites/<test_name>/CMakeLists.txt`` like the example below.
 
 .. code-block:: cmake
-
-    cmake_policy(SET CMP0079 NEW)
 
     if (NOT TEST_NS_<TEST_NAME> AND NOT TEST_S_<TEST_NAME>)
         return()
@@ -181,7 +178,7 @@ in ``test/secure_fw/suites/<test_name>/CMakeLists.txt`` like the example below.
 
 The function ``target_compile_definitions`` will export the macros
 ``TEST_NS_<TEST_NAME>`` or ``TEST_S_<TEST_NAME>`` into source code. and in the
-file ``tf-m-tests/framework/non_secure_suites.c`` or
+file ``tests_reg/test/framework/non_secure_suites.c`` or
 ``tests/framework/secure_suites.c``, the definitions of these macros will be
 checked, and then the head file will be included and test cases will be
 registered if the macro is defined.
@@ -218,7 +215,7 @@ registered if the macro is defined.
     On most platforms non-secure tests and secure tests run on the same CPU
     core, but dual-core platform is an exception. So secure test library and
     secure services shall be linked together in the file
-    ``tf-m-tests/test/secure_fw/secure_tests.cmake``. Thus they can be built on
+    ``tests_reg/test/test/secure_fw/secure_tests.cmake``. Thus they can be built on
     secure CPU core and non-secure tests library and RTOS are built on
     non-secure CPU core.
 
@@ -235,7 +232,7 @@ Adding a new test case in test suite
 
 The test cases usually express as a function in source code. They will be added
 into an array with structure type called ``test_t`` defined in
-``tf-m-tests/test/framework/test_framework.h``.
+``tests_reg/test/test/framework/test_framework.h``.
 
 .. code-block:: c
 
@@ -346,7 +343,7 @@ code. This file contains the declaration of
 Source code
 -----------
 
-To connect the out-of-tree source code and tf-m-tests framework, the test case
+To connect the out-of-tree source code and regression test framework, the test case
 function/functions must be defined first. An example format is:
 
 .. code-block:: c

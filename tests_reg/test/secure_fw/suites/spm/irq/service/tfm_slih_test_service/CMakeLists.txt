@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_app_rot_partition_slih_test STATIC)
 

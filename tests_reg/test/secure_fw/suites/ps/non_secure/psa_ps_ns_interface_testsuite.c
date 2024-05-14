@@ -7,7 +7,6 @@
 
 #include "ps_ns_tests.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include "config_tfm.h"
@@ -146,7 +145,7 @@ void register_testsuite_ns_psa_ps_interface(struct test_suite_t *p_test_suite)
  * - Valid UID, no data, no flags
  * - Invalid UID, no data, no flags
  */
-TFM_PS_NS_TEST(1001, "Thread_A")
+void tfm_ps_test_1001(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_1;
@@ -191,7 +190,7 @@ TFM_PS_NS_TEST(1001, "Thread_A")
  * - Valid create flags (with previously created UID)
  * - Invalid create flags
  */
-TFM_PS_NS_TEST(1002, "Thread_A")
+void tfm_ps_test_1002(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_2;
@@ -245,7 +244,7 @@ TFM_PS_NS_TEST(1002, "Thread_A")
  *       and not return to the NSPE so this case is not tested here.
  *
  */
-TFM_PS_NS_TEST(1003, "Thread_A")
+void tfm_ps_test_1003(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_3;
@@ -266,7 +265,7 @@ TFM_PS_NS_TEST(1003, "Thread_A")
  * \brief Tests set function with:
  * - Write once UID that has already been created
  */
-TFM_PS_NS_TEST(1004, "Thread_A")
+void tfm_ps_test_1004(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = WRITE_ONCE_UID;
@@ -307,7 +306,7 @@ TFM_PS_NS_TEST(1004, "Thread_A")
  * - Valid data, zero offset
  * - Valid data, non-zero offset
  */
-TFM_PS_NS_TEST(1005, "Thread_A")
+void tfm_ps_test_1005(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_2;
@@ -389,7 +388,7 @@ TFM_PS_NS_TEST(1005, "Thread_A")
  * - Zero data length, zero offset
  * - Zero data length, non-zero offset
  */
-TFM_PS_NS_TEST(1006, "Thread_A")
+void tfm_ps_test_1006(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_3;
@@ -452,7 +451,7 @@ TFM_PS_NS_TEST(1006, "Thread_A")
  * - Unset UID
  * - Invalid UID
  */
-TFM_PS_NS_TEST(1007, "Thread_A")
+void tfm_ps_test_1007(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_1;
@@ -498,7 +497,7 @@ TFM_PS_NS_TEST(1007, "Thread_A")
  * - Data length greater than UID length
  * - Data length + offset greater than UID length
  */
-TFM_PS_NS_TEST(1008, "Thread_A")
+void tfm_ps_test_1008(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_2;
@@ -604,7 +603,7 @@ TFM_PS_NS_TEST(1008, "Thread_A")
  *       and not return to the NSPE so this case is not tested here.
  *
  */
-TFM_PS_NS_TEST(1009, "Thread_A")
+void tfm_ps_test_1009(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_3;
@@ -641,7 +640,7 @@ TFM_PS_NS_TEST(1009, "Thread_A")
  * \brief Tests get info function with:
  * - Write once UID
  */
-TFM_PS_NS_TEST(1010, "Thread_A")
+void tfm_ps_test_1010(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = WRITE_ONCE_UID;
@@ -672,7 +671,7 @@ TFM_PS_NS_TEST(1010, "Thread_A")
  * \brief Tests get info function with:
  * - Valid UID
  */
-TFM_PS_NS_TEST(1011, "Thread_A")
+void tfm_ps_test_1011(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_1;
@@ -720,7 +719,7 @@ TFM_PS_NS_TEST(1011, "Thread_A")
  * - Unset UID
  * - Invalid UID
  */
-TFM_PS_NS_TEST(1012, "Thread_A")
+void tfm_ps_test_1012(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_2;
@@ -769,7 +768,7 @@ TFM_PS_NS_TEST(1012, "Thread_A")
  * \brief Tests remove function with:
  * - Valid UID
  */
-TFM_PS_NS_TEST(1013, "Thread_A")
+void tfm_ps_test_1013(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_1;
@@ -822,7 +821,7 @@ TFM_PS_NS_TEST(1013, "Thread_A")
  * \brief Tests remove function with:
  * - Write once UID
  */
-TFM_PS_NS_TEST(1014, "Thread_A")
+void tfm_ps_test_1014(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = WRITE_ONCE_UID;
@@ -841,7 +840,7 @@ TFM_PS_NS_TEST(1014, "Thread_A")
  * \brief Tests remove function with:
  * - Invalid UID
  */
-TFM_PS_NS_TEST(1015, "Thread_A")
+void tfm_ps_test_1015(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = INVALID_UID;
@@ -1459,7 +1458,7 @@ static void tfm_ps_test_1020(struct test_result_t *ret)
  *        the beginning of the block. This test verifies that the compaction
  *        works correctly by reading back UID 2.
  */
-TFM_PS_NS_TEST(1021, "Thread_A")
+void tfm_ps_test_1021(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid_1 = TEST_UID_2;
@@ -1523,7 +1522,7 @@ TFM_PS_NS_TEST(1021, "Thread_A")
 /**
  * \brief Tests set and multiple partial gets.
  */
-TFM_PS_NS_TEST(1022, "Thread_A")
+void tfm_ps_test_1022(struct test_result_t *ret)
 {
     psa_status_t status;
     uint32_t i;
@@ -1573,7 +1572,7 @@ TFM_PS_NS_TEST(1022, "Thread_A")
 /**
  * \brief Tests multiple sets to the same UID.
  */
-TFM_PS_NS_TEST(1023, "Thread_A")
+void tfm_ps_test_1023(struct test_result_t *ret)
 {
     psa_status_t status;
     const psa_storage_uid_t uid = TEST_UID_2;
@@ -1632,7 +1631,7 @@ TFM_PS_NS_TEST(1023, "Thread_A")
 /**
  * \brief Tests get support function.
  */
-TFM_PS_NS_TEST(1024, "Thread_A")
+void tfm_ps_test_1024(struct test_result_t *ret)
 {
     uint32_t support_flags;
 
@@ -1651,7 +1650,7 @@ TFM_PS_NS_TEST(1024, "Thread_A")
  * - Data length of different asset sizes
  * - No flags
  */
-TFM_PS_NS_TEST(1025, "Thread_A")
+void tfm_ps_test_1025(struct test_result_t *ret)
 {
     uint8_t cycle;
     psa_status_t status;

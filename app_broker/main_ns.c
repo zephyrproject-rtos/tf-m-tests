@@ -15,7 +15,7 @@
 #include "tfm_plat_ns.h"
 #include "Driver_USART.h"
 #include "device_cfg.h"
-#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
+#ifdef TFM_NS_MAILBOX_API
 #include "tfm_multi_core_api.h"
 #include "tfm_ns_mailbox.h"
 #endif
@@ -67,7 +67,7 @@ static const osThreadAttr_t mailbox_thread_attr = {
 };
 #endif
 
-#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
+#ifdef TFM_NS_MAILBOX_API
 static struct ns_mailbox_queue_t ns_mailbox_queue;
 
 static void tfm_ns_multi_core_boot(void)
@@ -93,11 +93,9 @@ static void tfm_ns_multi_core_boot(void)
         }
     }
 }
-#endif /* TFM_PARTITION_NS_AGENT_MAILBOX */
-
-#ifdef CONFIG_TFM_USE_TRUSTZONE
+#else /* TFM_NS_MAILBOX_API */
 extern uint32_t tfm_ns_interface_init(void);
-#endif
+#endif /* TFM_NS_MAILBOX_API */
 
 /**
  * \brief Platform peripherals and devices initialization.
@@ -158,11 +156,9 @@ int main(void)
 
     (void) osKernelInitialize();
 
-#ifdef TFM_PARTITION_NS_AGENT_MAILBOX
+#ifdef TFM_NS_MAILBOX_API
     tfm_ns_multi_core_boot();
-#endif
-
-#ifdef CONFIG_TFM_USE_TRUSTZONE
+#else
     /* Initialize the TFM NS interface */
     tfm_ns_interface_init();
 #endif

@@ -2,7 +2,7 @@
  * attest_token_test_values.h
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2019-2022, Arm Limited.
+ * Copyright (c) 2019-2024, Arm Limited.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -537,6 +537,6 @@
 /* Attest token maximum size, there are also platform dependent values
  * defined in region_defs.h
  */
-#define ATTEST_TOKEN_MAX_SIZE  0x250
+#define ATTEST_TOKEN_MAX_SIZE  0x350
 
 #endif /* __ATTEST_TOKEN_TEST_VALUES_H__ */

@@ -4,16 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.15)
-
-# CMake 3.21 and above requests projects to specify cpu/arch compile and link flags explicitly in
-# Armclang. Link: https://cmake.org/cmake/help/latest/policy/CMP0123.html
-# It is aligned with current Armclang toolchain implementation.
-# Explictly set this policy to NEW behavior to eliminate long warnings. It shall be set in root
-# CMakeLists.txt otherwise project() will throw out the warnings.
-if(POLICY CMP0123)
-    cmake_policy(SET CMP0123 NEW)
-endif()
+cmake_minimum_required(VERSION 3.21)
 
 if (NOT DEFINED CONFIG_SPE_PATH OR NOT EXISTS ${CONFIG_SPE_PATH})
     message(FATAL_ERROR "CONFIG_SPE_PATH = ${CONFIG_SPE_PATH} is not defined or incorrect. Please provide full path to TF-M build artifacts using -DCONFIG_SPE_PATH=")
@@ -32,6 +23,9 @@ include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 # Platform abilities for example IRQ test support status
 include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
+
+# Check current tf-m-tests is compatible to TF-M under verfication
+include(check_version)
 
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
@@ -72,6 +66,7 @@ target_sources(tfm_ns
 
 target_link_libraries(tfm_ns
     PRIVATE
+        os_wrapper
         tfm_test_broker
         $<$<BOOL:${TFM_NS_REG_TEST}>:tfm_ns_tests>
 )
