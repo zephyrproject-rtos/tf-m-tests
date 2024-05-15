@@ -5,6 +5,10 @@
 #
 #-------------------------------------------------------------------------------
 
+if(NOT CHECK_TFM_TESTS_VERSION)
+    return()
+endif()
+
 find_package(Git)
 
 execute_process(COMMAND "${GIT_EXECUTABLE}" status
