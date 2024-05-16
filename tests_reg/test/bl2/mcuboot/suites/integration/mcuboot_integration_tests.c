@@ -20,6 +20,7 @@
 #include "bootutil/boot_status.h"
 #include "bootutil_priv.h"
 #include "test_framework_helpers.h"
+#include "boot_hal.h"
 
 #define MCUBOOT_INTEG_TEST_BLOCK_SIZE 256
 
@@ -128,6 +129,21 @@ static int test_setup(int *original_image_idx)
     struct image_header hdr_0;
     struct image_header hdr_1;
 
+    if (!boot_platform_should_load_image(*original_image_idx)) {
+        /* If the image should be skipped, skip the test
+         */
+        printf_set_color(MAGENTA);
+        TEST_LOG("%s %s", "Image is set not to load.",
+                 "The test execution was SKIPPED.\r\n");
+        printf_set_color(DEFAULT);
+        return 2;
+    }
+
+    rc = boot_platform_pre_load(*original_image_idx);
+    if (rc) {
+        return 1;
+    }
+
     rc = read_image_header(0, &hdr_0);
     if (rc) {
         return 1;
@@ -216,9 +232,14 @@ static int test_teardown(int test_image_idx)
     }
 
     rc = flash_area_erase(fap, 0, fap->fa_size);
+    if (rc) {
+        return rc;
+    }
     flash_area_close(fap);
 
     reset_shared_area();
+
+    rc = boot_platform_post_load(test_image_idx);
 
     return rc;
 }
