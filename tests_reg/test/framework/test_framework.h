@@ -10,7 +10,6 @@
 
 #include <stdarg.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #include "test_log.h"
 #include "test_framework_helpers.h"
@@ -66,6 +65,17 @@ struct test_suite_t {
     const char *name;              /*!< Test suite name */
     enum test_status_t val;        /*!< Test suite result \ref test_result_t */
 };
+
+/**
+ * \brief Executes the test suites provided in the parameters.
+ *
+ * \param[in] suite_type      A string containing the type of the suite
+ *                            (used for printing).
+ * \param[in] test_suites     The suites to be executed.
+ *
+ * \returns Returns error code as specified in \ref test_suite_err_t
+ */
+enum test_suite_err_t run_test(const char *suite_type, struct test_suite_t test_suites[]);
 
 /**
  * \brief Translates the test suite error into a string.

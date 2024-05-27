@@ -10,7 +10,6 @@
 
 #include "psa_manifest/sid.h"
 
-__attribute__((section("SFN")))
 psa_status_t tfm_secure_client_2_call_test(int32_t id, const void *arg,
                                            size_t arg_len)
 {

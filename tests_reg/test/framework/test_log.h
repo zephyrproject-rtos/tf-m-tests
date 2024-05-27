@@ -10,6 +10,8 @@
 
 #ifdef USE_SP_LOG
 #include "tfm_sp_log.h"
+#elif defined USE_STDIO
+#include <stdio.h>
 #else
 #include "tfm_log_raw.h"
 #endif /* USE_SP_LOG */
@@ -18,7 +20,7 @@
 extern "C" {
 #endif
 
-#ifdef USE_SP_LOG
+#if defined USE_SP_LOG || USE_STDIO
 #define TEST_LOG(...) printf(__VA_ARGS__)
 #else
 #define TEST_LOG(...) tfm_log_printf(__VA_ARGS__)

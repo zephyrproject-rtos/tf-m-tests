@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if(NOT TEST_S_CRYPTO)
     return()
 endif()
@@ -57,6 +55,8 @@ target_compile_definitions(tfm_test_suite_crypto_s
         $<$<BOOL:${TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION}>:TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION>
         $<$<BOOL:${TFM_CRYPTO_TEST_SINGLE_PART_FUNCS}>:TFM_CRYPTO_TEST_SINGLE_PART_FUNCS>
         $<$<BOOL:${TFM_CRYPTO_TEST_UNSUPPORTED_ALG}>:TFM_CRYPTO_TEST_UNSUPPORTED_ALG>
+        $<$<BOOL:${TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA}>:TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA>
+        $<$<BOOL:${TFM_CRYPTO_TEST_ALG_ECDSA}>:TFM_CRYPTO_TEST_ALG_ECDSA>
     INTERFACE
         TEST_S_CRYPTO
 )

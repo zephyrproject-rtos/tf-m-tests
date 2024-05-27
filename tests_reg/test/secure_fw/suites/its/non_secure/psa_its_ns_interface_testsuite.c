@@ -79,6 +79,7 @@ void register_testsuite_ns_psa_its_interface(struct test_suite_t *p_test_suite)
                   psa_its_ns_tests, list_size, p_test_suite);
 }
 
+#if CONFIG_TFM_ERPC_TEST_FRAMEWORK != 1
 void tfm_its_ns_test_001(struct test_result_t *ret)
 {
     psa_status_t status = psa_its_set(TEST_UID_2, 1, NULL, PSA_STORAGE_FLAG_NONE);
@@ -144,3 +145,27 @@ void tfm_its_ns_test_003(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
+#else /* CONFIG_TFM_ERPC_TEST_FRAMEWORK != 1 */
+/*
+ * The RPC test framework can not handle NULL pointer with non-zero size in iovecs and returns a
+ * generic error. However, the test cases expect programmer error which has a different value.
+ * The following test cases are skipped for the RPC test framework due to this limitation.
+ */
+void tfm_its_ns_test_001(struct test_result_t *ret)
+{
+    TEST_LOG("  This test case is not supported by the RPC test framework.\r\n");
+    ret->val = TEST_SKIPPED;
+}
+
+void tfm_its_ns_test_002(struct test_result_t *ret)
+{
+    TEST_LOG("  This test case is not supported by the RPC test framework.\r\n");
+    ret->val = TEST_SKIPPED;
+}
+
+void tfm_its_ns_test_003(struct test_result_t *ret)
+{
+    TEST_LOG("  This test case is not supported by the RPC test framework.\r\n");
+    ret->val = TEST_SKIPPED;
+}
+#endif /* CONFIG_TFM_ERPC_TEST_FRAMEWORK != 1 */

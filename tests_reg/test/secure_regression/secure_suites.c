@@ -5,8 +5,7 @@
  *
  */
 
-#include "test_framework_integ_test.h"
-#include "test_framework_integ_test_helper.h"
+#include "secure_suites.h"
 #include "test_framework.h"
 
 /* Service specific includes */
@@ -115,12 +114,12 @@ static void tear_down_integ_test(void)
      */
 }
 
-enum test_suite_err_t start_integ_test(void)
+enum test_suite_err_t s_reg_test_start(void)
 {
     enum test_suite_err_t retval;
 
     setup_integ_test();
-    retval = integ_test("Secure", test_suites);
+    retval = run_test("Secure", test_suites);
     tear_down_integ_test();
     return retval;
 }

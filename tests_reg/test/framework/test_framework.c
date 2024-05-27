@@ -8,7 +8,6 @@
 #include "test_framework.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,6 +50,47 @@ const char *test_err_to_str(enum test_suite_err_t err)
      *           covered in the switch.
      */
     }
+}
+
+enum test_suite_err_t run_test(const char *suite_type, struct test_suite_t test_suites[])
+{
+    uint32_t i;
+    enum test_suite_err_t retval = TEST_SUITE_ERR_NO_ERROR;
+
+    printf_set_color(YELLOW);
+    TEST_LOG("\r\n#### Execute test suites for the %s area ####\r\n",
+             suite_type);
+
+    /* Executes test suites */
+    for (i = 0; test_suites[i].freg != NULL; i++) {
+        retval = run_testsuite(&test_suites[i]);
+        if (retval != TEST_SUITE_ERR_NO_ERROR) {
+            /* End function execution */
+            return retval;
+        }
+    }
+
+    /* Prints test suites summary */
+    printf_set_color(YELLOW);
+    TEST_LOG("\r\n*** %s test suites summary ***\r\n", suite_type);
+    for (i = 0; test_suites[i].freg != NULL; i++) {
+        printf_set_color(DEFAULT);
+        TEST_LOG("Test suite '%s' has", test_suites[i].name);
+        if (test_suites[i].val == TEST_PASSED) {
+            printf_set_color(GREEN);
+            TEST_LOG(" PASSED\r\n");
+        } else {
+            printf_set_color(RED);
+            TEST_LOG(" FAILED\r\n");
+            retval = TEST_SUITE_ERR_TEST_FAILED;
+        }
+    }
+
+    printf_set_color(YELLOW);
+    TEST_LOG("\r\n*** End of %s test suites ***\r\n", suite_type);
+    printf_set_color(DEFAULT);
+
+    return retval;
 }
 
 enum test_suite_err_t set_testsuite(const char *name,

@@ -5,7 +5,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 project("ERPC Host" LANGUAGES CXX C)
 set(CMAKE_CXX_FLAGS "-m32")
@@ -14,6 +14,9 @@ set(CMAKE_C_FLAGS   "-m32")
 add_executable(erpc_main)
 
 add_subdirectory(../client client)
+
+# Include exported targets as we need psa_crypto_config
+include(${CONFIG_SPE_PATH}/cmake/spe_export.cmake)
 
 if (ERPC_TRANSPORT STREQUAL "UART")
     if (NOT DEFINED PORT_NAME)
@@ -35,13 +38,15 @@ target_sources(erpc_main
         ${ERPC_REPO_PATH}/erpc_c/transports/erpc_serial_transport.cpp
         ${ERPC_REPO_PATH}/erpc_c/setup/erpc_setup_tcp.cpp
         ${ERPC_REPO_PATH}/erpc_c/transports/erpc_tcp_transport.cpp
-        ${TFM_INSTALL_PATH}/interface/src/tfm_crypto_api.c
+        ${CONFIG_SPE_PATH}/interface/src/tfm_crypto_api.c
 )
 
 target_link_libraries(erpc_main
     PRIVATE
         erpc_client
         pthread
+    PUBLIC
+        psa_crypto_config
 )
 
 target_compile_definitions(erpc_main

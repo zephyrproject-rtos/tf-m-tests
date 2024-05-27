@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../utils)
@@ -45,6 +45,9 @@ ExternalProject_Add(TF-M
 )
 
 add_dependencies(tfm_s_test TF-M)
+
+# Skip "up-to-date" prints to avoid flooding the build output. Just print "installing"
+set(CMAKE_INSTALL_MESSAGE LAZY)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/build-spe/bin DESTINATION ${CMAKE_BINARY_DIR})
 

@@ -1,11 +1,9 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-
-cmake_policy(SET CMP0079 NEW)
 
 add_library(tfm_psa_rot_partition_secure_client_service STATIC)
 

@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
-#include <stdio.h>
 #include "ipc_ns_tests.h"
 #include "psa/client.h"
 #include "psa/framework_feature.h"
 #include "test_framework_helpers.h"
 #include "psa_manifest/sid.h"
 #include "client_api_tests.h"
+#include "spm_test_defs.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 #include "mmiovec_test.h"
 #endif
@@ -34,6 +34,8 @@ static void tfm_ipc_test_1014(struct test_result_t *ret);
 static void tfm_ipc_test_1015(struct test_result_t *ret);
 #endif
 
+static void tfm_ipc_test_1016(struct test_result_t *ret);
+
 static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1001, "TFM_NS_IPC_TEST_1001",
      "Get PSA framework version"},
@@ -55,6 +57,9 @@ static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1015, "TFM_NS_IPC_TEST_1015",
      "Mapping output vectors and not unmapping them"},
 #endif
+
+    {&tfm_ipc_test_1016, "TFM_NS_IPC_TEST_1016",
+     "Testing Client-Id Translation"},
 };
 
 void register_testsuite_ns_ipc_interface(struct test_suite_t *p_test_suite)
@@ -178,6 +183,30 @@ static void tfm_ipc_test_1012(struct test_result_t *ret)
     }
 
     request_rot_service_test(IPC_SERVICE_TEST_STATELESS_ROT_HANDLE, ret);
+}
+
+static void tfm_ipc_test_1016(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+    psa_status_t status;
+
+    handle = psa_connect(IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_SID,
+                         IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_VERSION);
+    if (handle < 0) {
+        TEST_FAIL("The RoT Service refused the connection!\r\n");
+        return;
+    }
+
+    status = psa_call(handle, CLIENT_ID_TRANSLATE_TEST_TYPE_REQUEST_SRVC,
+                      NULL, 0, NULL, 0);
+    if (status >= 0) {
+        ret->val = TEST_PASSED;
+    } else {
+        TEST_FAIL("Call failed!\r\n");
+        ret->val = TEST_FAILED;
+    }
+
+    psa_close(handle);
 }
 
 #if PSA_FRAMEWORK_HAS_MM_IOVEC

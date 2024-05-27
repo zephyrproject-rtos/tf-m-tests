@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 # Add ipc test service.
 if (TFM_PARTITION_IPC_TEST)
     add_subdirectory(tfm_ipc_client)

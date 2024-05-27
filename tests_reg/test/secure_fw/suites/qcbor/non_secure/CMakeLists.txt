@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
-cmake_policy(SET CMP0079 NEW)
 
 # Adding qcbor and qcbor_test libraries manually as logical target names
 # must be globally unique in CMake. The Secure image also relies on the qcbor
@@ -12,7 +11,7 @@ cmake_policy(SET CMP0079 NEW)
 # target must be maintained (with a unique name) as they may be built
 # with different configurations - within the same CMake environment.
 
-if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION)
+if (NOT TEST_NS_QCBOR AND NOT TEST_NS_ATTESTATION AND NOT TEST_NS_T_COSE)
     return()
 endif()
 

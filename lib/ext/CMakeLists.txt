@@ -9,7 +9,7 @@ if(CONFIG_TFM_ERPC_TEST_FRAMEWORK)
     add_subdirectory(erpc)
 endif()
 
-if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR)
+if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR OR TEST_NS_T_COSE)
     add_subdirectory(qcbor)
 endif()
 

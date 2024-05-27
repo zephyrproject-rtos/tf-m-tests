@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if(NOT TEST_S_PS)
     return()
 endif()
@@ -40,7 +38,6 @@ target_compile_definitions(tfm_test_suite_ps_s
 target_link_libraries(tfm_test_suite_ps_s
     PRIVATE
         tfm_test_framework_s
-        platform_region_defs
         tfm_app_rot_partition_ps
         tfm_psa_rot_partition_ps_test
         tfm_spm

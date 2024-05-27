@@ -5,8 +5,6 @@
  *
  */
 
-#include "test_framework_integ_test.h"
-#include "test_framework_integ_test_helper.h"
 #include "test_framework.h"
 
 #include "bl1_1_crypto_tests.h"
@@ -25,5 +23,5 @@ static struct test_suite_t test_suites[] = {
 
 enum test_suite_err_t run_bl1_1_testsuite(void)
 {
-    return integ_test("BL1_1", test_suites);
+    return run_test("BL1_1", test_suites);
 }

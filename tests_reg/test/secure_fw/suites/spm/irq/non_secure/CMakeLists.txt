@@ -5,8 +5,6 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_policy(SET CMP0079 NEW)
-
 if (NOT TEST_NS_SLIH_IRQ AND NOT TEST_NS_FLIH_IRQ)
     return()
 endif()
@@ -39,7 +37,6 @@ target_compile_definitions(tfm_test_suite_irq
 target_link_libraries(tfm_test_suite_irq
     PRIVATE
         tfm_test_framework_ns
-        platform_ns
         spm_test_common
 )
 

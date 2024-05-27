@@ -85,7 +85,14 @@ static void tfm_crypto_test_1042(struct test_result_t *ret);
 #if CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED
 static void tfm_crypto_test_1043(struct test_result_t *ret);
 static void tfm_crypto_test_1044(struct test_result_t *ret);
+#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
+#if CRYPTO_ASYM_SIGN_MODULE_ENABLED
+#if TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA
 static void tfm_crypto_test_1045(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA */
+#if TFM_CRYPTO_TEST_ALG_ECDSA
+static void tfm_crypto_test_1054(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
 #endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1046(struct test_result_t *ret);
@@ -103,6 +110,9 @@ static void tfm_crypto_test_1052(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
 static void tfm_crypto_test_1053(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+static void tfm_crypto_test_1055(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_S_CRYPTO_TEST_1001",
@@ -212,9 +222,17 @@ static struct test_t crypto_tests[] = {
      "Secure Asymmetric encryption interface (RSA-OAEP)"},
     {&tfm_crypto_test_1044, "TFM_S_CRYPTO_TEST_1044",
      "Secure Asymmetric encryption interface (RSA-PKCS1V15)"},
-    {&tfm_crypto_test_1045, "TFM_S_CRYPTO_TEST_1045",
-     "Secure Sign and verify message interface (ECDSA-SECP256R1-SHA256)"},
 #endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
+#if CRYPTO_ASYM_SIGN_MODULE_ENABLED
+#if TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA
+    {&tfm_crypto_test_1045, "TFM_S_CRYPTO_TEST_1045",
+     "Secure Sign and verify message interface (DETERMINISTIC_ECDSA-SECP256R1-SHA256)"},
+#endif /* TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA */
+#if TFM_CRYPTO_TEST_ALG_ECDSA
+    {&tfm_crypto_test_1054, "TFM_S_CRYPTO_TEST_1054",
+     "Secure sign and verify hash interface (ECDSA-SECP256R1-SHA256)"},
+#endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
+#endif /* CRYPTO_ASYM_SIGN_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
     {&tfm_crypto_test_1046, "TFM_S_CRYPTO_TEST_1046",
      "Secure Symmetric encryption (AES-128-CBC-PKCS7) interface"},
@@ -243,6 +261,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1053, "TFM_S_CRYPTO_TEST_1053",
      "Secure RSASSA-PSS signature verification (RSASSA-PSS-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+    {&tfm_crypto_test_1055, "TFM_S_CRYPTO_TEST_1055",
+     "Secure GCM authenticator"},
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
 };
 
 void register_testsuite_s_crypto_interface(struct test_suite_t *p_test_suite)
@@ -521,13 +543,22 @@ static void tfm_crypto_test_1044(struct test_result_t *ret)
 {
     psa_asymmetric_encryption_test(PSA_ALG_RSA_PKCS1V15_CRYPT, ret);
 }
-
+#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
+#if CRYPTO_ASYM_SIGN_MODULE_ENABLED
+#if TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA
 static void tfm_crypto_test_1045(struct test_result_t *ret)
 {
     psa_sign_verify_message_test(
         PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256), ret);
 }
-#endif /* CRYPTO_ASYM_ENCRYPT_MODULE_ENABLED */
+#endif /* TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA */
+#if TFM_CRYPTO_TEST_ALG_ECDSA
+static void tfm_crypto_test_1054(struct test_result_t *ret)
+{
+    psa_sign_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_256), ret);
+}
+#endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
+#endif /* CRYPTO_ASYM_SIGN_MODULE_ENABLED */
 
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
 static void tfm_crypto_test_1046(struct test_result_t *ret)
@@ -579,3 +610,14 @@ static void tfm_crypto_test_1053(struct test_result_t *ret)
     psa_verify_rsassa_pss_test(ret);
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+static void tfm_crypto_test_1055(struct test_result_t *ret)
+{
+    if (!psa_aead_as_authenticator_test(PSA_ALG_GCM)) {
+        ret->val = TEST_PASSED;
+    } else {
+        ret->val = TEST_FAILED;
+    }
+}
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */

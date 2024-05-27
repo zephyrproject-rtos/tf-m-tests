@@ -5,9 +5,9 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
-if(NOT TEST_NS_ATTESTATION AND NOT TEST_NS_QCBOR)
+if(NOT TEST_NS_ATTESTATION AND NOT TEST_NS_QCBOR AND NOT TEST_NS_T_COSE)
     return()
 endif()
 

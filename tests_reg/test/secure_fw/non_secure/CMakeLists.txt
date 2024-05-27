@@ -7,7 +7,7 @@
 #
 #-------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 
 # Add NS test suites.
 add_subdirectory(../suites/attestation/non_secure   ${CMAKE_CURRENT_BINARY_DIR}/suites/attestation)

@@ -8,7 +8,7 @@
 # This CMake script used in a split build only. In the legacy 'sinlge' build
 # this file is ignoed. Please don't be confused.
 #
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21)
 
 # This is important to add this SPE subdirectory at first as it
 # brings configuration from TF-M build
@@ -23,6 +23,16 @@ add_subdirectory(${CONFIG_SPE_PATH} ${CMAKE_BINARY_DIR}/spe)
 # dependencies on TF-M exported libraries here, rather than under each NS library folder.
 # Therefore, NS library can be shared and re-used in other downstream projects, without specially
 # handling the differences of dependencies and paths in NS builds.
+
+# Choose whether to use the TF-M mailbox API or TrustZone API to communicate
+# with the SPE based on the TF-M config. If the TF-M config provides both, then
+# default to the TrustZone APIs. This default needs to be overridden to do a
+# mailbox build on platforms with both agents.
+if (TFM_PARTITION_NS_AGENT_MAILBOX AND NOT CONFIG_TFM_USE_TRUSTZONE)
+    set(TFM_NS_MAILBOX_API ON  CACHE BOOL "Build NS code for a remote processing element using mailbox APIs")
+else()
+    set(TFM_NS_MAILBOX_API OFF CACHE BOOL "Build NS code for a remote processing element using mailbox APIs")
+endif()
 
 # Interface files exported from TF-M secure build
 set(SPE_INSTALL_INTERFACE_SRC    ${CONFIG_SPE_PATH}/interface/src)
@@ -73,10 +83,12 @@ target_compile_definitions(tfm_nsid_manager
         $<$<BOOL:${TEST_NS_MANAGE_NSID}>:TEST_NS_MANAGE_NSID>
 )
 
-# Provide TZ context management stub to RTOS if protected by Trustzone
 target_sources(RTX_OS
     INTERFACE
-        $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${APP_LIB_DIR}/nsid_manager/tz_shim_layer.c>
+        # Provide TZ context management stub to RTOS if protected by Trustzone
+        $<$<NOT:$<BOOL:${TFM_NS_MAILBOX_API}>>:${APP_LIB_DIR}/nsid_manager/tz_shim_layer.c>
+        # Provide CMSIS-RTX config implementation
+        os_config_cmsis_rtx.c
 )
 
 target_link_libraries(RTX_OS
@@ -85,7 +97,7 @@ target_link_libraries(RTX_OS
 )
 
 # Multi-core library
-if(TFM_PARTITION_NS_AGENT_MAILBOX)
+if(TFM_NS_MAILBOX_API)
     add_library(ns_multi_core STATIC)
 
     target_sources(ns_multi_core
@@ -133,13 +145,13 @@ target_link_libraries(tfm_ns_log
 
 target_include_directories(platform_ns
     PUBLIC
-        $<$<BOOL:${TFM_PARTITION_NS_AGENT_MAILBOX}>:${SPE_INSTALL_INTERFACE_INC}/multi_core>
+        $<$<BOOL:${TFM_NS_MAILBOX_API}>:${SPE_INSTALL_INTERFACE_INC}/multi_core>
         ${SPE_INSTALL_INTERFACE_INC}
 )
 
 target_compile_definitions(platform_ns
     PUBLIC
-        $<$<BOOL:${TFM_PARTITION_NS_AGENT_MAILBOX}>:TFM_MULTI_CORE_NS_OS>
+        $<$<BOOL:${TFM_NS_MAILBOX_API}>:TFM_MULTI_CORE_NS_OS>
 )
 
 ################# Update NS interface with NS settings ################
@@ -147,7 +159,7 @@ target_compile_definitions(platform_ns
 target_sources(tfm_api_ns
     PRIVATE
         # NS specific implementation of NS interface dispatcher
-        $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:${SPE_INSTALL_INTERFACE_SRC}/os_wrapper/tfm_ns_interface_rtos.c>
+        $<$<NOT:$<BOOL:${TFM_NS_MAILBOX_API}>>:${SPE_INSTALL_INTERFACE_SRC}/os_wrapper/tfm_ns_interface_rtos.c>
 )
 
 target_compile_definitions(tfm_api_ns
@@ -157,7 +169,9 @@ target_compile_definitions(tfm_api_ns
 
 target_link_libraries(tfm_api_ns
     PRIVATE
-        $<$<BOOL:${CONFIG_TFM_USE_TRUSTZONE}>:os_wrapper>
+        $<$<BOOL:${TFM_NS_MAILBOX_API}>:tfm_api_ns_mailbox>
+        $<$<NOT:$<BOOL:${TFM_NS_MAILBOX_API}>>:tfm_api_ns_tz>
+        $<$<NOT:$<BOOL:${TFM_NS_MAILBOX_API}>>:os_wrapper>
 )
 
 ######################## NS application broker ########################
@@ -182,10 +196,11 @@ target_link_libraries(tfm_test_broker
         RTX_OS
         tfm_api_ns
         tfm_ns_log
-        $<$<BOOL:${TFM_PARTITION_NS_AGENT_MAILBOX}>:ns_multi_core>
+        $<$<BOOL:${TFM_NS_MAILBOX_API}>:ns_multi_core>
 )
 
 target_compile_definitions(tfm_test_broker
     PUBLIC
         $<$<BOOL:${TFM_NS_REG_TEST}>:TFM_NS_REG_TEST>
+        $<$<BOOL:${TFM_NS_MAILBOX_API}>:TFM_NS_MAILBOX_API>
 )

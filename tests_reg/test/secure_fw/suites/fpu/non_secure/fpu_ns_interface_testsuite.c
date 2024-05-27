@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,6 +9,7 @@
 #include "fpu_ns_tests.h"
 #include "../fpu_tests_common.h"
 #include "tfm_psa_call_pack.h"
+#include "tfm_ns_interface.h"
 
 /* Test FP context protection after psa calls. */
 static void tfm_fpu_test_fp_protection_ns_psa_call(struct test_result_t *ret);

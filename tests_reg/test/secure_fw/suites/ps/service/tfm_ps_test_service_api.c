@@ -10,7 +10,6 @@
 #include "psa/client.h"
 #include "psa_manifest/sid.h"
 
-__attribute__((section("SFN")))
 psa_status_t tfm_ps_test_system_prepare(void)
 {
     psa_handle_t handle;

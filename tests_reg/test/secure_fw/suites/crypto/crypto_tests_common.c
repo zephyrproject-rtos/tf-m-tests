@@ -697,6 +697,10 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
     size_t start_idx = 0;
     size_t output_length = 0; size_t total_output_length = 0;
     int comp_result;
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    uint8_t encrypted_data_single_shot[sizeof(chacha20_testPlaintext) + 16] = {0};
+    size_t encrypted_data_length, decrypted_data_length;
+#endif
 
     ret->val = TEST_PASSED;
 
@@ -711,6 +715,90 @@ void psa_aead_rfc7539_test(struct test_result_t *ret)
         TEST_FAIL("Error importing a key");
         return;
     }
+
+#ifdef TFM_CRYPTO_TEST_SINGLE_PART_FUNCS
+    /* Perform AEAD encryption */
+    status = psa_aead_encrypt(key_id_local, alg,
+                              chacha20poly1305_testNonce,
+                              sizeof(chacha20poly1305_testNonce),
+                              chacha20poly1305_testAad,
+                              sizeof(chacha20poly1305_testAad),
+                              chacha20_testPlaintext,
+                              sizeof(chacha20_testPlaintext),
+                              encrypted_data_single_shot,
+                              sizeof(encrypted_data_single_shot),
+                              &encrypted_data_length);
+
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error performing single shot AEAD encryption");
+        }
+        goto destroy_key;
+    }
+
+    if (encrypted_data_length
+        != PSA_AEAD_ENCRYPT_OUTPUT_SIZE(key_type, alg, sizeof(chacha20_testPlaintext))) {
+        TEST_FAIL("Single shot encrypted data length is different than expected");
+        goto destroy_key;
+    }
+
+    /* Check that the encrypted data is the same as reference */
+    comp_result = memcmp(encrypted_data_single_shot,
+                         chacha20poly1305_testCiphertext_expected,
+                         sizeof(chacha20poly1305_testCiphertext_expected));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot encrypted data doesn't match with reference");
+        goto destroy_key;
+    }
+
+    /* Check that the tag matches the expected tag */
+    comp_result = memcmp(&encrypted_data_single_shot[encrypted_data_length - 16],
+                         chacha20poly1305_testTag_expected,
+                         sizeof(chacha20poly1305_testTag_expected));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot computed tag doesn't match with reference");
+        goto destroy_key;
+    }
+
+    /* Perform AEAD decryption */
+    status = psa_aead_decrypt(key_id_local, alg,
+                              chacha20poly1305_testNonce,
+                              sizeof(chacha20poly1305_testNonce),
+                              chacha20poly1305_testAad,
+                              sizeof(chacha20poly1305_testAad),
+                              encrypted_data_single_shot,
+                              encrypted_data_length,
+                              chacha20_testCiphertext,
+                              sizeof(chacha20_testCiphertext),
+                              &decrypted_data_length);
+
+    if (status != PSA_SUCCESS) {
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation");
+        } else {
+            TEST_FAIL("Error performing single shot AEAD decryption");
+        }
+        goto destroy_key;
+    }
+
+    if (sizeof(chacha20_testPlaintext) != decrypted_data_length) {
+        TEST_FAIL("Single shot decrypted data length is different from plain text");
+        goto destroy_key;
+    }
+
+    /* Check that the decrypted data is the same as the original data */
+    comp_result = memcmp(chacha20_testPlaintext,
+                         chacha20_testCiphertext,
+                         sizeof(chacha20_testPlaintext));
+    if (comp_result != 0) {
+        TEST_FAIL("Single shot decrypted data doesn't match with plain text");
+        goto destroy_key;
+    }
+
+    memset(chacha20_testCiphertext, 0, sizeof(chacha20_testCiphertext));
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
     /* Setup the encryption object */
     status = psa_aead_encrypt_setup(&handle, key_id_local, alg);
@@ -1084,7 +1172,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
     size_t data_left = sizeof(plain_text);
     while (data_left) {
         /* Encrypt one chunk of information */
-        status = psa_cipher_update(&handle, &plain_text[total_output_length],
+        status = psa_cipher_update(&handle, &plain_text[sizeof(plain_text) - data_left],
                                    BYTE_SIZE_CHUNK,
                                    &input.encrypted_data[total_output_length],
                                    ENC_DEC_BUFFER_SIZE - total_output_length,
@@ -1095,8 +1183,12 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
 
-        if (output_length != BYTE_SIZE_CHUNK) {
-            TEST_FAIL("Expected encrypted length is different from expected");
+        /* When CHACHA20 is tested, if the backend does not support working in
+         * stream cipher, it will output only when it has enough data to fill a
+         * CHACHA20 block, i.e. 64 bytes
+         */
+        if (output_length != BYTE_SIZE_CHUNK && alg != PSA_ALG_STREAM_CIPHER) {
+            TEST_FAIL("Encrypted length different from expected");
             goto abort;
         }
 
@@ -1124,7 +1216,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
     } else {
-        if (output_length != 0) {
+        if (output_length != 0 && alg != PSA_ALG_STREAM_CIPHER) {
             TEST_FAIL("Un-padded mode final output length unexpected");
             goto abort;
         }
@@ -1186,7 +1278,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
             goto abort;
         }
 
-        if (!bIsLagging && output_length != BYTE_SIZE_CHUNK) {
+        if (!bIsLagging && output_length != BYTE_SIZE_CHUNK && alg != PSA_ALG_STREAM_CIPHER) {
             TEST_FAIL("Expected encrypted length is different from expected");
             goto abort;
         }
@@ -1199,7 +1291,7 @@ void psa_cipher_test(const psa_key_type_t key_type,
 
     /* Finalise the cipher operation for decryption (destroys decrypted data) */
     status = psa_cipher_finish(&handle_dec, &decrypted_data[total_output_length],
-                               BYTE_SIZE_CHUNK,
+                               ENC_DEC_BUFFER_SIZE - total_output_length,
                                &output_length);
 
     if (status != PSA_SUCCESS) {
@@ -1623,6 +1715,11 @@ void psa_aead_test(const psa_key_type_t key_type,
 
     ret->val = TEST_PASSED;
 
+    if (sizeof(encop) != sizeof(uint32_t)) {
+        TEST_FAIL("The test client is not picking up the client side definitions");
+        return;
+    }
+
     /* Setup the key policy */
     psa_set_key_usage_flags(&key_attributes, usage);
     psa_set_key_algorithm(&key_attributes, alg);
@@ -2005,8 +2102,7 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 };
 
 /* Number of available AES cipher modes */
-#define NR_TEST_AES_MODE        (sizeof(test_aes_mode_array) / \
-                                 sizeof(test_aes_mode_array[0]) - 1)
+#define NR_TEST_AES_MODE(t) ((sizeof(t) / sizeof(t[0])) - 1)
 
 void psa_invalid_key_length_test(struct test_result_t *ret)
 {
@@ -2015,7 +2111,7 @@ void psa_invalid_key_length_test(struct test_result_t *ret)
     psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
     const uint8_t data[19] = {0};
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2045,7 +2141,7 @@ void psa_policy_key_interface_test(struct test_result_t *ret)
     psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT;
     psa_key_usage_t usage_out;
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2107,8 +2203,8 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 
-    if (NR_TEST_AES_MODE < 2) {
-        TEST_LOG("Two cipher modes are required. Skip this test case\r\n");
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 2) {
+        TEST_LOG("Two cipher modes are required. Skipping...\r\n");
         return;
     }
 
@@ -2116,22 +2212,22 @@ void psa_policy_invalid_policy_usage_test(struct test_result_t *ret)
      * Search for two modes for test. Both modes should be Cipher algorithms.
      * Otherwise, cipher setup may fail before policy permission check.
      */
-    for (i = 0; i < NR_TEST_AES_MODE - 1; i++) {
+    for (i = 0; i < NR_TEST_AES_MODE(test_aes_mode_array); i++) {
         if (PSA_ALG_IS_CIPHER(test_aes_mode_array[i])) {
             alg = test_aes_mode_array[i];
             break;
         }
     }
 
-    for (j = i + 1; j < NR_TEST_AES_MODE; j++) {
-        if (PSA_ALG_IS_CIPHER(test_aes_mode_array[j])) {
+    for (j = 0; j < NR_TEST_AES_MODE(test_aes_mode_array); j++) {
+        if (PSA_ALG_IS_CIPHER(test_aes_mode_array[j]) && j != i) {
             not_permit_alg = test_aes_mode_array[j];
             break;
         }
     }
 
     if (alg == PSA_ALG_NONE || not_permit_alg == PSA_ALG_NONE) {
-        TEST_LOG("Unable to find two Cipher algs. Skip this test case.\r\n");
+        TEST_LOG("alg: %x, not_permit_alg: %x. Unable to find two Cipher algs. Skipping...\r\n", alg, not_permit_alg);
         return;
     }
 
@@ -2194,7 +2290,7 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
     const uint8_t data[] = "THIS IS MY KEY1";
     uint8_t data_out[sizeof(data)] = {0};
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_FAIL("A cipher mode in AES is required in current test case");
         return;
     }
@@ -2522,7 +2618,7 @@ void psa_key_derivation_test(psa_algorithm_t deriv_alg,
         goto deriv_abort;
     }
 
-    if (NR_TEST_AES_MODE < 1) {
+    if (NR_TEST_AES_MODE(test_aes_mode_array) < 1) {
         TEST_LOG("No AES algorithm to verify. Output raw data instead\r\n");
         psa_set_key_type(&output_key_attr, PSA_KEY_TYPE_RAW_DATA);
     } else {
@@ -2650,7 +2746,12 @@ void psa_asymmetric_encryption_test(psa_algorithm_t alg,
                                     sizeof(plain_text), NULL, 0, encrypted_data,
                                     encrypted_size, &encrypted_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Error encrypting the plaintext");
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("psa_asymmetric_encrypt(): Algorithm NOT SUPPORTED by"\
+                     " the implementation, skipping...\r\n");
+        } else {
+            TEST_FAIL("Error encrypting the plaintext");
+        }
         goto destroy_key;
     }
 
@@ -2819,8 +2920,14 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                               signature, SIGNATURE_BUFFER_SIZE,
                               &signature_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Message signing failed!");
-        goto destroy_key;
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_LOG("Algorithm NOT SUPPORTED by the implementation for signing, continue to verification...\r\n");
+            signature_length = PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)));
+            memcpy(signature, reformatted_signature, signature_length);
+        } else {
+            TEST_FAIL("Message signing failed!");
+            goto destroy_key;
+        }
     }
 
     if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
@@ -2846,7 +2953,11 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                                 message, sizeof(message) - 1,
                                 signature, signature_length);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL(("Signature verification failed!"));
+        if (status == PSA_ERROR_NOT_SUPPORTED) {
+            TEST_FAIL("Algorithm NOT SUPPORTED by the implementation for verification");
+        } else {
+            TEST_FAIL("Signature verification failed!");
+        }
         goto destroy_key;
     }
 
@@ -2879,7 +2990,7 @@ destroy_key:
         goto destroy_public_key;
     }
 
-    if (hash_length != 32) {
+    if (hash_length != PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg))) {
         TEST_FAIL("Unexpected hash length in the hashing step!");
         goto destroy_public_key;
     }
@@ -2889,10 +3000,133 @@ destroy_key:
                              signature, signature_length);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Signature verification failed in the verify_hash!");
-        goto destroy_public_key;
     }
 
 destroy_public_key:
+    psa_destroy_key(key_id_local);
+
+    return;
+}
+
+void psa_sign_verify_hash_test(psa_algorithm_t alg,
+                               struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
+    psa_key_type_t key_type;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const uint8_t message[] =
+        "This is the message that I would like to sign";
+    uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
+    size_t signature_length = 0;
+    /* The expected format of the public key is uncompressed, i.e. 0x04 X Y */
+    uint8_t ecdsa_pub_key[
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))] = {0};
+    size_t pub_key_length = 0;
+    uint32_t comp_result = 0;
+    uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
+    size_t hash_length = 0;
+    uint8_t *p_key = (uint8_t *) ecdsa_public_key;
+    size_t public_key_size;
+
+    /* Get the BIT STRING for the public key */
+    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
+
+    /* Initialize to the passing value */
+    ret->val = TEST_PASSED;
+
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr,
+        PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH | PSA_KEY_USAGE_EXPORT);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, ecdsa_private_key,
+                            sizeof(ecdsa_private_key), &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    status = psa_export_public_key(key_id_local, ecdsa_pub_key,
+                                   sizeof(ecdsa_pub_key), &pub_key_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Public key export failed!");
+        goto destroy_key;
+    }
+
+    if (pub_key_length !=
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected length for the public key!");
+        goto destroy_key;
+    }
+
+    /* Check that exported key matches the reference key */
+    comp_result = memcmp(ecdsa_pub_key, p_key, pub_key_length);
+    if (comp_result != 0) {
+        TEST_FAIL("Exported ECDSA public key does not match the reference!");
+        goto destroy_key;
+    }
+
+    /* Compute the hash */
+    status = psa_hash_compute(PSA_ALG_GET_HASH(alg), message, sizeof(message), hash, sizeof(hash), &hash_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Failure hashing the message before signing the hash!");
+        goto destroy_key;
+    }
+
+    if (PSA_HASH_LENGTH(PSA_ALG_GET_HASH(alg)) != hash_length) {
+        TEST_FAIL("Unexpected hash length!");
+        goto destroy_key;
+    }
+
+    status = psa_sign_hash(key_id_local, alg, hash, hash_length, signature, sizeof(signature), &signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Hash signing failed!");
+        goto destroy_key;
+    }
+
+    if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
+                                PSA_BYTES_TO_BITS(
+                                    sizeof(ecdsa_private_key)))) {
+        TEST_FAIL("Unexpected signature length");
+        goto destroy_key;
+    }
+
+    /* It is not possible to compare the signature against a reference because it might be non-deterministic */
+
+    status = psa_verify_hash(key_id_local, alg, hash, hash_length, signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification for the provided hash failed!");
+    }
+
+destroy_key:
+    psa_destroy_key(key_id_local);
+
+    if (ret->val == TEST_FAILED) {
+        return;
+    }
+
+    /* Continue with the dedicated verify hash flow */
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    status = psa_import_key(&input_key_attr, p_key,
+                            public_key_size, &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the public key");
+        return;
+    }
+
+    status = psa_verify_hash(key_id_local, alg, hash, hash_length, signature, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification for the provided hash failed!");
+    }
+
     psa_destroy_key(key_id_local);
 
     return;
@@ -3065,3 +3299,184 @@ destroy_key:
     return;
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+
+#ifdef TFM_CRYPTO_TEST_ALG_GCM
+static const uint8_t iv_tag_auth_test[][12] = {
+    {0x87, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, /* Valid set */
+    {0x8a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}  /* Invalid set */
+};
+
+static const uint8_t cipher_tag_auth_test[][16] = {
+    {0x60, 0x9b, 0x3d, 0x51, 0x91, 0x60, 0x8, 0x17,
+     0x82, 0xec, 0x63, 0x21, 0x3a, 0x4, 0xdc, 0x93}, /* Valid set */
+    {0xaa, 0x96, 0xcf, 0xb4, 0x68, 0xe5, 0x4, 0x91,
+     0x52, 0x50, 0x59, 0xa, 0xab, 0x1a, 0xe9, 0x1b}  /* Invalid set */
+};
+
+static const uint8_t add_tag_auth_test[][364] = {
+    {0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xcf, 0xf, 0xf2, 0x63, 0xb0, 0x1b, 0xa7, 0x28,
+     0xfa, 0x46, 0xbd, 0x8d, 0x42, 0x34, 0xbb, 0x83, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0xba, 0xb, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x28, 0x1d, 0x9c, 0x36, 0x16, 0x84, 0x34, 0x91,
+     0x8d, 0x2f, 0xf3, 0xf8, 0x27, 0xe5, 0x36, 0xc4, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0xba, 0xb, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7d, 0x0, 0x0, 0x0},
+    {0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xcf, 0xf, 0xf2, 0x63, 0xb0, 0x1b, 0xa7, 0x28,
+     0xfa, 0x46, 0xbd, 0x8d, 0x42, 0x34, 0xbb, 0x83, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0xba, 0xb, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xed, 0x58, 0x8f, 0xa4, 0x87, 0x90, 0xe2, 0xf7,
+     0xca, 0x0, 0x2d, 0x9b, 0x93, 0x1f, 0x9, 0x66, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0xba, 0xb, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0}
+};
+
+int psa_aead_as_authenticator_test(psa_algorithm_t alg)
+{
+    psa_status_t status;
+    psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
+    psa_key_id_t key_id = PSA_KEY_ID_NULL;
+    const uint8_t key[] = {
+        0xc8, 0x8b, 0x74, 0xc6,
+        0x24, 0x50, 0xee, 0xd8,
+        0xe9, 0x22, 0xd, 0x98,
+        0x3a, 0x11, 0xc6, 0x1,
+    };
+    size_t out_len;
+    uint8_t ref[16]; size_t ref_size;
+    int ret = 0;
+
+    if (alg != PSA_ALG_GCM) {
+        TEST_LOG("Authenticator test supports only PSA_ALG_GCM: Skipping...\r\n");
+        return 0;
+    }
+
+    /* import key */
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DECRYPT | PSA_KEY_USAGE_ENCRYPT);
+    psa_set_key_algorithm(&attr, alg);
+    psa_set_key_type(&attr, PSA_KEY_TYPE_AES);
+
+    status = psa_import_key(&attr, key, sizeof(key), &key_id);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Unable to import the key\r\n");
+        return 1;
+    }
+
+    /* Create the reference for set 0 (valid set) */
+    status = psa_aead_encrypt(key_id, alg,
+                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                 NULL, 0,
+                 ref, sizeof(ref), &ref_size);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Unable to create the reference tag for the valid set\r\n");
+        ret = 1;
+        goto destroy_key;
+    } else {
+        TEST_LOG("REF(0)TAG: ");
+        for (int i=0; i<ref_size; i++)
+            TEST_LOG("0x%x, ", ref[i]);
+        TEST_LOG("\r\n");
+    }
+
+    /* Validate the provided tag for set 0 */
+    status = psa_aead_decrypt(key_id, alg,
+                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                 cipher_tag_auth_test[0], sizeof(cipher_tag_auth_test[0]),
+                 NULL, 0, &out_len);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("status with test0 is %d\r\n", status);
+        return 1;
+    }
+
+    /* Validate the reference tag for set 0 */
+    status = psa_aead_decrypt(key_id, alg,
+                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                 ref, ref_size,
+                 NULL, 0, &out_len);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("status with ref0 is %d\r\n", status);
+        return 1;
+    }
+
+    /* Create the reference for set 1 (invalid set) */
+    status = psa_aead_encrypt(
+                 key_id, alg,
+                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                 NULL, 0,
+                 ref, sizeof(ref), &ref_size);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("Unable to create the reference tag for the invalid set\r\n");
+        ret = 1;
+        goto destroy_key;
+    } else {
+        TEST_LOG("REF(1)TAG: ");
+        for (int i=0; i<ref_size; i++)
+            TEST_LOG("0x%x, ", ref[i]);
+        TEST_LOG("\r\n");
+    }
+
+    /* Validate the provided tag for set 1 */
+    status = psa_aead_decrypt(
+                 key_id, alg,
+                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                 cipher_tag_auth_test[1], sizeof(cipher_tag_auth_test[1]),
+                 NULL, 0, &out_len);
+    if (status != PSA_ERROR_INVALID_SIGNATURE) {
+        TEST_LOG("status with test1 is %d\r\n", status);
+        ret = 1;
+    }
+
+    /* Validate the reference tag for set 1 */
+    status = psa_aead_decrypt(
+                 key_id, alg,
+                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                 ref, ref_size,
+                 NULL, 0, &out_len);
+    if (status != PSA_SUCCESS) {
+        TEST_LOG("status with ref1 is %d\r\n", status);
+        ret = 1;
+    }
+
+destroy_key:
+    psa_destroy_key(key_id);
+
+    return ret;
+}
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */

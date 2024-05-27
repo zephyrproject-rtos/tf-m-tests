@@ -8,8 +8,7 @@
 # This CMake script used in a split build only. In the legacy 'sinlge' build
 # this file is ignoed. Please don't be confused.
 #
-cmake_minimum_required(VERSION 3.15)
-cmake_policy(SET CMP0079 NEW)
+cmake_minimum_required(VERSION 3.21)
 
 add_library(CMSIS_5_RTX_V8MMN STATIC IMPORTED GLOBAL)
 add_library(CMSIS_5_RTX_V8MMFN STATIC IMPORTED GLOBAL)
