@@ -108,9 +108,9 @@ static void tfm_crypto_test_1052(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
 static void tfm_crypto_test_1050(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
-#ifdef TFM_CRYPTO_TEST_ALG_GCM
+#if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
 static void tfm_crypto_test_1054(struct test_result_t *ret);
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -257,10 +257,10 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1052, "TFM_NS_CRYPTO_TEST_1052",
      "Non Secure RFC7539 verification on Chacha20-Poly1305"},
 #endif /* TFM_CRYPTO_TEST_ALG_CHACHA20_POLY1305 */
-#ifdef TFM_CRYPTO_TEST_ALG_GCM
+#if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
     {&tfm_crypto_test_1054, "TFM_NS_CRYPTO_TEST_1054",
-     "Non Secure GCM authenticator"},
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+     "Non Secure authenticator based on AEAD"},
+#endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -567,13 +567,13 @@ static void tfm_crypto_test_1050(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 
-#ifdef TFM_CRYPTO_TEST_ALG_GCM
+#if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
 static void tfm_crypto_test_1054(struct test_result_t *ret)
 {
-    if (!psa_aead_as_authenticator_test(PSA_ALG_GCM)) {
+    if (!psa_aead_as_authenticator_test()) {
         ret->val = TEST_PASSED;
     } else {
         ret->val = TEST_FAILED;
     }
 }
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */

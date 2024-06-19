@@ -3300,17 +3300,25 @@ destroy_key:
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 
-#ifdef TFM_CRYPTO_TEST_ALG_GCM
-static const uint8_t iv_tag_auth_test[][12] = {
-    {0x87, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, /* Valid set */
-    {0x8a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}  /* Invalid set */
-};
-
-static const uint8_t cipher_tag_auth_test[][16] = {
+#if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
+static const uint8_t cipher_tag_auth_test[][2][16] = {
+{
     {0x60, 0x9b, 0x3d, 0x51, 0x91, 0x60, 0x8, 0x17,
      0x82, 0xec, 0x63, 0x21, 0x3a, 0x4, 0xdc, 0x93}, /* Valid set */
     {0xaa, 0x96, 0xcf, 0xb4, 0x68, 0xe5, 0x4, 0x91,
      0x52, 0x50, 0x59, 0xa, 0xab, 0x1a, 0xe9, 0x1b}  /* Invalid set */
+},
+{
+    {0x59, 0x93, 0x96, 0x41, 0x29, 0xe6, 0xe4, 0x25,
+     0x41, 0xcc, 0x64, 0x90, 0x6e, 0xdf, 0x4c, 0xee}, /* Valid set */
+    {0x5e, 0x29, 0xf4, 0x3c, 0xe9, 0x94, 0x2e, 0xa4,
+     0xc3, 0x9d, 0x61, 0x91, 0x9a, 0x46, 0xf5, 0x74}  /* Invalid set - might need to replace with the invalidly passing dumped values */
+}
+};
+
+static const uint8_t iv_tag_auth_test[][12] = {
+    {0x87, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, /* Valid set */
+    {0x8a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}  /* Invalid set */
 };
 
 static const uint8_t add_tag_auth_test[][364] = {
@@ -3362,7 +3370,7 @@ static const uint8_t add_tag_auth_test[][364] = {
      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0}
 };
 
-int psa_aead_as_authenticator_test(psa_algorithm_t alg)
+int psa_aead_as_authenticator_test(void)
 {
     psa_status_t status;
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
@@ -3376,107 +3384,121 @@ int psa_aead_as_authenticator_test(psa_algorithm_t alg)
     size_t out_len;
     uint8_t ref[16]; size_t ref_size;
     int ret = 0;
+    uint8_t test_sel;
+    psa_algorithm_t alg = PSA_ALG_NONE;
 
-    if (alg != PSA_ALG_GCM) {
-        TEST_LOG("Authenticator test supports only PSA_ALG_GCM: Skipping...\r\n");
-        return 0;
-    }
+    for (test_sel = 0; test_sel < 2 && ret == 0; test_sel++) {
+#if defined(TFM_CRYPTO_TEST_ALG_GCM)
+        if (test_sel == 0) {
+            alg = PSA_ALG_GCM;
+        } else
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#if defined(TFM_CRYPTO_TEST_ALG_CCM)
+        if (test_sel == 1) {
+            alg = PSA_ALG_CCM;
+        } else
+#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+        {
+            continue;
+        }
 
-    /* import key */
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DECRYPT | PSA_KEY_USAGE_ENCRYPT);
-    psa_set_key_algorithm(&attr, alg);
-    psa_set_key_type(&attr, PSA_KEY_TYPE_AES);
+        /* import key */
+        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DECRYPT | PSA_KEY_USAGE_ENCRYPT);
+        psa_set_key_algorithm(&attr, alg);
+        psa_set_key_type(&attr, PSA_KEY_TYPE_AES);
 
-    status = psa_import_key(&attr, key, sizeof(key), &key_id);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("Unable to import the key\r\n");
-        return 1;
-    }
+        status = psa_import_key(&attr, key, sizeof(key), &key_id);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("Unable to import the key\r\n");
+            return 1;
+        }
 
-    /* Create the reference for set 0 (valid set) */
-    status = psa_aead_encrypt(key_id, alg,
-                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
-                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
-                 NULL, 0,
-                 ref, sizeof(ref), &ref_size);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("Unable to create the reference tag for the valid set\r\n");
-        ret = 1;
-        goto destroy_key;
-    } else {
-        TEST_LOG("REF(0)TAG: ");
-        for (int i=0; i<ref_size; i++)
-            TEST_LOG("0x%x, ", ref[i]);
-        TEST_LOG("\r\n");
-    }
+        /* Create the reference for set 0 (valid set) */
+        status = psa_aead_encrypt(key_id, alg,
+                     iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                     add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                     NULL, 0,
+                     ref, sizeof(ref), &ref_size);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("status is %d\r\n", status);
+            TEST_LOG("Unable to create the reference tag for the valid set %d, alg: 0x%x\r\n", test_sel, alg);
+            ret = 1;
+            goto destroy_key;
+        } else {
+            TEST_LOG("REF(0)TAG: ");
+            for (int i=0; i<ref_size; i++)
+                TEST_LOG("0x%x, ", ref[i]);
+            TEST_LOG("\r\n");
+        }
 
-    /* Validate the provided tag for set 0 */
-    status = psa_aead_decrypt(key_id, alg,
-                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
-                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
-                 cipher_tag_auth_test[0], sizeof(cipher_tag_auth_test[0]),
-                 NULL, 0, &out_len);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("status with test0 is %d\r\n", status);
-        return 1;
-    }
+        /* Validate the provided tag for set 0 */
+        status = psa_aead_decrypt(key_id, alg,
+                     iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                     add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                     cipher_tag_auth_test[test_sel][0], sizeof(cipher_tag_auth_test[test_sel][0]),
+                     NULL, 0, &out_len);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("status with test0 is %d\r\n", status);
+            return 1;
+        }
 
-    /* Validate the reference tag for set 0 */
-    status = psa_aead_decrypt(key_id, alg,
-                 iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
-                 add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
-                 ref, ref_size,
-                 NULL, 0, &out_len);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("status with ref0 is %d\r\n", status);
-        return 1;
-    }
+        /* Validate the reference tag for set 0 */
+        status = psa_aead_decrypt(key_id, alg,
+                     iv_tag_auth_test[0], sizeof(iv_tag_auth_test[0]),
+                     add_tag_auth_test[0], sizeof(add_tag_auth_test[0]),
+                     ref, ref_size,
+                     NULL, 0, &out_len);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("status with ref0 is %d\r\n", status);
+            return 1;
+        }
 
-    /* Create the reference for set 1 (invalid set) */
-    status = psa_aead_encrypt(
-                 key_id, alg,
-                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
-                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
-                 NULL, 0,
-                 ref, sizeof(ref), &ref_size);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("Unable to create the reference tag for the invalid set\r\n");
-        ret = 1;
-        goto destroy_key;
-    } else {
-        TEST_LOG("REF(1)TAG: ");
-        for (int i=0; i<ref_size; i++)
-            TEST_LOG("0x%x, ", ref[i]);
-        TEST_LOG("\r\n");
-    }
+        /* Create the reference for set 1 (invalid set) */
+        status = psa_aead_encrypt(
+                     key_id, alg,
+                     iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                     add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                     NULL, 0,
+                     ref, sizeof(ref), &ref_size);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("Unable to create the reference tag for the invalid set, alg: 0x%x\r\n", test_sel, alg);
+            ret = 1;
+            goto destroy_key;
+        } else {
+            TEST_LOG("REF(1)TAG: ");
+            for (int i=0; i<ref_size; i++)
+                TEST_LOG("0x%x, ", ref[i]);
+            TEST_LOG("\r\n");
+        }
 
-    /* Validate the provided tag for set 1 */
-    status = psa_aead_decrypt(
-                 key_id, alg,
-                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
-                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
-                 cipher_tag_auth_test[1], sizeof(cipher_tag_auth_test[1]),
-                 NULL, 0, &out_len);
-    if (status != PSA_ERROR_INVALID_SIGNATURE) {
-        TEST_LOG("status with test1 is %d\r\n", status);
-        ret = 1;
-    }
+        /* Validate the provided tag for set 1 */
+        status = psa_aead_decrypt(
+                     key_id, alg,
+                     iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                     add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                     cipher_tag_auth_test[test_sel][1], sizeof(cipher_tag_auth_test[test_sel][1]),
+                     NULL, 0, &out_len);
+        if (status != PSA_ERROR_INVALID_SIGNATURE) {
+            TEST_LOG("status with test1 is %d\r\n", status);
+            ret = 1;
+        }
 
-    /* Validate the reference tag for set 1 */
-    status = psa_aead_decrypt(
-                 key_id, alg,
-                 iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
-                 add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
-                 ref, ref_size,
-                 NULL, 0, &out_len);
-    if (status != PSA_SUCCESS) {
-        TEST_LOG("status with ref1 is %d\r\n", status);
-        ret = 1;
-    }
+        /* Validate the reference tag for set 1 */
+        status = psa_aead_decrypt(
+                     key_id, alg,
+                     iv_tag_auth_test[1], sizeof(iv_tag_auth_test[1]),
+                     add_tag_auth_test[1], sizeof(add_tag_auth_test[1]),
+                     ref, ref_size,
+                     NULL, 0, &out_len);
+        if (status != PSA_SUCCESS) {
+            TEST_LOG("status with ref1 is %d\r\n", status);
+            ret = 1;
+        }
 
 destroy_key:
-    psa_destroy_key(key_id);
+        psa_destroy_key(key_id);
+    }
 
     return ret;
 }
-#endif /* TFM_CRYPTO_TEST_ALG_GCM */
+#endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
