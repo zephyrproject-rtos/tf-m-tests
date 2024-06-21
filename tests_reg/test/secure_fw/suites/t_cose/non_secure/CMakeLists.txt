@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,8 +19,9 @@ add_library(tfm_t_cose_ns STATIC EXCLUDE_FROM_ALL)
 
 target_link_libraries(tfm_t_cose_ns
     PUBLIC
-        tfm_t_cose_common
         tfm_t_cose_defs
+    PRIVATE
+        tfm_t_cose_common
         tfm_qcbor_ns
         tfm_api_ns
 )
@@ -49,8 +50,10 @@ target_include_directories(tfm_t_cose_test
 )
 
 target_link_libraries(tfm_t_cose_test
-    PUBLIC
+    PRIVATE
         tfm_t_cose_ns
+        tfm_qcbor_ns
+        tfm_api_ns
 )
 
 ####################### Non Secure #############################################
@@ -83,9 +86,4 @@ target_link_libraries(tfm_test_suite_t_cose_ns
 target_link_libraries(tfm_ns_tests
     INTERFACE
         tfm_test_suite_t_cose_ns
-)
-
-target_link_libraries(tfm_t_cose_test
-    PRIVATE
-        tfm_t_cose_ns
 )
