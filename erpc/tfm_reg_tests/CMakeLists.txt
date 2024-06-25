@@ -77,6 +77,7 @@ endif()
 # exported by TF-M build.
 set(INTERFACE_SRC_DIR    ${CONFIG_SPE_PATH}/interface/src)
 set(INTERFACE_INC_DIR    ${CONFIG_SPE_PATH}/interface/include)
+set(PLATFORM_INC_DIR     ${CONFIG_SPE_PATH}/platform/include)   # For crypto accelerator configuration
 
 # INTERFACE because there might be no API files below
 add_library(tfm_api_ns INTERFACE)
@@ -95,6 +96,7 @@ target_sources(tfm_api_ns
 target_include_directories(tfm_api_ns
     INTERFACE
         ${INTERFACE_INC_DIR}
+        ${PLATFORM_INC_DIR}
         $<$<BOOL:${PLATFORM_DEFAULT_CRYPTO_KEYS}>:${INTERFACE_INC_DIR}/crypto_keys>
 )
 
