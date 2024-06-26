@@ -110,9 +110,11 @@ static void tfm_crypto_test_1052(struct test_result_t *ret);
 #ifdef TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION
 static void tfm_crypto_test_1053(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#if defined(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS)
 #if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
 static void tfm_crypto_test_1055(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_S_CRYPTO_TEST_1001",
@@ -261,10 +263,12 @@ static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1053, "TFM_S_CRYPTO_TEST_1053",
      "Secure RSASSA-PSS signature verification (RSASSA-PSS-SHA256)"},
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
+#if defined(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS)
 #if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
     {&tfm_crypto_test_1055, "TFM_S_CRYPTO_TEST_1055",
      "Secure authenticator based on AEAD"},
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
 };
 
 void register_testsuite_s_crypto_interface(struct test_suite_t *p_test_suite)
@@ -611,6 +615,7 @@ static void tfm_crypto_test_1053(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 
+#if defined(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS)
 #if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
 static void tfm_crypto_test_1055(struct test_result_t *ret)
 {
@@ -621,3 +626,4 @@ static void tfm_crypto_test_1055(struct test_result_t *ret)
     }
 }
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */

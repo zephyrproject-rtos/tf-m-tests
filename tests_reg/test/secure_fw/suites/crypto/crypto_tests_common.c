@@ -3300,6 +3300,7 @@ destroy_key:
 }
 #endif /* TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION */
 
+#if defined(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS)
 #if defined(TFM_CRYPTO_TEST_ALG_GCM) || defined(TFM_CRYPTO_TEST_ALG_CCM)
 static const uint8_t cipher_tag_auth_test[][2][16] = {
 {
@@ -3502,3 +3503,4 @@ destroy_key:
     return ret;
 }
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
+#endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
