@@ -42,9 +42,6 @@
 #ifdef TEST_NS_MULTI_CORE
 #include "multi_core_ns_test.h"
 #endif /* TEST_NS_MULTI_CORE */
-#ifdef TFM_FUZZER_TOOL_TESTS
-#include "tf_fuzz_testsuite.h"
-#endif /* TFM_FUZZER_TOOL_TESTS */
 #ifdef TEST_NS_MANAGE_NSID
 #include "nsid_testsuite.h"
 #endif /* TEST_NS_MANAGE_NSID */
@@ -120,10 +117,6 @@ static struct test_suite_t test_suites[] = {
     /* Non-secure extra test cases */
     {&register_testsuite_extra_ns_interface, 0, 0, 0},
 #endif
-
-#ifdef TFM_FUZZER_TOOL_TESTS
-    {&register_testsuite_tf_fuzz_test, 0, 0, 0},
-#endif /* TFM_FUZZER_TOOL_TESTS */
 
 #ifdef TEST_NS_MANAGE_NSID
     {&register_testsuite_nsid_test, 0, 0, 0},

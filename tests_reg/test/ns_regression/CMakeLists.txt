@@ -67,11 +67,6 @@ target_link_libraries(tfm_ns_tests
         tfm_config
 )
 
-target_compile_definitions(tfm_ns_tests
-    INTERFACE
-        $<$<BOOL:${TFM_FUZZER_TOOL_TESTS}>:TFM_FUZZER_TOOL_TESTS>
-)
-
 add_subdirectory(../secure_fw/non_secure
                  ${CMAKE_CURRENT_BINARY_DIR}/secure_fw/suites
 )
