@@ -91,6 +91,9 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_s_fpu_interface, 0, 0, 0},
 #endif
 
+    /* Run extra tests as last test suite, this way platform
+     * can execute some code after all tests are done
+     */
 #ifdef EXTRA_S_TEST_SUITE
     /* Secure extra test cases */
     {&register_testsuite_extra_s_interface, 0, 0, 0},

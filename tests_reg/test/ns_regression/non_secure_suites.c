@@ -113,11 +113,6 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
 #endif
 
-#ifdef EXTRA_NS_TEST_SUITE
-    /* Non-secure extra test cases */
-    {&register_testsuite_extra_ns_interface, 0, 0, 0},
-#endif
-
 #ifdef TEST_NS_MANAGE_NSID
     {&register_testsuite_nsid_test, 0, 0, 0},
 #endif /* TEST_NS_MANAGE_NSID */
@@ -128,6 +123,14 @@ static struct test_suite_t test_suites[] = {
 
 #ifdef TEST_NS_FPU
     {&register_testsuite_ns_fpu_interface, 0, 0, 0},
+#endif
+
+    /* Run extra tests as last test suite, this way platform
+     * can execute some code after all tests are done
+     */
+#ifdef EXTRA_NS_TEST_SUITE
+    /* Non-secure extra test cases */
+    {&register_testsuite_extra_ns_interface, 0, 0, 0},
 #endif
 
     /* End of test suites */
