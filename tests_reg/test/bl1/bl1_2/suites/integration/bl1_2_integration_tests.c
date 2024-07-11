@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -17,12 +17,15 @@
 #include "region_defs.h"
 #include "test_framework_helpers.h"
 
+struct bl1_2_image_t test_image;
+
 static int setup_test_image(struct bl1_2_image_t **image)
 {
     fih_int fih_rc;
-    *image = (struct bl1_2_image_t*)BL2_IMAGE_START;
 
-    FIH_CALL(copy_and_decrypt_image, fih_rc, 0);
+    *image = &test_image;
+
+    FIH_CALL(copy_and_decrypt_image, fih_rc, 0, *image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, *image);
         if (fih_eq(fih_rc, FIH_SUCCESS)) {
@@ -30,7 +33,7 @@ static int setup_test_image(struct bl1_2_image_t **image)
         }
     }
 
-    FIH_CALL(copy_and_decrypt_image, fih_rc, 1);
+    FIH_CALL(copy_and_decrypt_image, fih_rc, 1, *image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, *image);
         if (fih_eq(fih_rc, FIH_SUCCESS)) {
