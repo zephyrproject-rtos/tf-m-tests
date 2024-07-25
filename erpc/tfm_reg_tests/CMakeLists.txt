@@ -105,6 +105,25 @@ target_link_libraries(tfm_api_ns
 )
 endif()
 
+add_library(platform_region_defs INTERFACE)
+
+target_compile_definitions(platform_region_defs
+    INTERFACE
+        $<$<BOOL:${BL1}>:BL1>
+        $<$<BOOL:${BL2}>:BL2>
+        BL2_HEADER_SIZE=${BL2_HEADER_SIZE}
+        BL2_TRAILER_SIZE=${BL2_TRAILER_SIZE}
+        BL1_HEADER_SIZE=${BL1_HEADER_SIZE}
+        BL1_TRAILER_SIZE=${BL1_TRAILER_SIZE}
+        $<$<BOOL:${MCUBOOT_IMAGE_NUMBER}>:MCUBOOT_IMAGE_NUMBER=${MCUBOOT_IMAGE_NUMBER}>
+        $<$<OR:$<CONFIG:Debug>,$<CONFIG:relwithdebinfo>>:ENABLE_HEAP>
+)
+
+target_include_directories(platform_region_defs
+    INTERFACE
+        ${CONFIG_SPE_PATH}/platform/partition
+)
+
 ################################# Build Tests ##################################
 # If config_ns_test.cmake is exported from TF-M build, it indicates regression
 # tests are enabled. Otherwise, skip test configuration.
