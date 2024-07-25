@@ -1,12 +1,12 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 #-------------------------------------------------------------------------------
 #
-# This CMake script used in a split build only. In the legacy 'sinlge' build
-# this file is ignoed. Please don't be confused.
+# This CMake script is used in a split build only. In the legacy 'single' build
+# this file is ignored.
 #
 cmake_minimum_required(VERSION 3.21)
 
@@ -37,7 +37,7 @@ endif()
 # Interface files exported from TF-M secure build
 set(SPE_INSTALL_INTERFACE_SRC    ${CONFIG_SPE_PATH}/interface/src)
 set(SPE_INSTALL_INTERFACE_INC    ${CONFIG_SPE_PATH}/interface/include)
-# lib parth
+# lib path
 set(APP_LIB_DIR                  ${CMAKE_CURRENT_LIST_DIR}/../lib)
 
 # OS wrapper library consists of the wrapper layer of RTOSes, such as RTX
@@ -85,7 +85,7 @@ target_compile_definitions(tfm_nsid_manager
 
 target_sources(RTX_OS
     INTERFACE
-        # Provide TZ context management stub to RTOS if protected by Trustzone
+        # Provide TZ context management stub to RTOS if protected by TrustZone
         $<$<NOT:$<BOOL:${TFM_NS_MAILBOX_API}>>:${APP_LIB_DIR}/nsid_manager/tz_shim_layer.c>
         # Provide CMSIS-RTX config implementation
         os_config_cmsis_rtx.c
