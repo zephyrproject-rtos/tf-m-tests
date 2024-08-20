@@ -3462,7 +3462,7 @@ int psa_aead_as_authenticator_test(void)
                      NULL, 0,
                      ref, sizeof(ref), &ref_size);
         if (status != PSA_SUCCESS) {
-            TEST_LOG("Unable to create the reference tag for the invalid set, alg: 0x%x\r\n", test_sel, alg);
+            TEST_LOG("Unable to create the reference tag for the invalid set %d, alg: 0x%x\r\n", test_sel, alg);
             ret = 1;
             goto destroy_key;
         } else {
