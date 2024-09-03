@@ -381,7 +381,7 @@
 #elif ATTEST_TOKEN_PROFILE_PSA_2_0_0
 #define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "http://arm.com/psa/2.0.0"
 #elif ATTEST_TOKEN_PROFILE_ARM_CCA
-#define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "http://arm.com/CCA-SSD/1.0.0"
+#define TOKEN_TEST_VALUE_PROFILE_DEFINITION  "tag:arm.com,2023:cca_platform#1.0.0"
 #else
     #error "Attestation token profile is incorrect"
 #endif
