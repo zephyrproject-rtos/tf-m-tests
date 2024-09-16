@@ -74,16 +74,11 @@ attest_token_decode_validate_token(struct attest_token_decode_context *me,
 {
     enum t_cose_err_t               t_cose_error;
     enum attest_token_err_t         return_value;
-    int32_t                         t_cose_options = 0;
     struct t_cose_mac_validate_ctx  validate_ctx;
     struct t_cose_key               attest_key;
     psa_key_handle_t                key_handle = TFM_BUILTIN_KEY_ID_IAK;
 
-    if (me->options & TOKEN_OPT_SHORT_CIRCUIT_SIGN) {
-        t_cose_options |= T_COSE_OPT_ALLOW_SHORT_CIRCUIT;
-    }
-
-    t_cose_mac_validate_init(&validate_ctx, t_cose_options);
+    t_cose_mac_validate_init(&validate_ctx, 0);
 
     attest_key.key.handle = (uint64_t)key_handle;
     t_cose_mac_set_validate_key(&validate_ctx, attest_key);

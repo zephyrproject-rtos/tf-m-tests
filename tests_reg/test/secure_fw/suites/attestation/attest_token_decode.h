@@ -207,11 +207,8 @@ attest_token_decode_set_pub_key_select(struct attest_token_decode_context *me,
  * token and its payload is remembered in the \ref
  * attest_token_decode_context \c me so the \c
  * attest_token_decode_get_xxx() functions can be called to get the
- * various claims out of it.
- *
- * Generally, a public key has to be configured for this to work. It
- * can however validate short-circuit signatures even if one is not
- * set.
+ * various claims out of it. A public key must be configured for
+ * this to work, see attest_token_decode_set_pub_key_select().
  *
  * The code for any error that occurs during validation is remembered
  * in decode context. The \c attest_token_decode_get_xxx() functions

@@ -109,40 +109,6 @@ int token_main_alt(uint32_t option_flags,
 }
 
 #ifdef INCLUDE_TEST_CODE
-static const uint8_t expected_minimal_token_bytes[] = {MINIMAL_TOKEN};
-/*
- * Public function. See token_test.h
- */
-int_fast16_t minimal_test()
-{
-    int_fast16_t return_value = 0;
-    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage,
-                               sizeof(expected_minimal_token_bytes));
-    struct q_useful_buf_c completed_token;
-    struct q_useful_buf_c expected_token;
-
-    return_value =
-        token_main_alt(TOKEN_OPT_SHORT_CIRCUIT_SIGN |
-                           TOKEN_OPT_OMIT_CLAIMS,
-                       TOKEN_TEST_VALUE_NONCE,
-                       token_storage,
-                       &completed_token);
-    if(return_value) {
-        goto Done;
-    }
-
-    expected_token =
-        Q_USEFUL_BUF_FROM_BYTE_ARRAY_LITERAL(expected_minimal_token_bytes);
-
-    if(q_useful_buf_compare(completed_token, expected_token)) {
-       return_value = -3;
-    }
-
-Done:
-    return return_value;
-}
-
-
 /*
  * Public function. See token_test.h
  */
@@ -150,26 +116,18 @@ int_fast16_t minimal_get_size_test()
 {
     int_fast16_t          return_value = 0;
     size_t                length;
-    struct q_useful_buf_c expected_token;
     struct q_useful_buf_c nonce;
 
     nonce = TOKEN_TEST_VALUE_NONCE;
-    expected_token =
-        Q_USEFUL_BUF_FROM_BYTE_ARRAY_LITERAL(expected_minimal_token_bytes);
-
 
     return_value = psa_initial_attest_get_token_size(nonce.len,
                                                      &length);
 
     /*
-     * It is not possible to predict the size of the token returned
-     * here because options like TOKEN_OPT_OMIT_CLAIMS and
-     * TOKEN_OPT_SHORT_CIRCUIT_SIGN cannot be passed to limit what it
-     * does. Instead check to see if the size is in a reasonable
-     * range. The minimal_test() will actually check the size for
-     * exactitude because it can pass those options,
+     * It is not possible to predict the exact size of the token returned
+     * here. Instead check to see if the size is in a reasonable range.
      */
-    if(length < expected_token.len || length > 10000) {
+    if(length < MINIMAL_TOKEN_SIZE || length > 10000) {
         return_value = -1;
     }
 
@@ -189,18 +147,15 @@ int_fast16_t buffer_too_small_test()
      * incorrectly generated token may overwrite and corrupt the data following
      * this buffer.
      */
-    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage,
-                               sizeof(expected_minimal_token_bytes));
+    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage, MINIMAL_TOKEN_SIZE);
     struct q_useful_buf_c completed_token;
     struct q_useful_buf_c nonce;
 
-
     nonce = TOKEN_TEST_VALUE_NONCE;
     /* Fake the size and cheat the token generation process. */
-    token_storage.len = sizeof(expected_minimal_token_bytes) - 1;
+    token_storage.len = MINIMAL_TOKEN_SIZE - 1;
 
-    return_value = token_main_alt(TOKEN_OPT_SHORT_CIRCUIT_SIGN |
-                                      TOKEN_OPT_OMIT_CLAIMS,
+    return_value = token_main_alt(TOKEN_OPT_OMIT_CLAIMS,
                                   nonce,
                                   token_storage,
                                   &completed_token);
@@ -757,14 +712,10 @@ Done:
  * Modes for decode_test_internal()
  */
 enum decode_test_mode_t {
-    /** See documentation for decode_test_short_circuit_sig() */
-    SHORT_CIRCUIT_SIGN,
     /** See documentation for decode_test_normal_sig() */
     NORMAL_SIGN,
     /** See documentation for decode_test_symmetric_initial_attest() */
     COSE_MAC0,
-    /** See documentation for decode_test_symmetric_iat_short_circuit_tag() */
-    COSE_MAC0_SHORT_CIRCUIT_TAG
 };
 
 /**
@@ -774,7 +725,7 @@ enum decode_test_mode_t {
  *
  * \return 0 for success, test failure code otherwise.
  *
- * See decode_test_normal_sig() and decode_test_short_circuit_sig().
+ * See decode_test_normal_sig().
  */
 static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
 {
@@ -791,11 +742,6 @@ static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
     uint32_t                            token_decode_options;
 
     switch(mode) {
-        case SHORT_CIRCUIT_SIGN:
-            token_encode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            token_decode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            break;
-
         case NORMAL_SIGN:
             token_encode_options = 0;
             token_decode_options = 0;
@@ -804,11 +750,6 @@ static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
         case COSE_MAC0:
             token_encode_options = 0;
             token_decode_options = 0;
-            break;
-
-        case COSE_MAC0_SHORT_CIRCUIT_TAG:
-            token_encode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            token_decode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
             break;
 
         default:
@@ -906,21 +847,7 @@ int_fast16_t decode_test_symmetric_initial_attest(void)
 {
     return decode_test_internal(COSE_MAC0);
 }
-
-int_fast16_t decode_test_symmetric_iat_short_circuit_tag(void)
-{
-    return decode_test_internal(COSE_MAC0_SHORT_CIRCUIT_TAG);
-}
 #else /* SYMMETRIC_INITIAL_ATTESTATION */
-/*
- * Public function. See token_test.h
- */
-int_fast16_t decode_test_short_circuit_sig(void)
-{
-    return decode_test_internal(SHORT_CIRCUIT_SIGN);
-}
-
-
 /*
  * Public function. See token_test.h
  */

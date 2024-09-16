@@ -37,14 +37,6 @@ extern "C" {
 
 
 /**
- * \brief Minimal token creation test using a short-circuit signature.
- *
- * \return non-zero on failure.
- */
-int_fast16_t minimal_test(void);
-
-
-/**
  * \brief Test token size calculation.
  *
  * \return non-zero on failure.
@@ -78,24 +70,8 @@ int_fast16_t buffer_too_small_test(void);
  */
 int_fast16_t decode_test_symmetric_initial_attest(void);
 
-/**
- * \brief Test by checking short-circuit tagged values of claims.
- *
- * \return non-zero on failure.
- *
- * This is an extensive test that can compare the values in the token
- * to expected valued compiled into the test app from
- * token_test_values.h. All the values represented in \ref
- * attest_token_iat_simple_t and in \ref attest_token_sw_component_t
- * are checked.
- *
- * This uses a short-circuit tag rather than real HMAC operation with
- * symmetric IAK. This tests everything in the implementation except the final
- * MAC. It can work even without HMAC integration and without
- * any keys configured.
- */
-int_fast16_t decode_test_symmetric_iat_short_circuit_tag(void);
 #else /* SYMMETRIC_INITIAL_ATTESTATION */
+
 /**
  * \brief Test by checking signed values of claims.
  *
@@ -107,33 +83,11 @@ int_fast16_t decode_test_symmetric_iat_short_circuit_tag(void);
  * attest_token_iat_simple_t and in \ref attest_token_sw_component_t
  * are checked.
  *
- * This uses real ECDSA keys for both signing and verificaiton.  It
+ * This uses real ECDSA keys for both signing and verification.  It
  * requires that the t_cose crypto porting layer operates correctly
- * and that all keys are present. See also
- * decode_test_short_circuit_sig().
+ * and that all keys are present.
  */
 int_fast16_t decode_test_normal_sig(void);
-
-
-/**
- * \brief Test by checking short-circuit signed values of claims.
- *
- * \return non-zero on failure.
- *
- * This is an extensive test that can compare the values in the token
- * to expected valued compiled into the test app from
- * token_test_values.h. All the values represented in \ref
- * attest_token_iat_simple_t and in \ref attest_token_sw_component_t
- * are checked.
- *
- * This uses a short-circuit signature rather than real ECDSA
- * keys. This tests everything in the implementation except the final
- * signing of the final hash with ECDSA and the converse
- * verification. It is thorough test of everything by ECDSA
- * integration. It can work even without ECDSA integration and without
- * any keys configured.
- */
-int_fast16_t decode_test_short_circuit_sig(void);
 #endif /* SYMMETRIC_INITIAL_ATTESTATION */
 
 #ifdef __cplusplus
