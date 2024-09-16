@@ -2,7 +2,7 @@
  * attest_token_test.c
  *
  * Copyright (c) 2018-2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited.
+ * Copyright (c) 2020-2025, Arm Limited.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,11 +10,10 @@
  */
 
 #include "attest_token_test.h"
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include "psa/initial_attestation.h"
 #include "attest_token_decode.h"
 #include "attest_token_test_values.h"
-#include "psa/crypto.h"
 #include "test_log.h"
 
 

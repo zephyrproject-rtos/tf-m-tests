@@ -2,7 +2,7 @@
  * attest_token_decode.h
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 #ifndef __ATTEST_TOKEN_DECODE_H__
 #define __ATTEST_TOKEN_DECODE_H__
 
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include <stdbool.h>
 #include "attest_token.h"
 #include "tfm_attest_iat_defs.h"
@@ -897,7 +897,7 @@ map_t_cose_errors(enum t_cose_err_t t_cose_error)
         return ATTEST_TOKEN_ERR_COSE_VALIDATION;
         break;
 
-    case T_COSE_ERR_SIGN1_FORMAT:
+    case T_COSE_ERR_SIGNATURE_FORMAT:
         return ATTEST_TOKEN_ERR_COSE_FORMAT;
         break;
 
@@ -934,6 +934,8 @@ map_t_cose_errors(enum t_cose_err_t t_cose_error)
     case T_COSE_ERR_DUPLICATE_PARAMETER:
     case T_COSE_ERR_PARAMETER_NOT_PROTECTED:
     case T_COSE_ERR_CRIT_PARAMETER:
+    case T_COSE_ERR_TOO_MANY_TAGS:
+    case T_COSE_ERR_INVALID_PARAMETER_TYPE:
     default:
         return ATTEST_TOKEN_ERR_GENERAL;
     }

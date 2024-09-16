@@ -2,7 +2,7 @@
  * attest_token_decode.c
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited.
+ * Copyright (c) 2020-2025, Arm Limited.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,10 +10,9 @@
  */
 
 #include "attest_token_decode.h"
-#include "t_cose_sign1_verify.h"
-#include "q_useful_buf.h"
+#include "t_cose/t_cose_sign1_verify.h"
+#include "t_cose/q_useful_buf.h"
 #include "qcbor_util.h"
-#include "psa/crypto.h"
 #include "attest.h"
 #include "tfm_crypto_defs.h"
 
@@ -35,7 +34,6 @@ attest_token_decode_validate_token(struct attest_token_decode_context *me,
     int32_t                        t_cose_options = 0;
     struct t_cose_sign1_verify_ctx verify_ctx;
     struct t_cose_key              attest_key;
-    psa_key_handle_t               public_key = TFM_BUILTIN_KEY_ID_IAK;
 
     /* Run the signature verification */
     if(me->options & TOKEN_OPT_SHORT_CIRCUIT_SIGN) {
@@ -43,8 +41,7 @@ attest_token_decode_validate_token(struct attest_token_decode_context *me,
     }
     t_cose_sign1_verify_init(&verify_ctx, t_cose_options);
 
-    attest_key.crypto_lib = T_COSE_CRYPTO_LIB_PSA;
-    attest_key.k.key_handle = public_key;
+    attest_key.key.handle = TFM_BUILTIN_KEY_ID_IAK;
 
     t_cose_sign1_set_verification_key(&verify_ctx, attest_key);
 
