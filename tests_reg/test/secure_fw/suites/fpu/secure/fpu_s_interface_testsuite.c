@@ -1,12 +1,18 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
+#include <stdint.h>
+#include <string.h>
 #include "fpu_s_tests.h"
-#include "../fpu_tests_common.h"
+#include "fpu_tests_common.h"
+#include "fpu_tests_lib.h"
+#include "psa/client.h"
+#include "psa_manifest/sid.h"
+#include "tfm_peripherals_def.h"
 #include "tfm_psa_call_pack.h"
 #include "utilities.h"
 
