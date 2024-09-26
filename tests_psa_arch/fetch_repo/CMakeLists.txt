@@ -19,7 +19,7 @@ fetch_remote_library(
     FETCH_CONTENT_ARGS
         GIT_REPOSITORY      https://github.com/ARM-software/psa-arch-tests.git
         GIT_TAG             ${PSA_ARCH_TESTS_VERSION}
-        GIT_SHALLOW         FALSE
+        GIT_SHALLOW         TRUE
         GIT_PROGRESS        TRUE
         GIT_SUBMODULES      ""
 )
