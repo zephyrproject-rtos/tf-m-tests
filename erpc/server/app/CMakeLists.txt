@@ -25,6 +25,8 @@ include(toolchain_selection)
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Include common configs exported from TF-M
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
+# Load platform specific config if exists
+include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
 include(${TFM_TOOLCHAIN_FILE})
 
