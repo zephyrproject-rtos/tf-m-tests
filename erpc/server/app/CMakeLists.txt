@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -29,6 +29,7 @@ include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
 include(${TFM_TOOLCHAIN_FILE})
 
 project("TF-M RPC Server (NSPE)"  LANGUAGES C ASM CXX)
+tfm_toolchain_reload_compiler()
 
 add_subdirectory(../../../lib/ext/CMSIS ${CMAKE_BINARY_DIR}/lib/ext/CMSIS)
 add_subdirectory(../../../lib/ext/erpc ${CMAKE_BINARY_DIR}/lib/ext/erpc)

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
+# Copyright (c) 2023, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -29,6 +29,7 @@ include(check_version)
 
 include(${TFM_TOOLCHAIN_FILE})
 project(tfm_ns LANGUAGES C ASM)
+tfm_toolchain_reload_compiler()
 
 # If config_ns_test.cmake is exported from TF-M build, it indicates regression tests are enabled.
 # Otherwise, skip test configuration
