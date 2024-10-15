@@ -15,7 +15,7 @@ target_sources(tfm_test_suite_ps_s
     PRIVATE
         psa_ps_s_interface_testsuite.c
         psa_ps_s_reliability_testsuite.c
-        $<$<BOOL:${PS_TEST_NV_COUNTERS}>:ps_rollback_protection_testsuite.c>
+        $<$<AND:$<BOOL:${PS_TEST_NV_COUNTERS}>,$<BOOL:${PS_ROLLBACK_PROTECTION}>>:ps_rollback_protection_testsuite.c>
 )
 
 target_sources(tfm_app_rot_partition_ps

@@ -54,11 +54,12 @@ static struct test_suite_t test_suites[] = {
 #ifdef TEST_S_PS
     {&register_testsuite_s_psa_ps_interface, 0, 0, 0},
     {&register_testsuite_s_psa_ps_reliability, 0, 0, 0},
-
 #ifdef PS_TEST_NV_COUNTERS
+#if defined(PS_ROLLBACK_PROTECTION) && (PS_ROLLBACK_PROTECTION == 1)
     {&register_testsuite_s_rollback_protection, 0, 0, 0},
-#endif
-#endif
+#endif /* PS_ROLLBACK_PROTECTION == 1 */
+#endif /* PS_TEST_NV_COUNTERS */
+#endif /* TEST_S_PS */
 
 #ifdef TEST_S_ITS
     /* Secure ITS test cases */
