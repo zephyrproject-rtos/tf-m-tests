@@ -2,7 +2,7 @@
  * attest_token_decode.h
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -87,6 +87,18 @@ extern "C" {
  * tests this. It is a parser / decoder, so a
  * proper test involves a lot of hostile input.
  */
+
+/**
+ * These claims are not defined in case of ATTEST_TOKEN_PROFILE_ARM_CCA. Adding
+ * them here to avoid ifdefs in the test code.
+ * Original defines are here:
+ *     <TF-M>/interface/include/tfm_attest_iat_defs.h
+ */
+#ifdef ATTEST_TOKEN_PROFILE_ARM_CCA
+#define IAT_CLIENT_ID                      (IAT_ARM_RANGE_BASE + 1)
+#define IAT_BOOT_SEED                      (IAT_ARM_RANGE_BASE + 4)
+#define IAT_CERTIFICATION_REFERENCE        (IAT_ARM_RANGE_BASE + 5)
+#endif
 
 
 /**
