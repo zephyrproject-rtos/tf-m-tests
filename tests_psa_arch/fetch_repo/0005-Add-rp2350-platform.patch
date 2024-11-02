@@ -1,12 +1,12 @@
-From c847b6f8e482b7785a243bd2560405266201197a Mon Sep 17 00:00:00 2001
+From fb40e180945f17b78cc4c1d95eeb030efc05dcd3 Mon Sep 17 00:00:00 2001
 From: Gabor Abonyi <gabor.abonyi@arm.com>
 Date: Thu, 8 Aug 2024 15:44:55 +0200
-Subject: [PATCH] Add rp2350 platform
+Subject: [PATCH 5/5] Add rp2350 platform
 
 Change-Id: I50777e655dfecdac7e4cacecbff8459efa4d7a77
 Signed-off-by: Gabor Abonyi <gabor.abonyi@arm.com>
 ---
- .../drivers/watchdog/rpi/pal_wd_rpi.c         | 104 +++++
+ .../drivers/watchdog/rpi/pal_wd_rpi.c         | 103 +++++
  .../drivers/watchdog/rpi/pal_wd_rpi.h         |  35 ++
  .../nspe/pal_attestation_config.h             | 108 +++++
  .../tgt_dev_apis_tfm_rp2350/nspe/pal_config.h |  97 +++++
@@ -21,7 +21,7 @@ Signed-off-by: Gabor Abonyi <gabor.abonyi@arm.com>
  .../tgt_ff_tfm_rp2350/spe/pal_driver_intf.h   |  35 ++
  .../targets/tgt_ff_tfm_rp2350/target.cfg      |  64 +++
  .../targets/tgt_ff_tfm_rp2350/target.cmake    |  74 ++++
- 15 files changed, 1767 insertions(+)
+ 15 files changed, 1766 insertions(+)
  create mode 100644 api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.c
  create mode 100644 api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.h
  create mode 100644 api-tests/platform/targets/tgt_dev_apis_tfm_rp2350/nspe/pal_attestation_config.h
@@ -40,10 +40,10 @@ Signed-off-by: Gabor Abonyi <gabor.abonyi@arm.com>
 
 diff --git a/api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.c b/api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.c
 new file mode 100644
-index 0000000..a6bea07
+index 0000000..444480c
 --- /dev/null
 +++ b/api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.c
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,103 @@
 +/** @file
 + * Copyright (c) 2024, Arm Limited or its affiliates. All rights reserved.
 + * SPDX-License-Identifier : Apache-2.0
@@ -147,7 +147,6 @@ index 0000000..a6bea07
 +{
 +    return (((wd_timer_t *)base_addr)->CTRL & WATCHDOG_CTRL_ENABLE_BITS ? 1 : 0);
 +}
-+
 diff --git a/api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.h b/api-tests/platform/drivers/watchdog/rpi/pal_wd_rpi.h
 new file mode 100644
 index 0000000..da2f0b8
@@ -1224,7 +1223,7 @@ index 0000000..e5578d9
 +#endif /* _PAL_CONFIG_H_ */
 diff --git a/api-tests/platform/targets/tgt_ff_tfm_rp2350/nspe/pal_driver_ipc_intf.c b/api-tests/platform/targets/tgt_ff_tfm_rp2350/nspe/pal_driver_ipc_intf.c
 new file mode 100644
-index 0000000..dbc87a9
+index 0000000..f2d819f
 --- /dev/null
 +++ b/api-tests/platform/targets/tgt_ff_tfm_rp2350/nspe/pal_driver_ipc_intf.c
 @@ -0,0 +1,338 @@
@@ -1264,7 +1263,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_UART_HANDLE, 0, data, 3, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1272,10 +1271,10 @@ index 0000000..dbc87a9
 +    print_handle = psa_connect(DRIVER_UART_SID, DRIVER_UART_VERSION);
 +    if (PSA_HANDLE_IS_VALID(print_handle))
 +    {
-+    	status_of_call = psa_call(print_handle, 0, data, 3, NULL, 0);
-+    	psa_close(print_handle);
-+    	if (status_of_call != PSA_SUCCESS)
-+    		return PAL_STATUS_ERROR;
++        status_of_call = psa_call(print_handle, 0, data, 3, NULL, 0);
++        psa_close(print_handle);
++        if (status_of_call != PSA_SUCCESS)
++            return PAL_STATUS_ERROR;
 +
 +        return PAL_STATUS_SUCCESS;
 +    }
@@ -1312,7 +1311,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_UART_HANDLE, 0, data1, 3, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1355,7 +1354,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_WATCHDOG_HANDLE, 0, invec, 1, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1398,7 +1397,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_WATCHDOG_HANDLE, 0, invec, 1, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1438,7 +1437,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_WATCHDOG_HANDLE, 0, invec, 1, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1484,7 +1483,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_NVMEM_HANDLE, 0, invec, 1, outvec, 1);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1529,7 +1528,7 @@ index 0000000..dbc87a9
 +#if STATELESS_ROT == 1
 +    status_of_call = psa_call(DRIVER_NVMEM_HANDLE, 0, invec, 2, NULL, 0);
 +    if (status_of_call != PSA_SUCCESS)
-+    	return PAL_STATUS_ERROR;
++        return PAL_STATUS_ERROR;
 +
 +    return PAL_STATUS_SUCCESS;
 +#else
@@ -1896,5 +1895,5 @@ index 0000000..7f64359
 +	${PSA_ROOT_DIR}/platform/targets/${TARGET}/nspe
 +)
 -- 
-2.40.1
+2.47.0
 

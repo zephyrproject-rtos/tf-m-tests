@@ -1,7 +1,7 @@
-From 25cdea2d26a604383d41feab2981f488ed08f7b6 Mon Sep 17 00:00:00 2001
+From e8150b5c013d01a3ee268e50cd4f83ea86ff7c5b Mon Sep 17 00:00:00 2001
 From: Kevin Peng <kevin.peng@arm.com>
 Date: Thu, 9 Nov 2023 14:40:48 +0800
-Subject: [PATCH 3/4] Build: Add manifest tool dependencies
+Subject: [PATCH 3/5] Build: Add manifest tool dependencies
 
 Signed-off-by: Kevin Peng <kevin.peng@arm.com>
 ---
@@ -41,5 +41,5 @@ index 37b8888..81f8d6a 100644
  	${CMAKE_CURRENT_BINARY_DIR}
  	${PSA_ROOT_DIR}/val/common
 -- 
-2.25.1
+2.47.0
 
