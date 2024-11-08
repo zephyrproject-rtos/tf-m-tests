@@ -22,9 +22,7 @@ static psa_status_t fpu_service_check_fp_register(const psa_msg_t *msg)
 {
     psa_status_t status = PSA_SUCCESS;
 
-#if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
-    return status;
-#elif TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
+#if TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
     uint32_t fp_callee_buffer[NR_FP_CALLEE_REG] = {0};
     const uint32_t fp_clear_callee_content[NR_FP_CALLEE_REG] = {0};
     const uint32_t expecting_callee_content[NR_FP_CALLEE_REG] = {
@@ -55,8 +53,9 @@ static psa_status_t fpu_service_check_fp_register(const psa_msg_t *msg)
         psa_panic();
         break;
     }
-    psa_reply(msg->handle, status);
-#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1 */
+#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1 */
+
+    return status;
 }
 
 /* Service handler for trigger NS interrupt. */
@@ -109,11 +108,8 @@ static psa_status_t fpu_service_check_fp_register_after_ns_inturrept(
         psa_panic();
         break;
     }
-#if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
+
     return status;
-#elif TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
-    psa_reply(msg->handle, status);
-#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1 */
 }
 
 #if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
@@ -137,10 +133,10 @@ void fpu_service_test_main()
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
         if (signals & TFM_FPU_CHECK_FP_CALLEE_REGISTER_SIGNAL) {
             psa_get(TFM_FPU_CHECK_FP_CALLEE_REGISTER_SIGNAL, &msg);
-            fpu_service_check_fp_register(&msg);
+            psa_reply(msg.handle, fpu_service_check_fp_register(&msg));
         } else if (signals & TFM_FPU_TEST_NS_PREEMPT_S_SIGNAL) {
             psa_get(TFM_FPU_TEST_NS_PREEMPT_S_SIGNAL, &msg);
-            fpu_service_check_fp_register_after_ns_inturrept(&msg);
+            psa_reply(msg.handle, fpu_service_check_fp_register_after_ns_inturrept(&msg));
         } else {
             psa_panic();
         }
