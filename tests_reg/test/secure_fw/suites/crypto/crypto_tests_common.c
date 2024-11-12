@@ -2104,6 +2104,13 @@ static const psa_algorithm_t test_aes_mode_array[] = {
 /* Number of available AES cipher modes */
 #define NR_TEST_AES_MODE(t) ((sizeof(t) / sizeof(t[0])) - 1)
 
+/* When NR_TEST_AES_MODE(test_aes_mode_array) is < 1 then code after if statements
+ * in unreachable. As this is expected - suppress Pe128
+ * (statement is unreachable warning) warning for IAR */
+#if defined(__ICCARM__)
+#pragma diag_suppress = Pe128
+#endif
+
 void psa_invalid_key_length_test(struct test_result_t *ret)
 {
     psa_status_t status;
@@ -2648,6 +2655,10 @@ destroy_key:
 
     return;
 }
+
+#if defined(__ICCARM__)
+#pragma diag_default = Pe128
+#endif
 
 /* Key is generated using psa_generate_key then psa_export_key, using the
  * key attributes given in the test function */
