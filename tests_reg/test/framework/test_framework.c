@@ -129,7 +129,14 @@ enum test_suite_err_t run_testsuite(struct test_suite_t *test_suite)
     uint32_t skipped_tests = 0;
     uint32_t i;
     struct test_t *p_test;
+    /* Suppress false positive IAR warning Pe188 (enumerated type mixed with another type) */
+#if defined(__ICCARM__)
+#pragma diag_suppress = Pe188
+#endif
     struct test_result_t ret = {0};
+#if defined(__ICCARM__)
+#pragma diag_default = Pe188
+#endif
 
     if (test_suite == 0 || test_suite->freg == 0) {
         print_error("TEST_SUITE_ERR_INVALID_DATA!");
