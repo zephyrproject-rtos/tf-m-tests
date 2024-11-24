@@ -2872,42 +2872,92 @@ destroy_key:
 #define SIGNATURE_BUFFER_SIZE \
     (PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key))))
 
-/* This helper function parses a signature as specified in RFC 5480 into a pair
- * (r,s) of contiguous bytes
+
+#define parse_assert(cond, ...)  \
+    do {                         \
+      if (!(cond)) {             \
+        TEST_LOG(__VA_ARGS__);   \
+        return false;            \
+      }                          \
+    } while (0)
+
+/**
+ * @brief This helper function parses the DER encoding of a ASN.1 specified
+ *        ECDSA signature as described by RFC 5480 into a buffer as raw bytes
+ *        of the (r,s) integer pair
  *
- * \param[in]  sig      Pointer to a buffer containing the encoded signature
- * \param[in]  slen     Size in bytes of the encoded signature structure
- * \param[out] r_s_pair Buffer containing the (r,s) pair extracted. It's caller
- *                      responsibility to ensure the buffer is big enough to
- *                      hold the parsed (r,s) pair.
+ * @note  This helper function assumes that the length field of the TLV types
+ *        involved is never greater than 127, i.e. the MSB of the length byte
+ *        is never set, which is the case for signatures generated up to the
+ *        P384 curve. For longer curves, this needs to be revisited.
  *
- * \return The size in bytes of the parsed signature, i.e. (r,s) pair
+ * @note  This function considers an encoding as valid even if it contains only
+ *        the first integer. It then sets the second integer as zero.
+ *
+ * @param[in] sig          Buffer containing the ASN.1 DER encoded signature
+ * @param[in] sig_len      Size in bytes of the buffer pointed by \a sig
+ * @param[out] r_s_pair    Buffer to contain the raw bytes of the (r,s) pair
+ * @param[in] r_s_pair_len Size in bytes of the \a r_s_pair buffer. It must
+ *                         account for the maximum possible value, i.e. in
+ *                         a P384 curve it must 48 * 2 bytes long
+ *
+ * @return true   The ASN.1 encoding is valid and follows the specification
+ * @return false  The ASN.1 encoding is not valid or does not follow the spec
  */
-static inline size_t parse_signature_from_rfc5480_encoding(const uint8_t *sig,
-                                                           size_t slen,
-                                                           uint8_t *r_s_pair)
+static bool parse_signature_from_rfc5480_encoding(const uint8_t *sig,
+                                                  size_t sig_len,
+                                                  uint8_t *r_s_pair,
+                                                  size_t r_s_pair_len)
 {
-    const uint8_t *sig_ptr = NULL;
-    /* Move r in place */
-    size_t r_len = sig[3];
-    if (r_len % 2) {
-        sig_ptr = &sig[5];
-        r_len--;
-    } else {
-        sig_ptr = &sig[4];
+    const uint8_t *start = NULL;
+    size_t len_to_copy = 0;
+
+    parse_assert(sig[0] == 0x30,
+        "Missing sequence tag, found 0x%X: ", sig[0]);
+    /* the length fields, i.e. sig[1], might be longer than 1 byte in
+     * the ASN.1, but the values we're after up to P384 signatures are
+     * always < 127, hence the MSB of sig[1] must be zero
+     */
+    parse_assert(!(sig[1] & 0x80),
+        "Sequence tag length is no short form, ");
+    parse_assert(sig[2] == 0x02,
+        "Missing first integer tag, found 0x%X: ", sig[2]);
+    parse_assert(!(sig[3] & 0x80),
+        "Integer tag length is no short form, ");
+
+    memset(r_s_pair, 0, r_s_pair_len);
+
+    start = &sig[4];
+    len_to_copy = sig[3];
+    if ( (sig[5] & 0x80) && (sig[4] == 0x00) ) {
+        len_to_copy--; /* Discard the initial 0x00 */
+        start++;
     }
-    memcpy(&r_s_pair[0], sig_ptr, r_len);
-    /* Move s in place */
-    size_t s_len = sig_ptr[r_len + 1];
-    if (s_len % 2) {
-        sig_ptr = &sig_ptr[3+r_len];
-        s_len--;
-    } else {
-        sig_ptr = &sig_ptr[2+r_len];
+    parse_assert(len_to_copy <= r_s_pair_len/2,
+        "r is longer than the maximum possible value, ");
+    memcpy(&r_s_pair[r_s_pair_len/2 - len_to_copy], start, len_to_copy);
+
+    if (4 + sig[3] == sig_len) {
+        /* This encoding has only one integer, just set the other to zero */
+        return true;
     }
-    memcpy(&r_s_pair[r_len], sig_ptr, s_len);
-    slen = s_len + r_len; /* Update the length of the signature we're passing */
-    return slen;
+
+    parse_assert(sig[3 + sig[3] + 1] == 0x02,
+        "Missing second integer tag, found 0x%X: ", sig[3 + sig[3] + 1]);
+    parse_assert(!(sig[3 + sig[3] + 2] & 0x80),
+        "Integer tag length is no short form, ");
+
+    start = &sig[3 + sig[3] + 3];
+    len_to_copy = sig[3 + sig[3] + 2];
+    if ( (sig[3 + sig[3] + 4] & 0x80) && (sig[3 + sig[3] + 3] == 0x00) ) {
+        len_to_copy--;
+        start++;
+    }
+    parse_assert(len_to_copy <= r_s_pair_len/2,
+        "s is longer than the maximum possible value, ");
+    memcpy(&r_s_pair[r_s_pair_len - len_to_copy], start, len_to_copy);
+
+    return true;
 }
 
 #define LEN_OFF (3) /* Offset for the Length field of the second SEQUENCE */
@@ -2949,17 +2999,24 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
     uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
     size_t hash_length = 0;
     uint8_t *p_key = (uint8_t *) ecdsa_public_key;
-    uint8_t reformatted_signature[64] = {0};
+    uint8_t reformatted_signature[64] = {0}; /* 32 * 2 for the P256 curve */
     size_t public_key_size;
-    size_t parsed_signature_size = parse_signature_from_rfc5480_encoding(
-                                                                 reference_encoded_r_s,
-                                                                 sizeof(reference_encoded_r_s),
-                                                                 reformatted_signature);
-    /* Get the BIT STRING for the public key */
-    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
+    bool sig_is_valid;
 
     /* Initialize to the passing value */
     ret->val = TEST_PASSED;
+
+    /* Extract the (r,s) raw bytes from the reference signature */
+    sig_is_valid = parse_signature_from_rfc5480_encoding(reference_encoded_r_s,
+                sizeof(reference_encoded_r_s), reformatted_signature, sizeof(reformatted_signature));
+
+    if (sig_is_valid == false) {
+        TEST_FAIL("The reference signature is not a valid ASN.1 encoding");
+        return;
+    }
+
+    /* Get the BIT STRING for the public key */
+    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
 
     /* Set attributes and import key */
     psa_set_key_usage_flags(&input_key_attr,
@@ -3014,11 +3071,6 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
                                 PSA_BYTES_TO_BITS(
                                     sizeof(ecdsa_private_key)))) {
         TEST_FAIL("Unexpected signature length");
-        goto destroy_key;
-    }
-
-    if (signature_length != parsed_signature_size) {
-        TEST_FAIL("Produced signature length does not match the reference!");
         goto destroy_key;
     }
 
