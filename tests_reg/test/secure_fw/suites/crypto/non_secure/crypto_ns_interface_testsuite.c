@@ -113,6 +113,9 @@ static void tfm_crypto_test_1050(struct test_result_t *ret);
 static void tfm_crypto_test_1054(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 #endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+static void tfm_crypto_test_1055(struct test_result_t *ret);
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */
 
 static struct test_t crypto_tests[] = {
     {&tfm_crypto_test_1001, "TFM_NS_CRYPTO_TEST_1001",
@@ -265,6 +268,10 @@ static struct test_t crypto_tests[] = {
      "Non Secure authenticator based on AEAD"},
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 #endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+    {&tfm_crypto_test_1055, "TFM_NS_CRYPTO_TEST_1055",
+     "Non Secure SECP384R1 ECDSA Verification Wycheproof tests"},
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */
 };
 
 void register_testsuite_ns_crypto_interface(struct test_suite_t *p_test_suite)
@@ -583,3 +590,14 @@ static void tfm_crypto_test_1054(struct test_result_t *ret)
 }
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 #endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+static void tfm_crypto_test_1055(struct test_result_t *ret)
+{
+    wp_ec_test_runner(
+        ret,
+        PSA_ALG_ECDSA(PSA_ALG_SHA_384),
+        PSA_KEY_USAGE_VERIFY_HASH,
+        PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+}
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */

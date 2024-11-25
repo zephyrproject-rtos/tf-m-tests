@@ -39,6 +39,7 @@ set(TFM_CRYPTO_TEST_SINGLE_PART_FUNCS           ON       CACHE BOOL      "Test s
 set(TFM_CRYPTO_TEST_UNSUPPORTED_ALG             ON       CACHE BOOL      "Test unsupported algorithm in hash, MAC")
 set(TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA     ON       CACHE BOOL      "Test Deterministic ECDSA signing/verification algorithm")
 set(TFM_CRYPTO_TEST_ALG_ECDSA                   ON       CACHE BOOL      "Test ECDSA signing/verification algorithm")
+set(TFM_CRYPTO_TEST_WP_SECP384_R1               OFF      CACHE BOOL      "Test ECDSA verification on P384 curve using Wycheproof suite test vectors")
 
 ################################## FWU Tests ###################################
 

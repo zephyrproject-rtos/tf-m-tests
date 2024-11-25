@@ -2913,15 +2913,17 @@ static bool parse_signature_from_rfc5480_encoding(const uint8_t *sig,
     size_t len_to_copy = 0;
 
     parse_assert(sig[0] == 0x30,
-        "Missing sequence tag, found 0x%X: ", sig[0]);
+        "Missing sequence tag, found 0x%X, ", sig[0]);
     /* the length fields, i.e. sig[1], might be longer than 1 byte in
      * the ASN.1, but the values we're after up to P384 signatures are
      * always < 127, hence the MSB of sig[1] must be zero
      */
     parse_assert(!(sig[1] & 0x80),
         "Sequence tag length is no short form, ");
+    parse_assert((sig[1] == (sig_len - 2)),
+        "Wrong length of sequence, ");
     parse_assert(sig[2] == 0x02,
-        "Missing first integer tag, found 0x%X: ", sig[2]);
+        "Missing first integer tag, found 0x%X, ", sig[2]);
     parse_assert(!(sig[3] & 0x80),
         "Integer tag length is no short form, ");
 
@@ -2934,7 +2936,7 @@ static bool parse_signature_from_rfc5480_encoding(const uint8_t *sig,
         start++;
     }
     parse_assert(len_to_copy <= r_s_pair_len/2,
-        "r is longer than the maximum possible value, ");
+        "r is out of range, ");
     memcpy(&r_s_pair[r_s_pair_len/2 - len_to_copy], start, len_to_copy);
 
     if (4 + sig[3] == sig_len) {
@@ -2943,7 +2945,7 @@ static bool parse_signature_from_rfc5480_encoding(const uint8_t *sig,
     }
 
     parse_assert(sig[3 + sig[3] + 1] == 0x02,
-        "Missing second integer tag, found 0x%X: ", sig[3 + sig[3] + 1]);
+        "Missing second integer tag, found 0x%X, ", sig[3 + sig[3] + 1]);
     parse_assert(!(sig[3 + sig[3] + 2] & 0x80),
         "Integer tag length is no short form, ");
 
@@ -2954,7 +2956,9 @@ static bool parse_signature_from_rfc5480_encoding(const uint8_t *sig,
         start++;
     }
     parse_assert(len_to_copy <= r_s_pair_len/2,
-        "s is longer than the maximum possible value, ");
+        "s is out of range, ");
+    parse_assert((start - sig) + len_to_copy == sig_len,
+        "Bytes appended or removed, ");
     memcpy(&r_s_pair[r_s_pair_len - len_to_copy], start, len_to_copy);
 
     return true;
@@ -3618,3 +3622,191 @@ destroy_key:
 }
 #endif /* TFM_CRYPTO_TEST_ALG_GCM || TFM_CRYPTO_TEST_ALG_CCM */
 #endif /* TFM_CRYPTO_TEST_SINGLE_PART_FUNCS */
+
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+/* Include the binary data from a separate file: this accounts for around 36 KB
+ * of additional data that goes in .rodata
+ */
+#include "bin_test_payloads/wp_ecdsa_secp384r1_sha384_test.json.bin"
+
+static const char *__wp_ecdsa_secp384r1_sha384_test_start =
+    (const char *)&wp_ecdsa_secp384r1_sha384_test_bin[0];
+static const char *__wp_ecdsa_secp384r1_sha384_test_end =
+    (const char *)&wp_ecdsa_secp384r1_sha384_test_bin[wp_ecdsa_secp384r1_sha384_test_len];
+/**
+ * @brief Function to run a test bundle obtained from the Wycheproof test suite
+ *        for ECDSA signature verification. This hardcodes the key parameters to
+ *        384 bits so it needs some reworking to make it work with other curves
+ *        as well if required in the future
+ *
+ * @param[in]  p_test      Buffer holding a bundle of tests obtained by parsing
+ *                         Wycheproof test files
+ * @param[in]  bin_size    Size in bytes of the bundle pointed by \a p_test
+ * @param[out] total_tests It returns the total number of tests being performed
+ * @param[out] ret         In case any operation required for the test setup fails,
+ *                         the value ret->val will be set to FAIL
+ *
+ * @return *** size_t Returns the number of tests failed
+ */
+static size_t wp_ecdsa_run_test_bin(
+    const uint8_t *p_test,
+    size_t bin_size,
+    size_t *total_tests,
+    struct test_result_t *ret)
+{
+    psa_status_t status = PSA_ERROR_GENERIC_ERROR;
+
+    /* Hardcode key parameters on SECP384R1 curve */
+    psa_key_id_t key_id = PSA_KEY_ID_NULL;
+    const psa_key_type_t key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
+    const psa_algorithm_t alg = PSA_ALG_ECDSA(PSA_ALG_SHA_384);
+    const psa_key_bits_t bits = 384;
+
+    /* Holds the signature (r,s) in raw format */
+    uint32_t r_s_pair[(PSA_BITS_TO_BYTES(bits) * 2) / sizeof(uint32_t)];
+    /* Holds the hash of the message before verification */
+    uint32_t msg_hash[PSA_HASH_LENGTH(alg) / sizeof(uint32_t)];
+
+    size_t compare_failures = 0;
+    *total_tests = 0;
+
+    /* Prepare the key attributes for subsequent imports */
+    psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&key_attr, alg);
+    psa_set_key_type(&key_attr, key_type);
+    psa_set_key_bits(&key_attr, bits);
+
+    const uint8_t *ptr = p_test;
+    size_t remaining_size = bin_size;
+    while (remaining_size) {
+        /* Logic that reads the key if available in the bundle, i.e. len != 0 */
+        uint32_t key_len = *((uint32_t *)ptr);
+        ptr += sizeof(uint32_t);
+        if (key_len != 0) {
+            if (key_id != PSA_KEY_ID_NULL) {
+                status = psa_destroy_key(key_id);
+                if (status != PSA_SUCCESS) {
+                    TEST_LOG("Error destroying the key at %p\r\n", (void *)p_test);
+                    TEST_FAIL("Failed key destruction");
+                    return SIZE_MAX;
+                }
+                key_id = PSA_KEY_ID_NULL;
+            }
+            const uint8_t *key = ptr;
+            ptr += key_len;
+            /* Import a new one */
+            status = psa_import_key(&key_attr, key, key_len, &key_id);
+            if (status != PSA_SUCCESS) {
+                TEST_LOG("Error importing the public key, status: %d, at %p (test %d)\r\n",
+                    status, (void *)p_test, *total_tests);
+                TEST_FAIL("Failed public key import");
+                return SIZE_MAX;
+            }
+        }
+
+        uint32_t msg_len = *((uint32_t *)ptr);
+        ptr += sizeof(uint32_t);
+        const uint8_t *msg = ptr;
+        ptr += msg_len;
+        uint32_t sig_len = *((uint32_t *)ptr);
+        ptr += sizeof(uint32_t);
+        const uint8_t *sig = ptr;
+        ptr += sig_len;
+
+        bool valid_signature_asn1 = parse_signature_from_rfc5480_encoding(
+                                        sig, sig_len, (uint8_t *)r_s_pair, sizeof(r_s_pair));
+        if (!valid_signature_asn1) {
+            TEST_LOG("unexpected signature at %p (test %d)\r\n",
+                (void *)p_test, *total_tests);
+            status = PSA_ERROR_INVALID_SIGNATURE;
+        } else {
+            size_t msg_hash_length;
+
+            status = psa_hash_compute(PSA_ALG_GET_HASH(alg), msg, msg_len,
+                                            (uint8_t *)msg_hash, sizeof(msg_hash), &msg_hash_length);
+            if (status != PSA_SUCCESS) {
+                TEST_LOG("Unexpected error from psa_hash_compute, status: %d, at %p (test %d)\r\n",
+                    status, (void *)p_test, *total_tests);
+                TEST_FAIL("psa_hash_compute() failed before the signature verification step");
+                return SIZE_MAX;
+            }
+
+            status = psa_verify_hash(key_id, alg,
+                    (const uint8_t *)msg_hash, msg_hash_length, (const uint8_t *)r_s_pair, sizeof(r_s_pair));
+            if ((status != PSA_SUCCESS) && (status != PSA_ERROR_INVALID_SIGNATURE)) {
+                TEST_LOG("Unexpected error from psa_verify_message, status: %d, at %p (test %d)\r\n",
+                    status, (void *)p_test, *total_tests);
+                TEST_FAIL("psa_verify_hash() can either return PSA_SUCCESS or PSA_ERROR_INVALID_SIGNATURE");
+                return SIZE_MAX;
+            }
+        }
+
+        const psa_status_t expected_status = *((psa_status_t *)ptr);
+        ptr += sizeof(psa_status_t);
+
+        if (expected_status != status) {
+            compare_failures++;
+            TEST_LOG("Compare failure at %p (test %d), status: %d, expected: %d\r\n",
+                (void *)p_test, *total_tests, status, expected_status);
+        }
+        (*total_tests)++;
+
+        /* Check that the binary blob is not malformed */
+        assert((int)remaining_size - (int)((uintptr_t)ptr - (uintptr_t)p_test) >= 0);
+
+        /* Update the remaining size in bytes and the pointer to the next test */
+        remaining_size -= (uintptr_t)ptr - (uintptr_t)p_test;
+        p_test = ptr;
+    }
+
+    if (key_id != PSA_KEY_ID_NULL) {
+        status = psa_destroy_key(key_id);
+        if (status != PSA_SUCCESS) {
+            TEST_FAIL("Error destroying the key before ending tests");
+            return SIZE_MAX;
+        }
+        key_id = PSA_KEY_ID_NULL;
+    }
+
+    return compare_failures;
+}
+
+void wp_ec_test_runner(struct test_result_t *ret,
+                       psa_algorithm_t alg,
+                       psa_key_usage_t usage,
+                       psa_key_type_t key_type)
+{
+    /* Initialize to passing value in case it gets skipped */
+    ret->val = TEST_PASSED;
+
+    if ( (alg != PSA_ALG_ECDSA(PSA_ALG_SHA_384)) &&
+         (usage != PSA_KEY_USAGE_VERIFY_HASH) &&
+         (key_type != PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1)) ) {
+
+        TEST_LOG("Wycheproof supports only ECDSA with P384. Skipping...\r\n");
+        ret->val = TEST_PASSED;
+        return;
+    }
+
+    size_t total_tests, compare_failures;
+
+    compare_failures = wp_ecdsa_run_test_bin(
+        (const uint8_t *)__wp_ecdsa_secp384r1_sha384_test_start,
+        (size_t)__wp_ecdsa_secp384r1_sha384_test_end -
+            (size_t)__wp_ecdsa_secp384r1_sha384_test_start,
+        &total_tests, ret);
+
+    if (compare_failures == SIZE_MAX) {
+        /* an error happened that stopped the completion of the test suite */
+        return;
+    }
+
+    TEST_LOG("RESULT(mismatched/tests): %d/%d on wp_ecdsa_secp384r1_sha384_test.bin.data\r\n",
+             compare_failures, total_tests);
+
+    if (compare_failures != 0) {
+        TEST_FAIL("Some test cases returned a status which mismatches with expected values");
+    }
+}
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */

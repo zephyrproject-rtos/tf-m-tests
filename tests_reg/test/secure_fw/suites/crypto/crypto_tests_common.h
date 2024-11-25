@@ -326,6 +326,21 @@ void psa_verify_rsassa_pss_test(struct test_result_t *ret);
  */
 int psa_aead_as_authenticator_test(void);
 
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+/**
+ * @brief Test verifying the Wycheproof test suite test bundles
+ *
+ * @param[out] ret      Test result
+ * @param[in]  alg      Algorithm for which to exercise the test bundle
+ * @param[in]  usage    Usage of the key indentifying the test to perform
+ * @param[in]  key_type Type of the key to select for the test
+ */
+void wp_ec_test_runner(struct test_result_t *ret,
+                       psa_algorithm_t alg,
+                       psa_key_usage_t usage,
+                       psa_key_type_t key_type);
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */
+
 #ifdef __cplusplus
 }
 #endif
