@@ -37,6 +37,12 @@ add_subdirectory(../../../lib/ext/erpc ${CMAKE_BINARY_DIR}/lib/ext/erpc)
 
 set(ERPC_DIR     ${CMAKE_CURRENT_LIST_DIR}/../..)
 
+# Disable NS log by default to avoid the eRPC messages to be interspersed with
+# log messages and ultimately corrupting them.
+# Log messages can be enabled per platform if the separation of eRPC messages
+# from the rest of the communication can be guaranteed.
+set(TFM_NS_LOG_DISABLE  ON     CACHE BOOL  "Whether to disable log messages from NSPE")
+
 add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/server)
 add_subdirectory(../../../app_broker ${CMAKE_BINARY_DIR}/app_broker)
 

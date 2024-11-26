@@ -123,7 +123,7 @@ if(TFM_NS_MAILBOX_API)
     )
 endif()
 
-# TF-M ns logging
+# TF-M NS logging
 add_library(tfm_ns_log STATIC EXCLUDE_FROM_ALL)
 
 target_sources(tfm_ns_log
@@ -134,6 +134,11 @@ target_sources(tfm_ns_log
 target_include_directories(tfm_ns_log
     PUBLIC
         ${APP_LIB_DIR}/log/
+)
+
+target_compile_definitions(tfm_ns_log
+    INTERFACE
+        $<$<NOT:$<BOOL:${TFM_NS_LOG_DISABLE}>>:TFM_NS_LOG>
 )
 
 target_link_libraries(tfm_ns_log
