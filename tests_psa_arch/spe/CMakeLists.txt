@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,6 +13,8 @@ include(utils)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
+
+collect_build_cmd_args(TFM_CMDLINE_CONFIGS)
 
 project("TF-M SPE for PSA tests" LANGUAGES C)
 
@@ -32,8 +34,6 @@ endif()
 if (NOT DEFINED PSA_ARCH_TESTS_PATH OR NOT EXISTS ${PSA_ARCH_TESTS_PATH})
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../fetch_repo ${CMAKE_BINARY_DIR}/fetch_repo)
 endif()
-
-collect_build_cmd_args(TFM_CMDLINE_CONFIGS)
 
 if ("${TEST_PSA_API}" STREQUAL "IPC")
     # Workaround: amend IPC backend config to command-line options so that users (including CI)
