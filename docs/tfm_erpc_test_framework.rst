@@ -209,7 +209,17 @@ one must:
   - ``add_subdirectory`` with the ``erpc/client``,
   - link the ``erpc_client`` library to the application.
 
-There is also an example at ``erpc/host_example`` for reference.
+For more information on how to build and run the TF-M regression test suites
+on various platforms please refer to :doc:`this document <tfm_erpc_test_build_and_run>`.
+There is also an example of a simple host application at
+``erpc/host_example`` for reference.
+
+.. toctree::
+  :caption: Examples
+  :titlesonly:
+  :hidden:
+
+  eRPC Test Build and Run <tfm_erpc_test_build_and_run>
 
 --------------
 
