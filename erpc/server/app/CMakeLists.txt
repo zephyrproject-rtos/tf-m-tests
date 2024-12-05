@@ -35,7 +35,6 @@ project("TF-M RPC Server (NSPE)"  LANGUAGES C ASM CXX)
 add_subdirectory(../../../lib/ext/CMSIS ${CMAKE_BINARY_DIR}/lib/ext/CMSIS)
 add_subdirectory(../../../lib/ext/erpc ${CMAKE_BINARY_DIR}/lib/ext/erpc)
 
-set(CONFIG_ENABLE_NS_UART_TX_RX_CONTROL ON)
 set(ERPC_DIR     ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/server)
