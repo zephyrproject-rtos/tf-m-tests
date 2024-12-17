@@ -38,6 +38,8 @@ static void tfm_ipc_test_1016(struct test_result_t *ret);
 
 static void tfm_ipc_test_1017(struct test_result_t *ret);
 
+static void tfm_ipc_test_1018(struct test_result_t *ret);
+
 static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1001, "TFM_NS_IPC_TEST_1001",
      "Get PSA framework version"},
@@ -64,6 +66,8 @@ static struct test_t ipc_veneers_tests[] = {
      "Testing Client-Id Translation"},
     {&tfm_ipc_test_1017, "TFM_NS_IPC_TEST_1017",
      "Testing Reverse-Handle rhandle"},
+    {&tfm_ipc_test_1018, "TFM_NS_IPC_TEST_1018",
+     "Testing Refused connection"},
 };
 
 void register_testsuite_ns_ipc_interface(struct test_suite_t *p_test_suite)
@@ -304,6 +308,22 @@ static void tfm_ipc_test_1017(struct test_result_t *ret)
     psa_close(handle);
     psa_close(handle2);
 }
+
+static void tfm_ipc_test_1018(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+
+    handle = psa_connect(IPC_SERVICE_TEST_CONNECTION_REFUSED_SID,
+                         IPC_SERVICE_TEST_CONNECTION_REFUSED_VERSION);
+    if (handle != PSA_ERROR_CONNECTION_REFUSED) {
+        TEST_FAIL("The RoT Service was expected to refuse the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    ret->val = TEST_PASSED;
+}
+
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
 
 /**
