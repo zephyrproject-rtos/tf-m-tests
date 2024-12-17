@@ -52,3 +52,8 @@ void tfm_sfn_test_1006(struct test_result_t *ret);
 void tfm_sfn_test_1007(struct test_result_t *ret);
 
 #endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */
+
+/**
+ * \brief Test the connection to be refused.
+ */
+void tfm_sfn_test_1008(struct test_result_t *ret);
