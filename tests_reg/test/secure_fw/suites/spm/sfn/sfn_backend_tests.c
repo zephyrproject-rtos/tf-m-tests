@@ -78,5 +78,18 @@ void tfm_sfn_test_1007(struct test_result_t *ret)
 {
     outvec_map_only_test(ret, SFN_TEST_STATELESS_HANDLE);
 }
-
 #endif /* PSA_FRAMEWORK_HAS_MM_IOVEC */
+
+void tfm_sfn_test_1008(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+
+    handle = psa_connect(SFN_TEST_CONNECTION_REFUSED_SID,
+                         SFN_TEST_CONNECTION_REFUSED_VERSION);
+    if (handle != PSA_ERROR_CONNECTION_REFUSED) {
+        TEST_FAIL("Connection was expected to be refused: failed\r\n");
+        return;
+    }
+
+    ret->val = TEST_PASSED;
+}
