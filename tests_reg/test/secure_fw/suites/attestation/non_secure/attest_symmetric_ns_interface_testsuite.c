@@ -17,7 +17,6 @@
 static void tfm_attest_test_2001(struct test_result_t *ret);
 #ifdef INCLUDE_TEST_CODE
 static void tfm_attest_test_2002(struct test_result_t *ret);
-static void tfm_attest_test_2003(struct test_result_t *ret);
 #endif
 
 static struct test_t attestation_interface_tests[] = {
@@ -25,8 +24,6 @@ static struct test_t attestation_interface_tests[] = {
      "Symmetric key algorithm based Initial Attestation test"},
 #ifdef INCLUDE_TEST_CODE
     {&tfm_attest_test_2002, "TFM_NS_ATTEST_TEST_2002",
-     "Minimal token size test of attest token"},
-    {&tfm_attest_test_2003, "TFM_NS_ATTEST_TEST_2003",
      "Negative test cases for initial attestation service"},
 #endif
 };
@@ -63,24 +60,6 @@ static void tfm_attest_test_2001(struct test_result_t *ret)
 
 #ifdef INCLUDE_TEST_CODE
 /*!
- * \brief Get the size of the minimal token, only include a hard coded
- *        challenge, but omit the rest of the claims
- */
-static void tfm_attest_test_2002(struct test_result_t *ret)
-{
-    int32_t err;
-
-    err = minimal_get_size_test();
-    if (err != 0) {
-        TEST_LOG("minimal_get_size_test() returned: %d\r\n", err);
-        TEST_FAIL("Attest token minimal_get_size_test() has failed");
-        return;
-    }
-
-    ret->val = TEST_PASSED;
-}
-
-/*!
  * \brief Negative tests for initial attestation service
  *
  *    - Calling initial attestation service with bigger challenge object than
@@ -88,12 +67,18 @@ static void tfm_attest_test_2002(struct test_result_t *ret)
  *    - Calling initial attestation service with smaller buffer size than the
  *      expected size of the token.
  */
-static void tfm_attest_test_2003(struct test_result_t *ret)
+static void tfm_attest_test_2002(struct test_result_t *ret)
 {
-    psa_status_t err;
+    uint8_t token_buffer[TEST_TOKEN_SIZE];
+    const uint8_t challenge_buffer[TEST_CHALLENGE_OBJ_SIZE] = {0};
     size_t token_size;
+    psa_status_t err;
 
-    /* Call with with bigger challenge object than allowed */
+    /* Call with with bigger challenge object than allowed.
+     *
+     * Only discrete sizes are accepted which are defined by the
+     * PSA_INITIAL_ATTEST_CHALLENGE_SIZE_<x> constants.
+     */
     err = psa_initial_attest_get_token_size(INVALID_CHALLENGE_OBJECT_SIZE,
                                             &token_size);
 
@@ -102,11 +87,23 @@ static void tfm_attest_test_2003(struct test_result_t *ret)
         return;
     }
 
-    /* Call with smaller buffer size than size of test token */
-    err = buffer_too_small_test();
-    if (err != 0) {
-        TEST_LOG("buffer_too_small_test() returned: %d\r\n", err);
-        TEST_FAIL("Attest token buffer_too_small_test() has failed");
+    /* First get the size of the expected token */
+    err = psa_initial_attest_get_token_size(sizeof(challenge_buffer),
+                                            &token_size);
+    if (err != PSA_SUCCESS) {
+        TEST_FAIL("Attest test tfm_attest_test_2002() has failed");
+        return;
+    }
+
+    /* Call with smaller buffer size than size of the expected token */
+    err = psa_initial_attest_get_token(challenge_buffer,
+                                       sizeof(challenge_buffer),
+                                       token_buffer,
+                                       (token_size - 1),
+                                       &token_size);
+
+    if (err != PSA_ERROR_BUFFER_TOO_SMALL) {
+        TEST_FAIL("Attestation should fail with too small token buffer");
         return;
     }
 

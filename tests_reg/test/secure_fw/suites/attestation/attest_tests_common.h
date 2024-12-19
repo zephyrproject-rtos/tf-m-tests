@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -20,14 +20,6 @@ extern "C" {
  * \brief Size of token buffer in bytes.
  */
 #define TEST_TOKEN_SIZE (0x200)
-
-/*!
- * \def TOO_SMALL_TOKEN_BUFFER
- *
- * \brief Smaller buffer size which is not big enough to store the created token
- *        by attestation service.
- */
-#define TOO_SMALL_TOKEN_BUFFER (16u)
 
 /*!
  * \def TEST_CHALLENGE_OBJ_SIZE

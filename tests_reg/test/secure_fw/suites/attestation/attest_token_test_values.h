@@ -70,47 +70,6 @@
  * bytes. They length must be the number of bytes in the first.
  */
 
-/* The expected minimal token sizes */
-#ifdef SYMMETRIC_INITIAL_ATTESTATION
-    #if ATTEST_TOKEN_PROFILE_PSA_IOT_1
-        /* Minimal tagged COSE_Mac0 structure fields and sizes
-        * (using T_COSE_ALGORITHM_HMAC256 algorithm):
-        *      Header:
-        *          tag+encoding:   1+1 Bytes
-        *          protected:      1+3 Bytes
-        *          unprotected     1 Bytes (empty)
-        *          payload         2+72 Bytes
-        *          tag             2+32 Bytes
-        */
-        #define MINIMAL_TOKEN_SIZE  (115)
-    #else
-        /* PSA_2_0_0 or ARM_CCA profiles
-        *      In this case the COSE_Mac0 structure has the same fields
-        *      but the payload (token information) size is 2+68 Bytes.
-        */
-        #define MINIMAL_TOKEN_SIZE  (111)
-    #endif
-#else
-    #if ATTEST_TOKEN_PROFILE_PSA_IOT_1
-        /* Minimal tagged COSE_Sign1 structure fields and sizes
-        * (using T_COSE_ALGORITHM_ES256 algorithm):
-        *      Header:
-        *          tag+encoding:   1+1 Bytes
-        *          protected:      1+3 Bytes
-        *          unprotected     1 Bytes (empty)
-        *          payload         2+72 Bytes
-        *          tag             2+64 Bytes
-        */
-        #define MINIMAL_TOKEN_SIZE  (147)
-    #else
-        /* PSA_2_0_0 or ARM_CCA profiles
-        *      In this case the COSE_Sign1 structure has the same fields
-        *      but the payload (token information) size is 2+68 Bytes.
-        */
-        #define MINIMAL_TOKEN_SIZE  (143)
-    #endif
-#endif
-
 /* The 64 byte special option-packed nonce where option flags
  * are packed in at the start. Binary. */
 #define TOKEN_TEST_NONCE_BYTES \

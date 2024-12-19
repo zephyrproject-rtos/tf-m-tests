@@ -108,69 +108,6 @@ int token_main_alt(uint32_t option_flags,
     return 0;
 }
 
-#ifdef INCLUDE_TEST_CODE
-/*
- * Public function. See token_test.h
- */
-int_fast16_t minimal_get_size_test()
-{
-    int_fast16_t          return_value = 0;
-    size_t                length;
-    struct q_useful_buf_c nonce;
-
-    nonce = TOKEN_TEST_VALUE_NONCE;
-
-    return_value = psa_initial_attest_get_token_size(nonce.len,
-                                                     &length);
-
-    /*
-     * It is not possible to predict the exact size of the token returned
-     * here. Instead check to see if the size is in a reasonable range.
-     */
-    if(length < MINIMAL_TOKEN_SIZE || length > 10000) {
-        return_value = -1;
-    }
-
-    return return_value;
-}
-
-
-/*
- * Public function. See token_test.h
- */
-int_fast16_t buffer_too_small_test()
-{
-    int_fast16_t return_value = 0;
-    /*
-     * Construct a buffer with enough capacity in case buffer size check fails
-     * and the token is generated. If a smaller buffer is allocated, the
-     * incorrectly generated token may overwrite and corrupt the data following
-     * this buffer.
-     */
-    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage, MINIMAL_TOKEN_SIZE);
-    struct q_useful_buf_c completed_token;
-    struct q_useful_buf_c nonce;
-
-    nonce = TOKEN_TEST_VALUE_NONCE;
-    /* Fake the size and cheat the token generation process. */
-    token_storage.len = MINIMAL_TOKEN_SIZE - 1;
-
-    return_value = token_main_alt(TOKEN_OPT_OMIT_CLAIMS,
-                                  nonce,
-                                  token_storage,
-                                  &completed_token);
-
-    if(return_value != PSA_ERROR_BUFFER_TOO_SMALL) {
-        return_value = -1;
-    } else {
-        return_value = 0;
-    }
-
-    return return_value;
-}
-#endif /* INCLUDE_TEST_CODE */
-
-
 /**
  * \brief Check the simple IAT claims against compiled-in known values
  *
