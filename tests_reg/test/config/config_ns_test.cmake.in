@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,7 +12,6 @@
 
 set(ATTEST_KEY_BITS                        @ATTEST_KEY_BITS@                  CACHE STRING "The size of the initial attestation key in bits")
 set(SYMMETRIC_INITIAL_ATTESTATION          @SYMMETRIC_INITIAL_ATTESTATION@    CACHE BOOL   "Use symmetric crypto for initial attestation")
-set(ATTEST_INCLUDE_TEST_CODE               @ATTEST_INCLUDE_TEST_CODE@         CACHE BOOL   "Include minimal development tests in the initial attestation regression test suite")
 
 set(CC312_LEGACY_DRIVER_API_ENABLED        @CC312_LEGACY_DRIVER_API_ENABLED@  CACHE BOOL   "This variable controls whether the legacy driver interface is used for CC-312")
 

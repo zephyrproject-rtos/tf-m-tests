@@ -50,8 +50,7 @@ extern "C" {
  * are checked.
  *
  * The generated token will be decoded.
- * The tag in COSE_Mac0 structure will be verified in secure side when
- * INCLUDE_TEST_CODE is enabled.
+ * The tag in COSE_Mac0 structure will be verified in secure side.
  */
 int_fast16_t decode_test_symmetric_initial_attest(void);
 
