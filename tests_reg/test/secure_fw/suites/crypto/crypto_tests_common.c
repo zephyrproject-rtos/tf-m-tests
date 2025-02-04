@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2019-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
-#include <string.h>
+#include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "crypto_tests_common.h"
 
 void psa_key_interface_test(const psa_key_type_t key_type,
@@ -3144,7 +3146,64 @@ destroy_public_key:
     return;
 }
 
-void psa_sign_verify_hash_test(psa_algorithm_t alg,
+/* Structure containing the ECDSA key pairs used by the psa_sign_verify_hash_test() in particular */
+static const struct {
+    const char *priv;
+    const char *pub;
+    size_t priv_sz;
+} ecdsa_keys[2] = {
+    {
+        .priv_sz = 32,
+        .priv = "ed8faa23e28b1f51634f8ec9dc24920f3da17b476838e30d104a6da72d48a418",
+        .pub = "0441c6fcc5a4bb7045a7b25e50b32ed02a8da88e1b34c27157385c45abf2517b175ac505a99e4b7dddd7bfbb4551927d33338b1b705afd2bf27aa4bd3750ed349f"
+    },
+    {
+        .priv_sz = 48,
+        .priv = "ced92158aa56db2bc265e12530e80cefe1bebb1d3647d678600c149af60eab5e8c43a40f60c71044300f6da5d6cb39e7",
+        .pub = "048c98e1238fd6cec70df45cad0e6e3c3653da25202cbeed63d972a5030bef5bbf091e28fae781c1d73271d87bf7520c5f891dc89a016cefb7818d3662ea421bc402c55dcc7b5a8dff3020f2d554b5bf70e11baa975a7d66c4c4f1c0ef58604e8d"
+    }
+};
+
+/* Helper function to convert from string representation to binary */
+static uint8_t char_to_uint8_t(char c)
+{
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    } else if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    } else if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    } else {
+        assert(0);
+    }
+}
+
+static void StringToBuffer(const char *str, size_t len, uint8_t *buf) {
+  for (int i = 0; i < len; i++) {
+    buf[i] = char_to_uint8_t(*str) * 16 + char_to_uint8_t(*(str + 1));
+    str += 2;
+  }
+}
+
+/* Helper function to convert from binary to string representation */
+static char uint8_to_char(uint8_t u)
+{
+    assert( u < (1UL << 4));
+    const uint8_t arr[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    return arr[u];
+}
+
+static void BufferToString(const uint8_t *buf, size_t len, char *str) {
+  for (int i = 0; i < len; i++) {
+    *str = uint8_to_char((buf[i] >> 4) & 0xf);
+    *(str + 1) = uint8_to_char(buf[i] & 0xf);
+    str += 2;
+  }
+  str[0] = '\0';
+}
+
+void psa_sign_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
                                struct test_result_t *ret)
 {
     psa_status_t status = PSA_SUCCESS;
@@ -3153,23 +3212,34 @@ void psa_sign_verify_hash_test(psa_algorithm_t alg,
     psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
     const uint8_t message[] =
         "This is the message that I would like to sign";
-    uint8_t signature[SIGNATURE_BUFFER_SIZE] = {0};
+
+    if (curve_selector > 1) {
+        TEST_FAIL("curve_selector must be either 0 or 1");
+        return;
+    }
+
+    const size_t ecdsa_private_key_sz = ecdsa_keys[curve_selector].priv_sz;
+    uint8_t signature[PSA_ECDSA_SIGNATURE_SIZE(PSA_BYTES_TO_BITS(ecdsa_private_key_sz))];
+    char tmp_str[sizeof(signature) * 2 + 1]; /* enough to hold the hash string as well */
     size_t signature_length = 0;
     /* The expected format of the public key is uncompressed, i.e. 0x04 X Y */
     uint8_t ecdsa_pub_key[
-        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))] = {0};
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(ecdsa_private_key_sz))];
     size_t pub_key_length = 0;
-    uint32_t comp_result = 0;
-    uint8_t hash[32] = {0}; /* Support only SHA-256 based signatures in the tests for simplicity */
+    const psa_algorithm_t hash_alg = PSA_ALG_GET_HASH(alg);
+    uint8_t hash[PSA_HASH_LENGTH(hash_alg)];
     size_t hash_length = 0;
-    uint8_t *p_key = (uint8_t *) ecdsa_public_key;
-    size_t public_key_size;
+    uint8_t scratch_buffer[48 * 2 + 1]; /* Up to the P-384 pub key in uncompressed format */
 
-    /* Get the BIT STRING for the public key */
-    get_public_key_from_rfc5280_encoding(&p_key, &public_key_size);
+    /* Clear a few arrays on the stack */
+    memset(signature, 0, sizeof(signature));
+    memset(ecdsa_pub_key, 0, sizeof(ecdsa_pub_key));
 
     /* Initialize to the passing value */
     ret->val = TEST_PASSED;
+
+    /* Convert from string to binary */
+    StringToBuffer(ecdsa_keys[curve_selector].priv, ecdsa_keys[curve_selector].priv_sz, scratch_buffer);
 
     /* Set attributes and import key */
     psa_set_key_usage_flags(&input_key_attr,
@@ -3178,8 +3248,8 @@ void psa_sign_verify_hash_test(psa_algorithm_t alg,
     key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
 
-    status = psa_import_key(&input_key_attr, ecdsa_private_key,
-                            sizeof(ecdsa_private_key), &key_id_local);
+    status = psa_import_key(&input_key_attr, (const uint8_t *)scratch_buffer,
+                            ecdsa_private_key_sz, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the private key");
         return;
@@ -3193,20 +3263,13 @@ void psa_sign_verify_hash_test(psa_algorithm_t alg,
     }
 
     if (pub_key_length !=
-        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(sizeof(ecdsa_private_key)))) {
+        PSA_KEY_EXPORT_ECC_PUBLIC_KEY_MAX_SIZE(PSA_BYTES_TO_BITS(ecdsa_private_key_sz))) {
         TEST_FAIL("Unexpected length for the public key!");
         goto destroy_key;
     }
 
-    /* Check that exported key matches the reference key */
-    comp_result = memcmp(ecdsa_pub_key, p_key, pub_key_length);
-    if (comp_result != 0) {
-        TEST_FAIL("Exported ECDSA public key does not match the reference!");
-        goto destroy_key;
-    }
-
     /* Compute the hash */
-    status = psa_hash_compute(PSA_ALG_GET_HASH(alg), message, sizeof(message), hash, sizeof(hash), &hash_length);
+    status = psa_hash_compute(hash_alg, message, sizeof(message), hash, sizeof(hash), &hash_length);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Failure hashing the message before signing the hash!");
         goto destroy_key;
@@ -3217,6 +3280,9 @@ void psa_sign_verify_hash_test(psa_algorithm_t alg,
         goto destroy_key;
     }
 
+    BufferToString(hash, hash_length, tmp_str);
+    TEST_LOG("hash: %s\r\n", tmp_str);
+
     status = psa_sign_hash(key_id_local, alg, hash, hash_length, signature, sizeof(signature), &signature_length);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Hash signing failed!");
@@ -3224,11 +3290,13 @@ void psa_sign_verify_hash_test(psa_algorithm_t alg,
     }
 
     if (signature_length != PSA_ECDSA_SIGNATURE_SIZE(
-                                PSA_BYTES_TO_BITS(
-                                    sizeof(ecdsa_private_key)))) {
+                                PSA_BYTES_TO_BITS(ecdsa_private_key_sz))) {
         TEST_FAIL("Unexpected signature length");
         goto destroy_key;
     }
+
+    BufferToString(signature, signature_length, tmp_str);
+    TEST_LOG("signature: %s\r\n", tmp_str);
 
     /* It is not possible to compare the signature against a reference because it might be non-deterministic */
 
@@ -3251,8 +3319,11 @@ destroy_key:
     key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
     psa_set_key_type(&input_key_attr, key_type);
 
-    status = psa_import_key(&input_key_attr, p_key,
-                            public_key_size, &key_id_local);
+    /* Convert from string to binary */
+    StringToBuffer(ecdsa_keys[curve_selector].pub, ecdsa_keys[curve_selector].priv_sz * 2 + 1, scratch_buffer);
+
+    status = psa_import_key(&input_key_attr, (const uint8_t *)scratch_buffer,
+                            pub_key_length, &key_id_local);
     if (status != PSA_SUCCESS) {
         TEST_FAIL("Error importing the public key");
         return;
@@ -3266,6 +3337,71 @@ destroy_key:
     psa_destroy_key(key_id_local);
 
     return;
+}
+
+static const struct {
+    size_t sig_size;
+    const char *sig;
+    const char *pub;
+    const char *hash;
+} verify_hash_sig[1] = {
+    {
+        .sig_size = 96,
+        .sig = "849dd4d96d35f0145ba5a1f1e1d541e900382318f36f440a858a9be6ef1b0c399602585b1e84f30315db7bd612a5c1465dd51096f2d57f98ef64354429d42acf89a01993857f35a5dc12d9cfcf6d450fe424c32a0ab9df52ef63ed196592dd44",
+        .pub = "0444bcc8d8379964db002b1747cf6b898798d11de52071856a0232970a45eb4a28de84a3ba5180fa2b00507bc343f34ada6f9f6e3042c0194ca3838eb200ab04656f47f7fc10e25ef8e20eb20dd398a037bd7dc7b6afe4a65a30b3d32a7f52cf41",
+        .hash = "7cae4a9ffe65301045ab4a8c8ba8652c23340f7d033dae0ddf3ba54d6d3bdc95546921c81a0d5e1a2fce79600f0c09e5",
+    }
+};
+
+void psa_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
+                          struct test_result_t *ret)
+{
+    psa_status_t status = PSA_SUCCESS;
+    psa_key_id_t key_id_local = PSA_KEY_ID_NULL;
+    psa_key_type_t key_type;
+    psa_key_attributes_t input_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+
+    /* Initialize to the passing value */
+    ret->val = TEST_PASSED;
+
+    (void)curve_selector; /* This needs to change in case verify_hash_sig is extended */
+
+    /* Set attributes and import key */
+    psa_set_key_usage_flags(&input_key_attr, PSA_KEY_USAGE_VERIFY_HASH);
+    psa_set_key_algorithm(&input_key_attr, alg);
+    key_type =  PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1);
+    psa_set_key_type(&input_key_attr, key_type);
+
+    uint8_t scratch_buffer1[97 * 2 + 1];
+    uint8_t scratch_buffer2[48 * 2 + 1];
+
+    const size_t pub_key_length = verify_hash_sig[0].sig_size + 1;
+    const size_t signature_length = verify_hash_sig[0].sig_size;
+    const size_t hash_length = verify_hash_sig[0].sig_size / 2;
+
+    TEST_LOG("hash: %s\r\n", verify_hash_sig[0].hash);
+    TEST_LOG("signature: %s\r\n", verify_hash_sig[0].sig);
+    TEST_LOG("0x04 x y: %s\r\n", verify_hash_sig[0].pub);
+
+    /* Convert from string to binary */
+    StringToBuffer(verify_hash_sig[0].pub, pub_key_length, scratch_buffer1);
+
+    status = psa_import_key(&input_key_attr, (const uint8_t *)scratch_buffer1,
+                            pub_key_length, &key_id_local);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Error importing the private key");
+        return;
+    }
+
+    StringToBuffer(verify_hash_sig[0].sig, signature_length, scratch_buffer1);
+    StringToBuffer(verify_hash_sig[0].hash, hash_length, scratch_buffer2);
+
+    status = psa_verify_hash(key_id_local, alg, scratch_buffer2, hash_length, scratch_buffer1, signature_length);
+    if (status != PSA_SUCCESS) {
+        TEST_FAIL("Signature verification for the provided hash failed!");
+    }
+
+    psa_destroy_key(key_id_local);
 }
 
 #if defined(TFM_CRYPTO_TEST_ALG_RSASSA_PSS_VERIFICATION)

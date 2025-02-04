@@ -285,11 +285,22 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
 /**
  * \brief Hash sign/verify test
  *
- *  \param[in] alg  Signing algorithm
- *  \param[out] ret Test result
+ *  \param[in]  alg            Signing algorithm
+ *  \param[in]  curve_selector 0 for P-256, 1 for P-384
+ *  \param[out] ret            Test result
  */
-void psa_sign_verify_hash_test(psa_algorithm_t alg,
+void psa_sign_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
                                struct test_result_t *ret);
+
+/**
+ * @brief Hash verify test
+ *
+ * @param[in]  alg            Signing algorithm
+ * @param[in]  curve_selector Unused at the moment
+ * @param[out] ret            Test result
+ */
+void psa_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
+                          struct test_result_t *ret);
 
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 /**

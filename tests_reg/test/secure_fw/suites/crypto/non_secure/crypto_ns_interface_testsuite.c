@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -90,6 +90,7 @@ static void tfm_crypto_test_1044(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_DETERMINISTIC_ECDSA */
 #if TFM_CRYPTO_TEST_ALG_ECDSA
 static void tfm_crypto_test_1053(struct test_result_t *ret);
+static void tfm_crypto_test_1056(struct test_result_t *ret);
 #endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
 #endif /* CRYPTO_ASYM_SIGN_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
@@ -232,6 +233,8 @@ static struct test_t crypto_tests[] = {
 #if TFM_CRYPTO_TEST_ALG_ECDSA
     {&tfm_crypto_test_1053, "TFM_NS_CRYPTO_TEST_1053",
      "Non Secure Sign and verify hash interface (ECDSA-SECP256R1-SHA256)"},
+    {&tfm_crypto_test_1056, "TFM_NS_CRYPTO_TEST_1056",
+     "Non Secure Sign and verify hash interface (ECDSA-SECP384R1-SHA384)"},
 #endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
 #endif /* CRYPTO_ASYM_SIGN_MODULE_ENABLED */
 #ifdef TFM_CRYPTO_TEST_ALG_CBC
@@ -522,7 +525,19 @@ static void tfm_crypto_test_1044(struct test_result_t *ret)
 #if TFM_CRYPTO_TEST_ALG_ECDSA
 static void tfm_crypto_test_1053(struct test_result_t *ret)
 {
-    psa_sign_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_256), ret);
+    psa_sign_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_256), 0, ret);
+}
+
+static void tfm_crypto_test_1056(struct test_result_t *ret)
+{
+#if defined(PSA_WANT_ECC_SECP_R1_384)
+    psa_sign_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_384), 1, ret);
+
+    psa_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_384), 1 /* Unused */, ret);
+#else
+    TEST_LOG("P384 is unsupported in the crypto config. Skipping...");
+    ret->val = 0;
+#endif
 }
 #endif /* TFM_CRYPTO_TEST_ALG_ECDSA */
 #endif /* CRYPTO_ASYM_SIGN_MODULE_ENABLED */
