@@ -77,7 +77,7 @@ if(VERSION_FROM_TFM_IS_OLDER EQUAL 0)
         "   trusted-firmware-m/lib/ext/version.txt and upload that change to trusted-firmware-m.\n"
         " - If you are testing an older version of TF-M, please switch tf-m-tests to\n"
         "   version *${RECOMMENDED_TFM_TESTS_VERSION}*.\n"
-        "   Build or tests might fail due to incompatiable configurations.\n")
+        "   Build or tests might fail due to incompatible configurations.\n")
     return()
 endif()
 
@@ -100,5 +100,5 @@ endif()
 message(WARNING
     " Current tf-m-tests HEAD is different from the version *${RECOMMENDED_TFM_TESTS_VERSION}* recommended by TF-M.\n"
     " You might be working on a development branch diverged from the main branch.\n"
-    " Build or tests might fail due to incompatiable configurations.\n"
+    " Build or tests might fail due to incompatible configurations.\n"
     " Suggest to rebase your commits on tf-m-tests main branch.\n")
