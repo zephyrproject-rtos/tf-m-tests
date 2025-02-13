@@ -567,12 +567,13 @@ static void tfm_crypto_test_1054(struct test_result_t *ret)
 
 static void tfm_crypto_test_1056(struct test_result_t *ret)
 {
-#if defined(PSA_WANT_ECC_SECP_R1_384)
+    /* SHA384 is not supported in the legacy CC312 driver */
+#if defined(PSA_WANT_ECC_SECP_R1_384) && defined(CC3XX_RUNTIME_ENABLED)
     psa_sign_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_384), 1, ret);
 
     psa_verify_hash_test(PSA_ALG_ECDSA(PSA_ALG_SHA_384), 1 /* Unused */, ret);
 #else
-    TEST_LOG("P384 is unsupported in the crypto config. Skipping...");
+    TEST_LOG("P384 is unsupported. Skipping...");
     ret->val = 0;
 #endif
 }
