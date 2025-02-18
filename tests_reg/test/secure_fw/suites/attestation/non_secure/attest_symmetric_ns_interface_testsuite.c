@@ -15,17 +15,13 @@
 /* Define test suite for attestation service tests */
 /* List of tests */
 static void tfm_attest_test_2001(struct test_result_t *ret);
-#ifdef INCLUDE_TEST_CODE
 static void tfm_attest_test_2002(struct test_result_t *ret);
-#endif
 
 static struct test_t attestation_interface_tests[] = {
     {&tfm_attest_test_2001, "TFM_NS_ATTEST_TEST_2001",
      "Symmetric key algorithm based Initial Attestation test"},
-#ifdef INCLUDE_TEST_CODE
     {&tfm_attest_test_2002, "TFM_NS_ATTEST_TEST_2002",
      "Negative test cases for initial attestation service"},
-#endif
 };
 
 void
@@ -58,7 +54,6 @@ static void tfm_attest_test_2001(struct test_result_t *ret)
     ret->val = TEST_PASSED;
 }
 
-#ifdef INCLUDE_TEST_CODE
 /*!
  * \brief Negative tests for initial attestation service
  *
@@ -109,4 +104,3 @@ static void tfm_attest_test_2002(struct test_result_t *ret)
 
     ret->val = TEST_PASSED;
 }
-#endif /* INCLUDE_TEST_CODE */
