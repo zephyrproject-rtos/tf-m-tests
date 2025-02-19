@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -37,14 +37,15 @@ static void sha256_vector_test(struct test_result_t *ret,
                                const struct sha256_test_vector_t *vecs,
                                size_t vec_am)
 {
-    size_t vec_idx;
+    size_t vec_idx, hash_size;
     uint8_t hash_out[SHA256_LEN];
     fih_int fih_rc;
 
     for (vec_idx = 0; vec_idx < vec_am; vec_idx++) {
         TEST_LOG("  > Vector %d of %d\r", vec_idx + 1, vec_am);
         const struct sha256_test_vector_t * const vec = vecs + vec_idx;
-        fih_rc = bl1_sha256_compute((const uint8_t *)vec->message, vec->len, hash_out);
+        fih_rc = bl1_hash_compute(TFM_BL1_HASH_ALG_SHA256, (const uint8_t *)vec->message, vec->len,
+                                  hash_out, SHA256_LEN, &hash_size);
         if (fih_not_eq(fih_rc, FIH_SUCCESS)) {
             TEST_FAIL("\nHash function returned error");
             return;
@@ -141,10 +142,12 @@ static void tfm_bl1_crypto_test_2001(struct test_result_t *ret)
 static void tfm_bl1_crypto_test_2002(struct test_result_t *ret)
 {
     uint8_t hash_out[SHA256_LEN];
+    size_t hash_size;
     fih_int fih_rc;
 
     const struct sha256_test_vector_t * const vec = test_2001_vectors;
-    fih_rc = bl1_sha256_compute(NULL, vec->len, hash_out);
+    fih_rc =
+        bl1_hash_compute(TFM_BL1_HASH_ALG_SHA256, NULL, vec->len, hash_out, SHA256_LEN, &hash_size);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Hash function returned success");
         return;
@@ -157,9 +160,11 @@ static void tfm_bl1_crypto_test_2002(struct test_result_t *ret)
 static void tfm_bl1_crypto_test_2003(struct test_result_t *ret)
 {
     fih_int fih_rc;
+    size_t hash_size;
 
     const struct sha256_test_vector_t * const vec = test_2001_vectors;
-    fih_rc = bl1_sha256_compute((const uint8_t *)vec->message, vec->len, NULL);
+    fih_rc = bl1_hash_compute(TFM_BL1_HASH_ALG_SHA256, (const uint8_t *)vec->message, vec->len,
+                              NULL, 0, &hash_size);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Hash function returned success");
         return;
