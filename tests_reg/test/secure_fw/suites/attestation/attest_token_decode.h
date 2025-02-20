@@ -114,7 +114,6 @@ extern "C" {
 struct attest_token_decode_context {
     /* PRIVATE DATA STRUCTURE. USE ACCESSOR FUNCTIONS. */
     struct q_useful_buf_c   payload;
-    uint32_t                options;
     enum attest_token_err_t last_error;
     /* FIXME: This will have to expand when the pub key
        handling functions are implemented */
@@ -125,14 +124,12 @@ struct attest_token_decode_context {
  * \brief Initialize token decoder.
  *
  * \param[in] me      The token decoder context to be initialized.
- * \param[in] options Decoding options.
  *
  * Must be called on a \ref attest_token_decode_context before
  * use. An instance of \ref attest_token_decode_context can
  * be used again by calling this on it again.
  **/
-void attest_token_decode_init(struct attest_token_decode_context *me,
-                              uint32_t options);
+void attest_token_decode_init(struct attest_token_decode_context *me);
 
 
 

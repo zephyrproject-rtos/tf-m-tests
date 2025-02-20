@@ -52,61 +52,7 @@ static void dump_token(struct q_useful_buf_c *token)
     }
     TEST_LOG("\r\n############## token end  ##############\r\n");
 }
-#endif
-
-/**
- * \brief An alternate token_main() that packs the option flags into the nonce.
- *
- * \param[in] option_flags      Flag bits to pack into nonce.
- * \param[in] nonce             Pointer and length of the nonce.
- * \param[in] buffer            Pointer and length of buffer to
- *                              output the token into.
- * \param[out] completed_token  Place to put pointer and length
- *                              of completed token.
- *
- * \return various errors. See \ref psa_status_t.
- *
- */
-int token_main_alt(uint32_t option_flags,
-                   struct q_useful_buf_c nonce,
-                   struct q_useful_buf buffer,
-                   struct q_useful_buf_c *completed_token)
-{
-    psa_status_t                 return_value;
-    size_t                       token_buf_size;
-    size_t                       completed_token_size;
-    struct q_useful_buf_c        actual_nonce;
-    Q_USEFUL_BUF_MAKE_STACK_UB(  actual_nonce_storage, 64);
-
-    if(nonce.len == 64 && (q_useful_buf_is_value(nonce, 0) == SIZE_MAX)) {
-        /* Go into special option-packed nonce mode */
-        actual_nonce = q_useful_buf_copy(actual_nonce_storage, nonce);
-        /* Use memcpy as it always works and avoids type punning */
-        memcpy((uint8_t *)actual_nonce_storage.ptr,
-               &option_flags,
-               sizeof(uint32_t));
-    } else {
-        actual_nonce = nonce;
-    }
-
-    token_buf_size = buffer.len;
-    return_value = psa_initial_attest_get_token(actual_nonce.ptr,
-                                                actual_nonce.len,
-                                                buffer.ptr,
-                                                token_buf_size,
-                                                &completed_token_size);
-    *completed_token =
-        (struct q_useful_buf_c){buffer.ptr, completed_token_size};
-    if (return_value != PSA_SUCCESS) {
-        return (int)return_value;
-    }
-
-#ifdef DUMP_TOKEN
-    dump_token(completed_token);
-#endif
-
-    return 0;
-}
+#endif /* DUMP_TOKEN */
 
 /**
  * \brief Check the simple IAT claims against compiled-in known values
@@ -667,28 +613,20 @@ enum decode_test_mode_t {
 static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
 {
     int_fast16_t                        return_value;
+    psa_status_t                        status;
     Q_USEFUL_BUF_MAKE_STACK_UB(         token_storage, ATTEST_TOKEN_MAX_SIZE);
-    struct q_useful_buf_c               completed_token;
+    struct q_useful_buf_c               completed_token =  NULL_Q_USEFUL_BUF_C;
     struct attest_token_decode_context  token_decode;
     struct attest_token_iat_simple_t    simple_claims;
     struct attest_token_sw_component_t  sw_component;
     uint32_t                            num_sw_components;
     int32_t                             num_sw_components_signed;
     struct q_useful_buf_c               tmp;
-    uint32_t                            token_encode_options;
-    uint32_t                            token_decode_options;
 
     switch(mode) {
         case NORMAL_SIGN:
-            token_encode_options = 0;
-            token_decode_options = 0;
-            break;
-
         case COSE_MAC0:
-            token_encode_options = 0;
-            token_decode_options = 0;
             break;
-
         default:
             return_value = -1000;
             goto Done;
@@ -696,16 +634,24 @@ static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
 
     /* -- Make a token with all the claims -- */
     tmp = TOKEN_TEST_VALUE_NONCE;
-    return_value = token_main_alt(token_encode_options,
-                                  tmp,
-                                  token_storage,
-                                  &completed_token);
-    if(return_value) {
+    status = psa_initial_attest_get_token(tmp.ptr,
+                                          tmp.len,
+                                          token_storage.ptr,
+                                          token_storage.len,
+                                          &(completed_token.len));
+    if (status == PSA_SUCCESS) {
+        completed_token.ptr = token_storage.ptr;
+    } else {
+        return_value = (int)status;
         goto Done;
     }
 
+#ifdef DUMP_TOKEN
+    dump_token(completed_token);
+#endif
+
     /* -- Initialize and validate the signature on the token -- */
-    attest_token_decode_init(&token_decode, token_decode_options);
+    attest_token_decode_init(&token_decode);
     return_value = attest_token_decode_validate_token(&token_decode,
                                                       completed_token);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
