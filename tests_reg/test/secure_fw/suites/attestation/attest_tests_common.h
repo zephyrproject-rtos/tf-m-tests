@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -19,7 +19,7 @@ extern "C" {
  *
  * \brief Size of token buffer in bytes.
  */
-#define TEST_TOKEN_SIZE (0x200)
+#define TEST_TOKEN_SIZE         (PSA_INITIAL_ATTEST_MAX_TOKEN_SIZE)
 
 /*!
  * \def TEST_CHALLENGE_OBJ_SIZE

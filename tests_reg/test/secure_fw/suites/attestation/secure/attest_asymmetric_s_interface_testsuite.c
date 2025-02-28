@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -22,6 +22,15 @@ static struct test_t attestation_interface_tests[] = {
     {&tfm_attest_test_1002, "TFM_S_ATTEST_TEST_1002",
      "Negative test cases for initial attestation service"},
 };
+
+/*
+ * Buffer for attestation token
+ *
+ * Construct a buffer with enough capacity to prevent overwrite and data
+ * corruption in case buffer size check fails and the token is incorrectly
+ * generated.
+ */
+static uint8_t token_buffer[TEST_TOKEN_SIZE];
 
 void
 register_testsuite_s_attestation_interface(struct test_suite_t *p_test_suite)
@@ -69,7 +78,6 @@ static void tfm_attest_test_1001(struct test_result_t *ret)
  */
 static void tfm_attest_test_1002(struct test_result_t *ret)
 {
-    uint8_t token_buffer[TEST_TOKEN_SIZE];
     const uint8_t challenge_buffer[TEST_CHALLENGE_OBJ_SIZE] = {0};
     size_t token_size;
     psa_status_t err;
