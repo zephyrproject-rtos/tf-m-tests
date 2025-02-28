@@ -5,6 +5,7 @@
  *
  */
 
+#include <assert.h>
 #include "attest_ns_tests.h"
 #include "psa/initial_attestation.h"
 #include "attest.h"
@@ -97,6 +98,8 @@ static void tfm_attest_test_2002(struct test_result_t *ret)
         TEST_FAIL("Attest test tfm_attest_test_2002() has failed");
         return;
     }
+
+    assert(sizeof(token_buffer) >= token_size);
 
     /* Call with smaller buffer size than size of the expected token */
     err = psa_initial_attest_get_token(challenge_buffer,
