@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2024, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,7 +12,7 @@
 #include "psa_manifest/tfm_ipc_service_test.h"
 #include "spm_test_defs.h"
 #include "tfm_hal_isolation.h"
-#include "tfm_sp_log.h"
+#include "tfm_log_unpriv.h"
 #include "client_api_test_defs.h"
 #include "client_api_test_service.h"
 

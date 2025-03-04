@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_fpu_service_test.h"
-#include "tfm_sp_log.h"
+#include "tfm_log_unpriv.h"
 #include "tfm_peripherals_def.h"
 
 /*
@@ -92,12 +92,12 @@ static psa_status_t fpu_service_check_fp_register_after_ns_inturrept(
 
         if (memcmp(fp_caller_buffer, expecting_caller_content,
                    FP_CALLER_BUF_SIZE)) {
-            LOG_ERRFMT("FP caller registers are not correctly restored!");
+            ERROR_UNPRIV_RAW("FP caller registers are not correctly restored!");
             status = PSA_ERROR_GENERIC_ERROR;
         } else {
             if (memcmp(fp_callee_buffer, expecting_callee_content,
                        FP_CALLEE_BUF_SIZE)) {
-                LOG_ERRFMT("FP callee registers are not correctly restored!");
+                ERROR_UNPRIV_RAW("FP callee registers are not correctly restored!");
                 status = PSA_ERROR_GENERIC_ERROR;
             }
         }

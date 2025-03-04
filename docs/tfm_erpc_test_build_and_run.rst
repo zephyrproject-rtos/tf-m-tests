@@ -52,7 +52,7 @@ disable logging manually by setting the following build options
 +-------------------------+-------------------------------------+
 | TFM_SPM_LOG_LEVEL       | ``TFM_SPM_LOG_LEVEL_SILENCE``       |
 +-------------------------+-------------------------------------+
-| TFM_PARTITION_LOG_LEVEL | ``TFM_PARTITION_LOG_LEVEL_SILENCE`` |
+| TFM_PARTITION_LOG_LEVEL | ``LOG_LEVEL_NONE``                  |
 +-------------------------+-------------------------------------+
 
 Execute tests on TC3 FVP with TCP Transport

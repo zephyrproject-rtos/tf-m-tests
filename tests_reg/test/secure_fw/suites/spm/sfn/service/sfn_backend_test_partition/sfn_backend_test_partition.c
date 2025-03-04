@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -9,7 +9,7 @@
 #include "psa/service.h"
 #include "psa_manifest/sfn_backend_test_partition.h"
 #include "spm_test_defs.h"
-#include "tfm_sp_log.h"
+#include "tfm_log_unpriv.h"
 #include "client_api_test_defs.h"
 #include "client_api_test_service.h"
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
@@ -85,6 +85,6 @@ psa_status_t sfn_test_connection_refused_sfn(const psa_msg_t* msg)
 
 psa_status_t sfn_test_partition_init(void)
 {
-    LOG_DBGFMT("[DBG][SFN Test] SFN Test Partition initialized\r\n");
+    VERBOSE_UNPRIV("[SFN Test] SFN Test Partition initialized\r\n");
     return PSA_SUCCESS;
 }

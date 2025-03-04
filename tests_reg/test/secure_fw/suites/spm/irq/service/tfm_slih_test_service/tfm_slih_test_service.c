@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,7 +7,7 @@
 
 #include "tfm_plat_test.h"
 #include "spm_test_defs.h"
-#include "tfm_sp_log.h"
+#include "tfm_log_unpriv.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_slih_test_service.h"
 
@@ -40,7 +40,7 @@ static psa_status_t slih_test_handle_msg(const psa_msg_t *msg)
         status = PSA_SUCCESS;
         break;
     default:
-        LOG_ERRFMT("SLIH test service: Invalid message type: 0x%x\r\n",
+        ERROR_UNPRIV_RAW("SLIH test service: Invalid message type: 0x%x\n",
             msg->type);
         status = PSA_ERROR_PROGRAMMER_ERROR;
         break;
