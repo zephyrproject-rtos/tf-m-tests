@@ -50,7 +50,7 @@ disable logging manually by setting the following build options
 +-------------------------+-------------------------------------+
 | MCUBOOT_LOG_LEVEL       | ``OFF``                             |
 +-------------------------+-------------------------------------+
-| TFM_SPM_LOG_LEVEL       | ``TFM_SPM_LOG_LEVEL_SILENCE``       |
+| TFM_SPM_LOG_LEVEL       | ``LOG_LEVEL_NONE``                  |
 +-------------------------+-------------------------------------+
 | TFM_PARTITION_LOG_LEVEL | ``LOG_LEVEL_NONE``                  |
 +-------------------------+-------------------------------------+
