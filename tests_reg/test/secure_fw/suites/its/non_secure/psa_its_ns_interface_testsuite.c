@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -103,8 +103,8 @@ void tfm_its_ns_test_002(struct test_result_t *ret)
     }
 
     status = psa_its_get_info(uid, NULL);
-    if (status != PSA_ERROR_PROGRAMMER_ERROR) {
-        TEST_FAIL("Get info with null pointer should return PSA_ERROR_PROGRAMMER_ERROR");
+    if (status != PSA_ERROR_INVALID_ARGUMENT) {
+        TEST_FAIL("Get info with null pointer should return PSA_ERROR_INVALID_ARGUMENT");
         return;
     }
 
