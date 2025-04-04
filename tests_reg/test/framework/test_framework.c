@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -50,6 +50,8 @@ const char *test_err_to_str(enum test_suite_err_t err)
      *           covered in the switch.
      */
     }
+
+    return NULL;
 }
 
 enum test_suite_err_t run_test(const char *suite_type, struct test_suite_t test_suites[])
