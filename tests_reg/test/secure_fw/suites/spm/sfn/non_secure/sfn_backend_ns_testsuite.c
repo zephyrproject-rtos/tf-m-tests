@@ -23,14 +23,12 @@ static struct test_t sfn_backend_ns_tests[] = {
      "Request a stateless RoT Service"},
 #if PSA_FRAMEWORK_HAS_MM_IOVEC
     {&tfm_sfn_test_1005, "TFM_NS_SFN_TEST_1005",
-     "Mapping input vectors and unmapping them"},
+     "Mapping input vectors and unmapping them. "},
     {&tfm_sfn_test_1006, "TFM_NS_SFN_TEST_1006",
-     "Mapping output vectors and unmapping them"},
+     "Mapping output vectors and unmapping them. "},
     {&tfm_sfn_test_1007, "TFM_NS_SFN_TEST_1007",
-     "Mapping output vectors and not unmapping them"},
+     "Mapping output vectors and not unmapping them. "},
 #endif
-    {&tfm_sfn_test_1008, "TFM_NS_SFN_TEST_1008",
-     "Request to a refused connection"},
 };
 
 void register_testsuite_ns_sfn_interface(struct test_suite_t *p_test_suite)

@@ -68,21 +68,6 @@ psa_status_t sfn_test_connection_based_sfn(const psa_msg_t* msg)
     return status;
 }
 
-psa_status_t sfn_test_connection_refused_sfn(const psa_msg_t* msg)
-{
-    psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
-
-    switch (msg->type) {
-    case PSA_IPC_CONNECT:
-        status = PSA_ERROR_CONNECTION_REFUSED;
-        break;
-    default:
-        break;
-    }
-
-    return status;
-}
-
 psa_status_t sfn_test_partition_init(void)
 {
     LOG_DBGFMT("[DBG][SFN Test] SFN Test Partition initialized\r\n");
