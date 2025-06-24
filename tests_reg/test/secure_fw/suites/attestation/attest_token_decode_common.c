@@ -2,7 +2,7 @@
  * attest_token_decode_common.c
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 
 #include "attest_token_decode.h"
 #include "attest.h"
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include "qcbor_util.h"
 #include "config_tfm.h"
 
@@ -50,11 +50,9 @@
 /*
  * Public function. See attest_token_decode.h
  */
-void attest_token_decode_init(struct attest_token_decode_context *me,
-                              uint32_t options)
+void attest_token_decode_init(struct attest_token_decode_context *me)
 {
     memset(me, 0, sizeof(struct attest_token_decode_context));
-    me->options = options;
     me->last_error = ATTEST_TOKEN_ERR_NO_VALID_TOKEN;
 }
 

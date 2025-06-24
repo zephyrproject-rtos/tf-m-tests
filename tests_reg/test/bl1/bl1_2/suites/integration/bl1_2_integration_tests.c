@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -17,22 +17,25 @@
 #include "region_defs.h"
 #include "test_framework_helpers.h"
 
+struct bl1_2_image_t test_image;
+
 static int setup_test_image(struct bl1_2_image_t **image)
 {
     fih_int fih_rc;
-    *image = (struct bl1_2_image_t*)BL2_IMAGE_START;
 
-    FIH_CALL(copy_and_decrypt_image, fih_rc, 0);
+    *image = &test_image;
+
+    FIH_CALL(copy_and_decrypt_image, fih_rc, 0, *image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
-        FIH_CALL(validate_image_at_addr, fih_rc, *image);
+        FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, *image);
         if (fih_eq(fih_rc, FIH_SUCCESS)) {
             return 0;
         }
     }
 
-    FIH_CALL(copy_and_decrypt_image, fih_rc, 1);
+    FIH_CALL(copy_and_decrypt_image, fih_rc, 1, *image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
-        FIH_CALL(validate_image_at_addr, fih_rc, *image);
+        FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, *image);
         if (fih_eq(fih_rc, FIH_SUCCESS)) {
             return 0;
         }
@@ -53,7 +56,7 @@ static void tfm_bl1_integration_test_5001(struct test_result_t *ret)
 
     memset(image, 0, sizeof(struct bl1_2_image_t));
 
-    FIH_CALL(validate_image_at_addr, fih_rc, image);
+    FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
@@ -75,7 +78,7 @@ static void tfm_bl1_integration_test_5002(struct test_result_t *ret)
 
     image->protected_values.encrypted_data.data[0] ^= 0xFF;
 
-    FIH_CALL(validate_image_at_addr, fih_rc, image);
+    FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
@@ -97,7 +100,7 @@ static void tfm_bl1_integration_test_5003(struct test_result_t *ret)
 
     image->protected_values.encrypted_data.data[IMAGE_BL2_CODE_SIZE - 1] ^= 0xFF;
 
-    FIH_CALL(validate_image_at_addr, fih_rc, image);
+    FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;
@@ -120,7 +123,7 @@ static void tfm_bl1_integration_test_5004(struct test_result_t *ret)
 
     image->protected_values.security_counter = 0;
 
-    FIH_CALL(validate_image_at_addr, fih_rc, image);
+    FIH_CALL(bl1_2_validate_image_at_addr, fih_rc, image);
     if (fih_eq(fih_rc, FIH_SUCCESS)) {
         TEST_FAIL("Bad image was successfully validated");
         return;

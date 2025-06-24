@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2021-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 
+#include <stdint.h>
+#include <string.h>
+#include "fpu_tests_lib.h"
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_manifest/tfm_fpu_service_test.h"
-#include "tfm_hal_isolation.h"
 #include "tfm_sp_log.h"
-#include "tfm_plat_test.h"
-#include "fpu_tests_common.h"
-#include "utilities.h"
+#include "tfm_peripherals_def.h"
 
 /*
  * Description: Service handler for checking FP register.
@@ -22,9 +22,7 @@ static psa_status_t fpu_service_check_fp_register(const psa_msg_t *msg)
 {
     psa_status_t status = PSA_SUCCESS;
 
-#if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
-    return status;
-#elif TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
+#if TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
     uint32_t fp_callee_buffer[NR_FP_CALLEE_REG] = {0};
     const uint32_t fp_clear_callee_content[NR_FP_CALLEE_REG] = {0};
     const uint32_t expecting_callee_content[NR_FP_CALLEE_REG] = {
@@ -55,8 +53,9 @@ static psa_status_t fpu_service_check_fp_register(const psa_msg_t *msg)
         psa_panic();
         break;
     }
-    psa_reply(msg->handle, status);
-#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1 */
+#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1 */
+
+    return status;
 }
 
 /* Service handler for trigger NS interrupt. */
@@ -93,12 +92,12 @@ static psa_status_t fpu_service_check_fp_register_after_ns_inturrept(
 
         if (memcmp(fp_caller_buffer, expecting_caller_content,
                    FP_CALLER_BUF_SIZE)) {
-            TEST_LOG("FP caller registers are not correctly retored!");
+            LOG_ERRFMT("FP caller registers are not correctly restored!");
             status = PSA_ERROR_GENERIC_ERROR;
         } else {
             if (memcmp(fp_callee_buffer, expecting_callee_content,
                        FP_CALLEE_BUF_SIZE)) {
-                TEST_LOG("FP callee registers are not correctly retored!");
+                LOG_ERRFMT("FP callee registers are not correctly restored!");
                 status = PSA_ERROR_GENERIC_ERROR;
             }
         }
@@ -109,11 +108,8 @@ static psa_status_t fpu_service_check_fp_register_after_ns_inturrept(
         psa_panic();
         break;
     }
-#if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
+
     return status;
-#elif TFM_SP_FPU_SERVICE_TEST_MODEL_IPC == 1
-    psa_reply(msg->handle, status);
-#endif /* TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1 */
 }
 
 #if TFM_SP_FPU_SERVICE_TEST_MODEL_SFN == 1
@@ -137,10 +133,10 @@ void fpu_service_test_main()
         signals = psa_wait(PSA_WAIT_ANY, PSA_BLOCK);
         if (signals & TFM_FPU_CHECK_FP_CALLEE_REGISTER_SIGNAL) {
             psa_get(TFM_FPU_CHECK_FP_CALLEE_REGISTER_SIGNAL, &msg);
-            fpu_service_check_fp_register(&msg);
+            psa_reply(msg.handle, fpu_service_check_fp_register(&msg));
         } else if (signals & TFM_FPU_TEST_NS_PREEMPT_S_SIGNAL) {
             psa_get(TFM_FPU_TEST_NS_PREEMPT_S_SIGNAL, &msg);
-            fpu_service_check_fp_register_after_ns_inturrept(&msg);
+            psa_reply(msg.handle, fpu_service_check_fp_register_after_ns_inturrept(&msg));
         } else {
             psa_panic();
         }

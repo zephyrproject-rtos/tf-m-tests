@@ -36,6 +36,10 @@ static void tfm_ipc_test_1015(struct test_result_t *ret);
 
 static void tfm_ipc_test_1016(struct test_result_t *ret);
 
+static void tfm_ipc_test_1017(struct test_result_t *ret);
+
+static void tfm_ipc_test_1018(struct test_result_t *ret);
+
 static struct test_t ipc_veneers_tests[] = {
     {&tfm_ipc_test_1001, "TFM_NS_IPC_TEST_1001",
      "Get PSA framework version"},
@@ -60,6 +64,10 @@ static struct test_t ipc_veneers_tests[] = {
 
     {&tfm_ipc_test_1016, "TFM_NS_IPC_TEST_1016",
      "Testing Client-Id Translation"},
+    {&tfm_ipc_test_1017, "TFM_NS_IPC_TEST_1017",
+     "Testing Reverse-Handle rhandle"},
+    {&tfm_ipc_test_1018, "TFM_NS_IPC_TEST_1018",
+     "Testing Refused connection"},
 };
 
 void register_testsuite_ns_ipc_interface(struct test_suite_t *p_test_suite)
@@ -207,6 +215,113 @@ static void tfm_ipc_test_1016(struct test_result_t *ret)
     }
 
     psa_close(handle);
+}
+
+/**
+ * \brief Test the reverse handle "rhandle" by creating two connections and
+ *  performing two calls on each connection. The target service will increment
+ *  its own client-bound private data on each call and will return the
+ *  incremented value in the outvec buffer for validation.
+ */
+static void tfm_ipc_test_1017(struct test_result_t *ret)
+{
+    psa_handle_t handle, handle2;
+    psa_status_t status;
+
+    uint8_t srvc_cnt = 0;
+    struct psa_outvec outvecs[1] = {{&srvc_cnt, sizeof(srvc_cnt)}};
+    uint32_t failed = 0;
+
+    ret->val = TEST_FAILED;
+
+    /* First connection handle, connect and call twice */
+    handle = psa_connect(IPC_SERVICE_TEST_RHANDLE_CHECK_SID,
+                         IPC_SERVICE_TEST_RHANDLE_CHECK_VERSION);
+    if (handle < 0) {
+        TEST_FAIL("The RoT Service refused the connection!\r\n");
+        return;
+    }
+
+    /*
+     * Perform 2 rounds of calls, the service is expected to write in outvec the
+     * incremented value of its private data upon each call.
+     */
+    status = psa_call(handle, IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC,
+                      NULL, 0, &outvecs[0], 1);
+    if (status < 0) {
+        TEST_FAIL("Call 1.0 failed!\r\n");
+        return;
+    }
+
+    status = psa_call(handle, IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC,
+                      NULL, 0, &outvecs[0], 1);
+    if (status < 0) {
+        TEST_FAIL("Call 1.1 failed!\r\n");
+        return;
+    }
+
+    /*
+     * At each call the service will have incremented a counter, starting from
+     * 0x00.
+     */
+    failed |= (srvc_cnt != 0x02) ? 1 : 0;
+
+    /* Second connection handle, connect and call twice */
+    handle2 = psa_connect(IPC_SERVICE_TEST_RHANDLE_CHECK_SID,
+                         IPC_SERVICE_TEST_RHANDLE_CHECK_VERSION);
+    if (handle2 < 0) {
+        TEST_FAIL("The RoT Service refused the connection!\r\n");
+        return;
+    }
+
+    /*
+     * Perform 2 rounds of calls, the service is expected to write in outvec the
+     * incremented value of its private data upon each call.
+     */
+    srvc_cnt = 0;
+    status = psa_call(handle2, IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC,
+                      NULL, 0, &outvecs[0], 1);
+    if (status < 0) {
+        TEST_FAIL("Call 2.0 failed!\r\n");
+        return;
+    }
+
+    status = psa_call(handle2, IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC,
+                      NULL, 0, &outvecs[0], 1);
+    if (status < 0) {
+        TEST_FAIL("Call 2.1 failed!\r\n");
+        return;
+    }
+
+    /*
+     * At each call the service will have incremented a counter, starting from
+     * 0xF0.
+     */
+    failed |= (srvc_cnt != 0xF2) ? 1 : 0;
+
+    if (failed > 0) {
+        TEST_FAIL("Test failed!\r\n");
+    } else {
+        ret->val = TEST_PASSED;
+    }
+
+    psa_close(handle);
+    psa_close(handle2);
+}
+
+static void tfm_ipc_test_1018(struct test_result_t *ret)
+{
+    psa_handle_t handle;
+
+    handle = psa_connect(IPC_SERVICE_TEST_CONNECTION_REFUSED_SID,
+                         IPC_SERVICE_TEST_CONNECTION_REFUSED_VERSION);
+    if (handle != PSA_ERROR_CONNECTION_REFUSED) {
+        TEST_FAIL("The RoT Service was expected to refuse the connection!\r\n");
+        ret->val = TEST_FAILED;
+        return;
+    }
+
+    ret->val = TEST_PASSED;
 }
 
 #if PSA_FRAMEWORK_HAS_MM_IOVEC

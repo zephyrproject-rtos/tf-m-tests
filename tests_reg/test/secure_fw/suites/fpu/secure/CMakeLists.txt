@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,9 +17,18 @@ target_sources(tfm_test_suite_fpu_s
         fpu_s_interface_testsuite.c
 )
 
+# Put fpu_tests_lib.c into SPRT so that both the secure tests and the test
+# partition can call the functions.
+target_sources(tfm_sprt
+    PRIVATE
+        ../fpu_tests_lib.c
+)
+
 target_include_directories(tfm_test_suite_fpu_s
     PUBLIC
         .
+    PRIVATE
+        ..
 )
 
 target_compile_definitions(tfm_test_suite_fpu_s

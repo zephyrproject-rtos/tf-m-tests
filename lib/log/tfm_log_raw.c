@@ -15,7 +15,7 @@
 
 struct formatted_buffer_t {
     size_t pos;
-    uint8_t buf[PRINT_BUFF_SIZE];
+    char buf[PRINT_BUFF_SIZE];
 };
 
 const char hex_digits_lo[] = {'0', '1', '2', '3', '4', '5', '6', '7',

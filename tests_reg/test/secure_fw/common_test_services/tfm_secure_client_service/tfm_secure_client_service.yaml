@@ -13,7 +13,7 @@
   "priority": "LOW",
   "entry_point": "tfm_secure_client_service_init",
   "entry_init": "tfm_secure_client_service_init",
-  "stack_size": "0x0D00",
+  "stack_size": "SECURE_TEST_PARTITION_STACK_SIZE",
   "mmio_regions": [
     {
       "name": "TFM_PERIPHERAL_STD_UART",

@@ -285,11 +285,22 @@ void psa_sign_verify_message_test(psa_algorithm_t alg,
 /**
  * \brief Hash sign/verify test
  *
- *  \param[in] alg  Signing algorithm
- *  \param[out] ret Test result
+ *  \param[in]  alg            Signing algorithm
+ *  \param[in]  curve_selector 0 for P-256, 1 for P-384
+ *  \param[out] ret            Test result
  */
-void psa_sign_verify_hash_test(psa_algorithm_t alg,
+void psa_sign_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
                                struct test_result_t *ret);
+
+/**
+ * @brief Hash verify test
+ *
+ * @param[in]  alg            Signing algorithm
+ * @param[in]  curve_selector Unused at the moment
+ * @param[out] ret            Test result
+ */
+void psa_verify_hash_test(psa_algorithm_t alg, uint8_t curve_selector,
+                          struct test_result_t *ret);
 
 #ifdef TFM_CRYPTO_TEST_CHACHA20
 /**
@@ -320,14 +331,26 @@ void psa_verify_rsassa_pss_test(struct test_result_t *ret);
 /**
  * @brief Test for using an AEAD algorithm as authenticator only
  *
- * @note Currently supports only PSA_ALG_GCM as to mirror the usage
- *       of it done by default by the Protected Storage service
- *
- * @param[in] alg The AEAD algorithm to be tested
+ * @note It tests GCM and/or CCM based on enabled algorithms
  *
  * @return int 0 if no errors, 1 otherwise
  */
-int psa_aead_as_authenticator_test(psa_algorithm_t alg);
+int psa_aead_as_authenticator_test(void);
+
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1)
+/**
+ * @brief Test verifying the Wycheproof test suite test bundles
+ *
+ * @param[out] ret      Test result
+ * @param[in]  alg      Algorithm for which to exercise the test bundle
+ * @param[in]  usage    Usage of the key indentifying the test to perform
+ * @param[in]  key_type Type of the key to select for the test
+ */
+void wp_ec_test_runner(struct test_result_t *ret,
+                       psa_algorithm_t alg,
+                       psa_key_usage_t usage,
+                       psa_key_type_t key_type);
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 */
 
 #ifdef __cplusplus
 }

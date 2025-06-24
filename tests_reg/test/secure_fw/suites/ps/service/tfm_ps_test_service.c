@@ -43,7 +43,7 @@ psa_status_t tfm_ps_test_prepare_sfn(const psa_msg_t* msg)
     return tfm_ps_test_handle_msg(msg);
 }
 #elif (TFM_SP_PS_TEST_MODEL_IPC == 1)
-psa_status_t tfm_ps_test_init(void)
+void tfm_ps_test_init(void)
 {
     psa_msg_t msg;
     while (1) {
@@ -51,6 +51,5 @@ psa_status_t tfm_ps_test_init(void)
         (void)psa_get(TFM_PS_TEST_PREPARE_SIGNAL, &msg);
         psa_reply(msg.handle, tfm_ps_test_handle_msg(&msg));
     }
-    return PSA_SUCCESS;
 }
 #endif /* TFM_SP_PS_TEST_MODEL_SFN == 1 */

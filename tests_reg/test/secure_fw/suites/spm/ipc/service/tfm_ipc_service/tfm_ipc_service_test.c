@@ -30,6 +30,9 @@
 uint8_t ipc_servic_data;
 uint8_t *ipc_service_data_p = &ipc_servic_data;
 
+static uint8_t srvc_private_data_connection1[2] = {0x11, 0x00};
+static uint8_t srvc_private_data_connection2[2] = {0x21, 0xF0};
+
 /*
  * Fixme: Temporarily implement abort as infinite loop,
  * will replace it later.
@@ -294,6 +297,100 @@ static void ipc_service_client_id_translate(void)
     psa_reply(msg.handle, status);
 }
 
+static void ipc_service_rhandle_check(void)
+{
+    psa_status_t status = PSA_ERROR_INVALID_ARGUMENT;
+    psa_msg_t msg;
+    uint8_t *data;
+    static uint32_t connect_cnt = 0;
+    static psa_handle_t first_handle;
+
+    status = psa_get(IPC_SERVICE_TEST_RHANDLE_CHECK_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        psa_panic();
+    }
+
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+        /* Only two connections expected from the test client */
+        if (connect_cnt == 0) {
+            psa_set_rhandle(msg.handle,
+                            (void *)&srvc_private_data_connection1[0]);
+            connect_cnt++;
+            first_handle = msg.handle;
+        } else if (connect_cnt == 1) {
+            if (first_handle == msg.handle) {
+                /*
+                 * This second connection request comes with the same handle as
+                 * the first one, not valid!
+                 */
+                tfm_abort();
+            }
+
+            psa_set_rhandle(msg.handle,
+                            (void *)&srvc_private_data_connection2[0]);
+            connect_cnt++;
+        } else {
+            tfm_abort();
+        }
+        break;
+
+    case PSA_IPC_DISCONNECT:
+        /* Check that the data has correct magic and incremented value */
+        data = (uint8_t *)msg.rhandle;
+        if ((data[0] == 0x11) && (data[1] == 0x02)) {
+            status = PSA_SUCCESS;
+        }
+
+        if ((data[0] == 0x21) && (data[1] == 0xF2)) {
+            status = PSA_SUCCESS;
+        }
+        break;
+
+    case IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC:
+        /*
+         * The associated data is incremented and then written to the output
+         * buffer.
+         */
+        data = (uint8_t *)msg.rhandle;
+        data[1]++;
+
+        psa_write(msg.handle, 0,
+                  &data[1],
+                  sizeof(*data));
+
+        status = PSA_SUCCESS;
+        break;
+
+    default:
+        tfm_abort();
+        break;
+    }
+
+    psa_reply(msg.handle, status);
+}
+
+static void ipc_service_connection_refused(void)
+{
+    psa_status_t status = PSA_ERROR_INVALID_ARGUMENT;
+    psa_msg_t msg;
+
+    status = psa_get(IPC_SERVICE_TEST_CONNECTION_REFUSED_SIGNAL, &msg);
+    if (status != PSA_SUCCESS) {
+        psa_panic();
+    }
+
+    switch (msg.type) {
+    case PSA_IPC_CONNECT:
+        break;
+    default:
+        tfm_abort();
+        break;
+    }
+
+    psa_reply(msg.handle, PSA_ERROR_CONNECTION_REFUSED);
+}
+
 /* Test thread */
 void ipc_service_test_main(void *param)
 {
@@ -325,6 +422,10 @@ void ipc_service_test_main(void *param)
 #endif
         } else if (signals & IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_SIGNAL) {
             ipc_service_client_id_translate();
+        } else if (signals & IPC_SERVICE_TEST_RHANDLE_CHECK_SIGNAL) {
+            ipc_service_rhandle_check();
+        } else if (signals & IPC_SERVICE_TEST_CONNECTION_REFUSED_SIGNAL) {
+            ipc_service_connection_refused();
         } else {
             /* Should not come here */
             tfm_abort();

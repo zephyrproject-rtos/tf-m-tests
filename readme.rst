@@ -3,7 +3,7 @@ Trusted Firmware-M Tests
 ########################
 The Trusted Firmware-M(TF-M) Tests repo is meant to hold various tests for the
 `Trusted Firmware-M`_.
-The TF-M tests mainly focus on functionalities of various TF-M componentes such
+The TF-M tests mainly focus on functionalities of various TF-M components such
 as the TF-M SPM and various Secure Partitions.
 
 There is also the `psa-arch-tests`_ suite which mainly focuses on the
@@ -16,7 +16,8 @@ Folder Structure
   the `psa-arch-tests`_.
 - cmake - Common CMake utility scripts.
 - docs - The documents about test developments.
-- erpc - eRPC test framework.
+- erpc - eRPC test framework. Can be used to trigger tests at PSA Developer API
+  level with test code running on a remote host system.
 - lib - TF-M libraries and 3rd-party libraries. May contain either imported source codes or CMake
   files to fetch the projects.
 - tests_psa_arch - PSA Arch tests integration with TF-M.
@@ -50,4 +51,6 @@ Feedback can be submitted via email to
 .. _Trusted Firmware-M: https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git/
 .. _psa-arch-tests: https://github.com/ARM-software/psa-arch-tests
 
-*Copyright (c) 2020-2023, Arm Limited. All rights reserved.*
+--------------
+
+*Copyright (c) 2020-2024, Arm Limited. All rights reserved.*

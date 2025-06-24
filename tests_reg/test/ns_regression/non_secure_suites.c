@@ -42,9 +42,6 @@
 #ifdef TEST_NS_MULTI_CORE
 #include "multi_core_ns_test.h"
 #endif /* TEST_NS_MULTI_CORE */
-#ifdef TFM_FUZZER_TOOL_TESTS
-#include "tf_fuzz_testsuite.h"
-#endif /* TFM_FUZZER_TOOL_TESTS */
 #ifdef TEST_NS_MANAGE_NSID
 #include "nsid_testsuite.h"
 #endif /* TEST_NS_MANAGE_NSID */
@@ -116,15 +113,6 @@ static struct test_suite_t test_suites[] = {
     {&register_testsuite_multi_core_ns_interface, 0, 0, 0},
 #endif
 
-#ifdef EXTRA_NS_TEST_SUITE
-    /* Non-secure extra test cases */
-    {&register_testsuite_extra_ns_interface, 0, 0, 0},
-#endif
-
-#ifdef TFM_FUZZER_TOOL_TESTS
-    {&register_testsuite_tf_fuzz_test, 0, 0, 0},
-#endif /* TFM_FUZZER_TOOL_TESTS */
-
 #ifdef TEST_NS_MANAGE_NSID
     {&register_testsuite_nsid_test, 0, 0, 0},
 #endif /* TEST_NS_MANAGE_NSID */
@@ -135,6 +123,14 @@ static struct test_suite_t test_suites[] = {
 
 #ifdef TEST_NS_FPU
     {&register_testsuite_ns_fpu_interface, 0, 0, 0},
+#endif
+
+    /* Run extra tests as last test suite, this way platform
+     * can execute some code after all tests are done
+     */
+#ifdef EXTRA_NS_TEST_SUITE
+    /* Non-secure extra test cases */
+    {&register_testsuite_extra_ns_interface, 0, 0, 0},
 #endif
 
     /* End of test suites */

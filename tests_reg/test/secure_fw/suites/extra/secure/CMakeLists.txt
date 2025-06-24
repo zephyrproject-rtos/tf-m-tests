@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 # Copyright (c) 2022 Cypress Semiconductor Corporation (an Infineon company)
 # or an affiliate of Cypress Semiconductor Corporation. All rights reserved.
 #
@@ -35,4 +35,4 @@ target_link_libraries(tfm_s_tests
 )
 
 # Add extra test suites source from outside
-include(extra_s_tests_config.cmake)
+add_subdirectory(${EXTRA_S_TEST_SUITE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/extra_secure_suite)

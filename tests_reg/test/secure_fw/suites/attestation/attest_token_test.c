@@ -2,7 +2,7 @@
  * attest_token_test.c
  *
  * Copyright (c) 2018-2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited.
+ * Copyright (c) 2020-2025, Arm Limited.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -10,11 +10,10 @@
  */
 
 #include "attest_token_test.h"
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include "psa/initial_attestation.h"
 #include "attest_token_decode.h"
 #include "attest_token_test_values.h"
-#include "psa/crypto.h"
 #include "test_log.h"
 
 
@@ -53,169 +52,7 @@ static void dump_token(struct q_useful_buf_c *token)
     }
     TEST_LOG("\r\n############## token end  ##############\r\n");
 }
-#endif
-
-/**
- * \brief An alternate token_main() that packs the option flags into the nonce.
- *
- * \param[in] option_flags      Flag bits to pack into nonce.
- * \param[in] nonce             Pointer and length of the nonce.
- * \param[in] buffer            Pointer and length of buffer to
- *                              output the token into.
- * \param[out] completed_token  Place to put pointer and length
- *                              of completed token.
- *
- * \return various errors. See \ref psa_status_t.
- *
- */
-int token_main_alt(uint32_t option_flags,
-                   struct q_useful_buf_c nonce,
-                   struct q_useful_buf buffer,
-                   struct q_useful_buf_c *completed_token)
-{
-    psa_status_t                 return_value;
-    size_t                       token_buf_size;
-    size_t                       completed_token_size;
-    struct q_useful_buf_c        actual_nonce;
-    Q_USEFUL_BUF_MAKE_STACK_UB(  actual_nonce_storage, 64);
-
-    if(nonce.len == 64 && (q_useful_buf_is_value(nonce, 0) == SIZE_MAX)) {
-        /* Go into special option-packed nonce mode */
-        actual_nonce = q_useful_buf_copy(actual_nonce_storage, nonce);
-        /* Use memcpy as it always works and avoids type punning */
-        memcpy((uint8_t *)actual_nonce_storage.ptr,
-               &option_flags,
-               sizeof(uint32_t));
-    } else {
-        actual_nonce = nonce;
-    }
-
-    token_buf_size = buffer.len;
-    return_value = psa_initial_attest_get_token(actual_nonce.ptr,
-                                                actual_nonce.len,
-                                                buffer.ptr,
-                                                token_buf_size,
-                                                &completed_token_size);
-    *completed_token =
-        (struct q_useful_buf_c){buffer.ptr, completed_token_size};
-    if (return_value != PSA_SUCCESS) {
-        return (int)return_value;
-    }
-
-#ifdef DUMP_TOKEN
-    dump_token(completed_token);
-#endif
-
-    return 0;
-}
-
-#ifdef INCLUDE_TEST_CODE
-static const uint8_t expected_minimal_token_bytes[] = {MINIMAL_TOKEN};
-/*
- * Public function. See token_test.h
- */
-int_fast16_t minimal_test()
-{
-    int_fast16_t return_value = 0;
-    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage,
-                               sizeof(expected_minimal_token_bytes));
-    struct q_useful_buf_c completed_token;
-    struct q_useful_buf_c expected_token;
-
-    return_value =
-        token_main_alt(TOKEN_OPT_SHORT_CIRCUIT_SIGN |
-                           TOKEN_OPT_OMIT_CLAIMS,
-                       TOKEN_TEST_VALUE_NONCE,
-                       token_storage,
-                       &completed_token);
-    if(return_value) {
-        goto Done;
-    }
-
-    expected_token =
-        Q_USEFUL_BUF_FROM_BYTE_ARRAY_LITERAL(expected_minimal_token_bytes);
-
-    if(q_useful_buf_compare(completed_token, expected_token)) {
-       return_value = -3;
-    }
-
-Done:
-    return return_value;
-}
-
-
-/*
- * Public function. See token_test.h
- */
-int_fast16_t minimal_get_size_test()
-{
-    int_fast16_t          return_value = 0;
-    size_t                length;
-    struct q_useful_buf_c expected_token;
-    struct q_useful_buf_c nonce;
-
-    nonce = TOKEN_TEST_VALUE_NONCE;
-    expected_token =
-        Q_USEFUL_BUF_FROM_BYTE_ARRAY_LITERAL(expected_minimal_token_bytes);
-
-
-    return_value = psa_initial_attest_get_token_size(nonce.len,
-                                                     &length);
-
-    /*
-     * It is not possible to predict the size of the token returned
-     * here because options like TOKEN_OPT_OMIT_CLAIMS and
-     * TOKEN_OPT_SHORT_CIRCUIT_SIGN cannot be passed to limit what it
-     * does. Instead check to see if the size is in a reasonable
-     * range. The minimal_test() will actually check the size for
-     * exactitude because it can pass those options,
-     */
-    if(length < expected_token.len || length > 10000) {
-        return_value = -1;
-    }
-
-    return return_value;
-}
-
-
-/*
- * Public function. See token_test.h
- */
-int_fast16_t buffer_too_small_test()
-{
-    int_fast16_t return_value = 0;
-    /*
-     * Construct a buffer with enough capacity in case buffer size check fails
-     * and the token is generated. If a smaller buffer is allocated, the
-     * incorrectly generated token may overwrite and corrupt the data following
-     * this buffer.
-     */
-    Q_USEFUL_BUF_MAKE_STACK_UB(token_storage,
-                               sizeof(expected_minimal_token_bytes));
-    struct q_useful_buf_c completed_token;
-    struct q_useful_buf_c nonce;
-
-
-    nonce = TOKEN_TEST_VALUE_NONCE;
-    /* Fake the size and cheat the token generation process. */
-    token_storage.len = sizeof(expected_minimal_token_bytes) - 1;
-
-    return_value = token_main_alt(TOKEN_OPT_SHORT_CIRCUIT_SIGN |
-                                      TOKEN_OPT_OMIT_CLAIMS,
-                                  nonce,
-                                  token_storage,
-                                  &completed_token);
-
-    if(return_value != PSA_ERROR_BUFFER_TOO_SMALL) {
-        return_value = -1;
-    } else {
-        return_value = 0;
-    }
-
-    return return_value;
-}
-#endif /* INCLUDE_TEST_CODE */
-
+#endif /* DUMP_TOKEN */
 
 /**
  * \brief Check the simple IAT claims against compiled-in known values
@@ -758,14 +595,10 @@ Done:
  * Modes for decode_test_internal()
  */
 enum decode_test_mode_t {
-    /** See documentation for decode_test_short_circuit_sig() */
-    SHORT_CIRCUIT_SIGN,
     /** See documentation for decode_test_normal_sig() */
     NORMAL_SIGN,
     /** See documentation for decode_test_symmetric_initial_attest() */
     COSE_MAC0,
-    /** See documentation for decode_test_symmetric_iat_short_circuit_tag() */
-    COSE_MAC0_SHORT_CIRCUIT_TAG
 };
 
 /**
@@ -775,43 +608,25 @@ enum decode_test_mode_t {
  *
  * \return 0 for success, test failure code otherwise.
  *
- * See decode_test_normal_sig() and decode_test_short_circuit_sig().
+ * See decode_test_normal_sig().
  */
 static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
 {
     int_fast16_t                        return_value;
+    psa_status_t                        status;
     Q_USEFUL_BUF_MAKE_STACK_UB(         token_storage, ATTEST_TOKEN_MAX_SIZE);
-    struct q_useful_buf_c               completed_token;
+    struct q_useful_buf_c               completed_token =  NULL_Q_USEFUL_BUF_C;
     struct attest_token_decode_context  token_decode;
     struct attest_token_iat_simple_t    simple_claims;
     struct attest_token_sw_component_t  sw_component;
     uint32_t                            num_sw_components;
     int32_t                             num_sw_components_signed;
     struct q_useful_buf_c               tmp;
-    uint32_t                            token_encode_options;
-    uint32_t                            token_decode_options;
 
     switch(mode) {
-        case SHORT_CIRCUIT_SIGN:
-            token_encode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            token_decode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            break;
-
         case NORMAL_SIGN:
-            token_encode_options = 0;
-            token_decode_options = 0;
-            break;
-
         case COSE_MAC0:
-            token_encode_options = 0;
-            token_decode_options = 0;
             break;
-
-        case COSE_MAC0_SHORT_CIRCUIT_TAG:
-            token_encode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            token_decode_options = TOKEN_OPT_SHORT_CIRCUIT_SIGN;
-            break;
-
         default:
             return_value = -1000;
             goto Done;
@@ -819,16 +634,24 @@ static int_fast16_t decode_test_internal(enum decode_test_mode_t mode)
 
     /* -- Make a token with all the claims -- */
     tmp = TOKEN_TEST_VALUE_NONCE;
-    return_value = token_main_alt(token_encode_options,
-                                  tmp,
-                                  token_storage,
-                                  &completed_token);
-    if(return_value) {
+    status = psa_initial_attest_get_token(tmp.ptr,
+                                          tmp.len,
+                                          token_storage.ptr,
+                                          token_storage.len,
+                                          &(completed_token.len));
+    if (status == PSA_SUCCESS) {
+        completed_token.ptr = token_storage.ptr;
+    } else {
+        return_value = (int)status;
         goto Done;
     }
 
+#ifdef DUMP_TOKEN
+    dump_token(completed_token);
+#endif
+
     /* -- Initialize and validate the signature on the token -- */
-    attest_token_decode_init(&token_decode, token_decode_options);
+    attest_token_decode_init(&token_decode);
     return_value = attest_token_decode_validate_token(&token_decode,
                                                       completed_token);
     if(return_value != ATTEST_TOKEN_ERR_SUCCESS) {
@@ -907,21 +730,7 @@ int_fast16_t decode_test_symmetric_initial_attest(void)
 {
     return decode_test_internal(COSE_MAC0);
 }
-
-int_fast16_t decode_test_symmetric_iat_short_circuit_tag(void)
-{
-    return decode_test_internal(COSE_MAC0_SHORT_CIRCUIT_TAG);
-}
 #else /* SYMMETRIC_INITIAL_ATTESTATION */
-/*
- * Public function. See token_test.h
- */
-int_fast16_t decode_test_short_circuit_sig(void)
-{
-    return decode_test_internal(SHORT_CIRCUIT_SIGN);
-}
-
-
 /*
  * Public function. See token_test.h
  */

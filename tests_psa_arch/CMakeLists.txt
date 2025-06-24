@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -32,7 +32,6 @@ include(${CONFIG_SPE_PATH}/platform/tests/psa_arch_tests_config.cmake OPTIONAL)
 
 include(${TFM_TOOLCHAIN_FILE})
 project("TF-M PSA Arch tests" LANGUAGES C ASM)
-tfm_toolchain_reload_compiler()
 
 # Setup required configs: SUITE, CPU_ARCH and TARGET
 set(SUITE    ${TEST_PSA_API})

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2018-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -76,6 +76,22 @@
     {
       "name": "IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE",
       "sid": "0x0000F087",
+      "non_secure_clients": true,
+      "connection_based": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "IPC_SERVICE_TEST_RHANDLE_CHECK",
+      "sid": "0x0000F088",
+      "non_secure_clients": true,
+      "connection_based": true,
+      "version": 1,
+      "version_policy": "STRICT"
+    },
+    {
+      "name": "IPC_SERVICE_TEST_CONNECTION_REFUSED",
+      "sid": "0x0000F089",
       "non_secure_clients": true,
       "connection_based": true,
       "version": 1,
