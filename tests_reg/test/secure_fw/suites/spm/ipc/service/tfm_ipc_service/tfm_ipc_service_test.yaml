@@ -81,13 +81,5 @@
       "version": 1,
       "version_policy": "STRICT"
     },
-    {
-      "name": "IPC_SERVICE_TEST_CONNECTION_REFUSED",
-      "sid": "0x0000F089",
-      "non_secure_clients": true,
-      "connection_based": true,
-      "version": 1,
-      "version_policy": "STRICT"
-    },
   ]
 }

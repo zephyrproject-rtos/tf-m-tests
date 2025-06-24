@@ -294,27 +294,6 @@ static void ipc_service_client_id_translate(void)
     psa_reply(msg.handle, status);
 }
 
-static void ipc_service_connection_refused(void)
-{
-    psa_status_t status = PSA_ERROR_INVALID_ARGUMENT;
-    psa_msg_t msg;
-
-    status = psa_get(IPC_SERVICE_TEST_CONNECTION_REFUSED_SIGNAL, &msg);
-    if (status != PSA_SUCCESS) {
-        psa_panic();
-    }
-
-    switch (msg.type) {
-    case PSA_IPC_CONNECT:
-        break;
-    default:
-        tfm_abort();
-        break;
-    }
-
-    psa_reply(msg.handle, PSA_ERROR_CONNECTION_REFUSED);
-}
-
 /* Test thread */
 void ipc_service_test_main(void *param)
 {
@@ -346,8 +325,6 @@ void ipc_service_test_main(void *param)
 #endif
         } else if (signals & IPC_SERVICE_TEST_CLIENT_ID_TRANSLATE_SIGNAL) {
             ipc_service_client_id_translate();
-        } else if (signals & IPC_SERVICE_TEST_CONNECTION_REFUSED_SIGNAL) {
-            ipc_service_connection_refused();
         } else {
             /* Should not come here */
             tfm_abort();
