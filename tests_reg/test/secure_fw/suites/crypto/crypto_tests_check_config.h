@@ -85,6 +85,16 @@
 #error "TFM_CRYPTO_TEST_ALG_ECDSA enabled, but ECDSA algorithm is not defined!"
 #endif
 
+#if defined(TFM_CRYPTO_TEST_WP_SECP384_R1) && \
+    !(defined(PSA_WANT_ALG_ECDSA) && defined(PSA_WANT_ECC_SECP_R1_384))
+#if !defined(PSA_WANT_ALG_ECDSA)
+#error "TFM_CRYPTO_TEST_WP_SECP384_R1 requires PSA_WANT_ALG_ECDSA!"
+#endif
+#if !defined(PSA_WANT_ECC_SECP_R1_384)
+#error "TFM_CRYPTO_TEST_WP_SECP384_R1 requires PSA_WANT_ECC_SECP_R1_384"
+#endif
+#endif /* TFM_CRYPTO_TEST_WP_SECP384_R1 && !(PSA_WANT_ALG_ECDSA && PSA_WANT_ECC_SECP_R1_384) */
+
 #if defined(PSA_WANT_ALG_SHA_1)
 #undef TFM_CRYPTO_TEST_UNSUPPORTED_ALG
 #warning "SHA_1 algorithm is defined, disable TFM_CRYPTO_TEST_UNSUPPORTED_ALG!"

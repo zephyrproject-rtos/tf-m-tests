@@ -5,9 +5,14 @@
  *
  */
 
+#include <stdint.h>
 #include <string.h>
 #include "fpu_ns_tests.h"
-#include "../fpu_tests_common.h"
+#include "fpu_tests_common.h"
+#include "fpu_tests_lib.h"
+#include "psa/client.h"
+#include "psa_manifest/sid.h"
+#include "tfm_peripherals_def.h"
 #include "tfm_psa_call_pack.h"
 #include "tfm_ns_interface.h"
 

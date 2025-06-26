@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright The TrustedFirmware-M Contributors
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -139,7 +139,7 @@
 
 /* The stack size of the Initial Attestation Secure Partition */
 #ifndef ATTEST_STACK_SIZE
-#define ATTEST_STACK_SIZE                      0x700
+#define ATTEST_STACK_SIZE                      0x800
 #endif
 
 /* Set the initial attestation token profile */

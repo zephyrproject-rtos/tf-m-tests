@@ -13,7 +13,7 @@
 
 
 #include "qcbor/qcbor.h"
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include "attest_token.h" /* For error codes */
 
 #ifdef __cplusplus

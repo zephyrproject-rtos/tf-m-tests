@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2022-2024, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -41,5 +41,7 @@
 #endif /* (defined TEST_NS_SLIH_IRQ) || (defined TFM_PARTITION_SLIH_TEST) */
 
 #define CLIENT_ID_TRANSLATE_TEST_TYPE_REQUEST_SRVC (0x2000)
+
+#define IPC_SERVICE_RHANDLE_CHECK_TYPE_REQUEST_SRVC  (0x2100)
 
 #endif /* __TFM_SPM_COMMON_TEST_DEFS_H__ */

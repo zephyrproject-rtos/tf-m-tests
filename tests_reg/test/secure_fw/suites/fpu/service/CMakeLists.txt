@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2022, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -46,7 +46,6 @@ target_link_libraries(tfm_app_rot_partition_fpu_service
     PRIVATE
         tfm_sprt
         platform_s
-        tfm_test_framework_s
 )
 
 target_link_libraries(tfm_spm
@@ -65,4 +64,3 @@ target_compile_definitions(tfm_config
     INTERFACE
         TFM_PARTITION_FPU_TEST
 )
-

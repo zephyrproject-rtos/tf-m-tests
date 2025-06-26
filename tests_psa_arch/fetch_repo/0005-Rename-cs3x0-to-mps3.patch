@@ -1,0 +1,112 @@
+From 4b6fb0da08e7413a227aeda0b8002b0acede45cc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Gergely=20Korcs=C3=A1k?= <gergely.korcsak@arm.com>
+Date: Thu, 7 Nov 2024 15:23:43 +0100
+Subject: [PATCH 2/2] Rename cs3x0 to mps3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With the existance of Corstone 300, 310, 315 and 320 the cs3x0 does not
+apply correctly. Corstone 315 and 320 uses different UART driver
+location. To do not create 4 different platforms, we regrouped them by
+FPGA names. Corstone 300 and 310 as mps3 and Corstone 315 and 320 as
+mps4.
+
+Signed-off-by: Gergely Korcsák <gergely.korcsak@arm.com>
+Change-Id: I3ca9afb57631ea147549d047c7210aff49e8dd68
+---
+ .../nspe/pal_attestation_config.h                               | 0
+ .../nspe/pal_config.h                                           | 0
+ .../nspe/pal_crypto_config.h                                    | 0
+ .../nspe/pal_driver_intf.c                                      | 0
+ .../nspe/pal_storage_config.h                                   | 0
+ .../target.cfg                                                  | 0
+ .../target.cmake                                                | 2 +-
+ .../{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/nspe/pal_config.h     | 0
+ .../nspe/pal_driver_ipc_intf.c                                  | 0
+ .../{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/spe/pal_driver_intf.c | 0
+ .../{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/spe/pal_driver_intf.h | 0
+ .../targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/target.cfg    | 0
+ .../targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/target.cmake  | 0
+ 13 files changed, 1 insertion(+), 1 deletion(-)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/nspe/pal_attestation_config.h (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/nspe/pal_config.h (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/nspe/pal_crypto_config.h (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/nspe/pal_driver_intf.c (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/nspe/pal_storage_config.h (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/target.cfg (100%)
+ rename api-tests/platform/targets/{tgt_dev_apis_tfm_cs3x0 => tgt_dev_apis_tfm_mps3}/target.cmake (97%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/nspe/pal_config.h (100%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/nspe/pal_driver_ipc_intf.c (100%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/spe/pal_driver_intf.c (100%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/spe/pal_driver_intf.h (100%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/target.cfg (100%)
+ rename api-tests/platform/targets/{tgt_ff_tfm_cs3x0 => tgt_ff_tfm_mps3}/target.cmake (100%)
+
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_attestation_config.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_attestation_config.h
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_attestation_config.h
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_config.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_config.h
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_config.h
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_crypto_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_crypto_config.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_crypto_config.h
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_crypto_config.h
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_driver_intf.c b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_driver_intf.c
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_driver_intf.c
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_driver_intf.c
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_storage_config.h b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_storage_config.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/nspe/pal_storage_config.h
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/nspe/pal_storage_config.h
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/target.cfg b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/target.cfg
+similarity index 100%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/target.cfg
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/target.cfg
+diff --git a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/target.cmake b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/target.cmake
+similarity index 97%
+rename from api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/target.cmake
+rename to api-tests/platform/targets/tgt_dev_apis_tfm_mps3/target.cmake
+index afd2591..d858e92 100644
+--- a/api-tests/platform/targets/tgt_dev_apis_tfm_cs3x0/target.cmake
++++ b/api-tests/platform/targets/tgt_dev_apis_tfm_mps3/target.cmake
+@@ -29,7 +29,7 @@ list(APPEND PAL_SRC_ASM_DRIVER_SP )
+ 
+ # Listing all the sources required for given target
+ if(${SUITE} STREQUAL "IPC")
+-    message(FATAL_ERROR "For IPC - use -DTARGET=tgt_ff_tfm_cs3x0 instead")
++    message(FATAL_ERROR "For IPC - use -DTARGET=tgt_ff_tfm_mps3 instead")
+ else()
+     list(APPEND PAL_SRC_C_NSPE
+         # driver files will be compiled as part of NSPE
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/nspe/pal_config.h b/api-tests/platform/targets/tgt_ff_tfm_mps3/nspe/pal_config.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/nspe/pal_config.h
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/nspe/pal_config.h
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/nspe/pal_driver_ipc_intf.c b/api-tests/platform/targets/tgt_ff_tfm_mps3/nspe/pal_driver_ipc_intf.c
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/nspe/pal_driver_ipc_intf.c
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/nspe/pal_driver_ipc_intf.c
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/spe/pal_driver_intf.c b/api-tests/platform/targets/tgt_ff_tfm_mps3/spe/pal_driver_intf.c
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/spe/pal_driver_intf.c
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/spe/pal_driver_intf.c
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/spe/pal_driver_intf.h b/api-tests/platform/targets/tgt_ff_tfm_mps3/spe/pal_driver_intf.h
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/spe/pal_driver_intf.h
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/spe/pal_driver_intf.h
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/target.cfg b/api-tests/platform/targets/tgt_ff_tfm_mps3/target.cfg
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/target.cfg
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/target.cfg
+diff --git a/api-tests/platform/targets/tgt_ff_tfm_cs3x0/target.cmake b/api-tests/platform/targets/tgt_ff_tfm_mps3/target.cmake
+similarity index 100%
+rename from api-tests/platform/targets/tgt_ff_tfm_cs3x0/target.cmake
+rename to api-tests/platform/targets/tgt_ff_tfm_mps3/target.cmake
+-- 
+2.43.0
+

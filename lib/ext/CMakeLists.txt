@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,6 +11,10 @@ endif()
 
 if(TEST_NS_ATTESTATION OR TEST_NS_QCBOR OR TEST_NS_T_COSE)
     add_subdirectory(qcbor)
+endif()
+
+if(TEST_NS_ATTESTATION OR TEST_NS_T_COSE)
+    add_subdirectory(t_cose)
 endif()
 
 add_subdirectory(CMSIS)

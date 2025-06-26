@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2024, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -25,17 +25,23 @@ include(toolchain_selection)
 include(${CONFIG_SPE_PATH}/platform/cpuarch.cmake)
 # Include common configs exported from TF-M
 include(${CONFIG_SPE_PATH}/cmake/spe_config.cmake)
+# Load platform specific config if exists
+include(${CONFIG_SPE_PATH}/platform/config.cmake OPTIONAL)
 
 include(${TFM_TOOLCHAIN_FILE})
 
 project("TF-M RPC Server (NSPE)"  LANGUAGES C ASM CXX)
-tfm_toolchain_reload_compiler()
 
 add_subdirectory(../../../lib/ext/CMSIS ${CMAKE_BINARY_DIR}/lib/ext/CMSIS)
 add_subdirectory(../../../lib/ext/erpc ${CMAKE_BINARY_DIR}/lib/ext/erpc)
 
-set(CONFIG_ENABLE_NS_UART_TX_RX_CONTROL ON)
 set(ERPC_DIR     ${CMAKE_CURRENT_LIST_DIR}/../..)
+
+# Disable NS log by default to avoid the eRPC messages to be interspersed with
+# log messages and ultimately corrupting them.
+# Log messages can be enabled per platform if the separation of eRPC messages
+# from the rest of the communication can be guaranteed.
+set(TFM_NS_LOG_DISABLE  ON     CACHE BOOL  "Whether to disable log messages from NSPE")
 
 add_subdirectory(${ERPC_DIR}/server ${CMAKE_CURRENT_BINARY_DIR}/server)
 add_subdirectory(../../../app_broker ${CMAKE_BINARY_DIR}/app_broker)

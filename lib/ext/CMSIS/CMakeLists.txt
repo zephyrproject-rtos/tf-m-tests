@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2023, Arm Limited. All rights reserved.
+# Copyright (c) 2023-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,7 +22,8 @@ if ("${CMAKE_C_COMPILER_ID}" STREQUAL GNU)
     set_target_properties(CMSIS_5_RTX_V8MMFN PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/GCC/libRTX_V8MMFN.a)
     set_target_properties(CMSIS_5_RTX_V8MBN  PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/GCC/libRTX_V8MBN.a)
     set_target_properties(CMSIS_5_RTX_CM3    PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/GCC/libRTX_CM3.a)
-elseif("${CMAKE_C_COMPILER_ID}" STREQUAL ARMClang)
+elseif(("${CMAKE_C_COMPILER_ID}" STREQUAL ARMClang)
+    OR ("${CMAKE_C_COMPILER_ID}" STREQUAL Clang))
     set_target_properties(CMSIS_5_RTX_V8MMN  PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/ARM/RTX_V8MMN.lib)
     set_target_properties(CMSIS_5_RTX_V8MMFN PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/ARM/RTX_V8MMFN.lib)
     set_target_properties(CMSIS_5_RTX_V8MBN  PROPERTIES IMPORTED_LOCATION ${CMSIS_LIBS_DIR}/ARM/RTX_V8MBN.lib)

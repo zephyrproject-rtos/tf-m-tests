@@ -120,7 +120,7 @@ else()
     set(TFM_PARTITION_IPC_TEST  OFF)
 endif()
 
-if (TEST_NS_PS OR TEST_S_PS)
+if (TEST_S_PS)
     set(TFM_PARTITION_PS_TEST  ON)
 else()
     set(TFM_PARTITION_PS_TEST  OFF)

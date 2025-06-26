@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (c) 2021-2023, Arm Limited. All rights reserved.
+# Copyright (c) 2021-2025, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,7 +21,6 @@ tfm_invalid_config(TEST_S_SFN_BACKEND AND CONFIG_TFM_SPM_BACKEND_IPC)
 
 tfm_invalid_config(CONFIG_TFM_FLOAT_ABI STREQUAL "soft" AND (TEST_S_FPU OR TEST_NS_FPU))
 tfm_invalid_config((NOT TFM_MULTI_CORE_TOPOLOGY) AND TEST_NS_MULTI_CORE)
-tfm_invalid_config(TEST_NS_T_COSE AND SYMMETRIC_INITIAL_ATTESTATION)
 tfm_invalid_config((NOT TFM_NS_MANAGE_NSID) AND TEST_NS_MANAGE_NSID)
 tfm_invalid_config(TFM_PXN_ENABLE AND PS_TEST_NV_COUNTERS)
 

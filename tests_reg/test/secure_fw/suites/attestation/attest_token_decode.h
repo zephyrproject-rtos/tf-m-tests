@@ -2,7 +2,7 @@
  * attest_token_decode.h
  *
  * Copyright (c) 2019, Laurence Lundblade.
- * Copyright (c) 2020-2022, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2025, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,7 +11,7 @@
 #ifndef __ATTEST_TOKEN_DECODE_H__
 #define __ATTEST_TOKEN_DECODE_H__
 
-#include "q_useful_buf.h"
+#include "t_cose/q_useful_buf.h"
 #include <stdbool.h>
 #include "attest_token.h"
 #include "tfm_attest_iat_defs.h"
@@ -88,6 +88,18 @@ extern "C" {
  * proper test involves a lot of hostile input.
  */
 
+/**
+ * These claims are not defined in case of ATTEST_TOKEN_PROFILE_ARM_CCA. Adding
+ * them here to avoid ifdefs in the test code.
+ * Original defines are here:
+ *     <TF-M>/interface/include/tfm_attest_iat_defs.h
+ */
+#ifdef ATTEST_TOKEN_PROFILE_ARM_CCA
+#define IAT_CLIENT_ID                      (IAT_ARM_RANGE_BASE + 1)
+#define IAT_BOOT_SEED                      (IAT_ARM_RANGE_BASE + 4)
+#define IAT_CERTIFICATION_REFERENCE        (IAT_ARM_RANGE_BASE + 5)
+#endif
+
 
 /**
  * The context for decoding an attestation token. The caller of must
@@ -102,7 +114,6 @@ extern "C" {
 struct attest_token_decode_context {
     /* PRIVATE DATA STRUCTURE. USE ACCESSOR FUNCTIONS. */
     struct q_useful_buf_c   payload;
-    uint32_t                options;
     enum attest_token_err_t last_error;
     /* FIXME: This will have to expand when the pub key
        handling functions are implemented */
@@ -113,14 +124,12 @@ struct attest_token_decode_context {
  * \brief Initialize token decoder.
  *
  * \param[in] me      The token decoder context to be initialized.
- * \param[in] options Decoding options.
  *
  * Must be called on a \ref attest_token_decode_context before
  * use. An instance of \ref attest_token_decode_context can
  * be used again by calling this on it again.
  **/
-void attest_token_decode_init(struct attest_token_decode_context *me,
-                              uint32_t options);
+void attest_token_decode_init(struct attest_token_decode_context *me);
 
 
 
@@ -195,11 +204,8 @@ attest_token_decode_set_pub_key_select(struct attest_token_decode_context *me,
  * token and its payload is remembered in the \ref
  * attest_token_decode_context \c me so the \c
  * attest_token_decode_get_xxx() functions can be called to get the
- * various claims out of it.
- *
- * Generally, a public key has to be configured for this to work. It
- * can however validate short-circuit signatures even if one is not
- * set.
+ * various claims out of it. A public key must be configured for
+ * this to work, see attest_token_decode_set_pub_key_select().
  *
  * The code for any error that occurs during validation is remembered
  * in decode context. The \c attest_token_decode_get_xxx() functions
@@ -885,7 +891,7 @@ map_t_cose_errors(enum t_cose_err_t t_cose_error)
         return ATTEST_TOKEN_ERR_COSE_VALIDATION;
         break;
 
-    case T_COSE_ERR_SIGN1_FORMAT:
+    case T_COSE_ERR_SIGNATURE_FORMAT:
         return ATTEST_TOKEN_ERR_COSE_FORMAT;
         break;
 
@@ -922,6 +928,8 @@ map_t_cose_errors(enum t_cose_err_t t_cose_error)
     case T_COSE_ERR_DUPLICATE_PARAMETER:
     case T_COSE_ERR_PARAMETER_NOT_PROTECTED:
     case T_COSE_ERR_CRIT_PARAMETER:
+    case T_COSE_ERR_TOO_MANY_TAGS:
+    case T_COSE_ERR_INVALID_PARAMETER_TYPE:
     default:
         return ATTEST_TOKEN_ERR_GENERAL;
     }

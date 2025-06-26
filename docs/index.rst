@@ -5,7 +5,7 @@ Trusted Firmware-M Tests
 
 The Trusted Firmware-M(TF-M) Tests repo is meant to hold various tests for the
 `Trusted Firmware-M`_.
-The TF-M tests mainly focus on functionalities of various TF-M componentes such
+The TF-M tests mainly focus on functionalities of various TF-M components such
 as the TF-M SPM and various Secure Partitions.
 
 .. toctree::
@@ -30,4 +30,4 @@ as the TF-M SPM and various Secure Partitions.
 
 --------------
 
-*Copyright (c) 2023, Arm Limited. All rights reserved.*
+*Copyright (c) 2023-2024, Arm Limited. All rights reserved.*

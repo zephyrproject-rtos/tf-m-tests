@@ -39,6 +39,6 @@ target_compile_definitions(tfm_test_suite_fwu_s
 )
 
 target_link_libraries(tfm_s_tests
-    INTERFACE
+    PRIVATE
         tfm_test_suite_fwu_s
 )
