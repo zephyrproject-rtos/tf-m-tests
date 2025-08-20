@@ -94,7 +94,7 @@ extern "C" {
  * Original defines are here:
  *     <TF-M>/interface/include/tfm_attest_iat_defs.h
  */
-#ifdef ATTEST_TOKEN_PROFILE_ARM_CCA
+#if ATTEST_TOKEN_PROFILE_ARM_CCA
 #define IAT_CLIENT_ID                      (IAT_ARM_RANGE_BASE + 1)
 #define IAT_BOOT_SEED                      (IAT_ARM_RANGE_BASE + 4)
 #define IAT_CERTIFICATION_REFERENCE        (IAT_ARM_RANGE_BASE + 5)
