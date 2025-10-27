@@ -3179,6 +3179,7 @@ static uint8_t char_to_uint8_t(char c)
         return c - 'A' + 10;
     } else {
         assert(0);
+        return 0;
     }
 }
 
