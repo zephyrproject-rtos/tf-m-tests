@@ -7,6 +7,8 @@
 
 #include "test_framework.h"
 
+/* Ensure assert is enabled */
+#undef NDEBUG
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,6 +52,7 @@ const char *test_err_to_str(enum test_suite_err_t err)
      *           covered in the switch.
      */
     }
+    assert(0);
 }
 
 enum test_suite_err_t run_test(const char *suite_type, struct test_suite_t test_suites[])
