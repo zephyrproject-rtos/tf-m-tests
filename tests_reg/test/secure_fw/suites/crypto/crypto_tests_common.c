@@ -2337,17 +2337,11 @@ void psa_persistent_key_test(psa_key_id_t key_id, struct test_result_t *ret)
         return;
     }
 
-    /* Close the persistent key through the key ID */
-    status = psa_close_key(key_id_local);
+    /* Close the persistent key through the key ID.
+     * The key will be automatically reloaded on the next usage. */
+    status = psa_purge_key(key_id_local);
     if (status != PSA_SUCCESS) {
-        TEST_FAIL("Failed to close a persistent key");
-        return;
-    }
-
-    /* Open the previsously-created persistent key */
-    status = psa_open_key(key_id, &key_id_local);
-    if (status != PSA_SUCCESS) {
-        TEST_FAIL("Failed to open a persistent key");
+        TEST_FAIL("Failed to purge a persistent key");
         return;
     }
 
