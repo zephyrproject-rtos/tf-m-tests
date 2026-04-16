@@ -457,7 +457,7 @@ static void tfm_crypto_test_1034(struct test_result_t *ret)
 static void tfm_crypto_test_1035(struct test_result_t *ret)
 {
     psa_status_t status;
-    psa_key_handle_t key_handle;
+    psa_key_id_t key_handle;
     const uint8_t data[] = "THIS IS MY KEY1";
     psa_key_attributes_t key_attributes = psa_key_attributes_init();
 
