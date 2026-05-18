@@ -76,7 +76,7 @@ attest_token_decode_validate_token(struct attest_token_decode_context *me,
     enum attest_token_err_t         return_value;
     struct t_cose_mac_validate_ctx  validate_ctx;
     struct t_cose_key               attest_key;
-    psa_key_handle_t                key_handle = TFM_BUILTIN_KEY_ID_IAK;
+    psa_key_id_t                key_handle = TFM_BUILTIN_KEY_ID_IAK;
 
     t_cose_mac_validate_init(&validate_ctx, 0);
 
